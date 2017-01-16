@@ -20,12 +20,39 @@ function Application () {
 	this.Initialize = function () {
 		var self = this;
 		
-		socket = new Websocket("127.0.0.1","");
-		socket;
-	}
-	// Classes
-	function Websocket (url, protocols) {
-		this.url = url;
-		this.protocols = protocols;
+		if ("WebSocket" in window)
+            {
+               alert("WebSocket is supported by your Browser!");
+               
+               // Let us open a web socket
+               var ws = new WebSocket("ws://localhost:8080/echo");
+				
+               ws.onopen = function()
+               {
+                  // Web Socket is connected, send data using send()
+                  ws.send("Message to send");
+                  alert("Message is sent...");
+               };
+				
+				ws.onmessage = function(messageEvent) {
+					if (typeof messageEvent.data === "string"){
+						console.log("received text data from the server: " + messageEvent.data);
+					} else if (messageEvent.data instanceof Blob){
+						console.log("Blob data received")
+					}
+				};
+				
+				ws.onclose = function()
+			   { 
+				  // websocket is closed.
+				  alert("Connection is closed..."); 
+			   };
+            }
+            
+            else
+            {
+               // The browser doesn't support WebSocket
+               alert("WebSocket NOT supported by your Browser!");
+            }
 	}
 }
