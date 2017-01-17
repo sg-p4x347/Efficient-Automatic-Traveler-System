@@ -30,15 +30,17 @@ function Application () {
                ws.onopen = function()
                {
                   // Web Socket is connected, send data using send()
-                  ws.send("Message to send");
+                  ws.send("LOL");
                   alert("Message is sent...");
                };
-				
+				ws.ondata = function (src, start, end) {
+					var test = "fest";
+				}
 				ws.onmessage = function(messageEvent) {
 					if (typeof messageEvent.data === "string"){
-						console.log("received text data from the server: " + messageEvent.data);
+						alert("received text data from the server: " + messageEvent.data);
 					} else if (messageEvent.data instanceof Blob){
-						console.log("Blob data received")
+						alert("Blob data received")
 					}
 				};
 				
