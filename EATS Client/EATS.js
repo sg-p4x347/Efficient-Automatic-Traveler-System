@@ -22,25 +22,30 @@ function Application () {
 		
 		if ("WebSocket" in window)
             {
-               alert("WebSocket is supported by your Browser!");
+               console.log("WebSocket is supported by your Browser!");
                
                // Let us open a web socket
-               var ws = new WebSocket("ws://localhost:8080/echo");
+               var ws = new WebSocket("ws://localhost:8080/");
 				
                ws.onopen = function()
                {
-                  // Web Socket is connected, send data using send()
-                  ws.send("LOL");
-                  alert("Message is sent...");
+				   console.log("Connection is open...");
+					// Web Socket is connected, send data using send()
+					var submit = document.getElementById("submit");
+					submit.onclick = function () {
+						var message = document.getElementById("textBox").value;
+						ws.send(message);
+					}
                };
 				ws.ondata = function (src, start, end) {
 					var test = "fest";
 				}
 				ws.onmessage = function(messageEvent) {
 					if (typeof messageEvent.data === "string"){
-						alert("received text data from the server: " + messageEvent.data);
+						console.log("received text data from the server: " + messageEvent.data);
+						document.getElementById("heading").innerHTML = messageEvent.data;
 					} else if (messageEvent.data instanceof Blob){
-						alert("Blob data received")
+						console.log("Blob data received");
 					}
 				};
 				
