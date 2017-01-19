@@ -157,7 +157,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 header.Add(126); // 16 bit length
                 header.Add(Convert.ToByte(Convert.ToUInt16(message.Length) >> 8));
-                header.Add(Convert.ToByte(Convert.ToUInt16(message.Length)));
+                header.Add(Convert.ToByte(message.Length & 0xFF));
             }
             else
             {
@@ -169,7 +169,7 @@ namespace Efficient_Automatic_Traveler_System
                 header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 24));
                 header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 16));
                 header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 8));
-                header.Add(Convert.ToByte(Convert.ToUInt64(message.Length)));
+                header.Add(Convert.ToByte(message.Length & 0xFF));
             }
             Byte[] headerArray = new Byte[header.Count];
             for (int i = 0; i < header.Count; i++)

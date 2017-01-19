@@ -2,12 +2,24 @@
 <html>
     <head>
         <title>Template</title>   
-        <script type="text/javascript" src="EATS.js"></script>
-		<link rel="stylesheet" type="text/css" href="style.css"></link>
+        <script type="text/javascript" src="js/EATS.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/style.css"></link>
     </head>
 	<body onload = "Initialize()">
-		<p id = "heading" class = "heading">Nothing yet</p>
-		<input id = "textBox" type = "textbox">
-		<input id = "submit" type = "submit">
+		<div class = "header">
+			<p class = "title">Title</p>
+		</div>
+		<div class = "body">
+			<ul id = "travelerQueue" class = "queue">
+				<li class = "queue__item">Example traveler</li>
+				<li class = "queue__item">Example traveler</li>
+				<li class = "queue__item">Example traveler</li>
+				<li class = "queue__item">Example traveler</li>
+			</ul> 
+			<table id = "travelerView" class = "view"></table>
+		</div>
+		<div class = "footer">
+			<div id = "btnTransfer" class = "button">Complete</div>
+		</div>
 	</body>
 </html>

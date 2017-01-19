@@ -1,0 +1,81 @@
+body {
+	display: flex;
+	height: 100%;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: space-between;
+	background-color: rgb(32,32,32);
+	font-size: 1em;
+	color: rgb(128,128,128);
+	font-family: "Arial", Arial, sans-serif;
+	
+	-webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari*/
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+								  
+	cursor: default;
+}
+p.title {
+	margin: 8px;
+	font-size: 4em;
+	color: rgb(32,192,32);
+}
+p.heading {
+	margin: 8px;
+	font-size: 2em;
+	color: rgb(32,128,32);
+}
+p {
+	margin: 8px;
+}
+div.button {
+	display: inline-block;
+	font-size: 2em;
+	
+	color: white;
+	background-color: gold;
+	border: 4px outset yellow;
+	
+	
+}
+div.button:hover {
+	background-color: darkKhaki;
+	border-color: khaki
+}
+div.button:active {
+	background-color: darkGoldenrod;
+	border-color: goldenrod
+}
+
+div.header {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+}
+div.body {
+	display: flex;
+	width: 100%;
+	justify-content: space-around;
+}
+div.footer {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+}
+
+ul.queue {
+	list-style-type: none;
+}
+li.queue__item {
+	width: 128px;
+	font-size: 1.5em;
+	
+	color: white;
+	background-color: dodgerBlue;
+	border: 4px outset deepSkyBlue;
+	border-radius: 4px;
+}

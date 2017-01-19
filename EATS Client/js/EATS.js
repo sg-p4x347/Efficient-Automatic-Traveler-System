@@ -50,10 +50,10 @@ function Application () {
 				};
 				
 				ws.onclose = function()
-			   { 
+			    {
 				  // websocket is closed.
-				  alert("Connection is closed..."); 
-			   };
+				  console.log("Connection is closed..."); 
+			    };
             }
             
             else
