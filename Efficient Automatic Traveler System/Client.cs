@@ -18,6 +18,11 @@ namespace Efficient_Automatic_Traveler_System
             m_clients = clients;
             m_TcpClient = client;
             m_stream = m_TcpClient.GetStream();
+
+            // TEMP
+            SendMessage(@"{""ID"":1,""partNo"":""MGTEST-01"",""description"":""this is a very long description that seems to go on and on, without stopping or slowing down; it just keeps going..."",""quantity"":5,""blank"":""MAGRTEST"",""blankQty"":3}");
+            SendMessage(@"{""ID"":2,""partNo"":""MGTEST-02"",""description"":""this is a very long description that seems to go on and on, without stopping or slowing down; it just keeps going..."",""quantity"":75,""blank"":""MAGRTEST"",""blankQty"":3}");
+            SendMessage(@"{""ID"":3,""partNo"":""MGTEST-03"",""description"":""this is a very long description that seems to go on and on, without stopping or slowing down; it just keeps going..."",""quantity"":0,""blank"":""MAGRTEST"",""blankQty"":3}");
         }
         public async void Start()
         {
