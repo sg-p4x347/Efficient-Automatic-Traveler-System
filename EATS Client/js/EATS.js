@@ -211,7 +211,7 @@ function TravelerView() {
 		// Part number
 		var partNo = document.createElement("TH");
 		partNo.className = "view__headerItem red shadow";
-		partNo.innerHTML = traveler.partNo;
+		partNo.innerHTML = traveler.itemCode;
 		headerRow.appendChild(partNo);
 		// Quantity
 		var quantity = document.createElement("TH");

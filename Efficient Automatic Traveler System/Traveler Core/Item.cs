@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Data.Odbc;
 
 namespace Efficient_Automatic_Traveler_System
@@ -31,7 +30,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("An error occured when retrieving item information from MAS: " + ex.Message);
+                    Console.WriteLine("An error occured when retrieving item information from MAS: " + ex.Message);
                 }
             }
             reader.Close();

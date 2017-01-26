@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Data.Odbc;
-using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using Marshal = System.Runtime.InteropServices.Marshal;
 

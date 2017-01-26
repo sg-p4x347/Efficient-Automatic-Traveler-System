@@ -7,23 +7,27 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Threading;
+using ExtensionMethods = Efficient_Automatic_Traveler_System.ExtensionMethods;
 
 namespace Efficient_Automatic_Traveler_System
 {
     class ClientManager
     {
-        public ClientManager(string ip, int port)
+        public ClientManager(string ip, int port, Func<ProductionStage, List<Traveler>> GetTravelersAt)
         {
             m_server = new TcpListener(IPAddress.Parse(ip), port);
             m_clients = new List<Client>();
             m_nextClientID = 0;
+            m_updateInterval = new TimeSpan(0, 0, 30);
+            m_getTravelersAt = GetTravelersAt;
         }
         public void Start()
         {
             Console.WriteLine("Waiting for a connection...");
             m_server.Start();
             ConnectAsync();
-            while (true) ;
+            Update();
         }
         //------------------------------
         // Private
@@ -77,7 +81,20 @@ namespace Efficient_Automatic_Traveler_System
             }
             return false;
         }
-
+        private void Update()
+        {
+            DateTime current = DateTime.Now;
+            TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay;
+            Console.WriteLine("Will update again in: " + timeToGo.TotalMinutes + " Minutes");
+            m_timer = new Timer(x =>
+            {
+                foreach (Client client in m_clients)
+                {
+                    client.UpdateTravelers(m_getTravelersAt(client.ProductionStation));
+                }
+                Update();
+            }, null, timeToGo, Timeout.InfiniteTimeSpan);
+        }
 
 
         //------------------------------
@@ -86,5 +103,8 @@ namespace Efficient_Automatic_Traveler_System
         private TcpListener m_server;
         private List<Client> m_clients;
         private int m_nextClientID;
+        private TimeSpan m_updateInterval;
+        private Timer m_timer;
+        private Func<ProductionStage, List<Traveler>> m_getTravelersAt;
     }
 }

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace Quick_Ship_Router
+namespace Efficient_Automatic_Traveler_System
 {
     class Order
     {
@@ -81,7 +80,7 @@ namespace Quick_Ship_Router
                 }
             } catch (Exception ex)
             {
-                MessageBox.Show("Problem reading in order from printed.txt: " + ex.Message);
+
             }
         }
         public string Export()

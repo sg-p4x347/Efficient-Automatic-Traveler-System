@@ -95,7 +95,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("An error occured when retrieving Bill information from MAS: " + ex.Message);
+                    Console.WriteLine("An error occured when retrieving Bill information from MAS: " + ex.Message);
                 }
             }
         }

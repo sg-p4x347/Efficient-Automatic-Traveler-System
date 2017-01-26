@@ -5,18 +5,27 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Data.Odbc;
-using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using Marshal = System.Runtime.InteropServices.Marshal;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    enum ProductionStage
+    {
+        StartQueue,
+        Heian,
+        Weeke,
+        Vector,
+        Box,
+        Packline,
+        Finished
+    };
     class Traveler
     {
         //===========================
         // PUBLIC
         //===========================
-
+        
         // Doesn't do anything
         public Traveler()
         {
@@ -96,7 +105,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Problem reading in traveler from printed.json: " + ex.Message);
+                Console.WriteLine("Problem reading in traveler from printed.json: " + ex.Message);
             }
             m_printed = true;
         }
@@ -308,7 +317,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occured when accessing inventory: " + ex.Message);
+                Console.WriteLine("An error occured when accessing inventory: " + ex.Message);
             }
         }
         // returns a JSON formatted string containing traveler information
@@ -324,10 +333,10 @@ namespace Efficient_Automatic_Traveler_System
             foreach (Order order in m_orders)
             {
                 doc += order.Export();
-                doc += ",";
+                doc += m_orders[m_orders.Count-1] != order ? "," : "";
             }
             doc += "]";
-            doc += "},\n";
+            doc += "}\n";
             return doc;
         }
 
@@ -345,6 +354,7 @@ namespace Efficient_Automatic_Traveler_System
         protected string m_drawingNo = "";
         protected int m_quantity = 0;
         protected string m_color = "";
+        protected ProductionStage productionStage = ProductionStage.StartQueue;
         // Labor
         protected Item m_cnc = null; // labor item
         protected Item m_vector = null; // labor item
@@ -674,6 +684,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_supPackQty = value;
+            }
+        }
+
+        internal ProductionStage ProductionStage
+        {
+            get
+            {
+                return productionStage;
+            }
+
+            set
+            {
+                productionStage = value;
             }
         }
     }

@@ -18,7 +18,8 @@ namespace Efficient_Automatic_Traveler_System
             m_clients = clients;
             m_TcpClient = client;
             m_stream = m_TcpClient.GetStream();
-
+            m_travelers = new List<Traveler>();
+            m_productionStation = ProductionStage.StartQueue;
             // TEMP
             SendMessage(@"{""ID"":1,""partNo"":""MGTEST-01"",""description"":""this is a very long description that seems to go on and on, without stopping or slowing down; it just keeps going..."",""quantity"":5,""blank"":""MAGRTEST"",""blankQty"":3}");
             SendMessage(@"{""ID"":2,""partNo"":""MGTEST-02"",""description"":""this is a very long description that seems to go on and on, without stopping or slowing down; it just keeps going..."",""quantity"":75,""blank"":""MAGRTEST"",""blankQty"":3}");
@@ -40,6 +41,17 @@ namespace Efficient_Automatic_Traveler_System
             if (message != "Lost Connection")
             {
                 Start();
+            }
+        }
+        public void UpdateTravelers(List<Traveler> travelers)
+        {
+            m_travelers = travelers;
+            foreach (Traveler traveler in m_travelers)
+            {
+                if (traveler.GetType().Name == "Table")
+                {
+                    SendMessage(((Table)traveler).Export());
+                }
             }
         }
         public void SendMessage(string message)
@@ -194,5 +206,20 @@ namespace Efficient_Automatic_Traveler_System
         private List<Client> m_clients;
         private TcpClient m_TcpClient;
         private NetworkStream m_stream;
+        private List<Traveler> m_travelers;
+        private ProductionStage m_productionStation;
+
+        internal ProductionStage ProductionStation
+        {
+            get
+            {
+                return m_productionStation;
+            }
+
+            set
+            {
+                m_productionStation = value;
+            }
+        }
     }
 }

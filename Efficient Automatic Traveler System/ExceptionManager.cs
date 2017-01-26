@@ -12,13 +12,16 @@ namespace Efficient_Automatic_Traveler_System
         public ExceptionManager(string logPath)
         {
             m_logPath = logPath;
-            m_stream = new FileStream(m_logPath, FileMode.Open, FileAccess.Write, FileShare.Write);
         }
-        public void HandleException(string exception)
+        public void HandleException(Exception ex)
         {
-            m_stream = new FileStream(m_logPath, FileMode.Open, FileAccess.Write, FileShare.Write);
+            using (StreamWriter writer = new StreamWriter(m_logPath, true))
+            {
+                writer.WriteLine("Message :" + ex.Message + "<br/>" + Environment.NewLine + "StackTrace :" + ex.StackTrace +
+                   "" + Environment.NewLine + "Date :" + DateTime.Now.ToString());
+                writer.WriteLine(Environment.NewLine + "-----------------------------------------------------------------------------" + Environment.NewLine);
+            }
         }
         private string m_logPath;
-        private FileStream m_stream;
     }
 }
