@@ -20,9 +20,9 @@ namespace Efficient_Automatic_Traveler_System
             m_ip = "127.0.0.1";
             m_port = 8080;
             m_travelerCore = new TravelerCore();
-            m_clientManager = new ClientManager(m_ip, m_port,m_travelerCore.GetTravelersAt);
+            m_clientManager = new ClientManager(m_ip, m_port,ref m_travelerCore.m_travelers);
             m_clientManagerThread = new Thread(m_clientManager.Start);
-            m_updateInterval = new TimeSpan(0, 0, 30);
+            m_updateInterval = new TimeSpan(0, 5, 0);
             
         }
         public void Start()
@@ -32,6 +32,7 @@ namespace Efficient_Automatic_Traveler_System
 
 
             // start the MAS update loop
+            m_travelerCore.CreateTravelers(); // update immediatly upon server start
             Update();
             while (true) ;
         }

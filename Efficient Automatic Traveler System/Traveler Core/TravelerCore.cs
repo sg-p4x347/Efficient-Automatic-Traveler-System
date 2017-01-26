@@ -17,6 +17,7 @@ namespace Efficient_Automatic_Traveler_System
     // Class: Used to generate and store the digital "travelers" that are used throughout the system
     // Developer: Gage Coates
     // Date started: 1/25/16
+    public delegate void TravelersChangedEvent();
     class TravelerCore
     {
         //------------------------------
@@ -28,8 +29,8 @@ namespace Efficient_Automatic_Traveler_System
             m_excelApp = new Excel.Application();
             m_excelApp.DisplayAlerts = false;
             m_workbooks = m_excelApp.Workbooks;
-
-            m_travelers = new List<Traveler>();
+            TravelersChanged = delegate { };
+            Travelers = new List<Traveler>();
 
             InitializeManagers();
         }
@@ -50,30 +51,33 @@ namespace Efficient_Automatic_Traveler_System
             ImportStored();
 
             // Import new orders
-            //ImportOrders();
-            //// Create Tables
-            //m_tableManager.CompileTravelers();
-            //m_travelers.AddRange(m_tableManager.Travelers);
-            //// Create Chairs
-            //m_chairManager.CompileTravelers();
-            //m_travelers.AddRange(m_chairManager.Travelers);
-
-            //BackupTravelers();
+            ImportOrders();
+            // Create Tables
+            m_tableManager.CompileTravelers();
+            Travelers.AddRange(m_tableManager.Travelers);
+            // Create Chairs
+            m_chairManager.CompileTravelers();
+            Travelers.AddRange(m_chairManager.Travelers);
+            // The traveler list has been updated
+            TravelersChanged();
+            // Update the travelers.json file with all the current travelers
+            BackupTravelers();
         }
         public void BackupTravelers()
         {
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            System.IO.StreamWriter file = File.AppendText(System.IO.Path.Combine(exeDir, "travelers.json"));
-            foreach (Traveler traveler in m_travelers)
+            string contents = "";
+            foreach (Traveler traveler in Travelers)
             {
-                file.Write(traveler.Export());
+                contents += traveler.Export();
+
             }
-            file.Close();
+            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "travelers.json"),contents);
         }
         public List<Traveler> GetTravelersAt(ProductionStage stage)
         {
             List<Traveler> travelers = new List<Traveler>();
-            foreach (Traveler traveler in m_travelers)
+            foreach (Traveler traveler in Travelers)
             {
                 if (traveler.ProductionStage == stage)
                 {
@@ -146,6 +150,12 @@ namespace Efficient_Automatic_Traveler_System
             // read info
             while (reader.Read())
             {
+                string salesOrderNo = reader.GetString(0);
+                // continue to the next order if this order already has a traveler
+                if (Travelers.Exists(x => x.Orders.Exists(y => y.SalesOrderNo == salesOrderNo)))
+                {
+                    continue;
+                }
                 // get information from detail
                 OdbcCommand detailCommand = m_MAS.CreateCommand();
                 detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
@@ -164,7 +174,7 @@ namespace Efficient_Automatic_Traveler_System
                             // scrap this order if anything is missing
                             if (!reader.IsDBNull(0))
                             {
-                                order.SalesOrderNo = reader.GetString(0);
+                                order.SalesOrderNo = salesOrderNo;
                             }
                             if (!reader.IsDBNull(1))
                             {
@@ -190,7 +200,7 @@ namespace Efficient_Automatic_Traveler_System
                             // scrap this order if anything is missing
                             if (!reader.IsDBNull(0))
                             {
-                                order.SalesOrderNo = reader.GetString(0);
+                                order.SalesOrderNo = salesOrderNo;
                             }
                             if (!reader.IsDBNull(1))
                             {
@@ -216,7 +226,7 @@ namespace Efficient_Automatic_Traveler_System
                             // scrap this order if anything is missing
                             if (!reader.IsDBNull(0))
                             {
-                                order.SalesOrderNo = reader.GetString(0);
+                                order.SalesOrderNo = salesOrderNo;
                             }
                             if (!reader.IsDBNull(1))
                             {
@@ -241,17 +251,22 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void ImportStored()
         {
-            //==========================================
-            //get the list of travelers that have been created
-            //==========================================
+            Console.WriteLine("");
+            //--------------------------------------------------------------
+            // get the list of travelers and orders that have been created
+            //--------------------------------------------------------------
+            m_orders.Clear();
             List<Traveler> createdTravelers = new List<Traveler>();
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string line;
             System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "travelers.json"));
+            double travelerCount = File.ReadLines(System.IO.Path.Combine(exeDir, "travelers.json")).Count();
+            int index = 0;
             while ((line = file.ReadLine()) != null && line != "")
             {
+                Console.Write("\r{0}%   ", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / travelerCount) * 100));
                 Traveler createdTraveler = new Traveler(line);
-
+                m_orders.AddRange(createdTraveler.Orders);
                 // check to see if these orders have been printed already
                 if (IsTable(createdTraveler.PartNo))
                 {
@@ -264,9 +279,13 @@ namespace Efficient_Automatic_Traveler_System
                     chair.ImportPart(m_MAS);
                     createdTravelers.Add(chair);
                 }
+                index++;
             }
+            Console.Write("\r{0}   ", "Loading travelers from backup...Finished");
+
             file.Close();
-            m_travelers.AddRange(createdTravelers);
+            Travelers.AddRange(createdTravelers);
+            TravelersChanged();
         }
         private bool IsTable(string s)
         {
@@ -309,7 +328,8 @@ namespace Efficient_Automatic_Traveler_System
         private TableManager m_tableManager;
         private ChairManager m_chairManager;
 
-        private List<Traveler> m_travelers;
+        public List<Traveler> m_travelers;
+        public event TravelersChangedEvent TravelersChanged;
         //private List<Traveler> m_weeke;
         //private List<Traveler> m_heian;
         //private List<Traveler> m_vector;
@@ -319,5 +339,19 @@ namespace Efficient_Automatic_Traveler_System
         private Excel.Application m_excelApp;
         private Excel.Workbooks m_workbooks;
         private OdbcConnection m_MAS;
+
+        internal List<Traveler> Travelers
+        {
+            get
+            {
+                return m_travelers;
+            }
+
+            set
+            {
+                m_travelers = value;
+                TravelersChanged();
+            }
+        }
     }
 }

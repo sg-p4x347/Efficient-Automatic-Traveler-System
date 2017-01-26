@@ -51,6 +51,9 @@ namespace Efficient_Automatic_Traveler_System
                 if (traveler.GetType().Name == "Table")
                 {
                     SendMessage(((Table)traveler).Export());
+                } else
+                {
+                    SendMessage(((Chair)traveler).Export());
                 }
             }
         }

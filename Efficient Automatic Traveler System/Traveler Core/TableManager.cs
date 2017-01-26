@@ -250,7 +250,7 @@ namespace Efficient_Automatic_Traveler_System
                         }
                         else
                         {
-                            if (blankRange.Item[5].Value2 != "-99999")
+                            if (Convert.ToString(blankRange.Item[5].Value2) != "-99999")
                             {
                                 traveler.BlankSize = "(" + blankRange.Item[5].Value2 + ") ~sheet";
                             }

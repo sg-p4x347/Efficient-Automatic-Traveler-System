@@ -14,20 +14,26 @@ namespace Efficient_Automatic_Traveler_System
 {
     class ClientManager
     {
-        public ClientManager(string ip, int port, Func<ProductionStage, List<Traveler>> GetTravelersAt)
+        public ClientManager(string ip, int port, ref List<Traveler> travelers)
         {
             m_server = new TcpListener(IPAddress.Parse(ip), port);
             m_clients = new List<Client>();
             m_nextClientID = 0;
             m_updateInterval = new TimeSpan(0, 0, 30);
-            m_getTravelersAt = GetTravelersAt;
+            m_travelers = travelers;
         }
         public void Start()
         {
             Console.WriteLine("Waiting for a connection...");
             m_server.Start();
             ConnectAsync();
-            Update();
+        }
+        public void HandleTravelersChanged()
+        {
+            foreach (Client client in m_clients)
+            {
+                client.UpdateTravelers(m_travelers.Where(x => x.ProductionStage == client.ProductionStation).ToList());
+            }
         }
         //------------------------------
         // Private
@@ -44,6 +50,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Client newClient = new Client(tcpClient,m_clients);
                 newClient.Start();
+                newClient.UpdateTravelers(m_travelers.Where(x => x.ProductionStage == newClient.ProductionStation).ToList());
                 m_clients.Add(newClient);
                 Console.WriteLine("A client connected (" + m_clients.Count + " total)");
             }
@@ -81,20 +88,20 @@ namespace Efficient_Automatic_Traveler_System
             }
             return false;
         }
-        private void Update()
-        {
-            DateTime current = DateTime.Now;
-            TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay;
-            Console.WriteLine("Will update again in: " + timeToGo.TotalMinutes + " Minutes");
-            m_timer = new Timer(x =>
-            {
-                foreach (Client client in m_clients)
-                {
-                    client.UpdateTravelers(m_getTravelersAt(client.ProductionStation));
-                }
-                Update();
-            }, null, timeToGo, Timeout.InfiniteTimeSpan);
-        }
+        
+        //{
+        //    DateTime current = DateTime.Now;
+        //    TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay;
+        //    Console.WriteLine("Will update again in: " + timeToGo.TotalMinutes + " Minutes");
+        //    m_timer = new Timer(x =>
+        //    {
+        //        foreach (Client client in m_clients)
+        //        {
+        //            client.UpdateTravelers(m_getTravelersAt(client.ProductionStation));
+        //        }
+        //        Update();
+        //    }, null, timeToGo, Timeout.InfiniteTimeSpan);
+        //}
 
 
         //------------------------------
@@ -106,5 +113,9 @@ namespace Efficient_Automatic_Traveler_System
         private TimeSpan m_updateInterval;
         private Timer m_timer;
         private Func<ProductionStage, List<Traveler>> m_getTravelersAt;
+        private List<Traveler> m_travelers;
+        //----------
+        // Events
+        //----------
     }
 }

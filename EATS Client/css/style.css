@@ -76,18 +76,14 @@ div.footer {
 	justify-content: center;
 }
 /*Traveler Queue*/
-div.queueContainer {
-	display: flex;
-	width: 20%;
-	height: 100%;
-	border: 4px inset gray;
-	background-color: #404040;
-}
 div.queue {
 	display: flex;
-	align-self: flex-end;
 	flex-direction: column-reverse;
-	width: 100%;
+	border: 4px inset gray;
+	background-color: #404040;
+	overflow: scroll;
+	width: 20%;
+	height: 100%;
 	background-color: #404040;
 }
 div.queue__item {
