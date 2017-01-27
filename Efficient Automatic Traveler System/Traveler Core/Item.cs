@@ -42,6 +42,10 @@ namespace Efficient_Automatic_Traveler_System
             m_quantityPerBill = item.QuantityPerBill;
             m_unit = item.Unit;
         }
+        //public string Export(string name)
+        //{
+        //    NameValueQty<string, string> nvq = new NameValueQty<string, string>(name,;
+        //}
         // Properties
         private string m_itemCode;
         private string m_itemCodeDesc;

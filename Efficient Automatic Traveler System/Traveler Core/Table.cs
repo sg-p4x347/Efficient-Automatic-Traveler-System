@@ -34,6 +34,31 @@ namespace Efficient_Automatic_Traveler_System
             m_colorNo = Convert.ToInt32(m_partNo.Substring(m_partNo.Length - 2));
             m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
         }
+        // returns a JSON formatted string to be sent to a client
+        public string Export(ProductionStage stage)
+        {
+            string json = "";
+            json += "{";
+            json += "\"ID\":" + '"' + m_ID.ToString("D6") + '"' + ",";
+            json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
+            json += "\"quantity\":" + '"' + m_quantity + '"' + ",";
+            json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
+            json += "\"members\":[";
+
+            json += (new NameValueQty<string, string>("Description", m_part.BillDesc, null)).ToString();
+            switch (stage)
+            {
+                case ProductionStage.Heian:
+                    
+                    json += new NameValueQty<string, string>("Drawing", m_drawingNo, null).ToString();
+                    json += new NameValueQty<string, string>("Blank", m_blankSize + " " + m_blankNo, null).ToString();
+                    json += new NameValueQty<string, string>("Description", m_part.BillDesc, null).ToString();
+                    break;
+            }
+            json += ']';
+            json += "}\n";
+            return json;
+        }
         //===========================
         // Private
         //===========================

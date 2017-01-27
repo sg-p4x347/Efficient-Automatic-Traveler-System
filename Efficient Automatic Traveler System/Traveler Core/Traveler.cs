@@ -20,6 +20,28 @@ namespace Efficient_Automatic_Traveler_System
         Packline,
         Finished
     };
+    struct NameValueQty<valueType,qtyType>
+    {
+        public NameValueQty(string name, valueType value, qtyType qty)
+        {
+            Name = name;
+            Value = value;
+            Qty = qty;
+        }
+        public override string ToString()
+        {
+            string json = "";
+            json += '{';
+            json += "\"name\":" + '"' + Name + '"' + ',';
+            json += "\"value\":" + '"' + Value.ToString() + '"' + ',';
+            json += "\"qty\":" + '"' + Qty.ToString() + '"';
+            json += '}';
+            return json;
+        }
+        public string Name;
+        public valueType Value;
+        public qtyType Qty;
+    }
     class Traveler
     {
         //===========================
@@ -334,25 +356,6 @@ namespace Efficient_Automatic_Traveler_System
             {
                 doc += order.Export();
                 doc += m_orders[m_orders.Count-1] != order ? "," : "";
-            }
-            doc += "]";
-            doc += "}\n";
-            return doc;
-        }
-        // returns a JSON formatted string to be sent to a client
-        public string ExportComplete()
-        {
-            string doc = "";
-            doc += "{";
-            doc += "\"ID\":" + '"' + m_ID.ToString("D6") + '"' + ",";
-            doc += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
-            doc += "\"quantity\":" + '"' + m_quantity + '"' + ",";
-            doc += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
-            doc += "\"orders\":[";
-            foreach (Order order in m_orders)
-            {
-                doc += order.Export();
-                doc += m_orders[m_orders.Count - 1] != order ? "," : "";
             }
             doc += "]";
             doc += "}\n";
