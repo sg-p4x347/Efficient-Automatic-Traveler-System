@@ -15,107 +15,23 @@ using System.Net.Http;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class TableManager
+    class TableManager : TravelerManager
     {
         //-----------------------
         // Public members
         //-----------------------
-        public TableManager() { }
-        public TableManager(OdbcConnection mas, Excel.Worksheet crossRef, Excel.Worksheet boxRef, Excel.Worksheet blankRef, Excel.Worksheet colorRef)
+        public TableManager() : base() { }
+        public TableManager(OdbcConnection mas, Excel.Worksheet crossRef, Excel.Worksheet boxRef, Excel.Worksheet blankRef, Excel.Worksheet colorRef) : base(mas)
         {
-            m_MAS = mas;
             m_crossRef = crossRef;
             m_boxRef = boxRef;
             m_blankRef = blankRef;
             m_colorRef = colorRef;
         }
-        
-        public void CompileTravelers()
-        {
-            Console.WriteLine("");
-            
-            // clear any previous travelers
-            m_travelers.Clear();
-
-            //==========================================
-            // compile the travelers
-            //==========================================
-                
-            int index = 0;
-            foreach (Order order in m_orders)
-            {
-                
-                Console.Write("\r{0}%   ", "Compiling Tables..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orders.Count)) * 100));
-                // Make a unique traveler for each order, while combining common parts from different models into single traveler
-                bool foundBill = false;
-                // search for existing traveler
-                foreach (Table traveler in m_travelers)
-                {
-                    if (traveler.Part == null) traveler.ImportPart(MAS);
-                    if (traveler.Part.BillNo == order.ItemCode)
-                    {
-                        // update existing traveler
-                        foundBill = true;
-                        // add to the quantity of items
-                        traveler.Quantity += order.QuantityOrdered;
-                        // add to the order list
-                        traveler.Orders.Add(order);
-                    }
-                }
-                if (!foundBill)
-                {
-                    // create a new traveler from the new item
-                    Table newTraveler = new Table(order.ItemCode, order.QuantityOrdered, MAS);
-                    // add to the order list
-                    newTraveler.Orders.Add(order);
-                    // add the new traveler to the list
-                    m_travelers.Add(newTraveler);
-                }
-                index++;
-            }
-            Console.Write("\r{0}   ", "Compiling Tables...Finished");
-            ImportInformation();
-        }
         //-----------------------
         // Private members
         //-----------------------
-        private Traveler FindTraveler(string s)
-        {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string line;
-            System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "printed.json"));
-            int travelerID = 0;
-            try
-            {
-                if (s.Length < 7)
-                {
-                    travelerID = Convert.ToInt32(s);
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            while ((line = file.ReadLine()) != null && line != "")
-            {
-                Traveler printedTraveler = new Traveler(line);
-                // check to see if the number matches a traveler ID
-                if (travelerID == printedTraveler.ID)
-                {
-                    return printedTraveler;
-                }
-                // check to see if these orders have been printed already
-                foreach (Order printedOrder in printedTraveler.Orders)
-                {
-                    if (printedOrder.SalesOrderNo == s)
-                    {
-                        return printedTraveler;
-                    }
-                }
-            }
-            return null;
-        }
-        private void ImportInformation()
+        protected override void ImportInformation()
         {
             Console.WriteLine("");
             int index = 0;
@@ -300,10 +216,6 @@ namespace Efficient_Automatic_Traveler_System
             //    reader.Close();
             //}
         }
-        private bool IsTable(string s)
-        {
-            return (s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-"));
-        }
 
         //-----------------------
         // Properties
@@ -313,42 +225,5 @@ namespace Efficient_Automatic_Traveler_System
         private Excel.Worksheet m_boxRef = null;
         private Excel.Worksheet m_blankRef = null;
         private Excel.Worksheet m_colorRef = null;
-        private List<Order> m_orders = new List<Order>();
-        private List<Table> m_travelers = new List<Table>();
-        private OdbcConnection m_MAS = new OdbcConnection();
-
-        internal List<Order> Orders
-        {
-            get
-            {
-                return m_orders;
-            }
-
-            set
-            {
-                m_orders = value;
-            }
-        }
-
-        internal List<Table> Travelers
-        {
-            get
-            {
-                return m_travelers;
-            }
-        }
-
-        internal OdbcConnection MAS
-        {
-            get
-            {
-                return m_MAS;
-            }
-
-            set
-            {
-                m_MAS = value;
-            }
-        }
     }
 }

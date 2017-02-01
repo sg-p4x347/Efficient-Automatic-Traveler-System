@@ -81,7 +81,7 @@ div.queue {
 	flex-direction: column-reverse;
 	border: 4px inset gray;
 	background-color: #404040;
-	overflow: scroll;
+	overflow: auto;
 	width: 20%;
 	height: 100%;
 	background-color: #404040;

@@ -47,18 +47,23 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void CreateTravelers()
         {
+            List<Traveler> newTravelers = new List<Traveler>();
             // Import stored travelers
-            ImportStored();
+            newTravelers = ImportStored();
 
             // Import new orders
             ImportOrders();
             // Create Tables
             m_tableManager.CompileTravelers();
-            Travelers.AddRange(m_tableManager.Travelers);
+            newTravelers.AddRange(m_tableManager.Travelers);
             // Create Chairs
             m_chairManager.CompileTravelers();
-            Travelers.AddRange(m_chairManager.Travelers);
+            newTravelers.AddRange(m_chairManager.Travelers);
+
             // The traveler list has been updated
+            Travelers.Clear();
+
+            Travelers.AddRange(newTravelers);
             TravelersChanged();
             // Update the travelers.json file with all the current travelers
             BackupTravelers();
@@ -152,7 +157,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 string salesOrderNo = reader.GetString(0);
                 // continue to the next order if this order already has a traveler
-                if (Travelers.Exists(x => x.Orders.Exists(y => y.SalesOrderNo == salesOrderNo)))
+                if (m_orders.Exists(x => x.SalesOrderNo == salesOrderNo))
                 {
                     continue;
                 }
@@ -167,7 +172,7 @@ namespace Efficient_Automatic_Traveler_System
                     string billCode = detailReader.GetString(0);
                     if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
                     {
-                        if (IsTable(billCode))
+                        if (Traveler.IsTable(billCode))
                         {
                             // this is a table
                             Order order = new Order();
@@ -193,7 +198,7 @@ namespace Efficient_Automatic_Traveler_System
                             order.QuantityOrdered = Convert.ToInt32(detailReader.GetValue(1));
                             m_tableManager.Orders.Add(order);
                         }
-                        else if (IsChair(billCode))
+                        else if (Traveler.IsChair(billCode))
                         {
                             // this is a table
                             Order order = new Order();
@@ -249,9 +254,8 @@ namespace Efficient_Automatic_Traveler_System
             }
             reader.Close();
         }
-        private void ImportStored()
+        private List<Traveler> ImportStored()
         {
-            Console.WriteLine("");
             //--------------------------------------------------------------
             // get the list of travelers and orders that have been created
             //--------------------------------------------------------------
@@ -268,12 +272,13 @@ namespace Efficient_Automatic_Traveler_System
                 Traveler createdTraveler = new Traveler(line);
                 m_orders.AddRange(createdTraveler.Orders);
                 // check to see if these orders have been printed already
-                if (IsTable(createdTraveler.PartNo))
+                if (Traveler.IsTable(createdTraveler.PartNo))
                 {
                     Table table = new Table(line);
                     table.ImportPart(m_MAS);
+                    table.FindComponents();
                     createdTravelers.Add(table);
-                } else if (IsChair(createdTraveler.PartNo))
+                } else if (Traveler.IsChair(createdTraveler.PartNo))
                 {
                     Chair chair = new Chair(line);
                     chair.ImportPart(m_MAS);
@@ -281,33 +286,10 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 index++;
             }
-            Console.Write("\r{0}   ", "Loading travelers from backup...Finished");
+            Console.Write("\r{0}   ", "Loading travelers from backup...Finished\n");
 
             file.Close();
-            Travelers.AddRange(createdTravelers);
-            TravelersChanged();
-        }
-        private bool IsTable(string s)
-        {
-            return (s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-"));
-        }
-        private bool IsChair(string s)
-        {
-            if (s.Length == 14 && s.Substring(0, 2) == "38")
-            {
-                string[] parts = s.Split('-');
-                return (parts[0].Length == 5 && parts[1].Length == 4 && parts[2].Length == 3);
-            }
-            else if (s.Length == 15 && s.Substring(0, 4) == "MG11")
-            {
-                string[] parts = s.Split('-');
-                return (parts[0].Length == 6 && parts[1].Length == 4 && parts[2].Length == 3);
-            }
-            else
-            {
-                return false;
-            }
-
+            return createdTravelers;
         }
         private bool IsBackPanel(string s)
         {

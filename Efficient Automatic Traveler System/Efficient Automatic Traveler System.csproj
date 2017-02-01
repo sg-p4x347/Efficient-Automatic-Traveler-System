@@ -60,6 +60,7 @@
     <Compile Include="Traveler Core\TableManager.cs" />
     <Compile Include="Traveler Core\Traveler.cs" />
     <Compile Include="Traveler Core\TravelerCore.cs" />
+    <Compile Include="Traveler Core\TravelerManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

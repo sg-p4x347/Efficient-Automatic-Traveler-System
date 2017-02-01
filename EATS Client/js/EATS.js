@@ -31,7 +31,18 @@ function Application () {
 		
 		self.SetWindowHeight();
 		window.addEventListener("resize",self.SetWindowHeight,false);
-		
+		//----------------
+		// station list
+		//----------------
+		var stations = ["StartQueue","Heian","Weeke","Vector"];
+		stations.forEach(function (station) {
+			var li = document.createElement("LI");
+			li.innerHTML = station;
+			li.onclick = function ()  {
+				self.websocket.send(this.innerHTML);
+			}
+			document.getElementById("stationList").appendChild(li);
+		});
 		//----------------
 		// traveler view
 		//----------------
@@ -72,7 +83,7 @@ function Application () {
 						self.travelerQueue.AddTraveler(traveler);
 						self.travelerView.Load(traveler);
 					} catch (exception) {
-						console.log("invalid JSON (" + exception + "): " + messageEvent.data);
+						console.log(exception);
 					}
 				} else if (messageEvent.data instanceof Blob) {
 					// recieved blob data
@@ -131,7 +142,7 @@ function TravelerQueue() {
 		self.travelers.forEach(function (traveler) {
 			var DOMqueueItem = document.createElement("DIV");
 			DOMqueueItem.className = "queue__item";
-			DOMqueueItem.innerHTML = traveler.partNo;
+			DOMqueueItem.innerHTML = traveler.itemCode;
 			DOMqueueItem.onclick = function () {
 				application.travelerView.Load(traveler);
 				self.RePaint();
@@ -209,10 +220,10 @@ function TravelerView() {
 		ID.innerHTML = traveler.ID;
 		headerRow.appendChild(ID);
 		// Part number
-		var partNo = document.createElement("TH");
-		partNo.className = "view__headerItem red shadow";
-		partNo.innerHTML = traveler.itemCode;
-		headerRow.appendChild(partNo);
+		var itemCode = document.createElement("TH");
+		itemCode.className = "view__headerItem red shadow";
+		itemCode.innerHTML = traveler.itemCode;
+		headerRow.appendChild(itemCode);
 		// Quantity
 		var quantity = document.createElement("TH");
 		quantity.className = "view__headerItem shadow";
@@ -221,32 +232,29 @@ function TravelerView() {
 		// add the header row to the table
 		DOMtable.appendChild(headerRow);
 		// all other properties are in the table body
-		var properties = Object.keys(traveler);
-		properties.forEach(function (property) {
-			if (property.substr(-3,3) != "Qty" && ["ID","partNo","quantity"].indexOf(property) == -1) {
-				var row = document.createElement("TR");
-				// Property name
-				var propName = document.createElement("TD");
-				propName.className = "view__item";
-				propName.innerHTML = property;
-				row.appendChild(propName);
-				// Property value
-				var propValue = document.createElement("TD");
-				propValue.className = "view__item";
-				propValue.innerHTML = traveler[property];
-				row.appendChild(propValue);
-				// Property quantity (if it has a quantity)
-				var propQty = document.createElement("TD");
-				if (traveler.hasOwnProperty(property + "Qty")) {
-					propQty.className = "view__item center";
-					propQty.innerHTML = traveler[property + "Qty"];
-				} else {
-					propQty.className = "view__item--null";
-				}
-				row.appendChild(propQty);
-				// add the row to the table
-				DOMtable.appendChild(row);
+		traveler.members.forEach(function (property) {
+			var row = document.createElement("TR");
+			// Property name
+			var propName = document.createElement("TD");
+			propName.className = "view__item";
+			propName.innerHTML = property.name;
+			row.appendChild(propName);
+			// Property value
+			var propValue = document.createElement("TD");
+			propValue.className = "view__item";
+			propValue.innerHTML = property.value;
+			row.appendChild(propValue);
+			// Property quantity (if it has a quantity)
+			var propQty = document.createElement("TD");
+			if (property.qty != "") {
+				propQty.className = "view__item center";
+				propQty.innerHTML = property.qty;
+			} else {
+				propQty.className = "view__item--null";
 			}
+			row.appendChild(propQty);
+			// add the row to the table
+			DOMtable.appendChild(row);
 		});
 		// add the table
 		self.DOMcontainer.appendChild(DOMtable);
@@ -263,7 +271,7 @@ function Traveler(obj) {
 	return obj;
 	/* // Common properties
 	this.ID;
-	this.partNo;
+	this.itemCode;
 	this.quantity;
 	this.description;
 	
@@ -272,7 +280,7 @@ function Traveler(obj) {
 		
 		// Common properties
 		self.ID = obj.ID;
-		self.partNo =  obj.partNo;
+		self.itemCode =  obj.itemCode;
 		self.quantity = obj.quantity;
 		self.description = obj.description;
 	}

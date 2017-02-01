@@ -44,10 +44,10 @@ namespace Efficient_Automatic_Traveler_System
     }
     class Traveler
     {
-        //===========================
-        // PUBLIC
-        //===========================
-        
+        //-----------------------
+        // Public members
+        //-----------------------
+
         // Doesn't do anything
         public Traveler()
         {
@@ -361,12 +361,34 @@ namespace Efficient_Automatic_Traveler_System
             doc += "}\n";
             return doc;
         }
+        public static bool IsTable(string s)
+        {
+            return (s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-"));
+        }
+        public static bool IsChair(string s)
+        {
+            if (s.Length == 14 && s.Substring(0, 2) == "38")
+            {
+                string[] parts = s.Split('-');
+                return (parts[0].Length == 5 && parts[1].Length == 4 && parts[2].Length == 3);
+            }
+            else if (s.Length == 15 && s.Substring(0, 4) == "MG11")
+            {
+                string[] parts = s.Split('-');
+                return (parts[0].Length == 6 && parts[1].Length == 4 && parts[2].Length == 3);
+            }
+            else
+            {
+                return false;
+            }
 
-        //===========================
-        // PRIVATE
-        //===========================
+        }
 
+        //-----------------------
         // Properties
+        //-----------------------
+
+        // general
         protected List<Order> m_orders = new List<Order>();
         protected Bill m_part = null;
         protected int m_ID = 0;

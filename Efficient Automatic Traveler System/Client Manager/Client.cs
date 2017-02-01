@@ -20,24 +20,18 @@ namespace Efficient_Automatic_Traveler_System
             m_stream = m_TcpClient.GetStream();
             m_travelers = new List<Traveler>();
             m_productionStation = ProductionStage.StartQueue;
-            // TEMP
-            SendMessage(@"{""ID"":1,""partNo"":""MGTEST-01"",""description"":""this is a very long description that seems to go on and on, without stopping or slowing down; it just keeps going..."",""quantity"":5,""blank"":""MAGRTEST"",""blankQty"":3}");
-            SendMessage(@"{""ID"":2,""partNo"":""MGTEST-02"",""description"":""this is a very long description that seems to go on and on, without stopping or slowing down; it just keeps going..."",""quantity"":75,""blank"":""MAGRTEST"",""blankQty"":3}");
-            SendMessage(@"{""ID"":3,""partNo"":""MGTEST-03"",""description"":""this is a very long description that seems to go on and on, without stopping or slowing down; it just keeps going..."",""quantity"":0,""blank"":""MAGRTEST"",""blankQty"":3}");
         }
         public async void Start()
         {
-            Task<string> messageTask = RecieveMessageAsync();
-            string message = await messageTask;
-
-            SendMessage("You (Client #" + m_clients.IndexOf(this).ToString() + ") said: " + message);
-            foreach (Client client in m_clients)
+            string message = await RecieveMessageAsync();
+            try
             {
-                if (client != null && client != this)
-                {
-                    client.SendMessage("Client " + m_clients.IndexOf(this).ToString() + " said: " + message);
-                }
+                m_productionStation = (ProductionStage)Enum.Parse(typeof(ProductionStage), message);
+            } catch (Exception ex)
+            {
+                m_productionStation = ProductionStage.StartQueue;
             }
+
             if (message != "Lost Connection")
             {
                 Start();
@@ -50,7 +44,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (traveler.GetType().Name == "Table")
                 {
-                    SendMessage(((Table)traveler).Export());
+                    SendMessage(((Table)traveler).Export(traveler.ProductionStage));
                 } else
                 {
                     SendMessage(((Chair)traveler).Export());

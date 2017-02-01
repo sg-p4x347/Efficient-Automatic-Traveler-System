@@ -45,14 +45,14 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
             json += "\"members\":[";
 
-            json += (new NameValueQty<string, string>("Description", m_part.BillDesc, null)).ToString();
+            json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
             switch (stage)
             {
-                case ProductionStage.Heian:
-                    
-                    json += new NameValueQty<string, string>("Drawing", m_drawingNo, null).ToString();
-                    json += new NameValueQty<string, string>("Blank", m_blankSize + " " + m_blankNo, null).ToString();
-                    json += new NameValueQty<string, string>("Description", m_part.BillDesc, null).ToString();
+                case ProductionStage.StartQueue:
+                    json += new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString();
+                    json += new NameValueQty<string, int>("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
+                    json += new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
+                    json += new NameValueQty<string, string>("Color", m_color, "");
                     break;
             }
             json += ']';
@@ -71,6 +71,7 @@ namespace Efficient_Automatic_Traveler_System
         // part information
         private int m_colorNo = 0;
         private string m_shapeNo = "";
+        private string m_shape = "";
         // Blank information
         private string m_blankNo = "";
         private string m_blankColor = "";
@@ -180,6 +181,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_blankColor = value;
+            }
+        }
+
+        public string Shape
+        {
+            get
+            {
+                return m_shape;
+            }
+
+            set
+            {
+                m_shape = value;
             }
         }
     }
