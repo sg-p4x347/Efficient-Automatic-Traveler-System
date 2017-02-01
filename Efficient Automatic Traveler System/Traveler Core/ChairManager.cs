@@ -20,7 +20,9 @@ namespace Efficient_Automatic_Traveler_System
         // Public members
         //-----------------------
         public ChairManager() : base(){ }
-        public ChairManager(OdbcConnection mas) : base(mas) {}
+        public ChairManager(OdbcConnection mas) : base(mas) {
+
+        }
         //-----------------------
         // Private members
         //-----------------------
@@ -28,16 +30,16 @@ namespace Efficient_Automatic_Traveler_System
         {
             Console.WriteLine("");
             int index = 0;
-            foreach (Chair traveler in m_travelers)
+            foreach (Chair chair in m_travelers.OfType<Chair>())
             {
-                if (traveler.Part == null) traveler.ImportPart(MAS);
+                if (chair.Part == null) chair.ImportPart(MAS);
                 Console.Write("\r{0}%   ", "Importing Chair Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-                traveler.CheckInventory(MAS);
+                chair.CheckInventory(MAS);
                 // update and total the final parts
-                traveler.Part.TotalQuantity = traveler.Quantity;
-                traveler.FindComponents(traveler.Part);
+                chair.Part.TotalQuantity = chair.Quantity;
+                chair.FindComponents(chair.Part);
                 // chair specific
-                GetBoxInfo(traveler);
+                GetBoxInfo(chair);
             }
             Console.Write("\r{0}   ", "Importing Chair Info...Finished");
         }
@@ -55,5 +57,6 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
         // Properties
         //-----------------------
+        List<Chair> m_chairs;
     }
 }

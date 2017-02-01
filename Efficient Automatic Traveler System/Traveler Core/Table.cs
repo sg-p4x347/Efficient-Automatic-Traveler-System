@@ -45,14 +45,14 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
             json += "\"members\":[";
 
-            json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
+            json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString() + ","; ;
             switch (stage)
             {
                 case ProductionStage.StartQueue:
-                    json += new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString();
-                    json += new NameValueQty<string, int>("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
-                    json += new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
-                    json += new NameValueQty<string, string>("Color", m_color, "");
+                    json += new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString() + ","; ;
+                    json += new NameValueQty<string, int>("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString() + ","; ;
+                    json += new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString() + ","; ;
+                    json += new NameValueQty<string, string>("Color", m_color, "").ToString();
                     break;
             }
             json += ']';

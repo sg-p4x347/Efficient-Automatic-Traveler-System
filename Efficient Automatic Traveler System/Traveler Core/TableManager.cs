@@ -35,18 +35,18 @@ namespace Efficient_Automatic_Traveler_System
         {
             Console.WriteLine("");
             int index = 0;
-            foreach (Table traveler in m_travelers)
+            foreach (Table table in m_travelers.OfType<Table>())
             {
-                if (traveler.Part == null) traveler.ImportPart(MAS);
+                if (table.Part == null) table.ImportPart(MAS);
                 Console.Write("\r{0}%   ", "Importing Table Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-                traveler.CheckInventory(MAS);
+                table.CheckInventory(MAS);
                 // update and total the final parts
-                traveler.Part.TotalQuantity = traveler.Quantity;
-                traveler.FindComponents(traveler.Part);
+                table.Part.TotalQuantity = table.Quantity;
+                table.FindComponents(table.Part);
                 // Table specific
-                GetColorInfo(traveler);
-                GetBoxInfo(traveler);
-                GetBlankInfo(traveler);
+                GetColorInfo(table);
+                GetBoxInfo(table);
+                GetBlankInfo(table);
                 index++;
             }
             Console.Write("\r{0}   ", "Importing Table Info...Finished");

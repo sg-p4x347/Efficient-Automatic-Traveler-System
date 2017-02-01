@@ -168,6 +168,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 m_part = new Bill(m_partNo, m_quantity, MAS);
                 m_drawingNo = m_part.DrawingNo;
+                FindComponents(m_part);
             }
         }
         // Finds all the components in the top level bill, setting key components along the way

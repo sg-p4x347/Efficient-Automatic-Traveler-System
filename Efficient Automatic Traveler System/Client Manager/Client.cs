@@ -13,13 +13,13 @@ namespace Efficient_Automatic_Traveler_System
 {
     class Client
     {
-        public Client(TcpClient client, List<Client> clients)
+        public Client(TcpClient client, ref List<Traveler> travelers)
         {
-            m_clients = clients;
             m_TcpClient = client;
             m_stream = m_TcpClient.GetStream();
-            m_travelers = new List<Traveler>();
+            m_travelers = travelers;
             m_productionStation = ProductionStage.StartQueue;
+            HandleTravelersChanged();
         }
         public async void Start()
         {
@@ -37,10 +37,10 @@ namespace Efficient_Automatic_Traveler_System
                 Start();
             }
         }
-        public void UpdateTravelers(List<Traveler> travelers)
+        public void HandleTravelersChanged()
         {
-            m_travelers = travelers;
-            foreach (Traveler traveler in m_travelers)
+            List<Traveler> stationSpecific = m_travelers.Where(x => x.ProductionStage == m_productionStation).ToList();
+            foreach (Traveler traveler in stationSpecific)
             {
                 if (traveler.GetType().Name == "Table")
                 {
@@ -80,13 +80,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void LostConnection()
         {
-            for (int i = 0; i < m_clients.Count; i++)
-            {
-                if (m_clients[i] != null && m_clients[i] == this)
-                {
-                    m_clients[i] = null;
-                }
-            }
+
         }
         private Byte[] DecodeMessage(List<Byte> encoded, List<Byte> masks)
         {
@@ -200,7 +194,6 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Properties
         //------------------------------
-        private List<Client> m_clients;
         private TcpClient m_TcpClient;
         private NetworkStream m_stream;
         private List<Traveler> m_travelers;

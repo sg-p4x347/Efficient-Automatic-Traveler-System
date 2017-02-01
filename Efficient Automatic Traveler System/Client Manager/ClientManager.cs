@@ -32,7 +32,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             foreach (Client client in m_clients)
             {
-                client.UpdateTravelers(m_travelers.Where(x => x.ProductionStage == client.ProductionStation).ToList());
+                client.HandleTravelersChanged();
             }
         }
         //------------------------------
@@ -48,9 +48,8 @@ namespace Efficient_Automatic_Traveler_System
             // a client connected and control resumes here
             if (HandShake(tcpClient))
             {
-                Client newClient = new Client(tcpClient,m_clients);
+                Client newClient = new Client(tcpClient,ref m_travelers);
                 newClient.Start();
-                newClient.UpdateTravelers(m_travelers.Where(x => x.ProductionStage == newClient.ProductionStation).ToList());
                 m_clients.Add(newClient);
                 Console.WriteLine("A client connected (" + m_clients.Count + " total)");
             }

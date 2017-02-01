@@ -21,14 +21,9 @@ namespace Efficient_Automatic_Traveler_System
         // Creates and combines travelers from the order list
         public void CompileTravelers()
         {
-
-            // clear any previous travelers
-            Reset();
-
             int index = 0;
             foreach (Order order in m_orders)
             {
-
                 Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orders.Count)) * 100));
                 // Make a unique traveler for each order, while combining common parts from different models into single traveler
                 bool foundBill = false;
@@ -60,6 +55,12 @@ namespace Efficient_Automatic_Traveler_System
             }
             Console.Write("\r{0}   ", "Compiling Travelers...Finished\n");
             ImportInformation();
+        }
+        // Resets the traveler and order lists
+        public void Reset()
+        {
+            m_travelers.Clear();
+            m_orders.Clear();
         }
 
         //-----------------------
@@ -120,13 +121,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             Console.Write("\r{0}   ", "Importing Traveler Info...Finished");
         }
-        // Resets the traveler and order lists
-        protected void Reset()
-        {
-            m_travelers.Clear();
-            m_orders.Clear();
-        }
-
+        
         //-----------------------
         // Properties
         //-----------------------

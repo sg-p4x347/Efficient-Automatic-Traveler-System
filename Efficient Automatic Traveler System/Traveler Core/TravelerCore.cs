@@ -47,12 +47,15 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void CreateTravelers()
         {
+            m_tableManager.Reset();
+            m_chairManager.Reset();
             List<Traveler> newTravelers = new List<Traveler>();
             // Import stored travelers
-            newTravelers = ImportStored();
+            ImportStored();
 
             // Import new orders
             ImportOrders();
+
             // Create Tables
             m_tableManager.CompileTravelers();
             newTravelers.AddRange(m_tableManager.Travelers);
@@ -64,7 +67,7 @@ namespace Efficient_Automatic_Traveler_System
             Travelers.Clear();
 
             Travelers.AddRange(newTravelers);
-            TravelersChanged();
+            OnTravelersChanged();
             // Update the travelers.json file with all the current travelers
             BackupTravelers();
         }
@@ -254,13 +257,12 @@ namespace Efficient_Automatic_Traveler_System
             }
             reader.Close();
         }
-        private List<Traveler> ImportStored()
+        private void ImportStored()
         {
             //--------------------------------------------------------------
             // get the list of travelers and orders that have been created
             //--------------------------------------------------------------
             m_orders.Clear();
-            List<Traveler> createdTravelers = new List<Traveler>();
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string line;
             System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "travelers.json"));
@@ -276,20 +278,18 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     Table table = new Table(line);
                     table.ImportPart(m_MAS);
-                    table.FindComponents();
-                    createdTravelers.Add(table);
+                    m_tableManager.Travelers.Add(table);
                 } else if (Traveler.IsChair(createdTraveler.PartNo))
                 {
                     Chair chair = new Chair(line);
                     chair.ImportPart(m_MAS);
-                    createdTravelers.Add(chair);
+                    m_chairManager.Travelers.Add(chair);
                 }
                 index++;
             }
             Console.Write("\r{0}   ", "Loading travelers from backup...Finished\n");
 
             file.Close();
-            return createdTravelers;
         }
         private bool IsBackPanel(string s)
         {
@@ -301,6 +301,10 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return false;
             }
+        }
+        private void OnTravelersChanged()
+        {
+            TravelersChanged();
         }
 
         //------------------------------
