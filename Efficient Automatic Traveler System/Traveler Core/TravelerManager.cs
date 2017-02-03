@@ -31,8 +31,8 @@ namespace Efficient_Automatic_Traveler_System
                 foreach (Traveler traveler in m_travelers)
                 {
                     if (traveler.Part == null) traveler.ImportPart(MAS);
-                    // only combine travelers if they have not been started
-                    if (traveler.ProductionStage == ProductionStage.StartQueue && traveler.Part.BillNo == order.ItemCode)
+                    // only combine travelers if they have no events (meaning nothing has happened to them yet)
+                    if (traveler.Events.Count == 0 && traveler.Part.BillNo == order.ItemCode)
                     {
                         // update existing traveler
                         foundBill = true;
@@ -107,19 +107,18 @@ namespace Efficient_Automatic_Traveler_System
         // Gathers part information about a traveler from MAS
         protected virtual void ImportInformation()
         {
-            Console.WriteLine("");
             int index = 0;
             foreach (Traveler traveler in m_travelers)
             {
                 if (traveler.Part == null) traveler.ImportPart(MAS);
-                Console.Write("\r{0}%   ", "Importing Traveler Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
+                Console.Write("\r{0}%", "Importing Traveler Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
                 traveler.CheckInventory(MAS);
                 // update and total the final parts
                 traveler.Part.TotalQuantity = traveler.Quantity;
                 traveler.FindComponents(traveler.Part);
                 index++;
             }
-            Console.Write("\r{0}   ", "Importing Traveler Info...Finished");
+            Console.Write("\r{0}", "Importing Traveler Info...Finished\n");
         }
         
         //-----------------------

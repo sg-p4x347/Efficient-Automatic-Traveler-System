@@ -21,6 +21,9 @@ namespace Efficient_Automatic_Traveler_System
             m_port = 8080;
             m_travelerCore = new TravelerCore();
             m_clientManager = new ClientManager(m_ip, m_port,ref m_travelerCore.m_travelers);
+            // Subscribe events
+            m_travelerCore.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
+
             m_clientManagerThread = new Thread(m_clientManager.Start);
             m_updateInterval = new TimeSpan(0, 5, 0);
             

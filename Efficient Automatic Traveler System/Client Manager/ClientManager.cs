@@ -17,7 +17,7 @@ namespace Efficient_Automatic_Traveler_System
         public ClientManager(string ip, int port, ref List<Traveler> travelers)
         {
             m_server = new TcpListener(IPAddress.Parse(ip), port);
-            m_clients = new List<Client>();
+            m_operatorClients = new List<OperatorClient>();
             m_nextClientID = 0;
             m_updateInterval = new TimeSpan(0, 0, 30);
             m_travelers = travelers;
@@ -28,13 +28,18 @@ namespace Efficient_Automatic_Traveler_System
             m_server.Start();
             ConnectAsync();
         }
-        public void HandleTravelersChanged()
-        {
-            foreach (Client client in m_clients)
+        public void HandleTravelersChanged() {
+            for( int i = 0; i < m_operatorClients.Count; i++)
             {
-                client.HandleTravelersChanged();
+                if (m_operatorClients[i].Connected) {
+                    m_operatorClients[i].HandleTravelersChanged();
+                } else
+                {
+                    m_operatorClients.RemoveAt(i);
+                }
             }
         }
+
         //------------------------------
         // Private
         //------------------------------
@@ -48,10 +53,17 @@ namespace Efficient_Automatic_Traveler_System
             // a client connected and control resumes here
             if (HandShake(tcpClient))
             {
-                Client newClient = new Client(tcpClient,ref m_travelers);
-                newClient.Start();
-                m_clients.Add(newClient);
-                Console.WriteLine("A client connected (" + m_clients.Count + " total)");
+                switch (await Client.RecieveMessageAsync(tcpClient.GetStream()))
+                {
+                    case "OperatorClient":
+                        OperatorClient newClient = new OperatorClient(tcpClient, ref m_travelers);
+                        newClient.Start();
+                        m_operatorClients.Add(newClient);
+                        Console.WriteLine("An operator connected (" + m_operatorClients.Count + " total)");
+                        
+                        break;
+                }
+                
             }
             ConnectAsync();
         }
@@ -107,11 +119,11 @@ namespace Efficient_Automatic_Traveler_System
         // Properties
         //------------------------------
         private TcpListener m_server;
-        private List<Client> m_clients;
+        private List<OperatorClient> m_operatorClients;
         private int m_nextClientID;
         private TimeSpan m_updateInterval;
         private Timer m_timer;
-        private Func<ProductionStage, List<Traveler>> m_getTravelersAt;
+        private Func<int, List<Traveler>> m_getTravelersAt;
         private List<Traveler> m_travelers;
         //----------
         // Events

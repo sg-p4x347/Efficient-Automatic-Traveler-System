@@ -24,6 +24,23 @@ function Application () {
 		// fit the body to the screen resolution
 		document.body.style.height = window.innerHeight + "px";
 	};
+	//----------------
+	// station list
+	//----------------
+	this.PopulateStations = function (stations) {
+		var self = this;
+		stations.forEach(function (station) {
+			var li = document.createElement("DIV");
+			li.innerHTML = station;
+			li.className = "dropdown__item";
+			li.onclick = function ()  {
+				self.websocket.send(this.innerHTML);
+				var dropdown = document.getElementById("stationName");
+				dropdown.innerHTML = this.innerHTML;
+			}
+			document.getElementById("stationList").appendChild(li);
+		});
+	}
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
@@ -31,18 +48,7 @@ function Application () {
 		
 		self.SetWindowHeight();
 		window.addEventListener("resize",self.SetWindowHeight,false);
-		//----------------
-		// station list
-		//----------------
-		var stations = ["StartQueue","Heian","Weeke","Vector"];
-		stations.forEach(function (station) {
-			var li = document.createElement("LI");
-			li.innerHTML = station;
-			li.onclick = function ()  {
-				self.websocket.send(this.innerHTML);
-			}
-			document.getElementById("stationList").appendChild(li);
-		});
+		
 		//----------------
 		// traveler view
 		//----------------
@@ -70,7 +76,8 @@ function Application () {
 			self.websocket.onopen = function() {
 				console.log("Connection is open...");
 				// Web Socket is connected, send data using send()
-
+				// send the client type identification
+				self.websocket.send("OperatorClient");
 			};
 			
 			self.websocket.onmessage = function(messageEvent) {
@@ -78,12 +85,26 @@ function Application () {
 					// recieved text data
 					
 					// verify the integrity of the json message
+					var object;
 					try {
-						var traveler = new Traveler(JSON.parse(messageEvent.data));
-						self.travelerQueue.AddTraveler(traveler);
-						self.travelerView.Load(traveler);
+						object = JSON.parse(messageEvent.data)
 					} catch (exception) {
-						console.log(exception);
+						console.log(exception + " : " + messageEvent.data);
+					}
+					if (object) {					
+					// valid json object recieved, time to hande the message
+						if (object.hasOwnProperty("stationList")) {
+							self.PopulateStations(object.stationList);
+						} else if (object.hasOwnProperty("travelers")) {
+							
+							self.travelerQueue.travelers = [];
+							object.travelers.forEach(function (json) {
+								var traveler = new Traveler();
+								traveler.Load(json);
+								self.travelerQueue.AddTraveler(traveler);
+							});
+							self.travelerView.Load(self.travelerQueue.travelers[0]);
+						}
 					}
 				} else if (messageEvent.data instanceof Blob) {
 					// recieved blob data

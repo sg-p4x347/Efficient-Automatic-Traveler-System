@@ -10,16 +10,31 @@ using Marshal = System.Runtime.InteropServices.Marshal;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum ProductionStage
+    enum TravelerEvent
     {
-        StartQueue,
-        Heian,
-        Weeke,
-        Vector,
-        Box,
-        Packline,
-        Finished
-    };
+        Scrap
+    }
+    struct Event
+    {
+        Event (TravelerEvent e, DateTime t, int q, int s)
+        {
+            type = e;
+            time = t;
+            quantity = q;
+            station = s;
+        }
+        Event(TravelerEvent e, int q, int s)
+        {
+            type = e;
+            time = DateTime.Now;
+            quantity = q;
+            station = s;
+        }
+        public TravelerEvent type;
+        public DateTime time;
+        public int quantity;
+        public int station;
+    }
     struct NameValueQty<valueType,qtyType>
     {
         public NameValueQty(string name, valueType value, qtyType qty)
@@ -62,10 +77,8 @@ namespace Efficient_Automatic_Traveler_System
                 string stringToken = "";
 
                 string memberName = "";
-                bool readMember = false;
 
                 string value = "";
-                bool readValue = false;
 
                 // SalesOrderNo
                 for (int pos = 0; pos < json.Length; pos++)
@@ -384,6 +397,16 @@ namespace Efficient_Automatic_Traveler_System
             }
 
         }
+        public static int GetStation(string key)
+        {
+            try
+            {
+                return Stations[key];
+            } catch (Exception ex)
+            {
+                return -1;
+            }
+        }
 
         //-----------------------
         // Properties
@@ -399,7 +422,10 @@ namespace Efficient_Automatic_Traveler_System
         protected string m_drawingNo = "";
         protected int m_quantity = 0;
         protected string m_color = "";
-        protected ProductionStage productionStage = ProductionStage.StartQueue;
+        protected int m_station = Traveler.GetStation("Heian");
+        protected List<Event> events = new List<Event>();
+        // static
+        internal static Dictionary<string, int> Stations = new Dictionary<string, int>();
         // Labor
         protected Item m_cnc = null; // labor item
         protected Item m_vector = null; // labor item
@@ -732,16 +758,29 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal ProductionStage ProductionStage
+        internal int Station
         {
             get
             {
-                return productionStage;
+                return m_station;
             }
 
             set
             {
-                productionStage = value;
+                m_station = value;
+            }
+        }
+
+        internal List<Event> Events
+        {
+            get
+            {
+                return events;
+            }
+
+            set
+            {
+                events = value;
             }
         }
     }

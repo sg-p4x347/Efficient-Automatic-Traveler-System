@@ -35,7 +35,7 @@ namespace Efficient_Automatic_Traveler_System
             m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
         }
         // returns a JSON formatted string to be sent to a client
-        public string Export(ProductionStage stage)
+        public string Export(int station)
         {
             string json = "";
             json += "{";
@@ -46,14 +46,11 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"members\":[";
 
             json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString() + ","; ;
-            switch (stage)
-            {
-                case ProductionStage.StartQueue:
-                    json += new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString() + ","; ;
-                    json += new NameValueQty<string, int>("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString() + ","; ;
-                    json += new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString() + ","; ;
-                    json += new NameValueQty<string, string>("Color", m_color, "").ToString();
-                    break;
+            if (station ==  Traveler.GetStation("Heian")) {
+                json += new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString() + ","; ;
+                json += new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString() + ","; ;
+                json += new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString() + ","; ;
+                json += new NameValueQty<string, string>("Color", m_color, "").ToString();
             }
             json += ']';
             json += "}\n";

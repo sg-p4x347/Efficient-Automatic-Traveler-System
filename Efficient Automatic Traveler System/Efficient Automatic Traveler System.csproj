@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client Manager\OperatorClient.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Traveler Core\Bill.cs" />
     <Compile Include="Traveler Core\BlacklistItem.cs" />

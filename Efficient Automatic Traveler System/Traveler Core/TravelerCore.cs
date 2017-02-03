@@ -17,7 +17,7 @@ namespace Efficient_Automatic_Traveler_System
     // Class: Used to generate and store the digital "travelers" that are used throughout the system
     // Developer: Gage Coates
     // Date started: 1/25/16
-    public delegate void TravelersChangedEvent();
+    public delegate void TravelersChangedSubscriber();
     class TravelerCore
     {
         //------------------------------
@@ -29,9 +29,19 @@ namespace Efficient_Automatic_Traveler_System
             m_excelApp = new Excel.Application();
             m_excelApp.DisplayAlerts = false;
             m_workbooks = m_excelApp.Workbooks;
+            
             TravelersChanged = delegate { };
             Travelers = new List<Traveler>();
-
+            // set up the station list
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            System.IO.StreamReader stationsFile = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "stations.txt"));
+            string line;
+            for  ( int i = 0;  (line = stationsFile.ReadLine()) != null && line != ""; i++)
+            {
+                Traveler.Stations.Add(line, i);
+            }
+           
+            // initalize the specific traveler managers
             InitializeManagers();
         }
         ~TravelerCore()
@@ -54,7 +64,7 @@ namespace Efficient_Automatic_Traveler_System
             ImportStored();
 
             // Import new orders
-            ImportOrders();
+            //ImportOrders();
 
             // Create Tables
             m_tableManager.CompileTravelers();
@@ -82,18 +92,18 @@ namespace Efficient_Automatic_Traveler_System
             }
             System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "travelers.json"),contents);
         }
-        public List<Traveler> GetTravelersAt(ProductionStage stage)
-        {
-            List<Traveler> travelers = new List<Traveler>();
-            foreach (Traveler traveler in Travelers)
-            {
-                if (traveler.ProductionStage == stage)
-                {
-                    travelers.Add(traveler);
-                }
-            }
-            return travelers;
-        }
+        //public List<Traveler> GetTravelersAt(ProductionStage stage)
+        //{
+        //    List<Traveler> travelers = new List<Traveler>();
+        //    foreach (Traveler traveler in Travelers)
+        //    {
+        //        if (traveler.Station == stage)
+        //        {
+        //            travelers.Add(traveler);
+        //        }
+        //    }
+        //    return travelers;
+        //}
         //------------------------------
         // Private members
         //------------------------------
@@ -315,7 +325,7 @@ namespace Efficient_Automatic_Traveler_System
         private ChairManager m_chairManager;
 
         public List<Traveler> m_travelers;
-        public event TravelersChangedEvent TravelersChanged;
+        public event TravelersChangedSubscriber TravelersChanged;
         //private List<Traveler> m_weeke;
         //private List<Traveler> m_heian;
         //private List<Traveler> m_vector;

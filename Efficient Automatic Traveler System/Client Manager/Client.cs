@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 using System.Net.Sockets;
 using System.Net;
@@ -11,46 +12,21 @@ using System.Security.Cryptography;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class Client
+    abstract class Client
     {
-        public Client(TcpClient client, ref List<Traveler> travelers)
+        //------------------------------
+        // Public members
+        //------------------------------
+        protected enum MessageTypes
+        {
+            OperatorUpdate
+        }
+        public Client(TcpClient client)
         {
             m_TcpClient = client;
             m_stream = m_TcpClient.GetStream();
-            m_travelers = travelers;
-            m_productionStation = ProductionStage.StartQueue;
-            HandleTravelersChanged();
         }
-        public async void Start()
-        {
-            string message = await RecieveMessageAsync();
-            try
-            {
-                m_productionStation = (ProductionStage)Enum.Parse(typeof(ProductionStage), message);
-            } catch (Exception ex)
-            {
-                m_productionStation = ProductionStage.StartQueue;
-            }
 
-            if (message != "Lost Connection")
-            {
-                Start();
-            }
-        }
-        public void HandleTravelersChanged()
-        {
-            List<Traveler> stationSpecific = m_travelers.Where(x => x.ProductionStage == m_productionStation).ToList();
-            foreach (Traveler traveler in stationSpecific)
-            {
-                if (traveler.GetType().Name == "Table")
-                {
-                    SendMessage(((Table)traveler).Export(traveler.ProductionStage));
-                } else
-                {
-                    SendMessage(((Chair)traveler).Export());
-                }
-            }
-        }
         public void SendMessage(string message)
         {
             Byte[] test = CreateMessage(message);
@@ -63,8 +39,27 @@ namespace Efficient_Automatic_Traveler_System
                 LostConnection();
             }
         }
-        private async Task<string> RecieveMessageAsync()
-        {   
+        public static async Task<string> RecieveMessageAsync(NetworkStream stream)
+        {
+            Byte[] bytes = new Byte[1024];
+            try
+            {
+                int length = await stream.ReadAsync(bytes, 0, bytes.Length);
+                // Message has arrived, now lets decode it
+                return GetMessage(bytes, length);
+            }
+            catch (Exception ex)
+            {
+                // connection was lost
+                return "Lost Connection";
+            }
+        }
+        //------------------------------
+        // Private members
+        //------------------------------
+
+        protected async Task<string> RecieveMessageAsync()
+        {
             Byte[] bytes = new Byte[1024];
             try
             {
@@ -76,13 +71,14 @@ namespace Efficient_Automatic_Traveler_System
                 // connection was lost
                 LostConnection();
                 return "Lost Connection";
-            } 
+            }
         }
-        private void LostConnection()
+
+        protected void LostConnection()
         {
 
         }
-        private Byte[] DecodeMessage(List<Byte> encoded, List<Byte> masks)
+        protected static Byte[] DecodeMessage(List<Byte> encoded, List<Byte> masks)
         {
             Byte[] decoded = new Byte[encoded.Count];
             for (int i = 0; i < encoded.Count; i++)
@@ -92,7 +88,7 @@ namespace Efficient_Automatic_Traveler_System
             return decoded;
         }
 
-        private string GetMessage(Byte[] message,int length)
+        protected static string GetMessage(Byte[] message, int length)
         {
             string messageString = "";
             List<Byte> masks = new List<Byte>();
@@ -153,7 +149,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return messageString;
         }
-        private Byte[] CreateMessage(string message)
+        protected Byte[] CreateMessage(string message)
         {
             List<Byte> header = new List<Byte>();
             header.Add(129);
@@ -191,24 +187,58 @@ namespace Efficient_Automatic_Traveler_System
             System.Buffer.BlockCopy(messageArray, 0, finalDataArray, headerArray.Length, messageArray.Length);
             return finalDataArray;
         }
+        protected Dictionary<string, string> IndexJSON(string json)
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            string memberName = GetJsonScope(json.Remove(0,1)).Trim('"');
+            string value = GetJsonScope(json.Remove(0, 1 + memberName.Length + 1)).Trim('"');
+            obj.Add(memberName, value);
+            return obj;
+        }
+        protected string GetJsonScope (string json)
+        {
+            string scope = "" + json[0];
+            char closing = '}';
+            switch (json[0])
+            {
+                case '[': closing = ']'; break;
+                case '{': closing = '}'; break;
+                case '"': closing = '"'; break;
+            }
+            for (int i = 1; i < json.Length; i++)
+            {
+                char ch = json[i];
+                
+                
+                if (ch == '[' || ch == '{' || (closing != '"' && ch == '"'))
+                {
+                    string inner = GetJsonScope(json.Remove(0, i));
+                    i += inner.Length-1;
+                    scope += inner;
+                }
+                else
+                {
+                    scope += ch;
+                }
+                if (ch == closing)
+                {
+                    return scope;
+                }
+            }
+            return json;
+        }
         //------------------------------
         // Properties
         //------------------------------
-        private TcpClient m_TcpClient;
-        private NetworkStream m_stream;
-        private List<Traveler> m_travelers;
-        private ProductionStage m_productionStation;
+        protected TcpClient m_TcpClient;
+        protected NetworkStream m_stream;
+        
 
-        internal ProductionStage ProductionStation
+        public bool Connected
         {
             get
             {
-                return m_productionStation;
-            }
-
-            set
-            {
-                m_productionStation = value;
+                return m_TcpClient.Connected;
             }
         }
     }

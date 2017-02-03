@@ -33,12 +33,11 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
         protected override void ImportInformation()
         {
-            Console.WriteLine("");
             int index = 0;
             foreach (Table table in m_travelers.OfType<Table>())
             {
                 if (table.Part == null) table.ImportPart(MAS);
-                Console.Write("\r{0}%   ", "Importing Table Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
+                Console.Write("\r{0}%", "Importing Table Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
                 table.CheckInventory(MAS);
                 // update and total the final parts
                 table.Part.TotalQuantity = table.Quantity;
@@ -49,7 +48,7 @@ namespace Efficient_Automatic_Traveler_System
                 GetBlankInfo(table);
                 index++;
             }
-            Console.Write("\r{0}   ", "Importing Table Info...Finished");
+            Console.Write("\r{0}", "Importing Table Info...Finished\n");
         }
         // get a reader friendly string for the color
         private void GetColorInfo(Table traveler)
