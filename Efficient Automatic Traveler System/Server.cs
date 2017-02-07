@@ -25,6 +25,7 @@ namespace Efficient_Automatic_Traveler_System
             m_travelerCore.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
 
             m_clientManagerThread = new Thread(m_clientManager.Start);
+            m_clientManagerThread.Name = "Client Manager";
             m_updateInterval = new TimeSpan(0, 5, 0);
             
         }

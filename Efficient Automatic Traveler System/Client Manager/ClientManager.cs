@@ -57,10 +57,11 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     case "OperatorClient":
                         OperatorClient newClient = new OperatorClient(tcpClient, ref m_travelers);
-                        newClient.Start();
+                        newClient.ListenAsync();
                         m_operatorClients.Add(newClient);
                         Console.WriteLine("An operator connected (" + m_operatorClients.Count + " total)");
-                        
+                        break;
+                    case "connection aborted": // don't do anything, the connection was lost
                         break;
                 }
                 

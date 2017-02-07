@@ -32,7 +32,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (traveler.Part == null) traveler.ImportPart(MAS);
                     // only combine travelers if they have no events (meaning nothing has happened to them yet)
-                    if (traveler.Events.Count == 0 && traveler.Part.BillNo == order.ItemCode)
+                    if (traveler.History.Count == 0 && traveler.Part.BillNo == order.ItemCode)
                     {
                         // update existing traveler
                         foundBill = true;

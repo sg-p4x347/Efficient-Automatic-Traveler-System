@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Client Manager\OperatorClient.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="StringStream.cs" />
     <Compile Include="Traveler Core\Bill.cs" />
     <Compile Include="Traveler Core\BlacklistItem.cs" />
     <Compile Include="Traveler Core\Chair.cs" />

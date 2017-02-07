@@ -6,12 +6,22 @@ var application = new Application();
 
 // gets called once the html is loaded
 function Initialize() {
+	//window.oncontextmenu = function () {return false;}
 	application.Initialize();
 }
 function Application () {
+	// DOM
 	this.travelerQueue;
 	this.travelerView;
 	this.completedList;
+	// Timer
+	this.timerStart;
+	this.timerStop;
+	this.timerTime;
+	this.timerInterval;
+	// key information
+	this.stationList;
+	// Websocket
 	this.websocket;
 	// update and render
 	this.Render = function () {
@@ -24,6 +34,21 @@ function Application () {
 		// fit the body to the screen resolution
 		document.body.style.height = window.innerHeight + "px";
 	};
+	this.StartTimer = function () {
+		var self = this;
+		self.StopTimer();
+		self.timerTime = new moment();
+		self.timerTime.set('minute',0);
+		self.timerTime.set('second',0);
+		document.getElementById("timerTime").innerHTML = self.timerTime.format("mm:ss");
+		self.timerInterval = setInterval(function () {
+			self.timerTime.add(1,'s');
+			document.getElementById("timerTime").innerHTML = self.timerTime.format("mm:ss");
+		},1000);
+	}
+	this.StopTimer = function () {
+		clearInterval(this.timerInterval);
+	}
 	//----------------
 	// station list
 	//----------------
@@ -33,8 +58,8 @@ function Application () {
 			var li = document.createElement("DIV");
 			li.innerHTML = station;
 			li.className = "dropdown__item";
-			li.onclick = function ()  {
-				self.websocket.send(this.innerHTML);
+			li.onmousedown = function ()  {
+				self.websocket.send('{"station":"' + this.innerHTML + '"}');
 				var dropdown = document.getElementById("stationName");
 				dropdown.innerHTML = this.innerHTML;
 			}
@@ -48,7 +73,17 @@ function Application () {
 		
 		self.SetWindowHeight();
 		window.addEventListener("resize",self.SetWindowHeight,false);
-		
+		//----------------
+		// timer ui
+		//----------------
+		self.timerStart = document.getElementById("startTimer");
+		self.timerStart.onmousedown = function () {
+			self.StartTimer();
+		}
+		self.timerStop = document.getElementById("stopTimer");
+		self.timerStop.onmousedown = function () {
+			self.StopTimer();
+		}
 		//----------------
 		// traveler view
 		//----------------
@@ -94,16 +129,17 @@ function Application () {
 					if (object) {					
 					// valid json object recieved, time to hande the message
 						if (object.hasOwnProperty("stationList")) {
+							self.stationList = object.stationList;
 							self.PopulateStations(object.stationList);
 						} else if (object.hasOwnProperty("travelers")) {
 							
-							self.travelerQueue.travelers = [];
-							object.travelers.forEach(function (json) {
-								var traveler = new Traveler();
-								traveler.Load(json);
+							self.travelerQueue.Clear();
+							object.travelers.forEach(function (obj) {
+								var traveler = new Traveler(obj);
 								self.travelerQueue.AddTraveler(traveler);
 							});
-							self.travelerView.Load(self.travelerQueue.travelers[0]);
+							if (self.travelerQueue.travelers[0]) self.travelerView.Load(self.travelerQueue.travelers[0]);
+							
 						}
 					}
 				} else if (messageEvent.data instanceof Blob) {
@@ -124,6 +160,10 @@ function TravelerQueue() {
 	this.DOMelement;
 	this.travelers;
 	
+	this.Clear = function () {
+		this.travelers = [];
+		this.RePaint();
+	}
 	this.AddTraveler = function (traveler) {
 		this.travelers.push(traveler);
 		this.RePaint();
@@ -164,7 +204,7 @@ function TravelerQueue() {
 			var DOMqueueItem = document.createElement("DIV");
 			DOMqueueItem.className = "queue__item";
 			DOMqueueItem.innerHTML = traveler.itemCode;
-			DOMqueueItem.onclick = function () {
+			DOMqueueItem.onmousedown = function () {
 				application.travelerView.Load(traveler);
 				self.RePaint();
 			}
@@ -191,6 +231,9 @@ function TravelerView() {
 	}
 	this.Load = function (traveler) {
 		var self = this;
+		// start the timer
+		application.StartTimer();
+		// initialize
 		self.traveler = traveler;
 		self.Clear();
 		// clear old DOM objects

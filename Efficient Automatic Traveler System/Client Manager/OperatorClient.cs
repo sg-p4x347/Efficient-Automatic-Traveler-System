@@ -27,45 +27,45 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage(@"{""stationList"":[" + stationList + "]}");
             HandleTravelersChanged();
         }
-        public virtual async void Start()
+        public virtual async void ListenAsync()
         {
-            IndexJSON(@"{""test"":""{""""}""}");
-            string message = await RecieveMessageAsync();
             try
             {
-                // handle message ( message type : message )
-                MessageTypes type = (MessageTypes)message[0];
-                message = message.Remove(0, 1);
-                switch (type)
+                
+                string message = await RecieveMessageAsync();
+                if (!Connected) throw new Exception("Lost Connection");
+
+                StringStream ss = new StringStream(message);
+                Dictionary<string, string> obj = ss.ParseJSON();
+                if (obj.ContainsKey("station"))
                 {
-                    case MessageTypes.OperatorUpdate:
-
-                        break;
+                    m_station = Traveler.GetStation(obj["station"].Trim('"'));
+                    HandleTravelersChanged();
                 }
-
-                m_station = Traveler.GetStation(message);
+                ListenAsync();
             }
             catch (Exception ex)
             {
-                m_station = 0;
             }
+            
         }
         public void HandleTravelersChanged()
         {
             List<Traveler> stationSpecific = m_travelers.Where(x => x.Station == m_station).ToList();
             string message = @"{""travelers"":[";
+            string travelerJSON = "";
             foreach (Traveler traveler in stationSpecific)
             {
                 if (traveler.GetType().Name == "Table")
                 {
-                    message += (message.Length != 0 ? "," : "") + ((Table)traveler).Export(traveler.Station);
+                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Table)traveler).Export(traveler.Station);
                 }
                 else if (traveler.GetType().Name == "Chair")
                 {
-                    message += (message.Length != 0 ? "," : "") + ((Chair)traveler).Export();
+                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Chair)traveler).Export();
                 }
             }
-            message += "]}";
+            message += travelerJSON + "]}";
             SendMessage(message);
         }
         //------------------------------

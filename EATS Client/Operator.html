@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>EATS Operator</title>   
+        <title>EATS Operator</title>
+		<script type="text/javascript" src="js/moment.js"></script>		
         <script type="text/javascript" src="js/EATS.js"></script>
 		<link rel="stylesheet" type="text/css" href="css/style.css"></link>
 		<link rel="stylesheet" type="text/css" href="css/widgets.css"></link>
     </head>
 	<body onload = "Initialize()">
+		<div id = "blackout">
+			<div class = "finalizeContainer">
+				<div>Would you like to continue?</div>
+				<div class = "list--horizontal">
+					<!--
+					<div class = "dropdown">
+						<div id = "stationName" class = "dropdown__btn">Change destination</div>
+						<div id = "stationList" class = "dropdown__content">
+					</div>
+					!-->
+					<div id = "submit" class = "button">Submit</div>
+				</div>
+			</div>
+			</div>
+		</div>
 		<div class = "header">
 			<div class = "dropdown">
-				<button id = "stationName" class = "dropdown__btn">Station</button>
+				<div id = "stationName" class = "dropdown__btn">Station</div>
 				<div id = "stationList" class = "dropdown__content">
 				</div>
 			</div>
@@ -20,7 +36,13 @@
 			<div id = "viewContainer" class = "viewContainer">
 				<table class = "view"></table>
 			</div>
-			<div id = "completedList" class = "queue"></div>
+			<div class = "flank">
+				<div class = "timer">
+					<div id = "startTimer" class = "timer__btn greenBack">Start</div>
+					<div id = "timerTime">00:00</div>
+					<div id = "stopTimer" class = "timer__btn redBack">Stop</div>
+				</div>
+			</div>
 		</div>
 		
 		<div class = "footer">

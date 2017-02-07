@@ -12,7 +12,9 @@ namespace Efficient_Automatic_Traveler_System
 {
     enum TravelerEvent
     {
-        Scrap
+        Scrap,
+        Arrived,
+        Completed
     }
     struct Event
     {
@@ -142,6 +144,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Console.WriteLine("Problem reading in traveler from printed.json: " + ex.Message);
             }
+            SetOrderQty();
             m_printed = true;
         }
         // Creates a traveler from a part number and quantity
@@ -407,7 +410,17 @@ namespace Efficient_Automatic_Traveler_System
                 return -1;
             }
         }
-
+        //-----------------------
+        // Private members
+        //-----------------------
+        protected void SetOrderQty()
+        {
+            m_quantity = 0;
+            foreach (Order order in m_orders)
+            {
+                m_quantity += order.QuantityOrdered;
+            }
+        }
         //-----------------------
         // Properties
         //-----------------------
@@ -423,7 +436,7 @@ namespace Efficient_Automatic_Traveler_System
         protected int m_quantity = 0;
         protected string m_color = "";
         protected int m_station = Traveler.GetStation("Heian");
-        protected List<Event> events = new List<Event>();
+        protected List<Event> m_history = new List<Event>();
         // static
         internal static Dictionary<string, int> Stations = new Dictionary<string, int>();
         // Labor
@@ -771,16 +784,16 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<Event> Events
+        internal List<Event> History
         {
             get
             {
-                return events;
+                return m_history;
             }
 
             set
             {
-                events = value;
+                m_history = value;
             }
         }
     }

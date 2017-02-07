@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.IO;
 
 using System.Net.Sockets;
@@ -25,13 +26,15 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_TcpClient = client;
             m_stream = m_TcpClient.GetStream();
+            m_cts = new CancellationTokenSource();
+            m_connected = true;
         }
 
         public void SendMessage(string message)
         {
-            Byte[] test = CreateMessage(message);
             try
             {
+                Byte[] test = CreateMessage(message);
                 m_stream.Write(test, 0, test.Length);
             } catch (Exception ex)
             {
@@ -41,9 +44,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static async Task<string> RecieveMessageAsync(NetworkStream stream)
         {
-            Byte[] bytes = new Byte[1024];
             try
             {
+                Byte[] bytes = new Byte[1024];
                 int length = await stream.ReadAsync(bytes, 0, bytes.Length);
                 // Message has arrived, now lets decode it
                 return GetMessage(bytes, length);
@@ -51,7 +54,7 @@ namespace Efficient_Automatic_Traveler_System
             catch (Exception ex)
             {
                 // connection was lost
-                return "Lost Connection";
+                return "connection aborted";
             }
         }
         //------------------------------
@@ -60,23 +63,24 @@ namespace Efficient_Automatic_Traveler_System
 
         protected async Task<string> RecieveMessageAsync()
         {
-            Byte[] bytes = new Byte[1024];
             try
             {
-                int length = await m_stream.ReadAsync(bytes, 0, bytes.Length);
+                Byte[] bytes = new Byte[1024];
+                int length = await m_stream.ReadAsync(bytes, 0, bytes.Length, m_cts.Token);
                 // Message has arrived, now lets decode it
                 return GetMessage(bytes, length);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                // connection was lost
                 LostConnection();
-                return "Lost Connection";
+                return "connection aborted";
             }
         }
 
         protected void LostConnection()
         {
-
+            m_cts.Cancel();
+            m_connected = false;
         }
         protected static Byte[] DecodeMessage(List<Byte> encoded, List<Byte> masks)
         {
@@ -187,58 +191,20 @@ namespace Efficient_Automatic_Traveler_System
             System.Buffer.BlockCopy(messageArray, 0, finalDataArray, headerArray.Length, messageArray.Length);
             return finalDataArray;
         }
-        protected Dictionary<string, string> IndexJSON(string json)
-        {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            string memberName = GetJsonScope(json.Remove(0,1)).Trim('"');
-            string value = GetJsonScope(json.Remove(0, 1 + memberName.Length + 1)).Trim('"');
-            obj.Add(memberName, value);
-            return obj;
-        }
-        protected string GetJsonScope (string json)
-        {
-            string scope = "" + json[0];
-            char closing = '}';
-            switch (json[0])
-            {
-                case '[': closing = ']'; break;
-                case '{': closing = '}'; break;
-                case '"': closing = '"'; break;
-            }
-            for (int i = 1; i < json.Length; i++)
-            {
-                char ch = json[i];
-                
-                
-                if (ch == '[' || ch == '{' || (closing != '"' && ch == '"'))
-                {
-                    string inner = GetJsonScope(json.Remove(0, i));
-                    i += inner.Length-1;
-                    scope += inner;
-                }
-                else
-                {
-                    scope += ch;
-                }
-                if (ch == closing)
-                {
-                    return scope;
-                }
-            }
-            return json;
-        }
+        
         //------------------------------
         // Properties
         //------------------------------
         protected TcpClient m_TcpClient;
         protected NetworkStream m_stream;
-        
+        protected CancellationTokenSource m_cts;
+        protected bool m_connected;
 
         public bool Connected
         {
             get
             {
-                return m_TcpClient.Connected;
+                return m_connected;
             }
         }
     }

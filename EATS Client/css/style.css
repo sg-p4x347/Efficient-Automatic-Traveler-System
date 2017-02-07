@@ -33,6 +33,7 @@ p.heading {
 p {
 	margin: 8px;
 }
+/*UI*/
 div.button {
 	transition-duration: 0.25s;
 	
@@ -58,11 +59,43 @@ div.button:active {
 	background-color: darkGoldenrod;
 	border-color: goldenrod
 }
-
+#stationName {
+	text-shadow: 1px 1px 2px black;
+}
+#blackout {
+	position: absolute;
+	display: none;
+	justify-content: space-around;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255,255,255,0.25);
+	z-index: 100;
+}
+/*timer UI*/
+div.timer {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	float: left;
+	align-items: center;
+}
+div.timer__btn {
+	text-align: center;
+	font-size: 2em;
+	border-radius: 0.5em;
+	border: 2px outset silver;
+	padding: 0.25em;
+}
+#timerTime {
+	font-size: 4em;
+}
+/*Organizational divs*/
 div.header {
 	display: flex;
 	width: 100%;
-	justify-content: center;
+	justify-content: space-around;
+	align-items: center;
 }
 div.body {
 	display: flex;
@@ -75,6 +108,26 @@ div.footer {
 	width: 100%;
 	justify-content: center;
 }
+div.flank {
+	display: flex;
+	flex-direction: column;
+	border: 4px inset gray;
+	background-color: #404040;
+	overflow: auto;
+	width: 20%;
+	height: 100%;
+}
+div.finalizeContainer {
+	background-color: rgba(0,0,0,0.75);
+	display: flex;
+	flex-direction: column;
+}
+div.list--horizontal {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	width: 100%;
+}
 /*Traveler Queue*/
 div.queue {
 	display: flex;
@@ -84,10 +137,9 @@ div.queue {
 	overflow: auto;
 	width: 20%;
 	height: 100%;
-	background-color: #404040;
 }
 div.queue__item {
-	transition-duration: 0.25s;
+	transition-duration: 0.25s;
 	
 	font-family: "Arial Black", Gadget, sans-serif;
 	font-size: 1.5em;
@@ -146,6 +198,18 @@ th.view__item--complete {
 /*modifiers*/
 .red {
 	color: red;
+}
+.greenBack {
+	background-color: green;
+}
+.greenBack:active {
+	background-color: lime;
+}
+.redBack {
+	background-color: maroon;
+}
+.redBack:active {
+	background-color: red;
 }
 .center {
 	text-align: center;
