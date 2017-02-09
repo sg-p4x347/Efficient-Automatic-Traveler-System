@@ -10,22 +10,22 @@
 	<body onload = "Initialize()">
 		<div id = "blackout">
 			<div class = "finalizeContainer">
-				<div>Would you like to continue?</div>
+				<div>Submit this to:</div>
+				<p id = "destName"></p>
 				<div class = "list--horizontal">
-					<!--
+					<div id = "cancel" class = "dark button">Cancel</div>
 					<div class = "dropdown">
-						<div id = "stationName" class = "dropdown__btn">Change destination</div>
-						<div id = "stationList" class = "dropdown__content">
+						<div class = "dropdown__btn dark button stationList">Change</div>
+						<div id = "destList" class = "dropdown__content"></div>
 					</div>
-					!-->
-					<div id = "submit" class = "button">Submit</div>
+					<div id = "submit" class = "dark button">Submit</div>
 				</div>
 			</div>
 			</div>
 		</div>
 		<div class = "header">
-			<div class = "dropdown">
-				<div id = "stationName" class = "dropdown__btn">Station</div>
+			<div class = "dropdown fourEM" style = "width: 100%;">
+				<div id = "stationName" class = "dropdown__btn darkAero stationList">Station</div>
 				<div id = "stationList" class = "dropdown__content">
 				</div>
 			</div>

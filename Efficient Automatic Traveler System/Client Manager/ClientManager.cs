@@ -35,11 +35,15 @@ namespace Efficient_Automatic_Traveler_System
                     m_operatorClients[i].HandleTravelersChanged();
                 } else
                 {
+                    m_operatorClients[i].TravelersChanged -= HandleTravelersChanged; // unsubscribe from event
                     m_operatorClients.RemoveAt(i);
                 }
             }
         }
-
+        public void HandleTravelerChanged()
+        {
+            TravelersChanged();
+        }
         //------------------------------
         // Private
         //------------------------------
@@ -57,6 +61,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     case "OperatorClient":
                         OperatorClient newClient = new OperatorClient(tcpClient, ref m_travelers);
+                        newClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         newClient.ListenAsync();
                         m_operatorClients.Add(newClient);
                         Console.WriteLine("An operator connected (" + m_operatorClients.Count + " total)");
@@ -124,10 +129,10 @@ namespace Efficient_Automatic_Traveler_System
         private int m_nextClientID;
         private TimeSpan m_updateInterval;
         private Timer m_timer;
-        private Func<int, List<Traveler>> m_getTravelersAt;
         private List<Traveler> m_travelers;
         //----------
         // Events
         //----------
+        public event TravelersChangedSubscriber TravelersChanged;
     }
 }

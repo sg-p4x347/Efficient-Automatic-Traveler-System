@@ -44,27 +44,64 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"quantity\":" + '"' + m_quantity + '"' + ",";
             json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
             json += "\"members\":[";
-
-            json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString() + ","; ;
+            string rows = "";
+            rows += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
             if (station ==  Traveler.GetStation("Heian")) {
-                json += new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString() + ","; ;
-                json += new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString() + ","; ;
-                json += new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString() + ","; ;
-                json += new NameValueQty<string, string>("Color", m_color, "").ToString();
+                rows += (rows.Length > 0 ? "," : "" ) + new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString();
+                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
+                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
+                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Color", m_color, "").ToString();
+            } else if (station ==  Traveler.GetStation("Vector")) {
+                rows += (rows.Length > 0 ? "," : "" ) + new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString();
+                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Color", m_color, "").ToString();
             }
+            json += rows;
             json += ']';
             json += "}\n";
             return json;
         }
-        //===========================
-        // Private
-        //===========================
+        // advances this table to the next station
+        public override void Advance()
+        {
+            m_station = m_nextStation;
+            SetNextStation();
+        }
+
+        //--------------------------
+        // Private members
+        //--------------------------
+
         private void GetBlacklist()
         {
             m_blacklist.Add(new BlacklistItem("88")); // Glue items
             m_blacklist.Add(new BlacklistItem("92")); // Foam items
             m_blacklist.Add(new BlacklistItem("/")); // Misc work items
         }
+        // returns the next station for this table
+        protected override void SetNextStation()
+        {
+            if (m_station == Traveler.GetStation("Start"))
+            {
+                m_nextStation = Traveler.GetStation("Heian");
+            } else if (m_station == Traveler.GetStation("Heian"))
+            {
+                m_nextStation = Traveler.GetStation("Vector");
+            } else if (m_station == Traveler.GetStation("Vector") || m_station == Traveler.GetStation("Vector"))
+            {
+                m_nextStation = Traveler.GetStation("Table-Pack");
+            } else if (m_station == Traveler.GetStation("Table-Pack"))
+            {
+                m_nextStation = Traveler.GetStation("Finished");
+            } else
+            {
+                m_nextStation = Traveler.GetStation("Start");
+            }
+        }
+        
+        //--------------------------
+        // Properties
+        //--------------------------
+
         // part information
         private int m_colorNo = 0;
         private string m_shapeNo = "";

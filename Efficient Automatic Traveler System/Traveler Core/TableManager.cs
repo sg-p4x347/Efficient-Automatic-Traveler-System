@@ -31,6 +31,8 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
         // Private members
         //-----------------------
+
+        // oversees the importing of externally stored information
         protected override void ImportInformation()
         {
             int index = 0;
@@ -54,9 +56,10 @@ namespace Efficient_Automatic_Traveler_System
         private void GetColorInfo(Table traveler)
         {
             // Get the color from the color reference
-            for (int row = 2; row < 27; row++)
+            for (int row = 2; true; row++)
             {
                 var colorRefRange = m_colorRef.get_Range("A" + row, "B" + row);
+                if (Convert.ToString(colorRefRange.Value2) == "") break;
                 if (Convert.ToInt32(colorRefRange.Item[1].Value2) == traveler.ColorNo)
                 {
                     traveler.Color = colorRefRange.Item[2].Value2;
@@ -97,14 +100,17 @@ namespace Efficient_Automatic_Traveler_System
 
         }
         // Calculate how many will be left over + Blank Size
-        private void GetBlankInfo(Table traveler) {
+        private void GetBlankInfo(Table traveler)
+        {
             // find the Blank code in the color table
-            for (int crow = 2; crow < 27; crow++)
+            for (int crow = 2; true; crow++)
             {
                 var colorRange = m_crossRef.get_Range("K" + crow, "M" + crow);
+                if (Convert.ToString(colorRange.Value2) == "") break;
                 // find the correct color
                 if (Convert.ToInt32(colorRange.Item[1].Value2) == traveler.ColorNo)
                 {
+                    traveler.Color = colorRange.Item[2].Value2;
                     traveler.BlankColor = colorRange.Item[3].Value2;
                     if (colorRange != null) Marshal.ReleaseComObject(colorRange);
                     break;
@@ -119,11 +125,10 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (range.Item[3].Value2 == "Yes")
                     {
-                        
+
                         // check to see if there is a MAGR blank
                         if (traveler.BlankColor == "MAGR" && range.Item[4].Value2 != null)
                         {
-
                             traveler.BlankNo = range.Item[4].Value2;
                         }
                         // check to see if there is a CHOK blank
@@ -151,28 +156,22 @@ namespace Efficient_Automatic_Traveler_System
                     if ((traveler.ShapeNo == "MG2247" || traveler.ShapeNo == "38-2247") && exceptionColors.IndexOf(traveler.ColorNo) != -1)
                     {
                         // Exceptions to the blank parent sheet (certain colors have grain that can't be used with the typical blank)
-                        traveler.BlankSize = "(5X10) ~sheet";
+                        traveler.BlankSize = "(5X10)";
                         traveler.BlankNo = "";
                         traveler.PartsPerBlank = 2;
                     }
                     else
                     {
-                        // All normal
+                        // Blank
                         if (Convert.ToInt32(blankRange.Item[7].Value2) > 0)
                         {
-                            traveler.BlankSize = "(" + blankRange.Item[8].Value2 + ")";
+                            traveler.BlankSize += "(" + blankRange.Item[8].Value2 + ")";
                             traveler.PartsPerBlank = Convert.ToInt32(blankRange.Item[7].Value2);
                         }
-                        else
+                        // sheet
+                        if (blankRange.Item[5].Value2 != null)
                         {
-                            if (Convert.ToString(blankRange.Item[5].Value2) != "-99999")
-                            {
-                                traveler.BlankSize = "(" + blankRange.Item[5].Value2 + ") ~sheet";
-                            }
-                            else
-                            {
-                                traveler.BlankSize = "No Blank";
-                            }
+                            traveler.BlankSize += "(" + blankRange.Item[5].Value2 + ")";
                         }
                     }
                     // calculate production numbers
@@ -186,7 +185,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (blankRange != null) Marshal.ReleaseComObject(blankRange);
 
 
-                
+
             }
             // subtract the inventory parts from the box quantity
             // router.RegPackQty = Math.Max(0, router.RegPackQty - ((router.RegPackQty + router.SupPackQty) - router.Quantity));
@@ -215,7 +214,11 @@ namespace Efficient_Automatic_Traveler_System
             //    reader.Close();
             //}
         }
-
+        // Sets the starting station
+        private void SetStartStation()
+        {
+            if 
+        }
         //-----------------------
         // Properties
         //-----------------------

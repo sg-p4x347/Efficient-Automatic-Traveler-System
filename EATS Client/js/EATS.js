@@ -14,11 +14,7 @@ function Application () {
 	this.travelerQueue;
 	this.travelerView;
 	this.completedList;
-	// Timer
-	this.timerStart;
-	this.timerStop;
-	this.timerTime;
-	this.timerInterval;
+	
 	// key information
 	this.stationList;
 	// Websocket
@@ -34,36 +30,16 @@ function Application () {
 		// fit the body to the screen resolution
 		document.body.style.height = window.innerHeight + "px";
 	};
-	this.StartTimer = function () {
-		var self = this;
-		self.StopTimer();
-		self.timerTime = new moment();
-		self.timerTime.set('minute',0);
-		self.timerTime.set('second',0);
-		document.getElementById("timerTime").innerHTML = self.timerTime.format("mm:ss");
-		self.timerInterval = setInterval(function () {
-			self.timerTime.add(1,'s');
-			document.getElementById("timerTime").innerHTML = self.timerTime.format("mm:ss");
-		},1000);
-	}
-	this.StopTimer = function () {
-		clearInterval(this.timerInterval);
-	}
+	
 	//----------------
 	// station list
 	//----------------
-	this.PopulateStations = function (stations) {
+	this.PopulateStations = function () {
 		var self = this;
-		stations.forEach(function (station) {
-			var li = document.createElement("DIV");
-			li.innerHTML = station;
-			li.className = "dropdown__item";
-			li.onmousedown = function ()  {
-				self.websocket.send('{"station":"' + this.innerHTML + '"}');
-				var dropdown = document.getElementById("stationName");
-				dropdown.innerHTML = this.innerHTML;
-			}
-			document.getElementById("stationList").appendChild(li);
+		PopulateStations(self.stationList,document.getElementById("stationList"), function ()  {
+			self.websocket.send('{"station":"' + this.innerHTML + '"}');
+			var dropdown = document.getElementById("stationName");
+			dropdown.innerHTML = this.innerHTML;
 		});
 	}
 	// initialize html and application components
@@ -73,17 +49,7 @@ function Application () {
 		
 		self.SetWindowHeight();
 		window.addEventListener("resize",self.SetWindowHeight,false);
-		//----------------
-		// timer ui
-		//----------------
-		self.timerStart = document.getElementById("startTimer");
-		self.timerStart.onmousedown = function () {
-			self.StartTimer();
-		}
-		self.timerStop = document.getElementById("stopTimer");
-		self.timerStop.onmousedown = function () {
-			self.StopTimer();
-		}
+		
 		//----------------
 		// traveler view
 		//----------------
@@ -185,11 +151,6 @@ function TravelerQueue() {
 				shiftedTraveler = self.travelers.shift();		
 			}
 		}
-		if (self.travelers.length > 0) {
-			application.travelerView.Load(self.travelers[0]);
-		} else {
-			application.travelerView.Clear();
-		}
 		self.RePaint();
 		return shiftedTraveler;
 	}
@@ -220,9 +181,36 @@ function TravelerQueue() {
 function TravelerView() {
 	// properties
 	this.traveler;
+	this.destination;
 	// DOM
 	this.DOMcontainer;
+	this.btnComplete;
+	// Timer
+	this.timerStart;
+	this.timerStop;
+	this.timerTime;
+	this.timerInterval;
 	
+	this.StartTimer = function () {
+		var self = this;
+		self.StopTimer();
+		// hide complete button
+		if (self.btnComplete != undefined) self.btnComplete.style.visibility = "hidden";
+		//---------------------
+		self.timerTime = new moment.duration("00:00");
+		document.getElementById("timerTime").innerHTML = pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
+		self.timerInterval = setInterval(function () {
+			self.timerTime.add(1,'s');
+			document.getElementById("timerTime").innerHTML = pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
+		},1000);
+	}
+	this.StopTimer = function () {
+		var self = this;
+		clearInterval(self.timerInterval);
+		// show complete button
+		if (self.btnComplete != undefined) self.btnComplete.style.visibility = "visible";
+		//---------------------
+	}
 	this.Clear = function () {
 		var self = this;
 		while (self.DOMcontainer.hasChildNodes()) {
@@ -231,8 +219,7 @@ function TravelerView() {
 	}
 	this.Load = function (traveler) {
 		var self = this;
-		// start the timer
-		application.StartTimer();
+		
 		// initialize
 		self.traveler = traveler;
 		self.Clear();
@@ -244,11 +231,11 @@ function TravelerView() {
 		var DOMtable = document.createElement("TABLE");
 		DOMtable.className = "view";
 		// create the complete (or uncomplete) button
-		var btnComplete = document.createElement("DIV");
-		btnComplete.className = "button";
+		self.btnComplete = document.createElement("DIV");
+		self.btnComplete.className = "button";
 		// create and add new DOM objects
 		
-		if (traveler.completed) {
+		/* if (traveler.completed) {
 			var completedRow = document.createElement("TR");
 			completedRow.appendChild(document.createElement("TH"));
 			var completedCell = document.createElement("TH");
@@ -266,15 +253,20 @@ function TravelerView() {
 				unComplete.completed = false;
 				application.travelerQueue.UnshiftTraveler(unComplete);
 			}
-		} else {
-			// configure complete button
-			btnComplete.innerHTML = "Complete";
-			btnComplete.onclick = function () {
-				var complete = application.travelerQueue.ShiftTraveler(traveler);
-				complete.completed = true;
-				application.completedList.UnshiftTraveler(complete);
-			}
+		} else { */
+		// configure complete button
+		self.btnComplete.innerHTML = "Complete";
+		self.btnComplete.className = "dark button fourEM";
+		self.btnComplete.onclick = function () {
+			document.getElementById("blackout").style.visibility = "visible";
+			PopulateStations(application.stationList,document.getElementById("destList"),function () {
+				self.destination = this.innerHTML;
+				var destName = document.getElementById("destName");
+				destName.innerHTML = this.innerHTML;
+			});
+			//application.completedList.UnshiftTraveler(complete);
 		}
+		//}
 		
 		// header
 		var headerRow = document.createElement("TR");
@@ -323,11 +315,48 @@ function TravelerView() {
 		// add the table
 		self.DOMcontainer.appendChild(DOMtable);
 		// add the complete button
-		self.DOMcontainer.appendChild(btnComplete);
+		self.DOMcontainer.appendChild(self.btnComplete);
+	
+		// start the timer
+		self.StartTimer();
 	}
 	this.Initialize = function () {
 		var self = this;
 		self.DOMcontainer = document.getElementById("viewContainer");
+		
+		// Submitting a finished traveler
+		document.getElementById("submit").onclick = function () {
+			var completedTraveler = self.traveler; //application.travelerQueue.ShiftTraveler(self.traveler);
+			var message = {
+				completed: completedTraveler.ID,
+				destination: self.destination,
+				time: self.timerTime.asMinutes()
+			};
+			application.websocket.send(JSON.stringify(message));
+			// load the next traveler
+			if (application.travelerQueue.travelers.length > 0) {
+				self.Load(application.travelerQueue.travelers[0]);
+			} else {
+				self.Clear();
+			}
+			// close the window
+			document.getElementById("blackout").style.visibility = "hidden";
+		}
+		// cancel submission
+		document.getElementById("cancel").onclick = function () {
+			document.getElementById("blackout").style.visibility = "hidden";
+		}
+		//----------------
+		// timer ui
+		//----------------
+		self.timerStart = document.getElementById("startTimer");
+		self.timerStart.onmousedown = function () {
+			self.StartTimer();
+		}
+		self.timerStop = document.getElementById("stopTimer");
+		self.timerStop.onmousedown = function () {
+			self.StopTimer();
+		}
 	}
 }
 function Traveler(obj) {
@@ -349,4 +378,19 @@ function Traveler(obj) {
 		self.description = obj.description;
 	}
 	this.Initialize(obj); */
+}
+function PopulateStations (stations,DOMparent,callback) {
+	var self = this;
+	stations.forEach(function (station) {
+		var li = document.createElement("DIV");
+		li.innerHTML = station;
+		li.className = "dropdown__item";
+		li.onmousedown = callback;
+		DOMparent.appendChild(li);
+	});
+}
+function pad(num, size) {
+    var s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
 }

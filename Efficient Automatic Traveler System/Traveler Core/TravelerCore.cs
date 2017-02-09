@@ -78,8 +78,7 @@ namespace Efficient_Automatic_Traveler_System
 
             Travelers.AddRange(newTravelers);
             OnTravelersChanged();
-            // Update the travelers.json file with all the current travelers
-            BackupTravelers();
+            
         }
         public void BackupTravelers()
         {
@@ -92,18 +91,11 @@ namespace Efficient_Automatic_Traveler_System
             }
             System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "travelers.json"),contents);
         }
-        //public List<Traveler> GetTravelersAt(ProductionStage stage)
-        //{
-        //    List<Traveler> travelers = new List<Traveler>();
-        //    foreach (Traveler traveler in Travelers)
-        //    {
-        //        if (traveler.Station == stage)
-        //        {
-        //            travelers.Add(traveler);
-        //        }
-        //    }
-        //    return travelers;
-        //}
+        public void HandleTravelersChanged()
+        {
+            OnTravelersChanged();
+        }
+
         //------------------------------
         // Private members
         //------------------------------
@@ -314,6 +306,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void OnTravelersChanged()
         {
+            // Update the travelers.json file with all the current travelers
+            BackupTravelers();
+            // fire the event
             TravelersChanged();
         }
 

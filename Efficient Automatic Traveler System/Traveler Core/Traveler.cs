@@ -13,27 +13,37 @@ namespace Efficient_Automatic_Traveler_System
     enum TravelerEvent
     {
         Scrap,
-        Arrived,
         Completed
     }
     struct Event
     {
-        Event (TravelerEvent e, DateTime t, int q, int s)
+        public Event (TravelerEvent e, DateTime t, int q, int s)
         {
             type = e;
             time = t;
+            elapsedMins = 0;
             quantity = q;
             station = s;
         }
-        Event(TravelerEvent e, int q, int s)
+        public Event(TravelerEvent e, int q, int s)
         {
             type = e;
             time = DateTime.Now;
+            elapsedMins = 0;
+            quantity = q;
+            station = s;
+        }
+        public Event(TravelerEvent e, int q, int s, double el)
+        {
+            type = e;
+            time = DateTime.Now;
+            elapsedMins = el;
             quantity = q;
             station = s;
         }
         public TravelerEvent type;
         public DateTime time;
+        public double elapsedMins;
         public int quantity;
         public int station;
     }
@@ -130,6 +140,10 @@ namespace Efficient_Automatic_Traveler_System
                             {
                                 m_quantity = Convert.ToInt32(value);
                             }
+                            else if (memberName == "station")
+                            {
+                                m_station = Convert.ToInt32(value);
+                            }
                             continue;
                         case '}': continue;
                     }
@@ -184,6 +198,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 m_part = new Bill(m_partNo, m_quantity, MAS);
                 m_drawingNo = m_part.DrawingNo;
+                m_part.BillDesc = m_part.BillDesc.Replace("TableTopAsm,", ""); // tabletopasm is pretty obvious and therefore extraneous
                 FindComponents(m_part);
             }
         }
@@ -368,6 +383,7 @@ namespace Efficient_Automatic_Traveler_System
             doc += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             doc += "\"quantity\":" + '"' + m_quantity + '"' + ",";
             doc += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
+            doc += "\"station\":" + '"' + m_station.ToString() + '"' + ",";
             doc += "\"orders\":[";
             foreach (Order order in m_orders)
             {
@@ -410,6 +426,18 @@ namespace Efficient_Automatic_Traveler_System
                 return -1;
             }
         }
+        // sorts the traveler out to its beginning station
+        public virtual void Start()
+        {
+            SetNextStation();
+            Advance();
+        }
+        // advances this traveler to the next station
+        public virtual void Advance()
+        {
+            m_station = m_nextStation;
+            SetNextStation();
+        }
         //-----------------------
         // Private members
         //-----------------------
@@ -421,6 +449,11 @@ namespace Efficient_Automatic_Traveler_System
                 m_quantity += order.QuantityOrdered;
             }
         }
+        protected virtual void SetNextStation()
+        {
+            m_nextStation = Traveler.GetStation("Start");
+        }
+        
         //-----------------------
         // Properties
         //-----------------------
@@ -435,7 +468,8 @@ namespace Efficient_Automatic_Traveler_System
         protected string m_drawingNo = "";
         protected int m_quantity = 0;
         protected string m_color = "";
-        protected int m_station = Traveler.GetStation("Heian");
+        protected int m_station = Traveler.GetStation("Start");
+        protected int m_nextStation = Traveler.GetStation("Start");
         protected List<Event> m_history = new List<Event>();
         // static
         internal static Dictionary<string, int> Stations = new Dictionary<string, int>();
@@ -781,6 +815,18 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_station = value;
+            }
+        }
+        internal int NextStation
+        {
+            get
+            {
+                return m_nextStation;
+            }
+
+            set
+            {
+                m_nextStation = value;
             }
         }
 

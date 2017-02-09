@@ -34,37 +34,14 @@ p {
 	margin: 8px;
 }
 /*UI*/
-div.button {
-	transition-duration: 0.25s;
-	
-	display: inline-block;
-	
-	font-family: "Impact", Gadget, sans-serif;
-	font-size: 4em;
-	text-shadow: 2px 2px 2px darkGoldenrod;
-	
-	padding: 0.25em;
-	margin: 0.25em;
-	
-	color: white;
-	background-color: gold;
-	border: 2px solid yellow;
-	border-radius: 0.125em;
-}
-div.button:hover {
-	background-color: darkKhaki;
-	border-color: khaki
-}
-div.button:active {
-	background-color: darkGoldenrod;
-	border-color: goldenrod
-}
+
 #stationName {
 	text-shadow: 1px 1px 2px black;
 }
 #blackout {
+	visibility: hidden;
 	position: absolute;
-	display: none;
+	display: flex;
 	justify-content: space-around;
 	align-items: center;
 	width: 100%;
@@ -118,9 +95,15 @@ div.flank {
 	height: 100%;
 }
 div.finalizeContainer {
-	background-color: rgba(0,0,0,0.75);
+	padding: 8px;
+	font-size: 4em;
+	color: black;
+	background-color: rgba(128,128,128,0.95);
+	border: 2px solid black;
 	display: flex;
 	flex-direction: column;
+	text-align: center;
+	border-radius: 16px;
 }
 div.list--horizontal {
 	display: flex;
@@ -194,26 +177,4 @@ td.view__item--null {
 th.view__item--complete {
 	background-color: lightGreen;
 	color: black;
-}
-/*modifiers*/
-.red {
-	color: red;
-}
-.greenBack {
-	background-color: green;
-}
-.greenBack:active {
-	background-color: lime;
-}
-.redBack {
-	background-color: maroon;
-}
-.redBack:active {
-	background-color: red;
-}
-.center {
-	text-align: center;
-}
-.shadow {
-	text-shadow: 1px 1px 1px black;
 }

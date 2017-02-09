@@ -53,6 +53,13 @@ namespace Efficient_Automatic_Traveler_System
                         closing = '"';
                         scope += opening;
                         goto begin;
+                    default:
+                        if (Char.IsNumber(opening))
+                        {
+                            scope += opening;
+                            goto begin;
+                        }
+                        break;
                 }
             }
             return "";
@@ -72,6 +79,17 @@ namespace Efficient_Automatic_Traveler_System
                 if (ch == closing)
                 {
                     return scope; // done!
+                } else if (Char.IsNumber(opening))
+                {
+                    // for numbers
+                    char next = ' ';
+                    Get(ref next);
+                    if (next != '.' && !Char.IsNumber(next))
+                    {
+                        PutBack();
+                        return scope;
+                    }
+                    PutBack();
                 }
             }
             return scope;

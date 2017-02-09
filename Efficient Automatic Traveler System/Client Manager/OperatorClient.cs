@@ -34,13 +34,31 @@ namespace Efficient_Automatic_Traveler_System
                 
                 string message = await RecieveMessageAsync();
                 if (!Connected) throw new Exception("Lost Connection");
-
+                if (message[0] == '"') message = message.Remove(0, 1);
                 StringStream ss = new StringStream(message);
                 Dictionary<string, string> obj = ss.ParseJSON();
                 if (obj.ContainsKey("station"))
                 {
                     m_station = Traveler.GetStation(obj["station"].Trim('"'));
                     HandleTravelersChanged();
+                } else if (obj.ContainsKey("completed") && obj.ContainsKey("destination") && obj.ContainsKey("time"))
+                {
+                    //----------------------
+                    // Traveler Completed
+                    //----------------------
+                    for (int i = 0; i < m_travelers.Count; i++)
+                    {
+                        if (m_travelers[i].ID.ToString("D6") == obj["completed"].Trim('"'))
+                        {
+                            Table table 
+                            traveler.Advance();
+                            traveler.Station = Traveler.GetStation(obj["destination"].Trim('"'));
+                            // log this event
+                            traveler.History.Add(new Event(TravelerEvent.Completed,traveler.Quantity,traveler.Station,Convert.ToDouble(obj["time"].Trim('"'))));
+                            break;
+                        }
+                    }
+                    TravelersChanged();
                 }
                 ListenAsync();
             }
@@ -74,6 +92,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Properties
         //------------------------------
+        
         protected List<Traveler> m_travelers;
         protected int m_station;
         internal int Station
@@ -88,5 +107,9 @@ namespace Efficient_Automatic_Traveler_System
                 m_station = value;
             }
         }
+        //----------
+        // Events
+        //----------
+        public event TravelersChangedSubscriber TravelersChanged;
     }
 }

@@ -23,6 +23,8 @@ namespace Efficient_Automatic_Traveler_System
             m_clientManager = new ClientManager(m_ip, m_port,ref m_travelerCore.m_travelers);
             // Subscribe events
             m_travelerCore.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
+            m_clientManager.TravelersChanged += new TravelersChangedSubscriber(m_travelerCore.HandleTravelersChanged);
+
 
             m_clientManagerThread = new Thread(m_clientManager.Start);
             m_clientManagerThread.Name = "Client Manager";
@@ -38,11 +40,21 @@ namespace Efficient_Automatic_Traveler_System
             // start the MAS update loop
             m_travelerCore.CreateTravelers(); // update immediatly upon server start
             Update();
+            GetInputAsync();
             while (true) ;
         }
         //------------------------------
         // Private members
         //------------------------------
+        private async void GetInputAsync()
+        {
+            string input =  await Task.Run(() => Console.ReadLine());
+            switch (input)
+            {
+                case "update": m_travelerCore.CreateTravelers(); break;
+            }
+            GetInputAsync();
+        }
         private void Update()
         {
             DateTime current = DateTime.Now;
