@@ -45,7 +45,7 @@ namespace Efficient_Automatic_Traveler_System
                 table.Part.TotalQuantity = table.Quantity;
                 table.FindComponents(table.Part);
                 // Table specific
-                GetColorInfo(table);
+                //GetColorInfo(table);
                 GetBoxInfo(table);
                 GetBlankInfo(table);
                 index++;
@@ -59,7 +59,7 @@ namespace Efficient_Automatic_Traveler_System
             for (int row = 2; true; row++)
             {
                 var colorRefRange = m_colorRef.get_Range("A" + row, "B" + row);
-                if (Convert.ToString(colorRefRange.Value2) == "") break;
+                if (Convert.ToString(colorRefRange.Item[1].Value2) == "") break;
                 if (Convert.ToInt32(colorRefRange.Item[1].Value2) == traveler.ColorNo)
                 {
                     traveler.Color = colorRefRange.Item[2].Value2;
@@ -214,11 +214,7 @@ namespace Efficient_Automatic_Traveler_System
             //    reader.Close();
             //}
         }
-        // Sets the starting station
-        private void SetStartStation()
-        {
-            if 
-        }
+
         //-----------------------
         // Properties
         //-----------------------

@@ -280,11 +280,15 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     Table table = new Table(line);
                     table.ImportPart(m_MAS);
+                    if (table.Station == Traveler.GetStation("Start")) table.Start();
+                    table.Advance();
                     m_tableManager.Travelers.Add(table);
                 } else if (Traveler.IsChair(createdTraveler.PartNo))
                 {
                     Chair chair = new Chair(line);
                     chair.ImportPart(m_MAS);
+                    if (chair.Station == Traveler.GetStation("Start")) chair.Start();
+                    chair.Advance();
                     m_chairManager.Travelers.Add(chair);
                 }
                 index++;

@@ -43,11 +43,10 @@
 	color: black;
 }
 div.button {
-	
 	font-family: Verdana, Geneva, sans-serif;
 	
-	padding: 0.25em;
-	margin: 0.25em;
+	padding: 8px;
+	margin: 8px;
 	
 	border-radius: 8px;
 }
@@ -69,7 +68,7 @@ div.button {
 }
 /* color themes */
 .dark {
-	background-color: #101010;
+	background-color: #202020;
 	color: white;
 }
 .dark:hover {

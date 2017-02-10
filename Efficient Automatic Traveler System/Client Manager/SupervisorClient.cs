@@ -11,16 +11,16 @@ using System.Security.Cryptography;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class OperatorClient : Client
+    class SupervisorClient : Client
     {
         //------------------------------
         // Public members
         //------------------------------
-        public OperatorClient (TcpClient client, ref List<Traveler> travelers) : base(client)
+        public SupervisorClient(TcpClient client, ref List<Traveler> travelers) : base(client)
         {
             m_travelers = travelers;
             string stationList = "";
-            foreach(string station in Traveler.Stations.Keys)
+            foreach (string station in Traveler.Stations.Keys)
             {
                 stationList += (stationList.Length != 0 ? "," : "") + '"' + station + '"';
             }
@@ -37,12 +37,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (message[0] == '"') message = message.Remove(0, 1);
                 StringStream ss = new StringStream(message);
                 Dictionary<string, string> obj = ss.ParseJSON();
-                if (obj.ContainsKey("station"))
-                {
-                    m_station = Traveler.GetStation(obj["station"].Trim('"'));
-                    HandleTravelersChanged();
-                }
-                else if (obj.ContainsKey("completed") && obj.ContainsKey("destination") && obj.ContainsKey("time") && obj.ContainsKey("quantity"))
+                if (obj.ContainsKey("completed") && obj.ContainsKey("destination") && obj.ContainsKey("time") && obj.ContainsKey("quantity"))
                 {
                     //----------------------
                     // Traveler Completed
@@ -60,7 +55,8 @@ namespace Efficient_Automatic_Traveler_System
                     }
                     TravelersChanged();
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 // something went wrong, it is best to just listen for a new message
             }
@@ -68,10 +64,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void HandleTravelersChanged()
         {
-            List<Traveler> stationSpecific = m_travelers.Where(x => x.Station == m_station).ToList();
             string message = @"{""travelers"":[";
             string travelerJSON = "";
-            foreach (Traveler traveler in stationSpecific)
+            foreach (Traveler traveler in m_travelers)
             {
                 if (traveler.GetType().Name == "Table")
                 {
@@ -91,7 +86,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Properties
         //------------------------------
-        
+
         protected List<Traveler> m_travelers;
         protected int m_station;
         internal int Station

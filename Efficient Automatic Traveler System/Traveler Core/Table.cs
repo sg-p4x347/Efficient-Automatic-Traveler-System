@@ -43,28 +43,24 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + '"' + m_quantity + '"' + ",";
             json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
+            json += "\"nextStation\":" + '"' + Traveler.GetStationName(m_nextStation) + '"' + ',';
             json += "\"members\":[";
             string rows = "";
             rows += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
             if (station ==  Traveler.GetStation("Heian")) {
-                rows += (rows.Length > 0 ? "," : "" ) + new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString();
+                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString();
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Color", m_color, "").ToString();
             } else if (station ==  Traveler.GetStation("Vector")) {
-                rows += (rows.Length > 0 ? "," : "" ) + new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString();
+                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString();
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Color", m_color, "").ToString();
+                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Edgebanding", m_eband.ItemCode, m_eband.TotalQuantity.ToString() + " " + m_eband.Unit).ToString();
             }
             json += rows;
             json += ']';
             json += "}\n";
             return json;
-        }
-        // advances this table to the next station
-        public override void Advance()
-        {
-            m_station = m_nextStation;
-            SetNextStation();
         }
 
         //--------------------------
@@ -83,13 +79,23 @@ namespace Efficient_Automatic_Traveler_System
             if (m_station == Traveler.GetStation("Start"))
             {
                 m_nextStation = Traveler.GetStation("Heian");
-            } else if (m_station == Traveler.GetStation("Heian"))
+            } else if (m_station == Traveler.GetStation("Heian") || m_station == Traveler.GetStation("Weeke"))
             {
-                m_nextStation = Traveler.GetStation("Vector");
-            } else if (m_station == Traveler.GetStation("Vector") || m_station == Traveler.GetStation("Vector"))
+                // switch between vector and straightline edgebander based on what was in the bill
+                if (m_vector != null) {
+                    m_nextStation = Traveler.GetStation("Vector");
+                } else if (m_ebander != null)
+                {
+                    m_nextStation = Traveler.GetStation("Edgebander");
+                }
+               
+            } else if (m_station == Traveler.GetStation("Vector") || m_station == Traveler.GetStation("Edgebander"))
             {
                 m_nextStation = Traveler.GetStation("Table-Pack");
             } else if (m_station == Traveler.GetStation("Table-Pack"))
+            {
+                m_nextStation = Traveler.GetStation("Finished");
+            } else if (m_station == Traveler.GetStation("Finished"))
             {
                 m_nextStation = Traveler.GetStation("Finished");
             } else

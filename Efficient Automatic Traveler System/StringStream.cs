@@ -56,7 +56,7 @@ namespace Efficient_Automatic_Traveler_System
                     default:
                         if (Char.IsNumber(opening))
                         {
-                            scope += opening;
+                            PutBack();
                             goto begin;
                         }
                         break;

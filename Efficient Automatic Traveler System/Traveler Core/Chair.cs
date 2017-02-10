@@ -31,9 +31,38 @@ namespace Efficient_Automatic_Traveler_System
         {
             GetBlacklist();
         }
+        // sorts the table out to its beginning station
+        public override void Start()
+        {
+            SetNextStation();
+            Advance();
+        }
+        // advances this table to the next station
+        public override void Advance()
+        {
+            m_station = m_nextStation;
+            SetNextStation();
+        }
         //===========================
         // Private
         //===========================
+
+        // returns the next station for this table
+        protected override void SetNextStation()
+        {
+            if (m_station == Traveler.GetStation("Start"))
+            {
+                m_nextStation = Traveler.GetStation("Chairs");
+            }
+            else if (m_station == Traveler.GetStation("Chairs"))
+            {
+                m_nextStation = Traveler.GetStation("Finished");
+            }
+            else
+            {
+                m_nextStation = Traveler.GetStation("Start");
+            }
+        }
         private void GetBlacklist()
         {
             m_blacklist.Add(new BlacklistItem("/")); // Misc work items

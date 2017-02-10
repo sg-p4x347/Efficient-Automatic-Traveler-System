@@ -12,38 +12,49 @@ namespace Efficient_Automatic_Traveler_System
 {
     enum TravelerEvent
     {
-        Scrap,
         Completed
     }
-    struct Event
+    class Event
     {
         public Event (TravelerEvent e, DateTime t, int q, int s)
         {
             type = e;
-            time = t;
-            elapsedMins = 0;
+            date = t;
+            time = 0;
             quantity = q;
             station = s;
         }
         public Event(TravelerEvent e, int q, int s)
         {
             type = e;
-            time = DateTime.Now;
-            elapsedMins = 0;
+            date = DateTime.Now;
+            time = 0;
             quantity = q;
             station = s;
         }
         public Event(TravelerEvent e, int q, int s, double el)
         {
             type = e;
-            time = DateTime.Now;
-            elapsedMins = el;
+            date = DateTime.Now;
+            time = el;
             quantity = q;
             station = s;
         }
+        public string Export()
+        {
+            string json = "";
+            json += "{";
+            json += "\"type\":" + '"' + type.ToString() + '"' + ",";
+            json += "\"date\":" + '"' + date.ToString("MM/dd/yyyy") + '"' + ",";
+            json += "\"time\":" + '"' + time.ToString() + '"' + ",";
+            json += "\"quantity\":" + '"' + quantity.ToString() + '"' + ",";
+            json += "\"station\":" + '"' + station.ToString() + '"';
+            json += "}";
+            return json;
+        }
         public TravelerEvent type;
-        public DateTime time;
-        public double elapsedMins;
+        public DateTime date;
+        public double time;
         public int quantity;
         public int station;
     }
@@ -83,83 +94,7 @@ namespace Efficient_Automatic_Traveler_System
         // Gets the base properties and orders of the traveler from a json string
         public Traveler(string json)
         {
-            try
-            {
-                bool readString = false;
-                string stringToken = "";
-
-                string memberName = "";
-
-                string value = "";
-
-                // SalesOrderNo
-                for (int pos = 0; pos < json.Length; pos++)
-                {
-                    char ch = json[pos];
-                    switch (ch)
-                    {
-                        case ' ':
-                        case '\t':
-                        case '\n':
-                            continue;
-                        case '"':
-                            readString = !readString;
-                            continue;
-                        case ':':
-                            memberName = stringToken; stringToken = "";
-                            continue;
-                        case '[':
-                            while (json[pos] != ']')
-                            {
-                                if (json[pos] == '{')
-                                {
-                                    string orderJson = "";
-                                    while (json[pos] != '}')
-                                    {
-                                        ch = json[pos];
-                                        orderJson += ch;
-                                        pos++;
-                                    }
-                                    m_orders.Add(new Order(orderJson + '}'));
-                                }
-                                pos++;
-                            }
-                            continue;
-                        case ',':
-                            value = stringToken; stringToken = "";
-                            // set the corresponding member
-                            if (memberName == "ID")
-                            {
-                                m_ID = Convert.ToInt32(value);
-                            }
-                            else if (memberName == "itemCode")
-                            {
-                                m_partNo = value;
-                            }
-                            else if (memberName == "quantity")
-                            {
-                                m_quantity = Convert.ToInt32(value);
-                            }
-                            else if (memberName == "station")
-                            {
-                                m_station = Convert.ToInt32(value);
-                            }
-                            continue;
-                        case '}': continue;
-                    }
-                    if (readString)
-                    {
-                        // read string character by character
-                        stringToken += ch;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Problem reading in traveler from printed.json: " + ex.Message);
-            }
-            SetOrderQty();
-            m_printed = true;
+            Import(json);
         }
         // Creates a traveler from a part number and quantity
         public Traveler(string partNo, int quantity)
@@ -374,25 +309,115 @@ namespace Efficient_Automatic_Traveler_System
                 Console.WriteLine("An error occured when accessing inventory: " + ex.Message);
             }
         }
+        public void Import(string json)
+        {
+            try
+            {
+                bool readString = false;
+                string stringToken = "";
+
+                string memberName = "";
+
+                string value = "";
+
+                // SalesOrderNo
+                for (int pos = 0; pos < json.Length; pos++)
+                {
+                    char ch = json[pos];
+                    switch (ch)
+                    {
+                        case ' ':
+                        case '\t':
+                        case '\n':
+                            continue;
+                        case '"':
+                            readString = !readString;
+                            continue;
+                        case ':':
+                            memberName = stringToken; stringToken = "";
+                            continue;
+                        case '[':
+                            while (json[pos] != ']')
+                            {
+                                if (json[pos] == '{')
+                                {
+                                    string orderJson = "";
+                                    while (json[pos] != '}')
+                                    {
+                                        ch = json[pos];
+                                        orderJson += ch;
+                                        pos++;
+                                    }
+                                    m_orders.Add(new Order(orderJson + '}'));
+                                }
+                                pos++;
+                            }
+                            continue;
+                        case ',':
+                            value = stringToken; stringToken = "";
+                            // set the corresponding member
+                            if (memberName == "ID")
+                            {
+                                m_ID = Convert.ToInt32(value);
+                            }
+                            else if (memberName == "itemCode")
+                            {
+                                m_partNo = value;
+                            }
+                            else if (memberName == "quantity")
+                            {
+                                m_quantity = Convert.ToInt32(value);
+                            }
+                            else if (memberName == "station")
+                            {
+                                m_station = Convert.ToInt32(value);
+                            }
+                            continue;
+                        case '}': continue;
+                    }
+                    if (readString)
+                    {
+                        // read string character by character
+                        stringToken += ch;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Problem reading in traveler from printed.json: " + ex.Message);
+            }
+            SetOrderQty();
+            m_printed = true;
+        }
         // returns a JSON formatted string containing traveler information
         public string Export()
         {
-            string doc = "";
-            doc += "{";
-            doc += "\"ID\":" + '"' + m_ID.ToString("D6") + '"' + ",";
-            doc += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
-            doc += "\"quantity\":" + '"' + m_quantity + '"' + ",";
-            doc += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
-            doc += "\"station\":" + '"' + m_station.ToString() + '"' + ",";
-            doc += "\"orders\":[";
+            string json = "";
+            json += "{";
+            json += "\"ID\":" + '"' + m_ID.ToString("D6") + '"' + ",";
+            json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
+            json += "\"quantity\":" + '"' + m_quantity + '"' + ",";
+            json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
+            json += "\"station\":" + '"' + m_station.ToString() + '"' + ",";
+            // ORDERS
+            json += "\"orders\":[";
             foreach (Order order in m_orders)
             {
-                doc += order.Export();
-                doc += m_orders[m_orders.Count-1] != order ? "," : "";
+                json += m_orders[0] != order ? "," : "";
+                json += order.Export();
             }
-            doc += "]";
-            doc += "}\n";
-            return doc;
+            json += "]" + ',';
+            // HISTORY
+            json += "\"history\":[";
+            foreach (Event travelerEvent in m_history)
+            {
+                json += m_history[0] != travelerEvent ? "," : "";
+                json += travelerEvent.Export();
+            }
+            json += "]";
+
+            json += "}\n";
+            return json;
         }
         public static bool IsTable(string s)
         {
@@ -426,16 +451,34 @@ namespace Efficient_Automatic_Traveler_System
                 return -1;
             }
         }
+        public static string GetStationName(int value)
+        {
+            try
+            {
+                foreach (KeyValuePair<string,int> pair in Stations)
+                {
+                    if (pair.Value == value)
+                    {
+                        return pair.Key;
+                    }
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
         // sorts the traveler out to its beginning station
         public virtual void Start()
         {
             SetNextStation();
-            Advance();
+            m_station = m_nextStation;
+            SetNextStation();
         }
         // advances this traveler to the next station
         public virtual void Advance()
         {
-            m_station = m_nextStation;
             SetNextStation();
         }
         //-----------------------

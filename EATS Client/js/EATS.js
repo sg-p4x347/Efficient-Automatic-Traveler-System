@@ -14,7 +14,8 @@ function Application () {
 	this.travelerQueue;
 	this.travelerView;
 	this.completedList;
-	
+	// client information
+	this.lastStation;
 	// key information
 	this.stationList;
 	// Websocket
@@ -98,13 +99,16 @@ function Application () {
 							self.stationList = object.stationList;
 							self.PopulateStations(object.stationList);
 						} else if (object.hasOwnProperty("travelers")) {
-							
 							self.travelerQueue.Clear();
 							object.travelers.forEach(function (obj) {
 								var traveler = new Traveler(obj);
 								self.travelerQueue.AddTraveler(traveler);
 							});
-							if (self.travelerQueue.travelers[0]) self.travelerView.Load(self.travelerQueue.travelers[0]);
+							// autoload the first traveler in the queue if just now visiting
+							if (document.getElementById("stationName").innerHTML != self.lastStation && self.travelerQueue.travelers[0]) {
+								self.travelerView.Load(self.travelerQueue.travelers[0]);
+								self.lastStation = document.getElementById("stationName").innerHTML;
+							}
 							
 						}
 					}
@@ -211,6 +215,17 @@ function TravelerView() {
 		if (self.btnComplete != undefined) self.btnComplete.style.visibility = "visible";
 		//---------------------
 	}
+	this.ResumeTimer = function () {
+		var self = this;
+		// hide complete button
+		if (self.btnComplete != undefined) self.btnComplete.style.visibility = "hidden";
+		//---------------------
+		document.getElementById("timerTime").innerHTML = pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
+		self.timerInterval = setInterval(function () {
+			self.timerTime.add(1,'s');
+			document.getElementById("timerTime").innerHTML = pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
+		},1000);
+	}
 	this.Clear = function () {
 		var self = this;
 		while (self.DOMcontainer.hasChildNodes()) {
@@ -223,6 +238,20 @@ function TravelerView() {
 		// initialize
 		self.traveler = traveler;
 		self.Clear();
+		// initialize the destination list
+		var destList = document.getElementById("destList");
+		// remove old
+		while (destList.firstChild) {
+			destList.removeChild(destList.firstChild);
+		}
+		application.stationList.forEach(function (station) {
+			var option = document.createElement("OPTION");
+			option.innerHTML = station;
+			option.className = "dark button";
+			option.value = station;
+			destList.appendChild(option);
+		});
+		
 		// clear old DOM objects
 		while (self.DOMcontainer.hasChildNodes()) {
 			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
@@ -234,39 +263,19 @@ function TravelerView() {
 		self.btnComplete = document.createElement("DIV");
 		self.btnComplete.className = "button";
 		// create and add new DOM objects
-		
-		/* if (traveler.completed) {
-			var completedRow = document.createElement("TR");
-			completedRow.appendChild(document.createElement("TH"));
-			var completedCell = document.createElement("TH");
-			completedCell.className = "view__item--complete";
-			completedCell.innerHTML = "Completed";
-			completedCell.colspan = "3";
-			completedRow.appendChild(completedCell);
-			
-			completedRow.appendChild(document.createElement("TH"));
-			DOMtable.appendChild(completedRow);
-			// configure uncomplete button
-			btnComplete.innerHTML = "Un-Complete";
-			btnComplete.onclick = function () {
-				var unComplete = application.completedList.ShiftTraveler(traveler);
-				unComplete.completed = false;
-				application.travelerQueue.UnshiftTraveler(unComplete);
-			}
-		} else { */
+		document.getElementById("destList").value = self.traveler.nextStation;
 		// configure complete button
 		self.btnComplete.innerHTML = "Complete";
 		self.btnComplete.className = "dark button fourEM";
 		self.btnComplete.onclick = function () {
 			document.getElementById("blackout").style.visibility = "visible";
-			PopulateStations(application.stationList,document.getElementById("destList"),function () {
-				self.destination = this.innerHTML;
-				var destName = document.getElementById("destName");
-				destName.innerHTML = this.innerHTML;
-			});
-			//application.completedList.UnshiftTraveler(complete);
+			// reset the qtyMade number input
+			var qtyMade = document.getElementById("qtyMade");
+			qtyMade.min = 0;
+			qtyMade.max = self.traveler.quantity;
+			qtyMade.step = 1;
+			qtyMade.value = self.traveler.quantity;
 		}
-		//}
 		
 		// header
 		var headerRow = document.createElement("TR");
@@ -326,11 +335,14 @@ function TravelerView() {
 		
 		// Submitting a finished traveler
 		document.getElementById("submit").onclick = function () {
-			var completedTraveler = self.traveler; //application.travelerQueue.ShiftTraveler(self.traveler);
+			/* this is just for responsiveness, 
+			the server will soon confirm traveler positions in an update*/
+			var completedTraveler = application.travelerQueue.ShiftTraveler(self.traveler); 
 			var message = {
 				completed: completedTraveler.ID,
-				destination: self.destination,
-				time: self.timerTime.asMinutes()
+				destination: document.getElementById("destList").value,
+				time: self.timerTime.asMinutes(),
+				quantity: Math.min(Math.round(document.getElementById("qtyMade").value),completedTraveler.quantity)
 			};
 			application.websocket.send(JSON.stringify(message));
 			// load the next traveler
@@ -345,6 +357,7 @@ function TravelerView() {
 		// cancel submission
 		document.getElementById("cancel").onclick = function () {
 			document.getElementById("blackout").style.visibility = "hidden";
+			self.ResumeTimer();
 		}
 		//----------------
 		// timer ui
@@ -380,7 +393,12 @@ function Traveler(obj) {
 	this.Initialize(obj); */
 }
 function PopulateStations (stations,DOMparent,callback) {
-	var self = this;
+	var self = this
+	// remove old
+	while (DOMparent.firstChild) {
+		DOMparent.removeChild(DOMparent.firstChild);
+	}
+	// add
 	stations.forEach(function (station) {
 		var li = document.createElement("DIV");
 		li.innerHTML = station;

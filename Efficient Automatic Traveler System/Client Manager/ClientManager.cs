@@ -18,6 +18,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_server = new TcpListener(IPAddress.Parse(ip), port);
             m_operatorClients = new List<OperatorClient>();
+            m_supervisorClients = new List<SupervisorClient>();
             m_nextClientID = 0;
             m_updateInterval = new TimeSpan(0, 0, 30);
             m_travelers = travelers;
@@ -60,11 +61,18 @@ namespace Efficient_Automatic_Traveler_System
                 switch (await Client.RecieveMessageAsync(tcpClient.GetStream()))
                 {
                     case "OperatorClient":
-                        OperatorClient newClient = new OperatorClient(tcpClient, ref m_travelers);
-                        newClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
-                        newClient.ListenAsync();
-                        m_operatorClients.Add(newClient);
+                        OperatorClient operatorClient = new OperatorClient(tcpClient, ref m_travelers);
+                        operatorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
+                        operatorClient.ListenAsync();
+                        m_operatorClients.Add(operatorClient);
                         Console.WriteLine("An operator connected (" + m_operatorClients.Count + " total)");
+                        break;
+                    case "SupervisorClient":
+                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient, ref m_travelers);
+                        supervisorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
+                        supervisorClient.ListenAsync();
+                        m_supervisorClients.Add(supervisorClient);
+                        Console.WriteLine("A supervisor connected (" + m_supervisorClients.Count + " total)");
                         break;
                     case "connection aborted": // don't do anything, the connection was lost
                         break;
@@ -126,6 +134,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         private TcpListener m_server;
         private List<OperatorClient> m_operatorClients;
+        private List<SupervisorClient> m_supervisorClients;
         private int m_nextClientID;
         private TimeSpan m_updateInterval;
         private Timer m_timer;

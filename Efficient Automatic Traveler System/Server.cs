@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Data.Odbc;
 using ExtensionMethods = Efficient_Automatic_Traveler_System.ExtensionMethods;
+using System.Net;
+using System.Net.Http;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -52,8 +54,40 @@ namespace Efficient_Automatic_Traveler_System
             switch (input)
             {
                 case "update": m_travelerCore.CreateTravelers(); break;
+                case "labels":
+                    PrintLabels();
+                    break;
             }
             GetInputAsync();
+        }
+        async public void PrintLabels()
+        {
+            foreach (Traveler traveler in m_travelerCore.Travelers)
+            {
+                try
+                {
+                    string result = "";
+                    using (var client = new WebClient())
+                    {
+                        //client.Credentials = new NetworkCredential("gage", "Stargatep4x347");
+                        client.Headers[HttpRequestHeader.ContentType] = "application/json";
+                        string json = "{\"ID\":\"" + traveler.ID + "\",";
+                        json += "\"Desc1\":\"" + traveler.Part.BillDesc + "\",";
+                        json += "\"Desc2\":\"" + traveler.Eband + "\",";
+                        json += "\"Pack\":\"" + (traveler.SupPackQty > 0 ? "SP" : "RP") + "\",";
+                        //json += "\"Date\":\"" + DateTime.Today.ToString(@"yyyy\-MM\-dd") + "\",";
+                        json += "\"Template\":\"" + "4x2 Table Travel1.zpl" + "\",";
+                        json += "\"Qty\":" + "1" + "}";
+                        //json += "\"Printer\":\"" + "192.168.0.231" + "\"}";
+
+                        result = client.UploadString(@"http://crashridge.net:8088/printLabel", "POST", json);
+                        //http://192.168.2.6:8080/printLabel
+                    }
+                } catch (Exception ex)
+                {
+                    Console.WriteLine("Label printing exception: " + ex.Message);
+                }
+            }
         }
         private void Update()
         {

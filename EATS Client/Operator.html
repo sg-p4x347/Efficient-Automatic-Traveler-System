@@ -8,21 +8,24 @@
 		<link rel="stylesheet" type="text/css" href="css/widgets.css"></link>
     </head>
 	<body onload = "Initialize()">
+		<!-- SUBMITTING A TRAVELER TO THE NEXT STATION -->
 		<div id = "blackout">
 			<div class = "finalizeContainer">
-				<div>Submit this to:</div>
-				<p id = "destName"></p>
+				Submit this to:
+				<!-- DESTINATION SELECTION -->
+				<select id = "destList" class = "dark"></select>
+				<!-- QUANTITY COMPLETED -->
+				Quantity made:
+				<input id = "qtyMade" class = "dark" type = "number">
 				<div class = "list--horizontal">
 					<div id = "cancel" class = "dark button">Cancel</div>
-					<div class = "dropdown">
-						<div class = "dropdown__btn dark button stationList">Change</div>
-						<div id = "destList" class = "dropdown__content"></div>
-					</div>
+					
 					<div id = "submit" class = "dark button">Submit</div>
 				</div>
 			</div>
 			</div>
 		</div>
+		<!-- HEADER -->
 		<div class = "header">
 			<div class = "dropdown fourEM" style = "width: 100%;">
 				<div id = "stationName" class = "dropdown__btn darkAero stationList">Station</div>
@@ -30,12 +33,15 @@
 				</div>
 			</div>
 		</div>
-		
+		<!-- BODY -->
 		<div class = "body">
+			<!-- LEFT -->
 			<div id = "travelerQueue" class = "queue"></div> 
+			<!-- CENTER -->
 			<div id = "viewContainer" class = "viewContainer">
 				<table class = "view"></table>
 			</div>
+			<!-- RIGHT -->
 			<div class = "flank">
 				<div class = "timer">
 					<div id = "startTimer" class = "timer__btn greenBack">Start</div>
@@ -44,7 +50,7 @@
 				</div>
 			</div>
 		</div>
-		
+		<!-- FOOTER -->
 		<div class = "footer">
 		</div>
 	</body>
