@@ -137,6 +137,14 @@ namespace Efficient_Automatic_Traveler_System
                 FindComponents(m_part);
             }
         }
+        public void NewID()
+        {
+            // open the currentID.txt file
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            System.IO.StreamReader readID = new StreamReader(System.IO.Path.Combine(exeDir, "currentID.txt"));
+            m_ID = Convert.ToInt32(readID.ReadLine());
+            readID.Close();
+        }
         // Finds all the components in the top level bill, setting key components along the way
         public void FindComponents(Bill bill)
         {
@@ -472,6 +480,8 @@ namespace Efficient_Automatic_Traveler_System
         // sorts the traveler out to its beginning station
         public virtual void Start()
         {
+            m_station = Traveler.GetStation("Start");
+            m_history.Clear();
             SetNextStation();
             m_station = m_nextStation;
             SetNextStation();
@@ -626,6 +636,8 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_quantity = value;
+                m_part.TotalQuantity = m_quantity;
+                FindComponents(m_part);
             }
         }
 

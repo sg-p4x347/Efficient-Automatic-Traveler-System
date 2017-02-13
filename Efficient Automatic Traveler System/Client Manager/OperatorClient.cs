@@ -52,7 +52,30 @@ namespace Efficient_Automatic_Traveler_System
                         if (m_travelers[i].ID.ToString("D6") == obj["completed"].Trim('"'))
                         {
                             m_travelers[i].Station = Traveler.GetStation(obj["destination"].Trim('"'));
-                            m_travelers[i].Advance();
+                            int completedQty = Convert.ToInt32(obj["quantity"]);
+                            int scrappedQty = m_travelers[i].Quantity - completedQty;
+                            
+                            
+                            
+                            if (completedQty > 0)
+                            {
+                                
+                                // make a new traveler fro scrapped parts
+                                if (scrappedQty > 0)
+                                {
+                                    Table scrapped = (Table)m_travelers[i];
+                                    scrapped.NewID();
+                                    scrapped.Quantity = scrappedQty;
+                                    scrapped.Start();
+                                    m_travelers.Add(scrapped);
+                                }
+                                m_travelers[i].Quantity = completedQty;
+                                m_travelers[i].Advance();
+                            } else
+                            {
+                                // reset this traveler (the whole thing was scrapped)
+                                m_travelers[i].Start();
+                            }
                             // log this event
                             m_travelers[i].History.Add(new Event(TravelerEvent.Completed, m_travelers[i].Quantity, m_travelers[i].Station, Convert.ToDouble(obj["time"].Trim('"'))));
                             break;
@@ -75,7 +98,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (traveler.GetType().Name == "Table")
                 {
-                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Table)traveler).Export(traveler.Station);
+                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Table)traveler).Export(this.GetType().Name);
                 }
                 else if (traveler.GetType().Name == "Chair")
                 {

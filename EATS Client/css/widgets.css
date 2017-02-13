@@ -87,6 +87,9 @@ div.button {
 .halfEM {
 	font-size: 0.5em;
 }
+.oneEM {
+	font-size: 1em;
+}
 .twoEM {
 	font-size: 2em;
 }
@@ -101,4 +104,8 @@ div.button {
 }
 .shadow {
 	text-shadow: 1px 1px 1px black;
+}
+/* margins */
+.stdMargin {
+	margin: 8px;
 }

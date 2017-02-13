@@ -40,6 +40,18 @@ namespace Efficient_Automatic_Traveler_System
                     m_operatorClients.RemoveAt(i);
                 }
             }
+            for (int i = 0; i < m_supervisorClients.Count; i++)
+            {
+                if (m_supervisorClients[i].Connected)
+                {
+                    m_supervisorClients[i].HandleTravelersChanged();
+                }
+                else
+                {
+                    m_supervisorClients[i].TravelersChanged -= HandleTravelersChanged; // unsubscribe from event
+                    m_supervisorClients.RemoveAt(i);
+                }
+            }
         }
         public void HandleTravelerChanged()
         {

@@ -70,7 +70,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (traveler.GetType().Name == "Table")
                 {
-                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Table)traveler).Export(traveler.Station);
+                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Table)traveler).Export(this.GetType().Name);
                 }
                 else if (traveler.GetType().Name == "Chair")
                 {

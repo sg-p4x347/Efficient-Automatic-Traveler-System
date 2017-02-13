@@ -40,7 +40,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (table.Part == null) table.ImportPart(MAS);
                 Console.Write("\r{0}%", "Importing Table Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-                table.CheckInventory(MAS);
+                //table.CheckInventory(MAS);!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TEMP-- UNCOMMENT AFTER TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
                 // update and total the final parts
                 table.Part.TotalQuantity = table.Quantity;
                 table.FindComponents(table.Part);
