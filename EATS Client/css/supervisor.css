@@ -47,9 +47,12 @@ div.queueArray {
 }
 div.header {
 	display: flex;
+	align-items: baseline;
 	width: 100%;
 	justify-content: center;
-	align-items: center;
+	vertical-align: baseline;
+	color: red;
+	text-shadow: 1px 1px 2px black;
 }
 div.body {
 	display: flex;
@@ -61,6 +64,14 @@ div.footer {
 	display: flex;
 	width: 100%;
 	justify-content: center;
+}
+.titleSub {
+	font-size: 0.5em;
+	color: white;
+	padding: 6px;
+}
+.noPadding {
+	
 }
 #blackout {
 	visibility: hidden;

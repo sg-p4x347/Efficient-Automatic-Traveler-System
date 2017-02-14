@@ -63,8 +63,7 @@ namespace Efficient_Automatic_Traveler_System
                                 // make a new traveler fro scrapped parts
                                 if (scrappedQty > 0)
                                 {
-                                    Table scrapped = (Table)m_travelers[i];
-                                    scrapped.NewID();
+                                    Table scrapped = new Table((Table)m_travelers[i]);
                                     scrapped.Quantity = scrappedQty;
                                     scrapped.Start();
                                     m_travelers.Add(scrapped);

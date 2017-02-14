@@ -19,6 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         public Server()
         {
+            Console.WriteLine("TEST");
             m_ip = "127.0.0.1";
             m_port = 8080;
             m_travelerCore = new TravelerCore();
@@ -26,7 +27,6 @@ namespace Efficient_Automatic_Traveler_System
             // Subscribe events
             m_travelerCore.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
             m_clientManager.TravelersChanged += new TravelersChangedSubscriber(m_travelerCore.HandleTravelersChanged);
-
 
             m_clientManagerThread = new Thread(m_clientManager.Start);
             m_clientManagerThread.Name = "Client Manager";

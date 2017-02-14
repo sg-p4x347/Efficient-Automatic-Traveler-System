@@ -16,12 +16,18 @@ namespace Efficient_Automatic_Traveler_System
     {
         public ClientManager(string ip, int port, ref List<Traveler> travelers)
         {
-            m_server = new TcpListener(IPAddress.Parse(ip), port);
-            m_operatorClients = new List<OperatorClient>();
-            m_supervisorClients = new List<SupervisorClient>();
-            m_nextClientID = 0;
-            m_updateInterval = new TimeSpan(0, 0, 30);
-            m_travelers = travelers;
+            try
+            {
+                m_server = new TcpListener(IPAddress.Parse(ip), port);
+                m_operatorClients = new List<OperatorClient>();
+                m_supervisorClients = new List<SupervisorClient>();
+                m_nextClientID = 0;
+                m_updateInterval = new TimeSpan(0, 0, 30);
+                m_travelers = travelers;
+            } catch (Exception ex)
+            {
+                Console.WriteLine("Failed to create ClientManager: " + ex.Message);
+            }
         }
         public void Start()
         {

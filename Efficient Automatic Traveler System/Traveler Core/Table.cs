@@ -15,6 +15,20 @@ namespace Efficient_Automatic_Traveler_System
         //===========================
         // PUBLIC
         //===========================
+        public Table( Table table) : base(table)
+        {
+            // part information
+            m_colorNo = table.ColorNo;
+            m_shapeNo = table.ShapeNo;
+            m_shape = table.Shape;
+            // Blank informatin
+            m_blankNo = table.BlankNo;
+            m_blankColor = table.BlankColor;
+            m_blankSize = table.BlankSize;
+            m_partsPerBlank = table.PartsPerBlank;
+            m_blankQuantity = table.BlankQuantity;
+            m_leftoverParts = table.LeftoverParts;
+        }
         public Table() : base() { }
         public Table(string json) : base(json) {
             GetBlacklist();

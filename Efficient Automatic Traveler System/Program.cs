@@ -6,8 +6,14 @@ namespace Efficient_Automatic_Traveler_System
     {
         static void Main()
         {
-            Server server = new Server();
-            server.Start();
+            try
+            {
+                Server server = new Server();
+                server.Start();
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

@@ -91,6 +91,42 @@ namespace Efficient_Automatic_Traveler_System
         {
 
         }
+        // Copy constructor
+        public Traveler(Traveler t)
+        {
+            // general
+            m_orders = t.Orders;
+            m_part = t.Part;
+            NewID(); // Every traveler must have a unique ID
+            m_timeStamp = t.TimeStamp;
+            m_printed = t.Printed;
+            m_partNo = t.PartNo;
+            m_drawingNo = t.DrawingNo;
+            m_quantity = t.Quantity;
+            m_color = t.Color;
+            m_station = t.Station;
+            m_nextStation = t.NextStation;
+            m_history = t.History;
+            // Labor
+            m_cnc = t.Cnc;
+            m_vector = t.Vector;
+            m_ebander = t.Ebander;
+            m_saw = t.Saw;
+            m_assm = t.Assm;
+            m_box = t.Box;
+            // Material
+            m_material = t.Material;
+            m_eband = t.Eband;
+            m_components = t.Components;
+            m_blacklist = t.Blacklist;
+            // Box
+            m_partsPerBox = t.PartsPerBox;
+            m_boxItemCode = t.BoxItemCode;
+            m_regPack = t.RegPack;
+            m_regPackQty = t.RegPackQty;
+            m_supPack = t.SupPack;
+            m_supPackQty = t.SupPackQty;
+        }
         // Gets the base properties and orders of the traveler from a json string
         public Traveler(string json)
         {
@@ -102,13 +138,7 @@ namespace Efficient_Automatic_Traveler_System
             // set META information
             m_partNo = partNo;
             m_quantity = quantity;
-            // open the currentID.txt file
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            System.IO.StreamReader readID = new StreamReader(System.IO.Path.Combine(exeDir, "currentID.txt"));
-            m_ID = Convert.ToInt32(readID.ReadLine());
-            readID.Close();
-            // increment the current ID
-            File.WriteAllText(System.IO.Path.Combine(exeDir, "currentID.txt"), (m_ID + 1).ToString() + '\n');
+            NewID();
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
         public Traveler(string partNo, int quantity, OdbcConnection MAS)
@@ -144,6 +174,8 @@ namespace Efficient_Automatic_Traveler_System
             System.IO.StreamReader readID = new StreamReader(System.IO.Path.Combine(exeDir, "currentID.txt"));
             m_ID = Convert.ToInt32(readID.ReadLine());
             readID.Close();
+            // increment the current ID
+            File.WriteAllText(System.IO.Path.Combine(exeDir, "currentID.txt"), (m_ID + 1).ToString() + '\n');
         }
         // Finds all the components in the top level bill, setting key components along the way
         public void FindComponents(Bill bill)
