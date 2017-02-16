@@ -32,7 +32,7 @@ namespace Efficient_Automatic_Traveler_System
             foreach (Chair chair in m_travelers.OfType<Chair>())
             {
                 if (chair.Part == null) chair.ImportPart(MAS);
-                Console.Write("\r{0}%", "Importing Chair Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
+                Server.Write("\r{0}%", "Importing Chair Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
                 chair.CheckInventory(MAS);
                 // update and total the final parts
                 chair.Part.TotalQuantity = chair.Quantity;
@@ -40,7 +40,7 @@ namespace Efficient_Automatic_Traveler_System
                 // chair specific
                 GetBoxInfo(chair);
             }
-            Console.Write("\r{0}", "Importing Chair Info...Finished\n");
+            Server.Write("\r{0}", "Importing Chair Info...Finished" + Environment.NewLine);
         }
         private void GetBoxInfo(Chair traveler)
         {

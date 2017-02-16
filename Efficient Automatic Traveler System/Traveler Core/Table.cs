@@ -128,9 +128,11 @@ namespace Efficient_Automatic_Traveler_System
         private string m_shapeNo = "";
         private string m_shape = "";
         // Blank information
+        private string m_sheetSize = "";
         private string m_blankNo = "";
         private string m_blankColor = "";
         private string m_blankSize = "";
+        private string m_blankComment = "";
         private int m_partsPerBlank = 0;
         private int m_blankQuantity = 0;
         private int m_leftoverParts = 0;
@@ -249,6 +251,32 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_shape = value;
+            }
+        }
+
+        public string SheetSize
+        {
+            get
+            {
+                return m_sheetSize;
+            }
+
+            set
+            {
+                m_sheetSize = value;
+            }
+        }
+
+        public string BlankComment
+        {
+            get
+            {
+                return m_blankComment;
+            }
+
+            set
+            {
+                m_blankComment = value;
             }
         }
     }

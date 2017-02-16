@@ -82,7 +82,6 @@
     <Compile Include="Traveler Core\ChairManager.cs" />
     <Compile Include="Client Manager\Client.cs" />
     <Compile Include="Client Manager\ClientManager.cs" />
-    <Compile Include="ExceptionManager.cs" />
     <Compile Include="Traveler Core\Item.cs" />
     <Compile Include="Traveler Core\Order.cs" />
     <Compile Include="Program.cs" />

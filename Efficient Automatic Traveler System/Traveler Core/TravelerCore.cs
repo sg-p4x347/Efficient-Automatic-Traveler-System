@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 using System.Data.Odbc;
 using System.Diagnostics;
 using System.IO;
-using Excel = Microsoft.Office.Interop.Excel;
-using Marshal = System.Runtime.InteropServices.Marshal;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -26,9 +24,6 @@ namespace Efficient_Automatic_Traveler_System
         public TravelerCore()
         {
             m_orders = new List<Order>();
-            m_excelApp = new Excel.Application();
-            m_excelApp.DisplayAlerts = false;
-            m_workbooks = m_excelApp.Workbooks;
             
             TravelersChanged = delegate { };
             Travelers = new List<Traveler>();
@@ -47,13 +42,7 @@ namespace Efficient_Automatic_Traveler_System
         ~TravelerCore()
         {
             // close the MAS connection on exit
-            m_MAS.Close();
-            // close excel
-
-            m_workbooks.Close();
-            if (m_workbooks != null) Marshal.FinalReleaseComObject(m_workbooks);
-            m_excelApp.Quit();
-            if (m_excelApp != null) Marshal.FinalReleaseComObject(m_excelApp);
+            //m_MAS.Close();
         }
         public void CreateTravelers()
         {
@@ -103,7 +92,7 @@ namespace Efficient_Automatic_Traveler_System
         // Opens a connection to the MAS database
         private void ConnectToData()
         {
-            Console.WriteLine("Logging into MAS");
+            Server.WriteLine("Logging into MAS");
             m_MAS = new OdbcConnection();
             // initialize the MAS connection
             m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;";
@@ -114,27 +103,14 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to log in :" + ex.Message);
+                Server.WriteLine("Failed to log in :" + ex.Message);
             }
         }
         private void InitializeManagers()
         {
             ConnectToData();
 
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            var workbook = m_workbooks.Open(System.IO.Path.Combine(exeDir, "Kanban Blank Color Cross Reference.xlsx"),
-                0, false, 5, "", "", false, 2, "",
-                true, false, 0, true, false, false);
-            //var workbook = workbooks.Open(@"\\Mgfs01\share\common\Quick Ship Traveler\Kanban Blank Color Cross Reference.xlsx",
-            //    0, false, 5, "", "", false, 2, "",
-            //    true, false, 0, true, false, false);
-            var worksheets = workbook.Worksheets;
-            var crossRef = (Excel.Worksheet)worksheets.get_Item("Blank Cross Reference");
-            var colorRef = (Excel.Worksheet)worksheets.get_Item("Color Families");
-            var blankRef = (Excel.Worksheet)worksheets.get_Item("Blank Parent");
-            var boxRef = (Excel.Worksheet)worksheets.get_Item("Box Size");
-
-            m_tableManager = new TableManager(m_MAS, crossRef, boxRef, blankRef, colorRef);
+            m_tableManager = new TableManager(m_MAS);
             m_chairManager = new ChairManager(m_MAS);
         }
         
@@ -149,7 +125,7 @@ namespace Efficient_Automatic_Traveler_System
         // Imports and stores all open orders that have not already been stored
         private void ImportOrders()
         {
-            Console.WriteLine("Importing orders...");
+            Server.WriteLine("Importing orders...");
             string today = DateTime.Today.ToString(@"yyyy\-MM\-dd");
 
             
@@ -272,7 +248,7 @@ namespace Efficient_Automatic_Traveler_System
             int index = 0;
             while ((line = file.ReadLine()) != null && line != "")
             {
-                Console.Write("\r{0}%   ", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / travelerCount) * 100));
+                Server.Write("\r{0}%   ", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / travelerCount) * 100));
                 Traveler createdTraveler = new Traveler(line);
                 m_orders.AddRange(createdTraveler.Orders);
                 // check to see if these orders have been printed already
@@ -293,7 +269,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 index++;
             }
-            Console.Write("\r{0}   ", "Loading travelers from backup...Finished\n");
+            Server.Write("\r{0}   ", "Loading travelers from backup...Finished\n");
 
             file.Close();
         }
@@ -330,9 +306,6 @@ namespace Efficient_Automatic_Traveler_System
         //private List<Traveler> m_vector;
         //private List<Traveler> m_box;
         //private List<Traveler> m_assm;
-
-        private Excel.Application m_excelApp;
-        private Excel.Workbooks m_workbooks;
         private OdbcConnection m_MAS;
 
         internal List<Traveler> Travelers

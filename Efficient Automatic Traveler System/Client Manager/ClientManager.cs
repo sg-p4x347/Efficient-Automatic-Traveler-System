@@ -26,12 +26,12 @@ namespace Efficient_Automatic_Traveler_System
                 m_travelers = travelers;
             } catch (Exception ex)
             {
-                Console.WriteLine("Failed to create ClientManager: " + ex.Message);
+                Server.WriteLine("Failed to create ClientManager: " + ex.Message);
             }
         }
         public void Start()
         {
-            Console.WriteLine("Waiting for a connection...");
+            Server.WriteLine("Waiting for a connection...");
             m_server.Start();
             ConnectAsync();
         }
@@ -83,14 +83,14 @@ namespace Efficient_Automatic_Traveler_System
                         operatorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         operatorClient.ListenAsync();
                         m_operatorClients.Add(operatorClient);
-                        Console.WriteLine("An operator connected (" + m_operatorClients.Count + " total)");
+                        Server.WriteLine("An operator connected (" + m_operatorClients.Count + " total)");
                         break;
                     case "SupervisorClient":
                         SupervisorClient supervisorClient = new SupervisorClient(tcpClient, ref m_travelers);
                         supervisorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         supervisorClient.ListenAsync();
                         m_supervisorClients.Add(supervisorClient);
-                        Console.WriteLine("A supervisor connected (" + m_supervisorClients.Count + " total)");
+                        Server.WriteLine("A supervisor connected (" + m_supervisorClients.Count + " total)");
                         break;
                     case "connection aborted": // don't do anything, the connection was lost
                         break;
@@ -135,7 +135,7 @@ namespace Efficient_Automatic_Traveler_System
         //{
         //    DateTime current = DateTime.Now;
         //    TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay;
-        //    Console.WriteLine("Will update again in: " + timeToGo.TotalMinutes + " Minutes");
+        //    Server.WriteLine("Will update again in: " + timeToGo.TotalMinutes + " Minutes");
         //    m_timer = new Timer(x =>
         //    {
         //        foreach (Client client in m_clients)
