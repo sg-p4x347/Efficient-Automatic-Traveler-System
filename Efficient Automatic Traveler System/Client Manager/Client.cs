@@ -13,6 +13,14 @@ using System.Security.Cryptography;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    /* all derived classes that use ITravelers 
+     * implement definitions for thise prototypes */
+    interface ITravelers
+    {
+        event TravelersChangedSubscriber TravelersChanged;
+        void HandleTravelersChanged();
+    }
+    // The base class for a TcpClient that connects to the EATS server
     abstract class Client
     {
         //------------------------------
@@ -56,6 +64,10 @@ namespace Efficient_Automatic_Traveler_System
                 // connection was lost
                 return "connection aborted";
             }
+        }
+        public void Poll()
+        {
+            SendMessage("{\"ping\":true}");
         }
         //------------------------------
         // Private members
@@ -191,7 +203,6 @@ namespace Efficient_Automatic_Traveler_System
             System.Buffer.BlockCopy(messageArray, 0, finalDataArray, headerArray.Length, messageArray.Length);
             return finalDataArray;
         }
-        
         //------------------------------
         // Properties
         //------------------------------
@@ -207,5 +218,6 @@ namespace Efficient_Automatic_Traveler_System
                 return m_connected;
             }
         }
+        
     }
 }

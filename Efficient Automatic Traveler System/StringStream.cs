@@ -72,7 +72,7 @@ namespace Efficient_Automatic_Traveler_System
                     PutBack();
                     scope += GetJsonScope(); // get the inner scope and add it to the current scope
                 }
-                else
+                else if (ch != '\n')
                 {
                     scope += ch; // otherwise just add this character to the scope string
                 }

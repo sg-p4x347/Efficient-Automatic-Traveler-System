@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class OperatorClient : Client
+    class OperatorClient : Client, ITravelers
     {
         //------------------------------
         // Public members
@@ -57,7 +57,7 @@ namespace Efficient_Automatic_Traveler_System
                             
                             
                             
-                            if (completedQty > 0)
+                            if (completedQty > 0 || completedQty == m_travelers[i].Quantity)
                             {
                                 
                                 // make a new traveler fro scrapped parts
@@ -101,7 +101,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 else if (traveler.GetType().Name == "Chair")
                 {
-                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Chair)traveler).Export();
+                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Chair)traveler).Export(this.GetType().Name);
                 }
             }
             message += travelerJSON + "]}";

@@ -95,7 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="config.cfg" />
     <None Include="Efficient Automatic Traveler System_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

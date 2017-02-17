@@ -22,8 +22,15 @@ namespace Efficient_Automatic_Traveler_System
         public Server()
         {
             m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            StreamReader config = new StreamReader(System.IO.Path.Combine(m_rootDirectory, "config.cfg"));
+            StringStream ss = new StringStream(config.ReadToEnd());
+            Dictionary<string,string> obj = ss.ParseJSON();
+            m_port = Convert.ToInt32(obj["port"]);
             m_ip = GetLocalIPAddress();
-            m_port = 81;
+
+            CreateClientConfig();
+
+            
             m_travelerCore = new TravelerCore();
             m_clientManager = new ClientManager(m_ip, m_port,ref m_travelerCore.m_travelers);
             // Subscribe events
@@ -140,6 +147,15 @@ namespace Efficient_Automatic_Traveler_System
                 m_travelerCore.CreateTravelers();
                 Update();
             }, null, timeToGo, Timeout.InfiniteTimeSpan);
+        }
+        private void CreateClientConfig()
+        {
+            StreamWriter config = new StreamWriter(System.IO.Path.Combine(m_rootDirectory, "EATS Client/js/config.js"));
+            config.WriteLine("var config = {");
+            config.WriteLine("port:" + m_port + ',');
+            config.WriteLine("server:\"" + m_ip + "\"");
+            config.WriteLine("};");
+            config.Close();
         }
         // HTTP file serving
         private void Listen()

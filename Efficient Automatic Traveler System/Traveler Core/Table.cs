@@ -49,7 +49,7 @@ namespace Efficient_Automatic_Traveler_System
             m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
         }
         // returns a JSON formatted string to be sent to a client
-        public string Export(string clientType)
+        public override string Export(string clientType)
         {
             string json = "";
             json += "{";
@@ -136,6 +136,8 @@ namespace Efficient_Automatic_Traveler_System
         private int m_partsPerBlank = 0;
         private int m_blankQuantity = 0;
         private int m_leftoverParts = 0;
+        private string m_palletSize = "";
+        private int m_palletQty = 0;
 
         public int ColorNo
         {
@@ -277,6 +279,32 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_blankComment = value;
+            }
+        }
+
+        public string PalletSize
+        {
+            get
+            {
+                return m_palletSize;
+            }
+
+            set
+            {
+                m_palletSize = value;
+            }
+        }
+
+        public int PalletQty
+        {
+            get
+            {
+                return m_palletQty;
+            }
+
+            set
+            {
+                m_palletQty = value;
             }
         }
     }

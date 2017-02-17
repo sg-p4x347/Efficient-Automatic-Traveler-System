@@ -31,17 +31,32 @@ namespace Efficient_Automatic_Traveler_System
         {
             GetBlacklist();
         }
-        // sorts the table out to its beginning station
-        public override void Start()
+        // returns a JSON formatted string to be sent to a client
+        public override string Export(string clientType)
         {
-            SetNextStation();
-            Advance();
-        }
-        // advances this table to the next station
-        public override void Advance()
-        {
-            m_station = m_nextStation;
-            SetNextStation();
+            string json = "";
+            json += "{";
+            json += "\"ID\":" + '"' + m_ID.ToString("D6") + '"' + ",";
+            json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
+            json += "\"quantity\":" + '"' + m_quantity + '"' + ",";
+            json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
+            json += "\"station\":" + '"' + Traveler.GetStationName(m_station) + '"' + ',';
+            json += "\"nextStation\":" + '"' + Traveler.GetStationName(m_nextStation) + '"' + ',';
+            json += "\"members\":[";
+            string rows = "";
+            rows += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
+            if (clientType == "OperatorClient" && m_station == Traveler.GetStation("Chairs"))
+            {
+                foreach (Item component in m_components)
+                {
+                    rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>(component.ItemCode, component.ItemCodeDesc, component.TotalQuantity.ToString()).ToString();
+                }
+                
+            }
+            json += rows;
+            json += ']';
+            json += "}\n";
+            return json;
         }
         //===========================
         // Private

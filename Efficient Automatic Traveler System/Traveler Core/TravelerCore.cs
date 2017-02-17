@@ -53,7 +53,7 @@ namespace Efficient_Automatic_Traveler_System
             ImportStored();
 
             // Import new orders
-            //ImportOrders();
+            ImportOrders();
 
             // Create Tables
             m_tableManager.CompileTravelers();

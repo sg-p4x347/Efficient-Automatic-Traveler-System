@@ -48,6 +48,8 @@ namespace Efficient_Automatic_Traveler_System
                     Traveler newTraveler = new Traveler(order.ItemCode, order.QuantityOrdered, MAS);
                     // add to the order list
                     newTraveler.Orders.Add(order);
+                    // start the new traveler's journey
+                    newTraveler.Start();
                     // add the new traveler to the list
                     m_travelers.Add(newTraveler);
                 }

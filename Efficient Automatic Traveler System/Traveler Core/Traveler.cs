@@ -70,9 +70,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             string json = "";
             json += '{';
-            json += "\"name\":" + '"' + Name + '"' + ',';
-            json += "\"value\":" + '"' + Value.ToString() + '"' + ',';
-            json += "\"qty\":" + '"' + Qty.ToString() + '"';
+            json += "\"name\":" + '"' + Name.Replace("\"","\\\"") + '"' + ',';
+            json += "\"value\":" + '"' + Value.ToString().Replace("\"", "\\\"") + '"' + ',';
+            json += "\"qty\":" + '"' + Qty.ToString().Replace("\"", "\\\"") + '"';
             json += '}';
             return json;
         }
@@ -459,6 +459,7 @@ namespace Efficient_Automatic_Traveler_System
             json += "}\n";
             return json;
         }
+        public virtual string Export(string station) { return ""; }
         public static bool IsTable(string s)
         {
             return (s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-"));
