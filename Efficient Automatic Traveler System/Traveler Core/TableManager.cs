@@ -114,6 +114,12 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         traveler.BlankNo = "";
                     }
+                    // calculate production numbers
+                    if (traveler.PartsPerBlank <= 0) traveler.PartsPerBlank = 1;
+                    decimal tablesPerBlank = Convert.ToDecimal(traveler.PartsPerBlank);
+                    traveler.BlankQuantity = Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(traveler.Quantity) / tablesPerBlank));
+                    int partsProduced = traveler.BlankQuantity * Convert.ToInt32(tablesPerBlank);
+                    traveler.LeftoverParts = partsProduced - traveler.Quantity;
                     //--------------------------------------------
                     // PACK & BOX INFO
                     //--------------------------------------------

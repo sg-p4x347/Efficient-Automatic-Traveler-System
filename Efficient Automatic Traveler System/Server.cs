@@ -9,6 +9,7 @@ using ExtensionMethods = Efficient_Automatic_Traveler_System.ExtensionMethods;
 using System.Net;
 using System.IO;
 using System.Net.Http;
+using System.Net.Sockets;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -21,8 +22,8 @@ namespace Efficient_Automatic_Traveler_System
         public Server()
         {
             m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            m_ip = "127.0.0.1";
-            m_port = 8080;
+            m_ip = GetLocalIPAddress();
+            m_port = 81;
             m_travelerCore = new TravelerCore();
             m_clientManager = new ClientManager(m_ip, m_port,ref m_travelerCore.m_travelers);
             // Subscribe events
@@ -117,6 +118,18 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
         }
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("Local IP Address Not Found!");
+        }
         private void Update()
         {
             DateTime current = DateTime.Now;
@@ -133,7 +146,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_listener = new HttpListener();
             
-            m_listener.Prefixes.Add("http://*:80" + "/");
+            m_listener.Prefixes.Add("http://" + m_ip + ":80" + "/");
             m_listener.Start();
             while (true)
             {
