@@ -6,106 +6,120 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    struct OrderItem
+    {
+        public OrderItem(string json)
+        {
+            try
+            {
+                StringStream ss = new StringStream(json);
+                Dictionary<string, string> obj = ss.ParseJSON();
+                ItemCode = obj["itemCode"];
+                QtyOrdered = Convert.ToInt32(obj["qtyOrdered"]);
+                QtyOnHand = Convert.ToInt32(obj["qtyOnHand"]);
+                ChildTraveler = Convert.ToInt32(obj["childTraveler"]);
+            } catch (Exception ex)
+            {
+                Server.WriteLine("Error while reading OrderItem from file: " + ex.Message);
+                this = new OrderItem();
+            }
+        }
+        public OrderItem(string i,int ordered,int onHand,int c)
+        {
+            ItemCode = i;
+            QtyOrdered = ordered;
+            QtyOnHand = onHand;
+            ChildTraveler = c;
+        }
+        public string Export()
+        {
+            var json = "{";
+            json += "\"itemCode\":" + '"' + ItemCode + '"' + ',';
+            json += "\"qtyOrdered\":" + QtyOrdered + ',';
+            json += "\"qtyOnHand\":" + QtyOnHand + ',';
+            json += "\"childTraveler\":" + ChildTraveler;
+            json += "}";
+            return json;
+        }
+        public string ItemCode;
+        public int QtyOrdered;
+        public int QtyOnHand;
+        public int ChildTraveler;
+    }
     class Order
     {
-        private DateTime orderDate = DateTime.Today;
-        private string salesOrderNo = "";
-        private string customerNo = "";
-        private string itemCode  = "";
-        private string productLine = "";
-        private int quantityOrdered = 0;
-        private string shipVia = "";
-        public Order()
+        //-----------------------
+        // Public members
+        //-----------------------
+        public Order() : base()
         {
-
+            m_orderDate = DateTime.Today;
+            m_salesOrderNo = "";
+            m_customerNo = "";
+            m_items = new List<OrderItem>();
+            m_shipVia = "";
         }
+        // Import from json string
         public Order(string json)
         {
             try
             {
-                bool readString = false;
-                string stringToken = "";
-
-                string memberName = "";
-                bool readMember = false;
-
-                string value = "";
-                bool readValue = false;
-                // SalesOrderNo
-                for (int pos = 0; pos < json.Length; pos++)
+                StringStream ss = new StringStream(json);
+                Dictionary<string, string> obj = ss.ParseJSON();
+                m_salesOrderNo = obj["salesOrderNo"];
+                m_items = new List<OrderItem>();
+                ss = new StringStream(obj["items"]);
+                foreach (string item in ss.ParseJSONarray())
                 {
-                    char ch = json[pos];
-                    switch (ch) {
-                        case '"':
-                            readString = !readString;
-                            continue;
-                        case ':':
-                            memberName = stringToken; stringToken = "";
-                            continue;
-                        case ',':
-                        case '}':
-                            value = stringToken; stringToken = "";
-                            // set the corresponding member
-                            if (memberName == "salesOrderNo")
-                            {
-                                salesOrderNo = value;
-                            }
-                            else if (memberName == "customerNo")
-                            {
-                                customerNo = value;
-                            }
-                            else if (memberName == "itemCode")
-                            {
-                                itemCode = value;
-                            }
-                            else if (memberName == "productLine")
-                            {
-                                productLine = value;
-                            }
-                            else if (memberName == "quantityOrdered")
-                            {
-                                quantityOrdered = Convert.ToInt32(value);
-                            }
-                            else if (memberName == "shipVia")
-                            {
-                                shipVia = value;
-                            }
-                            continue;
-                    }
-                    if (readString)
-                    {
-                        // read string character by character
-                        stringToken += ch;
-                    }
+                    m_items.Add(new OrderItem(item));
                 }
             } catch (Exception ex)
             {
-
+                Server.WriteLine("Error while reading order from file: " + ex.Message);
             }
+            
         }
         public string Export()
         {
-            string doc = "";
-            doc += "{";
-            doc += "\"salesOrderNo\":" + '"' + salesOrderNo + '"' + ",";
-            doc += "\"customerNo\":" + '"' + customerNo + '"' + ",";
-            doc += "\"itemCode\":" + '"' + itemCode + '"' + ",";
-            doc += "\"productLine\":" + '"' + productLine + '"' + ",";
-            doc += "\"quantityOrdered\":" + '"' + quantityOrdered + '"' + ",";
-            doc += "\"shipVia\":" + '"' + shipVia + '"';
-            doc += "}";
-            return doc;
+            string json = "{";
+            json += "\"salesOrderNo\":" + '"' + m_salesOrderNo + '"' + ',';
+            json += "\"items\":";
+            json += "[";
+            string itemsJson = "";
+            foreach (OrderItem item in m_items)
+            {
+                if (itemsJson.Length == 0) itemsJson += ',';
+                itemsJson += item.Export();
+            }
+            json += itemsJson;
+            json += "]";
+            json += "}";
+            return json;
         }
+        //-----------------------
+        // Private members
+        //-----------------------
+
+        //-----------------------
+        // Properties
+        //-----------------------
+        private DateTime m_orderDate;
+        private DateTime m_shipDate;
+        private string m_salesOrderNo;
+        private string m_customerNo;
+        private List<OrderItem> m_items;
+        private string m_shipVia;
+        
         public DateTime OrderDate
         {
             get
             {
-                return orderDate;
+                return m_orderDate;
             }
 
             set
             {
-                orderDate = value;
+                m_orderDate = value;
             }
         }
 
@@ -113,12 +127,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return salesOrderNo;
+                return m_salesOrderNo;
             }
 
             set
             {
-                salesOrderNo = value;
+                m_salesOrderNo = value;
             }
         }
 
@@ -126,64 +140,50 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return customerNo;
+                return m_customerNo;
             }
 
             set
             {
-                customerNo = value;
+                m_customerNo = value;
             }
         }
 
-        public string ItemCode
+        public List<OrderItem> Items
         {
             get
             {
-                return itemCode;
+                return m_items;
             }
 
             set
             {
-                itemCode = value;
+                m_items = value;
             }
         }
-
-        public int QuantityOrdered
-        {
-            get
-            {
-                return quantityOrdered;
-            }
-
-            set
-            {
-                quantityOrdered = value;
-            }
-        }
-
         public string ShipVia
         {
             get
             {
-                return shipVia;
+                return m_shipVia;
             }
 
             set
             {
-                shipVia = value;
+                m_shipVia = value;
             }
         }
 
-        public string ProductLine
+        public DateTime ShipDate
         {
             get
             {
-                return productLine;
+                return m_shipDate;
             }
 
             set
             {
-                productLine = value;
+                m_shipDate = value;
             }
         }
     }

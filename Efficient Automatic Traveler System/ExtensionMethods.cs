@@ -26,5 +26,16 @@ namespace Efficient_Automatic_Traveler_System
                 return true;
             }
         }
+        public static string ToString(this List<Type> list)
+        {
+            string json = "[";
+            foreach (Type s in list)
+            {
+                if (s != list.First<Type>()) json += ',';
+                json += s;
+            }
+            json += "]";
+            return json;
+        }
     }
 }

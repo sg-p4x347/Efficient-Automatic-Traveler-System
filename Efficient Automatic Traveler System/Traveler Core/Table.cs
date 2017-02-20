@@ -12,9 +12,13 @@ namespace Efficient_Automatic_Traveler_System
 {
     class Table : Traveler
     {
-        //===========================
-        // PUBLIC
-        //===========================
+        //--------------------------
+        // Public members
+        //--------------------------
+        public Table(Dictionary<string,string> obj) : base(obj)
+        {
+
+        }
         public Table( Table table) : base(table)
         {
             // part information
@@ -81,7 +85,10 @@ namespace Efficient_Automatic_Traveler_System
         //--------------------------
         // Private members
         //--------------------------
-
+        protected override string ExportProperties()
+        {
+            return ",\"type\":\"Table\"";
+        }
         private void GetBlacklist()
         {
             m_blacklist.Add(new BlacklistItem("88")); // Glue items

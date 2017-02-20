@@ -14,7 +14,7 @@ namespace Efficient_Automatic_Traveler_System
 {
     // Class: Used to generate and store the digital "travelers" that are used throughout the system
     // Developer: Gage Coates
-    // Date started: 1/25/16
+    // Date started: 1/25/17
     public delegate void TravelersChangedSubscriber();
     class TravelerCore
     {
@@ -52,13 +52,15 @@ namespace Efficient_Automatic_Traveler_System
             // Import stored travelers
             ImportStored();
 
+            // Import stored orders
+            ImportStoredOrders();
             // Import new orders
             ImportOrders();
 
-            // Create Tables
+            // Create and combine new Table travelers
             m_tableManager.CompileTravelers();
             newTravelers.AddRange(m_tableManager.Travelers);
-            // Create Chairs
+            // Create and combine new Chair travelers
             m_chairManager.CompileTravelers();
             newTravelers.AddRange(m_chairManager.Travelers);
 
@@ -83,6 +85,15 @@ namespace Efficient_Automatic_Traveler_System
         public void HandleTravelersChanged()
         {
             OnTravelersChanged();
+        }
+        // Relational
+        public int FindOrderIndex(string orderNo)
+        {
+            for (int index = 0; index < m_orders.Count; index++)
+            {
+                if (m_orders[index].SalesOrderNo == orderNo) return index;
+            }
+            return -1;
         }
 
         //------------------------------
@@ -110,8 +121,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             ConnectToData();
 
-            m_tableManager = new TableManager(m_MAS);
-            m_chairManager = new ChairManager(m_MAS);
+            m_tableManager = new TableManager(m_MAS,ref m_orders);
+            m_chairManager = new ChairManager(m_MAS,ref m_orders);
         }
         
         private void Clear()
@@ -126,115 +137,69 @@ namespace Efficient_Automatic_Traveler_System
         private void ImportOrders()
         {
             Server.WriteLine("Importing orders...");
-            string today = DateTime.Today.ToString(@"yyyy\-MM\-dd");
-
             
             // get informatino from header
             OdbcCommand command = m_MAS.CreateCommand();
-            command.CommandText = "SELECT SalesOrderNo, CustomerNo, ShipVia, ShipExpireDate FROM SO_SalesOrderHeader";
+            command.CommandText = "SELECT SalesOrderNo, CustomerNo, ShipVia, OrderDate, ShipExpireDate FROM SO_SalesOrderHeader";
             OdbcDataReader reader = command.ExecuteReader();
             // read info
             while (reader.Read())
             {
                 string salesOrderNo = reader.GetString(0);
-                // continue to the next order if this order already has a traveler
-                if (m_orders.Exists(x => x.SalesOrderNo == salesOrderNo))
-                {
-                    continue;
-                }
-                // get information from detail
-                OdbcCommand detailCommand = m_MAS.CreateCommand();
-                detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
-                OdbcDataReader detailReader = detailCommand.ExecuteReader();
+                int index = m_orders.FindIndex(x => x.SalesOrderNo == salesOrderNo);
                 
-                // Read each line of the Sales Order, looking for the base Table, Chair, ect items, ignoring kits
-                while (detailReader.Read())
+                // does not match any stored records
+                if (index == -1)
                 {
-                    string billCode = detailReader.GetString(0);
-                    if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
+                    // create a new order
+                    Order order = new Order();
+                    if (!reader.IsDBNull(0)) order.SalesOrderNo = reader.GetString(0);
+                    if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
+                    if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
+                    if (!reader.IsDBNull(3)) order.OrderDate = DateTime.Parse(reader.GetString(3));
+                    if (!reader.IsDBNull(4)) order.ShipDate = DateTime.Parse(reader.GetString(4));
+                    // get information from detail
+                    OdbcCommand detailCommand = m_MAS.CreateCommand();
+                    detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
+                    OdbcDataReader detailReader = detailCommand.ExecuteReader();
+
+                    // Read each line of the Sales Order, looking for the base Table, Chair, ect items, ignoring kits
+                    while (detailReader.Read())
                     {
-                        if (Traveler.IsTable(billCode))
+                        string billCode = detailReader.GetString(0);
+                        if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
                         {
-                            // this is a table
-                            Order order = new Order();
-                            // scrap this order if anything is missing
-                            if (!reader.IsDBNull(0))
-                            {
-                                order.SalesOrderNo = salesOrderNo;
-                            }
-                            if (!reader.IsDBNull(1))
-                            {
-                                order.CustomerNo = reader.GetString(1);
-                            }
-                            if (!reader.IsDBNull(2))
-                            {
-                                order.ShipVia = reader.GetString(2);
-                            }
-                            if (!reader.IsDBNull(3))
-                            {
-                                order.OrderDate = reader.GetDate(3);
-                            }
-
-                            order.ItemCode = billCode;
-                            order.QuantityOrdered = Convert.ToInt32(detailReader.GetValue(1));
-                            m_tableManager.Orders.Add(order);
-                        }
-                        else if (Traveler.IsChair(billCode))
-                        {
-                            // this is a table
-                            Order order = new Order();
-                            // scrap this order if anything is missing
-                            if (!reader.IsDBNull(0))
-                            {
-                                order.SalesOrderNo = salesOrderNo;
-                            }
-                            if (!reader.IsDBNull(1))
-                            {
-                                order.CustomerNo = reader.GetString(1);
-                            }
-                            if (!reader.IsDBNull(2))
-                            {
-                                order.ShipVia = reader.GetString(2);
-                            }
-                            if (!reader.IsDBNull(3))
-                            {
-                                order.OrderDate = reader.GetDate(3);
-                            }
-
-                            order.ItemCode = billCode;
-                            order.QuantityOrdered = Convert.ToInt32(detailReader.GetValue(1));
-                            m_chairManager.Orders.Add(order);
-                        }
-                        else if (IsBackPanel(billCode))
-                        {
-                            // this is probably a back panel for an apex standup desk
-                            Order order = new Order();
-                            // scrap this order if anything is missing
-                            if (!reader.IsDBNull(0))
-                            {
-                                order.SalesOrderNo = salesOrderNo;
-                            }
-                            if (!reader.IsDBNull(1))
-                            {
-                                order.CustomerNo = reader.GetString(1);
-                            }
-                            if (!reader.IsDBNull(2))
-                            {
-                                order.ShipVia = reader.GetString(2);
-                            }
-                            if (!reader.IsDBNull(3))
-                            {
-                                order.OrderDate = reader.GetDate(3);
-                            }
-                            order.ItemCode = billCode;
-                            order.QuantityOrdered = Convert.ToInt32(detailReader.GetValue(1));
+                            OrderItem item = new OrderItem();
+                            if (!detailReader.IsDBNull(0)) item.ItemCode = detailReader.GetString(0);  // itemCode
+                            if (!detailReader.IsDBNull(1)) item.QtyOrdered = detailReader.GetInt32(1); // Quantity
+                            order.Items.Add(item);
                         }
                     }
+                    detailReader.Close();
                 }
-                detailReader.Close();
+                // Update information for existing order
+                else
+                {
+                    if (!reader.IsDBNull(1)) m_orders[index].CustomerNo = reader.GetString(1);
+                    if (!reader.IsDBNull(2)) m_orders[index].ShipVia = reader.GetString(2);
+                    if (!reader.IsDBNull(3)) m_orders[index].OrderDate = DateTime.Parse(reader.GetString(3));
+                    if (!reader.IsDBNull(4)) m_orders[index].ShipDate = DateTime.Parse(reader.GetString(4));
+                }
             }
             reader.Close();
         }
+        // Imports orders that have been stored
+        private void ImportStoredOrders()
+        {
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string line;
+            System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "orders.json"));
+            while ((line = file.ReadLine()) != null && line != "")
+            {
+                m_orders.Add(new Order(line));
+            }
+        }
+        // Imports travelers that have been stored
         private void ImportStored()
         {
             //--------------------------------------------------------------
@@ -249,23 +214,26 @@ namespace Efficient_Automatic_Traveler_System
             while ((line = file.ReadLine()) != null && line != "")
             {
                 Server.Write("\r{0}%   ", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / travelerCount) * 100));
-                Traveler createdTraveler = new Traveler(line);
-                m_orders.AddRange(createdTraveler.Orders);
+                StringStream ss = new StringStream(line);
+                Dictionary<string, string> obj = ss.ParseJSON();
+
                 // check to see if these orders have been printed already
-                if (Traveler.IsTable(createdTraveler.PartNo))
+                switch (obj["type"])
                 {
-                    Table table = new Table(line);
-                    table.ImportPart(m_MAS);
-                    if (table.Station == Traveler.GetStation("Start")) table.Start();
-                    table.Advance();
-                    m_tableManager.Travelers.Add(table);
-                } else if (Traveler.IsChair(createdTraveler.PartNo))
-                {
-                    Chair chair = new Chair(line);
-                    chair.ImportPart(m_MAS);
-                    if (chair.Station == Traveler.GetStation("Start")) chair.Start();
-                    chair.Advance();
-                    m_chairManager.Travelers.Add(chair);
+                    case "Table":
+                        Table table = new Table(obj);
+                        table.ImportPart(m_MAS);
+                        if (table.Station == Traveler.GetStation("Start")) table.Start();
+                        table.Advance();
+                        m_tableManager.Travelers.Add(table);
+                        break;
+                    case "Chair":
+                        Chair chair = new Chair(obj);
+                        chair.ImportPart(m_MAS);
+                        if (chair.Station == Traveler.GetStation("Start")) chair.Start();
+                        chair.Advance();
+                        m_chairManager.Travelers.Add(chair);
+                        break;
                 }
                 index++;
             }

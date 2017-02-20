@@ -31,6 +31,29 @@ namespace Efficient_Automatic_Traveler_System
             }
             return obj;
         }
+        public List<string> ParseJSONarray()
+        {
+            List<string> array = new List<string>();
+            // find the start
+            char opening = ' ';
+            while (Get(ref opening))
+            {
+                switch (opening)
+                {
+                    case '[':
+                    case '{':
+                        goto begin;
+                }
+            }
+        begin:
+            char next = ' ';
+            while (Get(ref next))
+            {
+                array.Add(GetJsonScope());
+            }
+            return array;
+        }
+
         private string GetJsonScope()
         {
             string scope = "";

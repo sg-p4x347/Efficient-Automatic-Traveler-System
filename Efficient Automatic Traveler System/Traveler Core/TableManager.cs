@@ -19,8 +19,54 @@ namespace Efficient_Automatic_Traveler_System
         // Public members
         //-----------------------
         public TableManager() : base() { }
-        public TableManager(OdbcConnection mas) : base(mas)
+        public TableManager(OdbcConnection mas, ref List<Order> orders) : base(mas, ref orders)
         {
+        }
+        public override void CompileTravelers()
+        {
+            int index = 0;
+            foreach (Order order in m_orders)
+            {
+                foreach (OrderItem item in order.Items)
+                {
+                    if (Traveler.IsTable(item.ItemCode))
+                    {
+                        Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orders.Count)) * 100));
+                        // Make a unique traveler for each order, while combining common parts from different models into single traveler
+                        bool foundBill = false;
+                        // search for existing traveler
+                        foreach (Traveler traveler in m_travelers)
+                        {
+                            if (traveler.Part == null) traveler.ImportPart(MAS);
+                            // only combine travelers if they have no events (meaning nothing has happened to them yet)
+                            if (traveler.History.Count == 0 && traveler.Part.BillNo == item.ItemCode)
+                            {
+                                // update existing traveler
+                                foundBill = true;
+                                // add to the quantity of items
+                                traveler.Quantity += item.QtyOrdered;
+                                // add to the order list
+                                traveler.ParentOrders.Add(order.SalesOrderNo);
+                            }
+                        }
+                        if (!foundBill)
+                        {
+                            // create a new traveler from the new item
+                            Traveler newTraveler = new Traveler(item.ItemCode, item.QtyOrdered, MAS);
+                            // add to the order list
+                            newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                            // start the new traveler's journey
+                            newTraveler.Start();
+                            // add the new traveler to the list
+                            m_travelers.Add(newTraveler);
+                        }
+                       
+                    }
+                }
+                index++;
+            }
+            Console.Write("\r{0}   ", "Compiling Travelers...Finished\n");
+            ImportInformation();
         }
         //-----------------------
         // Private members
@@ -125,7 +171,7 @@ namespace Efficient_Automatic_Traveler_System
                     //--------------------------------------------
                     traveler.SupPack = row[8];
                     traveler.RegPack = row[9];
-                    foreach (Order order in traveler.Orders)
+                    foreach (Order order in traveler.ParentOrders)
                     {
                         // Get box information
                         if (order.ShipVia != "" && (order.ShipVia.ToUpper().IndexOf("FEDEX") != -1 || order.ShipVia.ToUpper().IndexOf("UPS") != -1))

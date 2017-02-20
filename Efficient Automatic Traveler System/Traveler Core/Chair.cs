@@ -18,6 +18,7 @@ namespace Efficient_Automatic_Traveler_System
 
         // Doesn't do anything
         public Chair() : base() {}
+        public Chair(Dictionary<string,string> obj) : base(obj) { }
         // Gets the base properties and orders of the traveler from a json string
         public Chair(string json) : base(json) {
             GetBlacklist();

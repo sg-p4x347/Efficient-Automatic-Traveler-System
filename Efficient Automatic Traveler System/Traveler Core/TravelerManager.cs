@@ -14,49 +14,15 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
 
         public TravelerManager() { }
-        public TravelerManager(OdbcConnection mas)
+        public TravelerManager(OdbcConnection mas, ref List<Order> orders)
         {
             m_MAS = mas;
+            m_orders = orders;
         }
         // Creates and combines travelers from the order list
-        public void CompileTravelers()
+        public virtual void CompileTravelers()
         {
-            int index = 0;
-            foreach (Order order in m_orders)
-            {
-                Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orders.Count)) * 100));
-                // Make a unique traveler for each order, while combining common parts from different models into single traveler
-                bool foundBill = false;
-                // search for existing traveler
-                foreach (Traveler traveler in m_travelers)
-                {
-                    if (traveler.Part == null) traveler.ImportPart(MAS);
-                    // only combine travelers if they have no events (meaning nothing has happened to them yet)
-                    if (traveler.History.Count == 0 && traveler.Part.BillNo == order.ItemCode)
-                    {
-                        // update existing traveler
-                        foundBill = true;
-                        // add to the quantity of items
-                        traveler.Quantity += order.QuantityOrdered;
-                        // add to the order list
-                        traveler.Orders.Add(order);
-                    }
-                }
-                if (!foundBill)
-                {
-                    // create a new traveler from the new item
-                    Traveler newTraveler = new Traveler(order.ItemCode, order.QuantityOrdered, MAS);
-                    // add to the order list
-                    newTraveler.Orders.Add(order);
-                    // start the new traveler's journey
-                    newTraveler.Start();
-                    // add the new traveler to the list
-                    m_travelers.Add(newTraveler);
-                }
-                index++;
-            }
-            Console.Write("\r{0}   ", "Compiling Travelers...Finished\n");
-            ImportInformation();
+            
         }
         // Resets the traveler and order lists
         public void Reset()
@@ -127,7 +93,7 @@ namespace Efficient_Automatic_Traveler_System
         // Properties
         //-----------------------
 
-        protected List<Order> m_orders = new List<Order>();
+        protected List<Order> m_orders;
         protected List<Traveler> m_travelers = new List<Traveler>();
         protected OdbcConnection m_MAS = new OdbcConnection();
 
