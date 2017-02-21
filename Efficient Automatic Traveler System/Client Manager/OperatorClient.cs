@@ -64,6 +64,10 @@ namespace Efficient_Automatic_Traveler_System
                                 if (scrappedQty > 0)
                                 {
                                     Table scrapped = new Table((Table)m_travelers[i]);
+                                    // Relational ----------------------------
+                                    scrapped.Parents.Add(m_travelers[i].ID);
+                                    m_travelers[i].Children.Add(scrapped.ID);
+                                    //----------------------------------------
                                     scrapped.Quantity = scrappedQty;
                                     scrapped.Start();
                                     m_travelers.Add(scrapped);

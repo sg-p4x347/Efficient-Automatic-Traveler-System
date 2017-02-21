@@ -56,6 +56,5 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
         // Properties
         //-----------------------
-        List<Chair> m_chairs;
     }
 }

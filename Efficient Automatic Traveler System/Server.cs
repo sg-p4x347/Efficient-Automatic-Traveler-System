@@ -60,7 +60,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                Server.WriteLine(new string('!', 100) + Environment.NewLine + "Exception: " + ex.Message + Environment.NewLine + new string('!', 100));
+                Server.WriteLine(new string('!', 100) + Environment.NewLine + "Exception: " + ex.Message + Environment.NewLine + new string('!', 100) + " Stack Trace: " + ex.StackTrace);
             }
         }
         public static void WriteLine(string message)
@@ -116,7 +116,7 @@ namespace Efficient_Automatic_Traveler_System
                         json += "\"Qty\":" + "1" + "}";
                         //json += "\"Printer\":\"" + "192.168.0.231" + "\"}";
 
-                        result = client.UploadString(@"http://crashridge.net:8088/printLabel", "POST", json);
+                        result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
                         //http://192.168.2.6:8080/printLabel
                     }
                 } catch (Exception ex)

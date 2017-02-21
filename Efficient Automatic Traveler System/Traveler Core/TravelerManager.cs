@@ -30,48 +30,64 @@ namespace Efficient_Automatic_Traveler_System
             m_travelers.Clear();
             m_orders.Clear();
         }
-
+        // Relational
+        public int FindOrderIndex(string orderNo)
+        {
+            for (int index = 0; index < m_orders.Count; index++)
+            {
+                if (m_orders[index].SalesOrderNo == orderNo) return index;
+            }
+            return -1;
+        }
+        public int FindOrderItemIndex(Order order, int travelerID)
+        {
+            for (int index = 0; index < order.Items.Count; index++)
+            {
+                if (order.Items[index].ChildTraveler == travelerID) return index;
+            }
+            return -1;
+        }
         //-----------------------
         // Private members
         //-----------------------
 
         // return the traveler that containss the order number s
-        protected Traveler FindTraveler(string s)
-        {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string line;
-            System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "printed.json"));
-            int travelerID = 0;
-            try
-            {
-                if (s.Length < 7)
-                {
-                    travelerID = Convert.ToInt32(s);
-                }
-            }
-            catch (Exception ex)
-            {
+        //protected Traveler FindTraveler(string s)
+        //{
+        //    string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        //    string line;
+        //    System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "printed.json"));
+        //    int travelerID = 0;
+        //    try
+        //    {
+        //        if (s.Length < 7)
+        //        {
+        //            travelerID = Convert.ToInt32(s);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-            }
-            while ((line = file.ReadLine()) != null && line != "")
-            {
-                Traveler printedTraveler = new Traveler(line);
-                // check to see if the number matches a traveler ID
-                if (travelerID == printedTraveler.ID)
-                {
-                    return printedTraveler;
-                }
-                // check to see if these orders have been printed already
-                foreach (Order printedOrder in printedTraveler.Orders)
-                {
-                    if (printedOrder.SalesOrderNo == s)
-                    {
-                        return printedTraveler;
-                    }
-                }
-            }
-            return null;
-        }
+        //    }
+        //    while ((line = file.ReadLine()) != null && line != "")
+        //    {
+        //        Traveler printedTraveler = new Traveler(line);
+        //        // check to see if the number matches a traveler ID
+        //        if (travelerID == printedTraveler.ID)
+        //        {
+        //            return printedTraveler;
+        //        }
+        //        // check to see if these orders have been printed already
+        //        foreach (Order printedOrder in printedTraveler.Orders)
+        //        {
+        //            if (printedOrder.SalesOrderNo == s)
+        //            {
+        //                return printedTraveler;
+        //            }
+        //        }
+        //    }
+        //    return null;
+        //}
         // Gathers part information about a traveler from MAS
         protected virtual void ImportInformation()
         {

@@ -156,8 +156,8 @@ namespace Efficient_Automatic_Traveler_System
                     if (!reader.IsDBNull(0)) order.SalesOrderNo = reader.GetString(0);
                     if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
                     if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
-                    if (!reader.IsDBNull(3)) order.OrderDate = DateTime.Parse(reader.GetString(3));
-                    if (!reader.IsDBNull(4)) order.ShipDate = DateTime.Parse(reader.GetString(4));
+                    if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
+                    if (!reader.IsDBNull(4)) order.ShipDate =reader.GetDateTime(4);
                     // get information from detail
                     OdbcCommand detailCommand = m_MAS.CreateCommand();
                     detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
@@ -171,11 +171,12 @@ namespace Efficient_Automatic_Traveler_System
                         {
                             OrderItem item = new OrderItem();
                             if (!detailReader.IsDBNull(0)) item.ItemCode = detailReader.GetString(0);  // itemCode
-                            if (!detailReader.IsDBNull(1)) item.QtyOrdered = detailReader.GetInt32(1); // Quantity
+                            if (!detailReader.IsDBNull(1)) item.QtyOrdered = Convert.ToInt32(detailReader.GetValue(1)); // Quantity
                             order.Items.Add(item);
                         }
                     }
                     detailReader.Close();
+                    m_orders.Add(order);
                 }
                 // Update information for existing order
                 else

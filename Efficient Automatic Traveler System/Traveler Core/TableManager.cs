@@ -171,18 +171,21 @@ namespace Efficient_Automatic_Traveler_System
                     //--------------------------------------------
                     traveler.SupPack = row[8];
                     traveler.RegPack = row[9];
-                    foreach (Order order in traveler.ParentOrders)
+                    foreach (string orderNo in traveler.ParentOrders)
                     {
+                        Order order = m_orders[FindOrderIndex(orderNo)];
+                        OrderItem orderItem = order.Items[FindOrderItemIndex(order, traveler.ID)];
+
                         // Get box information
                         if (order.ShipVia != "" && (order.ShipVia.ToUpper().IndexOf("FEDEX") != -1 || order.ShipVia.ToUpper().IndexOf("UPS") != -1))
                         {
-                            traveler.SupPackQty += order.QuantityOrdered;
+                            traveler.SupPackQty += orderItem.QtyOrdered;
                         }
                         else
                         {
-                            traveler.RegPackQty += order.QuantityOrdered;
+                            traveler.RegPackQty += orderItem.QtyOrdered;
                             // approximately 20 max tables per pallet
-                            traveler.PalletQty += Convert.ToInt32(Math.Ceiling(Convert.ToDouble(order.QuantityOrdered) / 20));
+                            traveler.PalletQty += Convert.ToInt32(Math.Ceiling(Convert.ToDouble(orderItem.QtyOrdered) / 20));
                         }
                     }
                     //--------------------------------------------
