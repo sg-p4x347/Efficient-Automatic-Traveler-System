@@ -23,10 +23,54 @@ namespace Efficient_Automatic_Traveler_System
         public ChairManager(OdbcConnection mas, ref List<Order> orders) : base(mas, ref orders) {
 
         }
-        //-----------------------
-        // Private members
-        //-----------------------
-        protected override void ImportInformation()
+        public override void CompileTravelers(ref List<Order> newOrders)
+        {
+            int index = 0;
+            foreach (Order order in newOrders)
+            {
+                foreach (OrderItem item in order.Items)
+                {
+                    if (Traveler.IsChair(item.ItemCode))
+                    {
+                        Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
+                        // Make a unique traveler for each order, while combining common parts from different models into single traveler
+                        bool foundBill = false;
+                        // search for existing traveler
+                        foreach (Traveler traveler in m_travelers)
+                        {
+                            if (traveler.Part == null) traveler.ImportPart(MAS);
+                            // only combine travelers if they have no events (meaning nothing has happened to them yet)
+                            if (traveler.History.Count == 0 && traveler.Part.BillNo == item.ItemCode)
+                            {
+                                // update existing traveler
+                                foundBill = true;
+                                // add to the quantity of items
+                                traveler.Quantity += item.QtyOrdered;
+                                // add to the order list
+                                traveler.ParentOrders.Add(order.SalesOrderNo);
+                            }
+                        }
+                        if (!foundBill)
+                        {
+                            // create a new traveler from the new item
+                            Chair newTraveler = new Chair(item.ItemCode, item.QtyOrdered, MAS);
+                            item.ChildTraveler = newTraveler.ID;
+                            // add to the order list
+                            newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                            // start the new traveler's journey
+                            newTraveler.Start();
+                            // add the new traveler to the list
+                            m_travelers.Add(newTraveler);
+                        }
+
+                    }
+                }
+                index++;
+            }
+            Console.Write("\r{0}   ", "Compiling Travelers...Finished\n");
+            ImportInformation();
+        }
+        public override void ImportInformation()
         {
             int index = 0;
             foreach (Chair chair in m_travelers.OfType<Chair>())
@@ -42,6 +86,10 @@ namespace Efficient_Automatic_Traveler_System
             }
             Server.Write("\r{0}", "Importing Chair Info...Finished" + Environment.NewLine);
         }
+        //-----------------------
+        // Private members
+        //-----------------------
+
         private void GetBoxInfo(Chair traveler)
         {
             if (traveler.PartNo[traveler.PartNo.Length-1] == '4')

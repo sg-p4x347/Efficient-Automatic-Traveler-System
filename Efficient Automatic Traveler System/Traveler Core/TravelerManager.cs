@@ -20,7 +20,7 @@ namespace Efficient_Automatic_Traveler_System
             m_orders = orders;
         }
         // Creates and combines travelers from the order list
-        public virtual void CompileTravelers()
+        public virtual void CompileTravelers(ref List<Order> orders)
         {
             
         }
@@ -31,15 +31,15 @@ namespace Efficient_Automatic_Traveler_System
             m_orders.Clear();
         }
         // Relational
-        public int FindOrderIndex(string orderNo)
+        public int FindOrderIndex(ref List<Order> orders, string orderNo)
         {
             for (int index = 0; index < m_orders.Count; index++)
             {
-                if (m_orders[index].SalesOrderNo == orderNo) return index;
+                if (orders[index].SalesOrderNo == orderNo) return index;
             }
             return -1;
         }
-        public int FindOrderItemIndex(Order order, int travelerID)
+        public int FindOrderItemIndex(ref Order order, int travelerID)
         {
             for (int index = 0; index < order.Items.Count; index++)
             {
@@ -89,7 +89,7 @@ namespace Efficient_Automatic_Traveler_System
         //    return null;
         //}
         // Gathers part information about a traveler from MAS
-        protected virtual void ImportInformation()
+        public virtual void ImportInformation()
         {
             int index = 0;
             foreach (Traveler traveler in m_travelers)

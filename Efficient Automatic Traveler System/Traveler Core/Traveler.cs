@@ -94,7 +94,7 @@ namespace Efficient_Automatic_Traveler_System
         public Traveler(Dictionary<string,string> obj)
         {
             m_ID = Convert.ToInt32(obj["ID"]);
-            m_part.BillNo = obj["itemCode"];
+            m_partNo = obj["itemCode"];
             m_quantity = Convert.ToInt32(obj["quantity"]);
             m_station = Convert.ToInt32(obj["station"]);
             m_children = new List<int>();
@@ -167,13 +167,7 @@ namespace Efficient_Automatic_Traveler_System
             // set META information
             m_partNo = partNo;
             m_quantity = quantity;
-            // open the currentID.txt file
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            System.IO.StreamReader readID = new StreamReader(System.IO.Path.Combine(exeDir, "currentID.txt"));
-            m_ID = Convert.ToInt32(readID.ReadLine());
-            readID.Close();
-            // increment the current ID
-            File.WriteAllText(System.IO.Path.Combine(exeDir, "currentID.txt"), (m_ID + 1).ToString() + '\n');
+            NewID();
 
             // Import the part
             ImportPart(MAS);
@@ -457,7 +451,6 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"ID\":" + '"' + m_ID.ToString() + '"' + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + '"' + m_quantity + '"' + ",";
-            json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
             json += "\"station\":" + '"' + m_station.ToString() + '"' + ",";
             // CHILDREN
             json += "\"children\":[";
@@ -473,6 +466,14 @@ namespace Efficient_Automatic_Traveler_System
             {
                 json += m_parents[0] != parent ? "," : "";
                 json += parent.ToString();
+            }
+            json += "]" + ',';
+            // PARENT ORDERS
+            json += "\"parentOrders\":[";
+            foreach (string parentOrder in m_parentOrders)
+            {
+                json += m_parentOrders[0] != parentOrder ? "," : "";
+                json += '"' + parentOrder + '"';
             }
             json += "]" + ',';
             // HISTORY
@@ -492,7 +493,11 @@ namespace Efficient_Automatic_Traveler_System
         public virtual string Export(string station) { return ""; }
         public static bool IsTable(string s)
         {
-            return (s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-"));
+            if (s == null)
+            {
+                int test = 0;
+            }
+            return s != null && ((s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-")));
         }
         public static bool IsChair(string s)
         {

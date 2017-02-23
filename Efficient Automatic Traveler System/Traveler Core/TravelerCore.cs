@@ -48,28 +48,39 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_tableManager.Reset();
             m_chairManager.Reset();
-            List<Traveler> newTravelers = new List<Traveler>();
+            
             // Import stored travelers
             ImportStored();
 
             // Import stored orders
             ImportStoredOrders();
-            // Import new orders
-            ImportOrders();
 
+            // Import new orders
+            List<Order> newOrders = new List<Order>();
+            ImportOrders(ref newOrders);
+            BackupOrders();
+
+            List<Traveler> newTravelers = new List<Traveler>();
             // Create and combine new Table travelers
-            m_tableManager.CompileTravelers();
+            m_tableManager.CompileTravelers(ref newOrders);
             newTravelers.AddRange(m_tableManager.Travelers);
             // Create and combine new Chair travelers
-            m_chairManager.CompileTravelers();
+            m_chairManager.CompileTravelers(ref newOrders);
             newTravelers.AddRange(m_chairManager.Travelers);
 
             // The traveler list has been updated
             Travelers.Clear();
-
             Travelers.AddRange(newTravelers);
+
+            // The order list has been updated
+            m_orders.Clear();
+            m_orders.AddRange(newOrders);
+
+            // Finalize the travelers by importing external information
+            m_tableManager.ImportInformation();
+            m_chairManager.ImportInformation();
+
             OnTravelersChanged();
-            
         }
         public void BackupTravelers()
         {
@@ -81,6 +92,17 @@ namespace Efficient_Automatic_Traveler_System
 
             }
             System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "travelers.json"),contents);
+        }
+        public void BackupOrders()
+        {
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string contents = "";
+            foreach (Order order in m_orders)
+            {
+                contents += order.Export();
+
+            }
+            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "orders.json"), contents);
         }
         public void HandleTravelersChanged()
         {
@@ -134,7 +156,7 @@ namespace Efficient_Automatic_Traveler_System
         }
 
         // Imports and stores all open orders that have not already been stored
-        private void ImportOrders()
+        private void ImportOrders(ref List<Order> orders)
         {
             Server.WriteLine("Importing orders...");
             
@@ -176,15 +198,15 @@ namespace Efficient_Automatic_Traveler_System
                         }
                     }
                     detailReader.Close();
-                    m_orders.Add(order);
+                    orders.Add(order);
                 }
                 // Update information for existing order
                 else
                 {
                     if (!reader.IsDBNull(1)) m_orders[index].CustomerNo = reader.GetString(1);
                     if (!reader.IsDBNull(2)) m_orders[index].ShipVia = reader.GetString(2);
-                    if (!reader.IsDBNull(3)) m_orders[index].OrderDate = DateTime.Parse(reader.GetString(3));
-                    if (!reader.IsDBNull(4)) m_orders[index].ShipDate = DateTime.Parse(reader.GetString(4));
+                    if (!reader.IsDBNull(3)) m_orders[index].OrderDate = reader.GetDateTime(3);
+                    if (!reader.IsDBNull(4)) m_orders[index].ShipDate = reader.GetDateTime(4);
                 }
             }
             reader.Close();
@@ -199,6 +221,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 m_orders.Add(new Order(line));
             }
+            file.Close();
         }
         // Imports travelers that have been stored
         private void ImportStored()

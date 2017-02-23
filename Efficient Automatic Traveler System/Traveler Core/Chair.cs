@@ -62,7 +62,10 @@ namespace Efficient_Automatic_Traveler_System
         //===========================
         // Private
         //===========================
-
+        protected override string ExportProperties()
+        {
+            return ",\"type\":\"Chair\"";
+        }
         // returns the next station for this table
         protected override void SetNextStation()
         {

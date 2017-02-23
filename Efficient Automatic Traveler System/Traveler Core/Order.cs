@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    struct OrderItem
+    class OrderItem
     {
+        public OrderItem() { }
         public OrderItem(string json)
         {
             try
@@ -21,7 +22,6 @@ namespace Efficient_Automatic_Traveler_System
             } catch (Exception ex)
             {
                 Server.WriteLine("Error while reading OrderItem from file: " + ex.Message);
-                this = new OrderItem();
             }
         }
         public OrderItem(string i,int ordered,int onHand,int c)
@@ -85,21 +85,18 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"salesOrderNo\":" + '"' + m_salesOrderNo + '"' + ',';
             json += "\"items\":";
             json += "[";
-            string itemsJson = "";
             foreach (OrderItem item in m_items)
             {
-                if (itemsJson.Length == 0) itemsJson += ',';
-                itemsJson += item.Export();
+                if (item != m_items[0]) json += ',';
+                json += item.Export();
             }
-            json += itemsJson;
             json += "]";
-            json += "}";
+            json += "}\n";
             return json;
         }
         //-----------------------
         // Private members
         //-----------------------
-
         //-----------------------
         // Properties
         //-----------------------

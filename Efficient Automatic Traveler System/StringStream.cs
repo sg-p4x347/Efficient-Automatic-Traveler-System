@@ -11,6 +11,7 @@ namespace Efficient_Automatic_Traveler_System
         public StringStream(string s)
         {
             m_string = s;
+            m_position = -1;
         }
         public Dictionary<string,string> ParseJSON()
         {
@@ -26,7 +27,10 @@ namespace Efficient_Automatic_Traveler_System
                     key = GetJsonScope().Trim('"');
                 } else if (token == ':')
                 {
-                    obj.Add(key, GetJsonScope()); // adding the key with the value (obtained from getting the next json scope)
+                    if (!obj.ContainsKey(key))
+                    {
+                        obj.Add(key, GetJsonScope().Trim('"')); // adding the key with the value (obtained from getting the next json scope)
+                    }
                 }
             }
             return obj;
@@ -49,7 +53,11 @@ namespace Efficient_Automatic_Traveler_System
             char next = ' ';
             while (Get(ref next))
             {
-                array.Add(GetJsonScope());
+                if (next == '[' || next == '{' || next == '"')
+                {
+                    PutBack();
+                    array.Add(GetJsonScope().Trim('"'));
+                }
             }
             return array;
         }

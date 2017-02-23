@@ -60,7 +60,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                Server.WriteLine(new string('!', 100) + Environment.NewLine + "Exception: " + ex.Message + Environment.NewLine + new string('!', 100) + " Stack Trace: " + ex.StackTrace);
+                Server.WriteLine(new string('!', 100) + Environment.NewLine + "Exception: " + ex.Message + Environment.NewLine + " Stack Trace: " + ex.StackTrace + Environment.NewLine + new string('!', 100) + Environment.NewLine);
             }
         }
         public static void WriteLine(string message)

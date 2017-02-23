@@ -44,12 +44,12 @@ namespace Efficient_Automatic_Traveler_System
                     //----------------------
                     for (int i = 0; i < m_travelers.Count; i++)
                     {
-                        if (m_travelers[i].ID.ToString("D6") == obj["completed"].Trim('"'))
+                        if (m_travelers[i].ID.ToString("D6") == obj["completed"])
                         {
-                            m_travelers[i].Station = Traveler.GetStation(obj["destination"].Trim('"'));
+                            m_travelers[i].Station = Traveler.GetStation(obj["destination"]);
                             m_travelers[i].Advance();
                             // log this event
-                            m_travelers[i].History.Add(new Event(TravelerEvent.Completed, m_travelers[i].Quantity, m_travelers[i].Station, Convert.ToDouble(obj["time"].Trim('"'))));
+                            m_travelers[i].History.Add(new Event(TravelerEvent.Completed, m_travelers[i].Quantity, m_travelers[i].Station, Convert.ToDouble(obj["time"])));
                             break;
                         }
                     }

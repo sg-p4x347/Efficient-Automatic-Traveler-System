@@ -39,23 +39,21 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = ss.ParseJSON();
                 if (obj.ContainsKey("station"))
                 {
-                    m_station = Traveler.GetStation(obj["station"].Trim('"'));
+                    m_station = Traveler.GetStation(obj["station"]);
                     HandleTravelersChanged();
                 }
-                else if (obj.ContainsKey("completed") && obj.ContainsKey("destination") && obj.ContainsKey("time") && obj.ContainsKey("quantity"))
+                else if (obj.ContainsKey("completed") && obj.ContainsKey("destination") && obj.ContainsKey("time") && obj.ContainsKey("qtyMade") && obj.ContainsKey("qtyScrapped"))
                 {
                     //----------------------
                     // Traveler Completed
                     //----------------------
                     for (int i = 0; i < m_travelers.Count; i++)
                     {
-                        if (m_travelers[i].ID.ToString("D6") == obj["completed"].Trim('"'))
+                        if (m_travelers[i].ID.ToString("D6") == obj["completed"])
                         {
-                            m_travelers[i].Station = Traveler.GetStation(obj["destination"].Trim('"'));
-                            int completedQty = Convert.ToInt32(obj["quantity"]);
-                            int scrappedQty = m_travelers[i].Quantity - completedQty;
-                            
-                            
+                            m_travelers[i].Station = Traveler.GetStation(obj["destination"]);
+                            int completedQty = Convert.ToInt32(obj["qtyMade"]);
+                            int scrappedQty = Convert.ToInt32(obj["qtyScrapped"]);
                             
                             if (completedQty > 0 || completedQty == m_travelers[i].Quantity)
                             {
@@ -80,7 +78,7 @@ namespace Efficient_Automatic_Traveler_System
                                 m_travelers[i].Start();
                             }
                             // log this event
-                            m_travelers[i].History.Add(new Event(TravelerEvent.Completed, m_travelers[i].Quantity, m_travelers[i].Station, Convert.ToDouble(obj["time"].Trim('"'))));
+                            m_travelers[i].History.Add(new Event(TravelerEvent.Completed, m_travelers[i].Quantity, m_travelers[i].Station, Convert.ToDouble(obj["time"])));
                             break;
                         }
                     }

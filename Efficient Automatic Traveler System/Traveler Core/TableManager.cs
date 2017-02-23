@@ -22,16 +22,18 @@ namespace Efficient_Automatic_Traveler_System
         public TableManager(OdbcConnection mas, ref List<Order> orders) : base(mas, ref orders)
         {
         }
-        public override void CompileTravelers()
+        public override void CompileTravelers(ref List<Order> newOrders)
         {
             int index = 0;
-            foreach (Order order in m_orders)
+            for (int orderIndex = 0; orderIndex < newOrders.Count;orderIndex++)
             {
-                foreach (OrderItem item in order.Items)
+                Order order = newOrders[orderIndex];
+                for (int itemIndex = 0; itemIndex < order.Items.Count; itemIndex++)
                 {
+                    OrderItem item = order.Items[itemIndex];
                     if (Traveler.IsTable(item.ItemCode))
                     {
-                        Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orders.Count)) * 100));
+                        Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
                         // Make a unique traveler for each order, while combining common parts from different models into single traveler
                         bool foundBill = false;
                         // search for existing traveler
@@ -45,16 +47,24 @@ namespace Efficient_Automatic_Traveler_System
                                 foundBill = true;
                                 // add to the quantity of items
                                 traveler.Quantity += item.QtyOrdered;
-                                // add to the order list
+
+
+                                // RELATIONAL =============================================================
+                                item.ChildTraveler = traveler.ID;
                                 traveler.ParentOrders.Add(order.SalesOrderNo);
+                                //=========================================================================
                             }
                         }
                         if (!foundBill)
                         {
                             // create a new traveler from the new item
-                            Traveler newTraveler = new Traveler(item.ItemCode, item.QtyOrdered, MAS);
-                            // add to the order list
+                            Table newTraveler = new Table(item.ItemCode, item.QtyOrdered, MAS);
+
+                            // RELATIONAL =============================================================
+                            item.ChildTraveler = newTraveler.ID;
                             newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                            //=========================================================================
+
                             // start the new traveler's journey
                             newTraveler.Start();
                             // add the new traveler to the list
@@ -66,14 +76,9 @@ namespace Efficient_Automatic_Traveler_System
                 index++;
             }
             Console.Write("\r{0}   ", "Compiling Travelers...Finished\n");
-            ImportInformation();
         }
-        //-----------------------
-        // Private members
-        //-----------------------
-
         // oversees the importing of externally stored information
-        protected override void ImportInformation()
+        public override void ImportInformation()
         {
             int index = 0;
             foreach (Table table in m_travelers.OfType<Table>())
@@ -92,6 +97,11 @@ namespace Efficient_Automatic_Traveler_System
             }
             Server.Write("\r{0}", "Importing Table Info...Finished" + Environment.NewLine);
         }
+        //-----------------------
+        // Private members
+        //-----------------------
+
+
         // get a reader friendly string for the color
         private void GetColorInfo(Table traveler)
         {
@@ -100,7 +110,7 @@ namespace Efficient_Automatic_Traveler_System
             System.IO.StreamReader colorRef = new StreamReader(System.IO.Path.Combine(exeDir, "Color Reference.csv"));
             colorRef.ReadLine(); // read past the header
             string line = colorRef.ReadLine();
-            while (line != "")
+            while (line != "" && line != null)
             {
                 string[] row = line.Split(',');
                 if (Convert.ToInt32(row[0]) == traveler.ColorNo)
@@ -121,7 +131,7 @@ namespace Efficient_Automatic_Traveler_System
             System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, "Table Reference.csv"));
             tableRef.ReadLine(); // read past the header
             string line = tableRef.ReadLine();
-            while (line != "")
+            while (line != "" && line != null)
             {
                 string[] row = line.Split(',');
                 if (row[0] == traveler.ShapeNo)
@@ -173,8 +183,8 @@ namespace Efficient_Automatic_Traveler_System
                     traveler.RegPack = row[9];
                     foreach (string orderNo in traveler.ParentOrders)
                     {
-                        Order order = m_orders[FindOrderIndex(orderNo)];
-                        OrderItem orderItem = order.Items[FindOrderItemIndex(order, traveler.ID)];
+                        Order order = m_orders[FindOrderIndex(ref m_orders, orderNo)];
+                        OrderItem orderItem = order.Items[FindOrderItemIndex(ref order, traveler.ID)];
 
                         // Get box information
                         if (order.ShipVia != "" && (order.ShipVia.ToUpper().IndexOf("FEDEX") != -1 || order.ShipVia.ToUpper().IndexOf("UPS") != -1))
