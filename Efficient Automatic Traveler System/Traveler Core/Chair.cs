@@ -28,7 +28,7 @@ namespace Efficient_Automatic_Traveler_System
             GetBlacklist();
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
-        public Chair(string partNo, int quantity, OdbcConnection MAS) : base(partNo, quantity, MAS)
+        public Chair(string partNo, int quantity, ref OdbcConnection MAS) : base(partNo, quantity, ref MAS)
         {
             GetBlacklist();
         }

@@ -26,13 +26,20 @@ namespace Efficient_Automatic_Traveler_System
                 return true;
             }
         }
-        public static string ToString(this List<Type> list)
+        public static string Stringify<itemType>(this List<itemType> list)
         {
             string json = "[";
-            foreach (Type s in list)
+            foreach (itemType s in list)
             {
-                if (s != list.First<Type>()) json += ',';
-                json += s;
+                if (json.Length > 1) json += ',';
+                if (typeof(itemType) == typeof(string))
+                {
+                    json += '"' + s.ToString() + '"';
+                } else
+                {
+                    json += s.ToString();
+                }
+                
             }
             json += "]";
             return json;

@@ -20,7 +20,7 @@ namespace Efficient_Automatic_Traveler_System
         // Public members
         //-----------------------
         public ChairManager() : base(){ }
-        public ChairManager(OdbcConnection mas, ref List<Order> orders) : base(mas, ref orders) {
+        public ChairManager(ref OdbcConnection mas, ref List<Order> orders, ref List<Traveler> travelers) : base(ref mas, ref orders, ref travelers) {
 
         }
         public override void CompileTravelers(ref List<Order> newOrders)
@@ -38,7 +38,7 @@ namespace Efficient_Automatic_Traveler_System
                         // search for existing traveler
                         foreach (Traveler traveler in m_travelers)
                         {
-                            if (traveler.Part == null) traveler.ImportPart(MAS);
+                            if (traveler.Part == null) traveler.ImportPart(ref m_MAS);
                             // only combine travelers if they have no events (meaning nothing has happened to them yet)
                             if (traveler.History.Count == 0 && traveler.Part.BillNo == item.ItemCode)
                             {
@@ -53,7 +53,7 @@ namespace Efficient_Automatic_Traveler_System
                         if (!foundBill)
                         {
                             // create a new traveler from the new item
-                            Chair newTraveler = new Chair(item.ItemCode, item.QtyOrdered, MAS);
+                            Chair newTraveler = new Chair(item.ItemCode, item.QtyOrdered, ref m_MAS);
                             item.ChildTraveler = newTraveler.ID;
                             // add to the order list
                             newTraveler.ParentOrders.Add(order.SalesOrderNo);
@@ -68,16 +68,15 @@ namespace Efficient_Automatic_Traveler_System
                 index++;
             }
             Console.Write("\r{0}   ", "Compiling Travelers...Finished\n");
-            ImportInformation();
         }
         public override void ImportInformation()
         {
             int index = 0;
             foreach (Chair chair in m_travelers.OfType<Chair>())
             {
-                if (chair.Part == null) chair.ImportPart(MAS);
+                if (chair.Part == null) chair.ImportPart(ref m_MAS);
                 Server.Write("\r{0}%", "Importing Chair Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-                chair.CheckInventory(MAS);
+                chair.CheckInventory(ref m_MAS);
                 // update and total the final parts
                 chair.Part.TotalQuantity = chair.Quantity;
                 chair.FindComponents(chair.Part);

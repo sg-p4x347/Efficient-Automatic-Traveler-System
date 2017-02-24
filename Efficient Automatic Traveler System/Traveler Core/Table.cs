@@ -19,7 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         {
 
         }
-        public Table( Table table) : base(table)
+        public Table(Table table) : base((Traveler) table)
         {
             // part information
             m_colorNo = table.ColorNo;
@@ -32,6 +32,10 @@ namespace Efficient_Automatic_Traveler_System
             m_partsPerBlank = table.PartsPerBlank;
             m_blankQuantity = table.BlankQuantity;
             m_leftoverParts = table.LeftoverParts;
+        }
+        public override Traveler Clone()
+        {
+            return new Table(this);
         }
         public Table() : base() { }
         public Table(string json) : base(json) {
@@ -46,7 +50,7 @@ namespace Efficient_Automatic_Traveler_System
             m_colorNo = Convert.ToInt32(m_partNo.Substring(m_partNo.Length - 2));
             m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
         }
-        public Table(string partNo, int quantity, OdbcConnection MAS) : base(partNo,quantity,MAS)
+        public Table(string partNo, int quantity, ref OdbcConnection MAS) : base(partNo,quantity,ref MAS)
         {
             GetBlacklist();
             m_colorNo = Convert.ToInt32(m_partNo.Substring(m_partNo.Length - 2));
@@ -57,9 +61,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             string json = "";
             json += "{";
-            json += "\"ID\":" + '"' + m_ID.ToString("D6") + '"' + ",";
+            json += "\"ID\":" + m_ID + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
-            json += "\"quantity\":" + '"' + m_quantity + '"' + ",";
+            json += "\"quantity\":" + m_quantity + ",";
             json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
             json += "\"station\":" + '"' + Traveler.GetStationName(m_station) + '"' + ',';
             json += "\"nextStation\":" + '"' + Traveler.GetStationName(m_nextStation) + '"' + ',';

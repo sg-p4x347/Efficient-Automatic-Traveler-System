@@ -12,7 +12,9 @@ namespace Efficient_Automatic_Traveler_System
 {
     enum TravelerEvent
     {
-        Completed
+        Completed,
+        Scrapped,
+        Reworked
     }
     class Event
     {
@@ -40,7 +42,7 @@ namespace Efficient_Automatic_Traveler_System
             quantity = q;
             station = s;
         }
-        public string Export()
+        public string ToString()
         {
             string json = "";
             json += "{";
@@ -125,9 +127,9 @@ namespace Efficient_Automatic_Traveler_System
             m_nextStation = t.NextStation;
             m_history = t.History;
             // relational
-            m_children = t.Children;
-            m_parents = t.Parents;
-            m_parentOrders = t.ParentOrders;
+            m_parents.Add(t.ID);
+            t.Children.Add(m_ID);
+            //m_parentOrders = t.ParentOrders;
             // Labor
             m_cnc = t.Cnc;
             m_vector = t.Vector;
@@ -147,6 +149,10 @@ namespace Efficient_Automatic_Traveler_System
             m_regPackQty = t.RegPackQty;
             m_supPack = t.SupPack;
             m_supPackQty = t.SupPackQty;
+
+        }
+        public virtual Traveler Clone() {
+            return new Traveler((Traveler)this);
         }
         // Gets the base properties and orders of the traveler from a json string
         public Traveler(string json)
@@ -162,7 +168,7 @@ namespace Efficient_Automatic_Traveler_System
             NewID();
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
-        public Traveler(string partNo, int quantity, OdbcConnection MAS)
+        public Traveler(string partNo, int quantity, ref OdbcConnection MAS)
         {
             // set META information
             m_partNo = partNo;
@@ -170,9 +176,9 @@ namespace Efficient_Automatic_Traveler_System
             NewID();
 
             // Import the part
-            ImportPart(MAS);
+            ImportPart(ref MAS);
         }
-        public void ImportPart(OdbcConnection MAS)
+        public void ImportPart(ref OdbcConnection MAS)
         {
             if (m_partNo != "")
             {
@@ -336,7 +342,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         //check inventory to see how many actually need to be produced.
-        public void CheckInventory(OdbcConnection MAS)
+        public void CheckInventory(ref OdbcConnection MAS)
         {
             try
             {
@@ -448,43 +454,21 @@ namespace Efficient_Automatic_Traveler_System
         {
             string json = "";
             json += "{";
-            json += "\"ID\":" + '"' + m_ID.ToString() + '"' + ",";
+            // BASIC PROPERTIES
+            json += "\"ID\":" + m_ID + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
-            json += "\"quantity\":" + '"' + m_quantity + '"' + ",";
-            json += "\"station\":" + '"' + m_station.ToString() + '"' + ",";
-            // CHILDREN
-            json += "\"children\":[";
-            foreach (int child in m_children)
-            {
-                json += m_children[0] != child ? "," : "";
-                json += child.ToString();
-            }
-            json += "]" + ',';
-            // PARENTS
-            json += "\"parents\":[";
-            foreach (int parent in m_parents)
-            {
-                json += m_parents[0] != parent ? "," : "";
-                json += parent.ToString();
-            }
-            json += "]" + ',';
-            // PARENT ORDERS
-            json += "\"parentOrders\":[";
-            foreach (string parentOrder in m_parentOrders)
-            {
-                json += m_parentOrders[0] != parentOrder ? "," : "";
-                json += '"' + parentOrder + '"';
-            }
-            json += "]" + ',';
-            // HISTORY
-            json += "\"history\":[";
-            foreach (Event travelerEvent in m_history)
-            {
-                json += m_history[0] != travelerEvent ? "," : "";
-                json += travelerEvent.Export();
-            }
-            json += "]";
-            json += ExportProperties(); // packs in members specific to derived classes
+            json += "\"quantity\":" + m_quantity + ",";
+            json += "\"station\":" + m_station + ",";
+            // CHILDREN [...]
+            json += "\"children\":" + m_children.Stringify<int>() + ',';
+            // PARENTS [...]
+            json += "\"parents\":" + m_parents.Stringify<int>() + ',';
+            // PARENT ORDERS [...]
+            json += "\"parentOrders\":" + m_parentOrders.Stringify<string>() + ',';
+            // HISTORY [...]
+            json += "\"history\":" + m_history.Stringify<Event>();
+            // packs in members specific to derived classes
+            json += ExportProperties(); 
 
             json += "}\n";
             return json;
@@ -493,10 +477,6 @@ namespace Efficient_Automatic_Traveler_System
         public virtual string Export(string station) { return ""; }
         public static bool IsTable(string s)
         {
-            if (s == null)
-            {
-                int test = 0;
-            }
             return s != null && ((s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-")));
         }
         public static bool IsChair(string s)

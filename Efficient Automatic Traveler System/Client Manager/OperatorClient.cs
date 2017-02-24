@@ -47,41 +47,65 @@ namespace Efficient_Automatic_Traveler_System
                     //----------------------
                     // Traveler Completed
                     //----------------------
-                    for (int i = 0; i < m_travelers.Count; i++)
+                    Traveler traveler = m_travelers.Find(x => x.ID == Convert.ToInt32(obj["completed"]));
+                    if (traveler != null)
                     {
-                        if (m_travelers[i].ID.ToString("D6") == obj["completed"])
+                        int qtyMade = Convert.ToInt32(obj["qtyMade"]);
+                        int qtyScrapped = Convert.ToInt32(obj["qtyScrapped"]);
+                        int qtyPending = traveler.Quantity - (qtyMade + qtyScrapped);
+
+                        // SCRAP
+                        if (qtyScrapped > 0)
                         {
-                            m_travelers[i].Station = Traveler.GetStation(obj["destination"]);
-                            int completedQty = Convert.ToInt32(obj["qtyMade"]);
-                            int scrappedQty = Convert.ToInt32(obj["qtyScrapped"]);
-                            
-                            if (completedQty > 0 || completedQty == m_travelers[i].Quantity)
+                            if (qtyScrapped == traveler.Quantity)
                             {
-                                
-                                // make a new traveler fro scrapped parts
-                                if (scrappedQty > 0)
-                                {
-                                    Table scrapped = new Table((Table)m_travelers[i]);
-                                    // Relational ----------------------------
-                                    scrapped.Parents.Add(m_travelers[i].ID);
-                                    m_travelers[i].Children.Add(scrapped.ID);
-                                    //----------------------------------------
-                                    scrapped.Quantity = scrappedQty;
-                                    scrapped.Start();
-                                    m_travelers.Add(scrapped);
-                                }
-                                m_travelers[i].Quantity = completedQty;
-                                m_travelers[i].Advance();
+                                // log this event
+                                traveler.History.Add(new Event(TravelerEvent.Scrapped, qtyScrapped, traveler.Station, Convert.ToDouble(obj["time"])));
+                                traveler.Start(); // the whole thing was scrapped
+                            }
+                            else
+                            {
+                                Traveler scrapped = (Traveler)traveler.Clone();
+                                // relational dependencies to original traveler
+                                //scrapped.Parents.Add(traveler.ID);
+                                //traveler.Children.Add(scrapped.ID);
+                                //---------------------------------------------
+                                scrapped.Quantity = qtyScrapped;
+                                scrapped.Start();
+                                // log this event
+                                scrapped.History.Add(new Event(TravelerEvent.Scrapped, scrapped.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
+                                m_travelers.Add(scrapped);
+                            }
+                        }
+                        if (qtyMade > 0)
+                        {
+                            if (qtyMade == traveler.Quantity)
+                            {
+                                // log this event
+                                traveler.History.Add(new Event(TravelerEvent.Completed, traveler.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
+                                traveler.Station = Traveler.GetStation(obj["destination"]);
+                                traveler.Advance(); // this traveler was fully completed
                             } else
                             {
-                                // reset this traveler (the whole thing was scrapped)
-                                m_travelers[i].Start();
+                                Traveler made = (Traveler)traveler.Clone();
+                                // relational dependencies to original traveler
+                                //made.Parents.Add(traveler.ID);
+                                //traveler.Children.Add(made.ID);
+                                //---------------------------------------------
+                                made.Quantity = qtyMade;
+                                made.Station = Traveler.GetStation(obj["destination"]);
+                                made.Advance();
+                                // log this event
+                                made.History.Add(new Event(TravelerEvent.Completed, made.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
+                                m_travelers.Add(made);
                             }
-                            // log this event
-                            m_travelers[i].History.Add(new Event(TravelerEvent.Completed, m_travelers[i].Quantity, m_travelers[i].Station, Convert.ToDouble(obj["time"])));
-                            break;
-                        }
+                            if (qtyScrapped < traveler.Quantity && qtyMade < traveler.Quantity)
+                            {
+                                traveler.Quantity = qtyPending;
+                            }
+                        } 
                     }
+                           
                     TravelersChanged();
                 }
             } catch (Exception ex)

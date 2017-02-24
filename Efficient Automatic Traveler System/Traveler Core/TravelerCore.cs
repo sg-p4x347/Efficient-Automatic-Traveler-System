@@ -23,6 +23,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         public TravelerCore()
         {
+            m_MAS = new OdbcConnection();
             m_orders = new List<Order>();
             
             TravelersChanged = delegate { };
@@ -46,41 +47,38 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void CreateTravelers()
         {
-            m_tableManager.Reset();
-            m_chairManager.Reset();
-            
-            // Import stored travelers
-            ImportStored();
+            // open the MAS connection
+            ConnectToData();
 
-            // Import stored orders
+            // Import stored travelers from json file
+            m_travelers.Clear();
+            ImportStoredTravelers();
+
+            // Import stored orders from json file
+            m_orders.Clear();
             ImportStoredOrders();
 
-            // Import new orders
+            // Import new orders from MAS
             List<Order> newOrders = new List<Order>();
             ImportOrders(ref newOrders);
-            BackupOrders();
-
-            List<Traveler> newTravelers = new List<Traveler>();
-            // Create and combine new Table travelers
+            
+            // Create and combine new travelers
             m_tableManager.CompileTravelers(ref newOrders);
-            newTravelers.AddRange(m_tableManager.Travelers);
-            // Create and combine new Chair travelers
             m_chairManager.CompileTravelers(ref newOrders);
-            newTravelers.AddRange(m_chairManager.Travelers);
-
-            // The traveler list has been updated
-            Travelers.Clear();
-            Travelers.AddRange(newTravelers);
 
             // The order list has been updated
-            m_orders.Clear();
             m_orders.AddRange(newOrders);
+            BackupOrders();
 
             // Finalize the travelers by importing external information
             m_tableManager.ImportInformation();
             m_chairManager.ImportInformation();
 
+            // The traveler list has been updated
             OnTravelersChanged();
+
+            // No more data is need at this time
+            CloseMAS();
         }
         public void BackupTravelers()
         {
@@ -125,8 +123,8 @@ namespace Efficient_Automatic_Traveler_System
         // Opens a connection to the MAS database
         private void ConnectToData()
         {
-            Server.WriteLine("Logging into MAS");
-            m_MAS = new OdbcConnection();
+            Server.WriteLine("Connecting to MAS");
+            
             // initialize the MAS connection
             m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;";
             m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;UID=GKC;PWD=sgp4x347;";
@@ -139,12 +137,15 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Failed to log in :" + ex.Message);
             }
         }
+        private void CloseMAS()
+        {
+            m_MAS.Close();
+            Server.WriteLine("Disconnected from MAS");
+        }
         private void InitializeManagers()
         {
-            ConnectToData();
-
-            m_tableManager = new TableManager(m_MAS,ref m_orders);
-            m_chairManager = new ChairManager(m_MAS,ref m_orders);
+            m_tableManager = new TableManager(ref m_MAS,ref m_orders, ref m_travelers);
+            m_chairManager = new ChairManager(ref m_MAS,ref m_orders, ref m_travelers);
         }
         
         private void Clear()
@@ -224,12 +225,11 @@ namespace Efficient_Automatic_Traveler_System
             file.Close();
         }
         // Imports travelers that have been stored
-        private void ImportStored()
+        private void ImportStoredTravelers()
         {
             //--------------------------------------------------------------
             // get the list of travelers and orders that have been created
             //--------------------------------------------------------------
-            m_orders.Clear();
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string line;
             System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "travelers.json"));
@@ -237,7 +237,7 @@ namespace Efficient_Automatic_Traveler_System
             int index = 0;
             while ((line = file.ReadLine()) != null && line != "")
             {
-                Server.Write("\r{0}%   ", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / travelerCount) * 100));
+                Server.Write("\r{0}%", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / travelerCount) * 100));
                 StringStream ss = new StringStream(line);
                 Dictionary<string, string> obj = ss.ParseJSON();
 
@@ -246,14 +246,14 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     case "Table":
                         Table table = new Table(obj);
-                        table.ImportPart(m_MAS);
+                        table.ImportPart(ref m_MAS);
                         if (table.Station == Traveler.GetStation("Start")) table.Start();
                         table.Advance();
                         m_tableManager.Travelers.Add(table);
                         break;
                     case "Chair":
                         Chair chair = new Chair(obj);
-                        chair.ImportPart(m_MAS);
+                        chair.ImportPart(ref m_MAS);
                         if (chair.Station == Traveler.GetStation("Start")) chair.Start();
                         chair.Advance();
                         m_chairManager.Travelers.Add(chair);
@@ -261,7 +261,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 index++;
             }
-            Server.Write("\r{0}   ", "Loading travelers from backup...Finished\n");
+            Server.Write("\r{0}", "Loading travelers from backup...Finished\n");
 
             file.Close();
         }

@@ -14,21 +14,16 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
 
         public TravelerManager() { }
-        public TravelerManager(OdbcConnection mas, ref List<Order> orders)
+        public TravelerManager(ref OdbcConnection mas, ref List<Order> orders, ref List<Traveler> travelers)
         {
             m_MAS = mas;
             m_orders = orders;
+            m_travelers = travelers;
         }
         // Creates and combines travelers from the order list
         public virtual void CompileTravelers(ref List<Order> orders)
         {
             
-        }
-        // Resets the traveler and order lists
-        public void Reset()
-        {
-            m_travelers.Clear();
-            m_orders.Clear();
         }
         // Relational
         public int FindOrderIndex(ref List<Order> orders, string orderNo)
@@ -94,9 +89,9 @@ namespace Efficient_Automatic_Traveler_System
             int index = 0;
             foreach (Traveler traveler in m_travelers)
             {
-                if (traveler.Part == null) traveler.ImportPart(MAS);
+                if (traveler.Part == null) traveler.ImportPart(ref m_MAS);
                 Console.Write("\r{0}%", "Importing Traveler Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-                traveler.CheckInventory(MAS);
+                traveler.CheckInventory(ref m_MAS);
                 // update and total the final parts
                 traveler.Part.TotalQuantity = traveler.Quantity;
                 traveler.FindComponents(traveler.Part);
@@ -110,8 +105,8 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
 
         protected List<Order> m_orders;
-        protected List<Traveler> m_travelers = new List<Traveler>();
-        protected OdbcConnection m_MAS = new OdbcConnection();
+        protected List<Traveler> m_travelers;
+        protected OdbcConnection m_MAS;
 
         internal List<Order> Orders
         {
@@ -130,18 +125,6 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_travelers;
-            }
-        }
-        internal OdbcConnection MAS
-        {
-            get
-            {
-                return m_MAS;
-            }
-
-            set
-            {
-                m_MAS = value;
             }
         }
     }

@@ -19,7 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         // Public members
         //-----------------------
         public TableManager() : base() { }
-        public TableManager(OdbcConnection mas, ref List<Order> orders) : base(mas, ref orders)
+        public TableManager(ref OdbcConnection mas, ref List<Order> orders, ref List<Traveler> travelers) : base(ref mas, ref orders, ref travelers)
         {
         }
         public override void CompileTravelers(ref List<Order> newOrders)
@@ -39,7 +39,7 @@ namespace Efficient_Automatic_Traveler_System
                         // search for existing traveler
                         foreach (Traveler traveler in m_travelers)
                         {
-                            if (traveler.Part == null) traveler.ImportPart(MAS);
+                            if (traveler.Part == null) traveler.ImportPart(ref m_MAS);
                             // only combine travelers if they have no events (meaning nothing has happened to them yet)
                             if (traveler.History.Count == 0 && traveler.Part.BillNo == item.ItemCode)
                             {
@@ -58,7 +58,7 @@ namespace Efficient_Automatic_Traveler_System
                         if (!foundBill)
                         {
                             // create a new traveler from the new item
-                            Table newTraveler = new Table(item.ItemCode, item.QtyOrdered, MAS);
+                            Table newTraveler = new Table(item.ItemCode, item.QtyOrdered, ref m_MAS);
 
                             // RELATIONAL =============================================================
                             item.ChildTraveler = newTraveler.ID;
@@ -83,9 +83,9 @@ namespace Efficient_Automatic_Traveler_System
             int index = 0;
             foreach (Table table in m_travelers.OfType<Table>())
             {
-                if (table.Part == null) table.ImportPart(MAS);
+                if (table.Part == null) table.ImportPart(ref m_MAS);
                 Server.Write("\r{0}%", "Importing Table Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-                //table.CheckInventory(MAS);!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TEMP-- UNCOMMENT AFTER TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                table.CheckInventory(ref m_MAS);
 
                 // update and total the final parts
                 table.Part.TotalQuantity = table.Quantity;
