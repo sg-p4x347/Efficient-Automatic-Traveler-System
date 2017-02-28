@@ -61,14 +61,17 @@ namespace Efficient_Automatic_Traveler_System
             // Import new orders from MAS
             List<Order> newOrders = new List<Order>();
             ImportOrders(ref newOrders);
-            
+
             // Create and combine new travelers
             m_tableManager.CompileTravelers(ref newOrders);
             m_chairManager.CompileTravelers(ref newOrders);
 
+            
             // The order list has been updated
             m_orders.AddRange(newOrders);
             BackupOrders();
+            // compensate order items for inventory balances
+            CheckInventory();
 
             // Finalize the travelers by importing external information
             m_tableManager.ImportInformation();
@@ -120,6 +123,41 @@ namespace Efficient_Automatic_Traveler_System
         // Private members
         //------------------------------
 
+        // reserve inventory items under order items by item type (by traveler)
+        private void CheckInventory()
+        {
+            
+            foreach (Traveler traveler in m_travelers)
+            {
+                OdbcCommand command = m_MAS.CreateCommand();
+                command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + traveler.PartNo + "'";
+                OdbcDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    int onHand = Convert.ToInt32(reader.GetValue(1));
+                    // adjust the quantity on hand for orders
+                    List<Order> parentOrders = new List<Order>();
+                    foreach (string orderNo in traveler.ParentOrders)
+                    {
+                        parentOrders.Add(m_orders[FindOrderIndex(orderNo)]);
+                    }
+                    parentOrders.Sort((a, b) => b.OrderDate.CompareTo(a.OrderDate)); // sort in descending order (oldest first)
+                    for (int i = 0; i < parentOrders.Count && onHand > 0; i++)
+                    {
+                        Order order = parentOrders[i];
+                        foreach (OrderItem item in order.Items)
+                        {
+                            if (item.ChildTraveler == traveler.ID)
+                            {
+                                item.QtyOnHand = Math.Min(onHand, item.QtyOrdered);
+                                onHand -= item.QtyOnHand;
+                            }
+                        }
+                    }
+                }
+                reader.Close();
+            }
+        }
         // Opens a connection to the MAS database
         private void ConnectToData()
         {

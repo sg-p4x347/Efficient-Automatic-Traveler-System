@@ -34,7 +34,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return -1;
         }
-        public int FindOrderItemIndex(ref Order order, int travelerID)
+        public static int FindOrderItemIndex(ref Order order, int travelerID)
         {
             for (int index = 0; index < order.Items.Count; index++)
             {
@@ -45,44 +45,21 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
         // Private members
         //-----------------------
-
-        // return the traveler that containss the order number s
-        //protected Traveler FindTraveler(string s)
-        //{
-        //    string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-        //    string line;
-        //    System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "printed.json"));
-        //    int travelerID = 0;
-        //    try
-        //    {
-        //        if (s.Length < 7)
-        //        {
-        //            travelerID = Convert.ToInt32(s);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //    }
-        //    while ((line = file.ReadLine()) != null && line != "")
-        //    {
-        //        Traveler printedTraveler = new Traveler(line);
-        //        // check to see if the number matches a traveler ID
-        //        if (travelerID == printedTraveler.ID)
-        //        {
-        //            return printedTraveler;
-        //        }
-        //        // check to see if these orders have been printed already
-        //        foreach (Order printedOrder in printedTraveler.Orders)
-        //        {
-        //            if (printedOrder.SalesOrderNo == s)
-        //            {
-        //                return printedTraveler;
-        //            }
-        //        }
-        //    }
-        //    return null;
-        //}
+        protected void CheckInventory(Traveler traveler)
+        {
+            // compensate for inventory (order item has already calculated how much is on hand for itself)
+            foreach (string orderNo in traveler.ParentOrders)
+            {
+                Order order = m_orders[FindOrderIndex(ref m_orders, orderNo)];
+                foreach (OrderItem item in order.Items)
+                {
+                    if (item.ChildTraveler == traveler.ID)
+                    {
+                        traveler.Quantity -= item.QtyOnHand;
+                    }
+                }
+            }
+        }
         // Gathers part information about a traveler from MAS
         public virtual void ImportInformation()
         {

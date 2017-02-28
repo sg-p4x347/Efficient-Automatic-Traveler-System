@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Data.Odbc;
-using Excel = Microsoft.Office.Interop.Excel;
-using Marshal = System.Runtime.InteropServices.Marshal;
+using System.Net;
+using System.Net.Http;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -14,7 +14,8 @@ namespace Efficient_Automatic_Traveler_System
     {
         Completed,
         Scrapped,
-        Reworked
+        Reworked,
+        Moved
     }
     class Event
     {
@@ -98,6 +99,7 @@ namespace Efficient_Automatic_Traveler_System
             m_ID = Convert.ToInt32(obj["ID"]);
             m_partNo = obj["itemCode"];
             m_quantity = Convert.ToInt32(obj["quantity"]);
+            m_lastStation = Convert.ToInt32(obj["lastStation"]);
             m_station = Convert.ToInt32(obj["station"]);
             m_children = new List<int>();
             foreach (string child in (new StringStream(obj["children"])).ParseJSONarray())
@@ -123,6 +125,7 @@ namespace Efficient_Automatic_Traveler_System
             m_drawingNo = t.DrawingNo;
             m_quantity = t.Quantity;
             m_color = t.Color;
+            m_lastStation = t.LastStation;
             m_station = t.Station;
             m_nextStation = t.NextStation;
             m_history = t.History;
@@ -458,6 +461,7 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"ID\":" + m_ID + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + m_quantity + ",";
+            json += "\"lastStation\":" + m_lastStation + ",";
             json += "\"station\":" + m_station + ",";
             // CHILDREN [...]
             json += "\"children\":" + m_children.Stringify<int>() + ',';
@@ -472,6 +476,33 @@ namespace Efficient_Automatic_Traveler_System
 
             json += "}\n";
             return json;
+        }
+        // print a label for this traveler
+        public void PrintLabel(int qty = 1)
+        {
+            try
+            {
+                string result = "";
+                using (var client = new WebClient())
+                {
+                    //client.Credentials = new NetworkCredential("gage", "Stargatep4x347");
+                    client.Headers[HttpRequestHeader.ContentType] = "application/json";
+                    string json = "{\"ID\":\"" + ID + "\",";
+                    json += "\"Desc1\":\"" + Part.BillDesc + "\",";
+                    json += "\"Desc2\":\"" + Eband.ItemCodeDesc + "\",";
+                    //json += "\"Date\":\"" + DateTime.Today.ToString(@"yyyy\-MM\-dd") + "\",";
+                    json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
+                    json += "\"qty\":" + qty + ",";
+                    json += "\"printer\":\"" + "4x2Pack" + "\"}";
+
+                    result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+                    //http://192.168.2.6:8080/printLabel
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Traveler [" + ID + "] could not print a label: " + ex.Message);
+            }
         }
         // export for clients to display
         public virtual string Export(string station) { return ""; }
@@ -531,7 +562,8 @@ namespace Efficient_Automatic_Traveler_System
             m_station = Traveler.GetStation("Start");
             m_history.Clear();
             SetNextStation();
-            m_station = m_nextStation;
+            Station = m_nextStation;
+            m_lastStation = Traveler.GetStation("Start");
             SetNextStation();
         }
         // advances this traveler to the next station
@@ -566,6 +598,7 @@ namespace Efficient_Automatic_Traveler_System
         protected string m_drawingNo = "";
         protected int m_quantity = 0;
         protected string m_color = "";
+        protected int m_lastStation = Traveler.GetStation("Start");
         protected int m_station = Traveler.GetStation("Start");
         protected int m_nextStation = Traveler.GetStation("Start");
         protected List<Event> m_history = new List<Event>();
@@ -905,6 +938,7 @@ namespace Efficient_Automatic_Traveler_System
 
             set
             {
+                m_lastStation = m_station;
                 m_station = value;
             }
         }
@@ -970,6 +1004,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_parents = value;
+            }
+        }
+
+        public int LastStation
+        {
+            get
+            {
+                return m_lastStation;
+            }
+
+            set
+            {
+                m_lastStation = value;
             }
         }
     }

@@ -85,7 +85,7 @@ namespace Efficient_Automatic_Traveler_System
                         scope += opening;
                         goto begin;
                     default:
-                        if (Char.IsNumber(opening))
+                        if (Char.IsNumber(opening) || opening == '-')
                         {
                             PutBack();
                             goto begin;
@@ -110,12 +110,12 @@ namespace Efficient_Automatic_Traveler_System
                 if (ch == closing)
                 {
                     return scope; // done!
-                } else if (Char.IsNumber(opening))
+                } else if (Char.IsNumber(opening) || opening == '-')
                 {
                     // for numbers
                     char next = ' ';
                     Get(ref next);
-                    if (next != '.' && !Char.IsNumber(next))
+                    if (next != '.' && !Char.IsNumber(next) && next != '-')
                     {
                         PutBack();
                         return scope;

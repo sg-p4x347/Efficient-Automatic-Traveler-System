@@ -37,9 +37,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             string json = "";
             json += "{";
-            json += "\"ID\":" + '"' + m_ID.ToString("D6") + '"' + ",";
+            json += "\"ID\":" + m_ID + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
-            json += "\"quantity\":" + '"' + m_quantity + '"' + ",";
+            json += "\"quantity\":" + m_quantity + ",";
             json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
             json += "\"station\":" + '"' + Traveler.GetStationName(m_station) + '"' + ',';
             json += "\"nextStation\":" + '"' + Traveler.GetStationName(m_nextStation) + '"' + ',';

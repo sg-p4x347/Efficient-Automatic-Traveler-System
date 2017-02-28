@@ -31,46 +31,65 @@ namespace Efficient_Automatic_Traveler_System
                 for (int itemIndex = 0; itemIndex < order.Items.Count; itemIndex++)
                 {
                     OrderItem item = order.Items[itemIndex];
-                    if (Traveler.IsTable(item.ItemCode))
+                    // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
+                    if (item.ChildTraveler < 0)
                     {
-                        Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
-                        // Make a unique traveler for each order, while combining common parts from different models into single traveler
-                        bool foundBill = false;
-                        // search for existing traveler
-                        foreach (Traveler traveler in m_travelers)
+                        // check inventory first, to see if a traveler even needs to be created
+                        OdbcCommand command = m_MAS.CreateCommand();
+                        command.CommandText = "SELECT QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + item.ItemCode + "'";
+                        OdbcDataReader reader = command.ExecuteReader();
+                        if (reader.Read())
                         {
-                            if (traveler.Part == null) traveler.ImportPart(ref m_MAS);
-                            // only combine travelers if they have no events (meaning nothing has happened to them yet)
-                            if (traveler.History.Count == 0 && traveler.Part.BillNo == item.ItemCode)
+                            int onHand = Convert.ToInt32(reader.GetValue(0));
+                            if (onHand > 0)
                             {
-                                // update existing traveler
-                                foundBill = true;
-                                // add to the quantity of items
-                                traveler.Quantity += item.QtyOrdered;
+                                // No parts need to be produced
+                            }
+                            else
+                            {
+                                if (Traveler.IsTable(item.ItemCode))
+                                {
+                                    Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
+                                    // Make a unique traveler for each order, while combining common parts from different models into single traveler
+                                    bool foundBill = false;
+                                    // search for existing traveler
+                                    foreach (Traveler traveler in m_travelers)
+                                    {
+                                        if (traveler.Part == null) traveler.ImportPart(ref m_MAS);
+                                        // only combine travelers if they have no events (meaning nothing has happened to them yet)
+                                        if (traveler.History.Count == 0 && traveler.Part.BillNo == item.ItemCode)
+                                        {
+                                            // update existing traveler
+                                            foundBill = true;
+                                            // add to the quantity of items
+                                            traveler.Quantity += item.QtyOrdered;
 
 
-                                // RELATIONAL =============================================================
-                                item.ChildTraveler = traveler.ID;
-                                traveler.ParentOrders.Add(order.SalesOrderNo);
-                                //=========================================================================
+                                            // RELATIONAL =============================================================
+                                            item.ChildTraveler = traveler.ID;
+                                            traveler.ParentOrders.Add(order.SalesOrderNo);
+                                            //=========================================================================
+                                        }
+                                    }
+                                    if (!foundBill)
+                                    {
+                                        // create a new traveler from the new item
+                                        Table newTraveler = new Table(item.ItemCode, item.QtyOrdered, ref m_MAS);
+
+                                        // RELATIONAL =============================================================
+                                        item.ChildTraveler = newTraveler.ID;
+                                        newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                                        //=========================================================================
+
+                                        // start the new traveler's journey
+                                        newTraveler.Start();
+                                        // add the new traveler to the list
+                                        m_travelers.Add(newTraveler);
+                                    }
+
+                                }
                             }
                         }
-                        if (!foundBill)
-                        {
-                            // create a new traveler from the new item
-                            Table newTraveler = new Table(item.ItemCode, item.QtyOrdered, ref m_MAS);
-
-                            // RELATIONAL =============================================================
-                            item.ChildTraveler = newTraveler.ID;
-                            newTraveler.ParentOrders.Add(order.SalesOrderNo);
-                            //=========================================================================
-
-                            // start the new traveler's journey
-                            newTraveler.Start();
-                            // add the new traveler to the list
-                            m_travelers.Add(newTraveler);
-                        }
-                       
                     }
                 }
                 index++;
@@ -85,14 +104,19 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (table.Part == null) table.ImportPart(ref m_MAS);
                 Server.Write("\r{0}%", "Importing Table Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-                table.CheckInventory(ref m_MAS);
 
+                // compensate for items covered by inventory (already calculated for the order item)
+                CheckInventory(table);
+
+                // get blank information and calculate the actual production quantity
+                GetBlankInfo(table);
+                table.Quantity += table.LeftoverParts;
                 // update and total the final parts
                 table.Part.TotalQuantity = table.Quantity;
                 table.FindComponents(table.Part);
-                // Table specific (Color, blank info, and box dimensions)
+                // Table specific (Color and box dimensions)
                 GetColorInfo(table);
-                GetTableInfo(table);
+                GetPackInfo(table);
                 index++;
             }
             Server.Write("\r{0}", "Importing Table Info...Finished" + Environment.NewLine);
@@ -100,7 +124,6 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
         // Private members
         //-----------------------
-
 
         // get a reader friendly string for the color
         private void GetColorInfo(Table traveler)
@@ -123,8 +146,8 @@ namespace Efficient_Automatic_Traveler_System
             }
             colorRef.Close();
         }
-        // calculate how much of each box size
-        private void GetTableInfo(Table traveler)
+        // calculate how many actual tables will be produced from the blanks
+        private void GetBlankInfo(Table traveler)
         {
             // open the table ref csv file
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -139,7 +162,7 @@ namespace Efficient_Automatic_Traveler_System
                     //--------------------------------------------
                     // BLANK INFO
                     //--------------------------------------------
-                    
+
                     traveler.BlankSize = row[2];
                     traveler.SheetSize = row[3];
                     // [column 3 contains # of blanks per sheet]
@@ -176,6 +199,24 @@ namespace Efficient_Automatic_Traveler_System
                     traveler.BlankQuantity = Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(traveler.Quantity) / tablesPerBlank));
                     int partsProduced = traveler.BlankQuantity * Convert.ToInt32(tablesPerBlank);
                     traveler.LeftoverParts = partsProduced - traveler.Quantity;
+                }
+                line = tableRef.ReadLine();
+            }
+            tableRef.Close();
+        }
+        // calculate how much of each box size
+        private void GetPackInfo(Table traveler)
+        {
+            // open the table ref csv file
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, "Table Reference.csv"));
+            tableRef.ReadLine(); // read past the header
+            string line = tableRef.ReadLine();
+            while (line != "" && line != null)
+            {
+                string[] row = line.Split(',');
+                if (row[0] == traveler.ShapeNo)
+                {
                     //--------------------------------------------
                     // PACK & BOX INFO
                     //--------------------------------------------

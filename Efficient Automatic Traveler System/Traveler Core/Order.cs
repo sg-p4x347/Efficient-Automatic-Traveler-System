@@ -8,7 +8,12 @@ namespace Efficient_Automatic_Traveler_System
 {
     class OrderItem
     {
-        public OrderItem() { }
+        public OrderItem() {
+            ItemCode = "";
+            QtyOrdered = 0;
+            QtyOnHand = 0;
+            ChildTraveler = -1;
+        }
         public OrderItem(string json)
         {
             try

@@ -37,19 +37,26 @@ namespace Efficient_Automatic_Traveler_System
                 if (message[0] == '"') message = message.Remove(0, 1);
                 StringStream ss = new StringStream(message);
                 Dictionary<string, string> obj = ss.ParseJSON();
-                if (obj.ContainsKey("completed") && obj.ContainsKey("destination") && obj.ContainsKey("time") && obj.ContainsKey("quantity"))
+                if (obj.ContainsKey("move") && obj.ContainsKey("destination") && obj.ContainsKey("quantity"))
                 {
                     //----------------------
                     // Traveler Completed
                     //----------------------
                     for (int i = 0; i < m_travelers.Count; i++)
                     {
-                        if (m_travelers[i].ID.ToString("D6") == obj["completed"])
+                        if (m_travelers[i].ID == Convert.ToInt32(obj["move"]))
                         {
                             m_travelers[i].Station = Traveler.GetStation(obj["destination"]);
-                            m_travelers[i].Advance();
+                            if (m_travelers[i].Station == Traveler.GetStation("Start"))
+                            {
+                                m_travelers[i].Start();
+                            } else
+                            {
+                                m_travelers[i].Advance();
+                            }
+                            
                             // log this event
-                            m_travelers[i].History.Add(new Event(TravelerEvent.Completed, m_travelers[i].Quantity, m_travelers[i].Station, Convert.ToDouble(obj["time"])));
+                            m_travelers[i].History.Add(new Event(TravelerEvent.Moved, m_travelers[i].Quantity, m_travelers[i].Station));
                             break;
                         }
                     }

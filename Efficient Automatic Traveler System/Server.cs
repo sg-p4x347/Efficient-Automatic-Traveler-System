@@ -110,11 +110,11 @@ namespace Efficient_Automatic_Traveler_System
                         string json = "{\"ID\":\"" + traveler.ID + "\",";
                         json += "\"Desc1\":\"" + traveler.Part.BillDesc + "\",";
                         json += "\"Desc2\":\"" + traveler.Eband + "\",";
-                        json += "\"Pack\":\"" + (traveler.SupPackQty > 0 ? "SP" : "RP") + "\",";
+                        json += "\"Pack\":\"" + "\",";
                         //json += "\"Date\":\"" + DateTime.Today.ToString(@"yyyy\-MM\-dd") + "\",";
-                        json += "\"Template\":\"" + "4x2 Table Travel1.zpl" + "\",";
-                        json += "\"Qty\":" + "1" + "}";
-                        //json += "\"Printer\":\"" + "192.168.0.231" + "\"}";
+                        json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
+                        json += "\"qty\":" + 1 + ",";
+                        json += "\"printer\":\"" + "4x2Pack" + "\"}";
 
                         result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
                         //http://192.168.2.6:8080/printLabel

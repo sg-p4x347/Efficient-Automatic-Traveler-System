@@ -47,6 +47,7 @@ namespace Efficient_Automatic_Traveler_System
                     //----------------------
                     // Traveler Completed
                     //----------------------
+                    string returnMessage = "";
                     Traveler traveler = m_travelers.Find(x => x.ID == Convert.ToInt32(obj["completed"]));
                     if (traveler != null)
                     {
@@ -83,11 +84,18 @@ namespace Efficient_Automatic_Traveler_System
                             {
                                 // log this event
                                 traveler.History.Add(new Event(TravelerEvent.Completed, traveler.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
+                                if (traveler.LastStation == Traveler.GetStation("Start"))
+                                {
+                                    traveler.PrintLabel();
+                                    returnMessage = "Printed traveler label: " + traveler.ID + "<br>Please place this label with the pallet that you just submitted";
+                                }
                                 traveler.Station = Traveler.GetStation(obj["destination"]);
                                 traveler.Advance(); // this traveler was fully completed
                             } else
                             {
                                 Traveler made = (Traveler)traveler.Clone();
+                                made.PrintLabel();
+                                returnMessage = "Printed traveler label: " + made.ID + "<br>Please place this label with the pallet that you just submitted";
                                 // relational dependencies to original traveler
                                 //made.Parents.Add(traveler.ID);
                                 //traveler.Children.Add(made.ID);
@@ -101,12 +109,19 @@ namespace Efficient_Automatic_Traveler_System
                             }
                             if (qtyScrapped < traveler.Quantity && qtyMade < traveler.Quantity)
                             {
-                                traveler.Quantity = qtyPending;
+                                traveler.Quantity -= (qtyMade + qtyScrapped);
                             }
                         } 
                     }
-                           
+                    if (returnMessage != "")
+                    {
+                        SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
+                    }
                     TravelersChanged();
+                } else if (obj.ContainsKey("print") && obj.ContainsKey("qty"))
+                {
+                    // Print label
+                    m_travelers.Find(x => x.ID == Convert.ToInt32(obj["print"])).PrintLabel(Convert.ToInt32(obj["qty"]));
                 }
             } catch (Exception ex)
             {
