@@ -10,7 +10,7 @@ namespace Efficient_Automatic_Traveler_System
     class Item
     {
         // Interface
-        public Item(string itemCode, double quantityPerBill, OdbcConnection MAS)
+        public Item(string itemCode, double quantityPerBill, ref OdbcConnection MAS)
         {
             m_itemCode = itemCode;
             m_quantityPerBill = quantityPerBill;

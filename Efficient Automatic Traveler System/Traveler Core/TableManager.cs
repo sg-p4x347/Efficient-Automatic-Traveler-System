@@ -32,7 +32,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     OrderItem item = order.Items[itemIndex];
                     // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
-                    if (item.ChildTraveler < 0)
+                    if (item.ChildTraveler < 0 && Traveler.IsTable(item.ItemCode))
                     {
                         // check inventory first, to see if a traveler even needs to be created
                         OdbcCommand command = m_MAS.CreateCommand();
@@ -47,46 +47,34 @@ namespace Efficient_Automatic_Traveler_System
                             }
                             else
                             {
-                                if (Traveler.IsTable(item.ItemCode))
+                                Console.Write("\r{0}%   ", "Compiling Tables..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
+
+                                // search for existing traveler
+                                Traveler traveler = m_travelers.Find(x => x.PartNo == item.ItemCode && x.LastStation != Traveler.GetStation("Start"));
+                                if (traveler != null)
                                 {
-                                    Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
-                                    // Make a unique traveler for each order, while combining common parts from different models into single traveler
-                                    bool foundBill = false;
-                                    // search for existing traveler
-                                    foreach (Traveler traveler in m_travelers)
-                                    {
-                                        if (traveler.Part == null) traveler.ImportPart(ref m_MAS);
-                                        // only combine travelers if they have no events (meaning nothing has happened to them yet)
-                                        if (traveler.History.Count == 0 && traveler.Part.BillNo == item.ItemCode)
-                                        {
-                                            // update existing traveler
-                                            foundBill = true;
-                                            // add to the quantity of items
-                                            traveler.Quantity += item.QtyOrdered;
+                                    // add to existing traveler
+                                    traveler.Quantity += item.QtyOrdered;
 
+                                    // RELATIONAL =============================================================
+                                    item.ChildTraveler = traveler.ID;
+                                    traveler.ParentOrders.Add(order.SalesOrderNo);
+                                    //=========================================================================
+                                }
+                                else 
+                                {
+                                    // create a new traveler from the new item
+                                    Table newTraveler = new Table(item.ItemCode, item.QtyOrdered, ref m_MAS);
 
-                                            // RELATIONAL =============================================================
-                                            item.ChildTraveler = traveler.ID;
-                                            traveler.ParentOrders.Add(order.SalesOrderNo);
-                                            //=========================================================================
-                                        }
-                                    }
-                                    if (!foundBill)
-                                    {
-                                        // create a new traveler from the new item
-                                        Table newTraveler = new Table(item.ItemCode, item.QtyOrdered, ref m_MAS);
+                                    // RELATIONAL =============================================================
+                                    item.ChildTraveler = newTraveler.ID;
+                                    newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                                    //=========================================================================
 
-                                        // RELATIONAL =============================================================
-                                        item.ChildTraveler = newTraveler.ID;
-                                        newTraveler.ParentOrders.Add(order.SalesOrderNo);
-                                        //=========================================================================
-
-                                        // start the new traveler's journey
-                                        newTraveler.Start();
-                                        // add the new traveler to the list
-                                        m_travelers.Add(newTraveler);
-                                    }
-
+                                    // start the new traveler's journey
+                                    newTraveler.Start();
+                                    // add the new traveler to the list
+                                    m_travelers.Add(newTraveler);
                                 }
                             }
                         }
@@ -94,9 +82,9 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 index++;
             }
-            Console.Write("\r{0}   ", "Compiling Travelers...Finished\n");
+            Console.Write("\r{0}   ", "Compiling Tables...Finished\n");
         }
-        // oversees the importing of externally stored information
+        // Import information for all tables
         public override void ImportInformation()
         {
             int index = 0;
@@ -104,22 +92,30 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (table.Part == null) table.ImportPart(ref m_MAS);
                 Server.Write("\r{0}%", "Importing Table Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-
+                ImportInformation(table);
+                index++;
+            }
+            Server.Write("\r{0}", "Importing Table Info...Finished" + Environment.NewLine);
+        }
+        // Import information for a specific table
+        public void ImportInformation(Table table)
+        {
+            // only update quantity and blank information if it hasn't started (probably sitting at the Heian)
+            if (table.LastStation != Traveler.GetStation("Start"))
+            {
                 // compensate for items covered by inventory (already calculated for the order item)
-                CheckInventory(table);
+                UpdateQuantity(table);
 
                 // get blank information and calculate the actual production quantity
                 GetBlankInfo(table);
                 table.Quantity += table.LeftoverParts;
                 // update and total the final parts
                 table.Part.TotalQuantity = table.Quantity;
-                table.FindComponents(table.Part);
-                // Table specific (Color and box dimensions)
-                GetColorInfo(table);
-                GetPackInfo(table);
-                index++;
             }
-            Server.Write("\r{0}", "Importing Table Info...Finished" + Environment.NewLine);
+            table.FindComponents(table.Part);
+            // Table specific (Color and box dimensions)
+            GetColorInfo(table);
+            GetPackInfo(table);
         }
         //-----------------------
         // Private members

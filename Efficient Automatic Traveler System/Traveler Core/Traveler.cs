@@ -129,10 +129,8 @@ namespace Efficient_Automatic_Traveler_System
             m_station = t.Station;
             m_nextStation = t.NextStation;
             m_history = t.History;
-            // relational
-            m_parents.Add(t.ID);
-            t.Children.Add(m_ID);
-            //m_parentOrders = t.ParentOrders;
+            
+            m_parentOrders = t.ParentOrders;
             // Labor
             m_cnc = t.Cnc;
             m_vector = t.Vector;
@@ -155,7 +153,12 @@ namespace Efficient_Automatic_Traveler_System
 
         }
         public virtual Traveler Clone() {
-            return new Traveler((Traveler)this);
+            Traveler t = new Traveler((Traveler)this);
+            // relational
+            m_parents.Add(t.ID);
+            t.Children.Add(m_ID);
+            return t;
+
         }
         // Gets the base properties and orders of the traveler from a json string
         public Traveler(string json)
@@ -185,7 +188,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             if (m_partNo != "")
             {
-                m_part = new Bill(m_partNo, m_quantity, MAS);
+                m_part = new Bill(m_partNo, m_quantity, ref MAS);
                 m_drawingNo = m_part.DrawingNo;
                 m_part.BillDesc = m_part.BillDesc.Replace("TableTopAsm,", ""); // tabletopasm is pretty obvious and therefore extraneous
                 FindComponents(m_part);
@@ -495,7 +498,7 @@ namespace Efficient_Automatic_Traveler_System
                     json += "\"qty\":" + qty + ",";
                     json += "\"printer\":\"" + "4x2Pack" + "\"}";
 
-                    result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+                    // result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
                     //http://192.168.2.6:8080/printLabel
                 }
             }

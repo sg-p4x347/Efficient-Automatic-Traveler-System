@@ -72,6 +72,7 @@ namespace Efficient_Automatic_Traveler_System
                                 //traveler.Children.Add(scrapped.ID);
                                 //---------------------------------------------
                                 scrapped.Quantity = qtyScrapped;
+                                traveler.Quantity -= qtyScrapped;
                                 scrapped.Start();
                                 // log this event
                                 scrapped.History.Add(new Event(TravelerEvent.Scrapped, scrapped.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
@@ -101,15 +102,12 @@ namespace Efficient_Automatic_Traveler_System
                                 //traveler.Children.Add(made.ID);
                                 //---------------------------------------------
                                 made.Quantity = qtyMade;
+                                traveler.Quantity -= qtyMade;
                                 made.Station = Traveler.GetStation(obj["destination"]);
                                 made.Advance();
                                 // log this event
                                 made.History.Add(new Event(TravelerEvent.Completed, made.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
                                 m_travelers.Add(made);
-                            }
-                            if (qtyScrapped < traveler.Quantity && qtyMade < traveler.Quantity)
-                            {
-                                traveler.Quantity -= (qtyMade + qtyScrapped);
                             }
                         } 
                     }

@@ -45,8 +45,11 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------
         // Private members
         //-----------------------
-        protected void CheckInventory(Traveler traveler)
+
+        // sets the quantity as a minimum of what is on hand, maxing at what was ordered
+        protected void UpdateQuantity(Traveler traveler)
         {
+            traveler.Quantity = 0;
             // compensate for inventory (order item has already calculated how much is on hand for itself)
             foreach (string orderNo in traveler.ParentOrders)
             {
@@ -55,7 +58,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (item.ChildTraveler == traveler.ID)
                     {
-                        traveler.Quantity -= item.QtyOnHand;
+                        traveler.Quantity += Math.Min(item.QtyOnHand,item.QtyOrdered);
                     }
                 }
             }

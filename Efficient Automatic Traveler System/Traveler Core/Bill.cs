@@ -27,13 +27,13 @@ namespace Efficient_Automatic_Traveler_System
             m_billNo = billNo;
             m_quantityPerBill = quantityPerBill;
         }
-        public Bill(string billNo, double quantityPerBill, OdbcConnection MAS)
+        public Bill(string billNo, double quantityPerBill, ref OdbcConnection MAS)
         {
             m_billNo = billNo;
             m_quantityPerBill = quantityPerBill;
-            Import(MAS);
+            Import(ref MAS);
         }
-        public void Import(OdbcConnection MAS)
+        public void Import(ref OdbcConnection MAS)
         {
             if (!m_imported)
             {
@@ -79,12 +79,12 @@ namespace Efficient_Automatic_Traveler_System
                                 if (!reader.IsDBNull(1))
                                 {
                                     // Component has a bill
-                                    m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), MAS));
+                                    m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), ref MAS));
                                 }
                                 else
                                 {
                                     // Component is an item
-                                    m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), MAS));
+                                    m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), ref MAS));
                                 }
                             }
                         }
@@ -178,7 +178,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public char BillType1
+        public char BillType
         {
             get
             {

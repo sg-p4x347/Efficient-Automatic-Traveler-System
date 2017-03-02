@@ -93,6 +93,11 @@ namespace Efficient_Automatic_Traveler_System
                 case "labels":
                     PrintLabels();
                     break;
+                case "clear all":
+                    m_travelerCore.Travelers.Clear();
+                    m_travelerCore.Orders.Clear();
+                    m_travelerCore.HandleTravelersChanged();
+                    break;
             }
             GetInputAsync();
         }

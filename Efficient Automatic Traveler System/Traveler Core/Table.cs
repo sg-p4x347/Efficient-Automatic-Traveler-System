@@ -15,9 +15,12 @@ namespace Efficient_Automatic_Traveler_System
         //--------------------------
         // Public members
         //--------------------------
+        public Table(Traveler t) : base(t) { }
         public Table(Dictionary<string,string> obj) : base(obj)
         {
-
+            GetBlacklist();
+            m_colorNo = Convert.ToInt32(m_partNo.Substring(m_partNo.Length - 2));
+            m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
         }
         public Table(Table table) : base((Traveler) table)
         {

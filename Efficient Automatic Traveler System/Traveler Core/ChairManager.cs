@@ -32,7 +32,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (Traveler.IsChair(item.ItemCode))
                     {
-                        Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
+                        Console.Write("\r{0}%   ", "Compiling Chairs..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
                         // Make a unique traveler for each order, while combining common parts from different models into single traveler
                         bool foundBill = false;
                         // search for existing traveler
@@ -67,7 +67,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 index++;
             }
-            Console.Write("\r{0}   ", "Compiling Travelers...Finished\n");
+            Console.Write("\r{0}   ", "Compiling Chairs...Finished\n");
         }
         public override void ImportInformation()
         {
