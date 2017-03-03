@@ -42,15 +42,79 @@ namespace Efficient_Automatic_Traveler_System
             }
             return -1;
         }
+        public void UpdateQuantity(Traveler traveler)
+        {
+            // 1.) compensate highest level traveler with inventory
+            // if it has parent orders and hasn't started, the quantity can change
+            if (traveler.LastStation == Traveler.GetStation("Start") && traveler.ParentOrders.Count > 0)
+            {
+                traveler.Quantity = QuantityNeeded(traveler);
+            }
+            // 2.) adjust children quantities
+            if (traveler.Children.Count > 0)
+            {
+                int qtyNeeded = Math.Max(0,QuantityNeeded(traveler) - traveler.Quantity);
+                List<Traveler> started = new List<Traveler>();
+                List<Traveler> notStarted = new List<Traveler>();
+                foreach (int childID in traveler.Children)
+                {
+                    Traveler child = FindTraveler(childID);
+                    if (child != null)
+                    {
+                        // can only change quantity if this child hasn't started
+                        if (child.LastStation == Traveler.GetStation("Start"))
+                        {
+                            notStarted.Add(child);
+                        } else
+                        {
+                            started.Add(child);
+                            qtyNeeded -= child.Quantity;
+                        }
+                    }
+                }
+                foreach (Traveler child in notStarted)
+                {
+                    if (qtyNeeded == 0)
+                    {
+                        m_travelers.Remove(child); // don't need this anymore
+                        traveler.Children.RemoveAll(x => x == child.ID);
+                    } else
+                    {
+                        child.Quantity = qtyNeeded;
+                        qtyNeeded = 0;
+                    }
+                }
+            }
+        }
         //-----------------------
         // Private members
         //-----------------------
+        private Traveler FindTraveler(int ID)
+        {
+            return m_travelers.Find(x => x.ID == ID);
+        }
 
         // sets the quantity as a minimum of what is on hand, maxing at what was ordered
-        protected void UpdateQuantity(Traveler traveler)
+        //protected void UpdateQuantity(Traveler traveler)
+        //{
+        //    traveler.Quantity = 0;
+        //    // compensate for inventory (order item has already calculated how much is on hand for itself)
+        //    foreach (string orderNo in traveler.ParentOrders)
+        //    {
+        //        Order order = m_orders[FindOrderIndex(ref m_orders, orderNo)];
+        //        foreach (OrderItem item in order.Items)
+        //        {
+        //            if (item.ChildTraveler == traveler.ID)
+        //            {
+        //                traveler.Quantity += Math.Max(0, item.QtyOrdered-item.QtyOnHand);
+        //            }
+        //        }
+        //    }
+        //}
+        // Gets the total quantity ordered, compensated by what is in stock
+        protected int QuantityNeeded(Traveler traveler)
         {
-            traveler.Quantity = 0;
-            // compensate for inventory (order item has already calculated how much is on hand for itself)
+            int qtyNeeded = 0;
             foreach (string orderNo in traveler.ParentOrders)
             {
                 Order order = m_orders[FindOrderIndex(ref m_orders, orderNo)];
@@ -58,10 +122,11 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (item.ChildTraveler == traveler.ID)
                     {
-                        traveler.Quantity += Math.Min(item.QtyOnHand,item.QtyOrdered);
+                        qtyNeeded += Math.Max(0, item.QtyOrdered - item.QtyOnHand);
                     }
                 }
             }
+            return qtyNeeded;
         }
         // Gathers part information about a traveler from MAS
         public virtual void ImportInformation()

@@ -93,10 +93,11 @@ namespace Efficient_Automatic_Traveler_System
                 case "labels":
                     PrintLabels();
                     break;
-                case "clear all":
+                case "reset":
                     m_travelerCore.Travelers.Clear();
                     m_travelerCore.Orders.Clear();
                     m_travelerCore.HandleTravelersChanged();
+                    m_travelerCore.CreateTravelers();
                     break;
             }
             GetInputAsync();
@@ -186,7 +187,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             string filename = context.Request.Url.AbsolutePath;
             filename = filename.Replace("%20", " ");
-            Console.WriteLine(filename);
+            //Console.WriteLine(filename);
             filename = filename.Substring(1);
 
             if (string.IsNullOrEmpty(filename))

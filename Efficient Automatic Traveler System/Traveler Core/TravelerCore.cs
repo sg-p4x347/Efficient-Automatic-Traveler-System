@@ -323,7 +323,8 @@ namespace Efficient_Automatic_Traveler_System
                     switch (obj["type"])
                     {
                         case "Table":
-                            Table table = new Table(traveler);
+                            Table table = new Table(traveler,true);
+                            table.ParentOrders = traveler.ParentOrders;
                             table.ImportPart(ref m_MAS);
                             if (table.Station == Traveler.GetStation("Start")) table.Start();
                             table.Advance();
@@ -332,6 +333,7 @@ namespace Efficient_Automatic_Traveler_System
                             break;
                         case "Chair":
                             Chair chair = new Chair(traveler);
+                            chair.ParentOrders = chair.ParentOrders;
                             chair.ImportPart(ref m_MAS);
                             if (chair.Station == Traveler.GetStation("Start")) chair.Start();
                             chair.Advance();
@@ -339,9 +341,6 @@ namespace Efficient_Automatic_Traveler_System
                             break;
                     }
                     
-                } else
-                {
-                    var catchme = true;
                 }
                 index++;
             }

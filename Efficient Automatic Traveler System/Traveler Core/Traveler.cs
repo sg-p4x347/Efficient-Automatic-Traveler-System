@@ -114,11 +114,15 @@ namespace Efficient_Automatic_Traveler_System
             m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
         }
         // Copy constructor
-        public Traveler(Traveler t)
+        public Traveler(Traveler t,bool copyID = false)
         {
             // general
             m_part = t.Part;
-            NewID(); // Every traveler must have a unique ID
+            if (copyID) {
+                m_ID = t.ID;
+            } else {
+                NewID();
+            }
             m_timeStamp = t.TimeStamp;
             m_printed = t.Printed;
             m_partNo = t.PartNo;
@@ -130,7 +134,7 @@ namespace Efficient_Automatic_Traveler_System
             m_nextStation = t.NextStation;
             m_history = t.History;
             
-            m_parentOrders = t.ParentOrders;
+            //m_parentOrders = t.ParentOrders;
             // Labor
             m_cnc = t.Cnc;
             m_vector = t.Vector;
@@ -607,7 +611,7 @@ namespace Efficient_Automatic_Traveler_System
         protected List<Event> m_history = new List<Event>();
         // relational
         protected List<int> m_children = new List<int>();
-        protected List<int> m_parents = new List<int>();
+        protected List<int> m_parents = new List<int>(); // common parts may be part of several parent travelers
         protected List<string> m_parentOrders = new List<string>();
         // static
         internal static Dictionary<string, int> Stations = new Dictionary<string, int>();

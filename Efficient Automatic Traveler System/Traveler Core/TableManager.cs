@@ -50,7 +50,8 @@ namespace Efficient_Automatic_Traveler_System
                                 Console.Write("\r{0}%   ", "Compiling Tables..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
 
                                 // search for existing traveler
-                                Traveler traveler = m_travelers.Find(x => x.PartNo == item.ItemCode && x.LastStation != Traveler.GetStation("Start"));
+                                // can only combine if same itemCode, hasn't started, and has no parents
+                                Traveler traveler = m_travelers.Find(x => x.PartNo == item.ItemCode && x.LastStation == Traveler.GetStation("Start") && x.Parents.Count == 0);
                                 if (traveler != null)
                                 {
                                     // add to existing traveler
@@ -100,12 +101,11 @@ namespace Efficient_Automatic_Traveler_System
         // Import information for a specific table
         public void ImportInformation(Table table)
         {
+            // compensate for items covered by inventory (already calculated for the order item)
+            UpdateQuantity(table);
             // only update quantity and blank information if it hasn't started (probably sitting at the Heian)
-            if (table.LastStation != Traveler.GetStation("Start"))
+            if (table.LastStation == Traveler.GetStation("Start"))
             {
-                // compensate for items covered by inventory (already calculated for the order item)
-                UpdateQuantity(table);
-
                 // get blank information and calculate the actual production quantity
                 GetBlankInfo(table);
                 table.Quantity += table.LeftoverParts;
@@ -153,7 +153,7 @@ namespace Efficient_Automatic_Traveler_System
             while (line != "" && line != null)
             {
                 string[] row = line.Split(',');
-                if (row[0] == traveler.ShapeNo)
+                if (traveler.PartNo.Contains(row[0]))
                 {
                     //--------------------------------------------
                     // BLANK INFO
