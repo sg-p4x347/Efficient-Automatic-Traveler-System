@@ -14,7 +14,7 @@ namespace Efficient_Automatic_Traveler_System
 {
     class ClientManager
     {
-        public ClientManager(string ip, int port, ref List<Traveler> travelers)
+        public ClientManager(string ip, int port, ITravelerCore travelerCore)
         {
             try
             {
@@ -23,8 +23,9 @@ namespace Efficient_Automatic_Traveler_System
                 //m_operatorClients = new List<OperatorClient>();
                 //m_supervisorClients = new List<SupervisorClient>();
                 m_nextClientID = 0;
-                m_travelers = travelers;
+                
                 m_pollInterval = new TimeSpan(0, 0, 3);
+                m_travelerCore = travelerCore;
             } catch (Exception ex)
             {
                 Server.WriteLine("Failed to create ClientManager: " + ex.Message);
@@ -99,14 +100,14 @@ namespace Efficient_Automatic_Traveler_System
                 switch (await Client.RecieveMessageAsync(tcpClient.GetStream()))
                 {
                     case "OperatorClient":
-                        OperatorClient operatorClient = new OperatorClient(tcpClient, ref m_travelers);
+                        OperatorClient operatorClient = new OperatorClient(tcpClient,m_travelerCore);
                         operatorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         operatorClient.ListenAsync();
                         m_clients.Add(operatorClient);
                         Console.WriteLine("An operator connected (" + m_clients.Count + " total clients)");
                         break;
                     case "SupervisorClient":
-                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient, ref m_travelers);
+                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient,m_travelerCore);
                         supervisorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         supervisorClient.ListenAsync();
                         m_clients.Add(supervisorClient);
@@ -176,8 +177,8 @@ namespace Efficient_Automatic_Traveler_System
         //private List<SupervisorClient> m_supervisorClients;
         private int m_nextClientID;
         private Timer m_timer;
-        private List<Traveler> m_travelers;
         private TimeSpan m_pollInterval;
+        private ITravelerCore m_travelerCore;
         //----------
         // Events
         //----------

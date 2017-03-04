@@ -16,9 +16,10 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Public members
         //------------------------------
-        public OperatorClient (TcpClient client, ref List<Traveler> travelers) : base(client)
+        public OperatorClient (TcpClient client, ITravelerCore travelerCore) : base(client)
         {
-            m_travelers = travelers;
+            m_travelerCore = travelerCore;
+            m_travelers = m_travelerCore.GetTravelers;
             string stationList = "";
             foreach(string station in Traveler.Stations.Keys)
             {
@@ -51,6 +52,8 @@ namespace Efficient_Automatic_Traveler_System
                     Traveler traveler = m_travelers.Find(x => x.ID == Convert.ToInt32(obj["completed"]));
                     if (traveler != null)
                     {
+                        traveler.NextStation = Traveler.GetStation(obj["destination"]);
+
                         int qtyMade = Convert.ToInt32(obj["qtyMade"]);
                         int qtyScrapped = Convert.ToInt32(obj["qtyScrapped"]);
                         int qtyPending = traveler.Quantity - (qtyMade + qtyScrapped);
@@ -66,17 +69,19 @@ namespace Efficient_Automatic_Traveler_System
                             }
                             else
                             {
-                                Traveler scrapped = (Traveler)traveler.Clone();
-                                // relational dependencies to original traveler
-                                //scrapped.Parents.Add(traveler.ID);
-                                //traveler.Children.Add(scrapped.ID);
-                                //---------------------------------------------
-                                scrapped.Quantity = qtyScrapped;
-                                traveler.Quantity -= qtyScrapped;
-                                scrapped.Start();
-                                // log this event
-                                scrapped.History.Add(new Event(TravelerEvent.Scrapped, scrapped.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
-                                m_travelers.Add(scrapped);
+                                m_travelerCore.CreateScrapChild(traveler, qtyScrapped);
+                                
+                                //Traveler scrapped = (Traveler)traveler.Clone();
+                                //// relational dependencies to original traveler
+                                ////scrapped.Parents.Add(traveler.ID);
+                                ////traveler.Children.Add(scrapped.ID);
+                                ////---------------------------------------------
+                                //scrapped.Quantity = qtyScrapped;
+                                //traveler.Quantity -= qtyScrapped;
+                                //scrapped.Start();
+                                //// log this event
+                                //scrapped.History.Add(new Event(TravelerEvent.Scrapped, scrapped.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
+                                //m_travelers.Add(scrapped);
                             }
                         }
                         if (qtyMade > 0)
@@ -90,24 +95,24 @@ namespace Efficient_Automatic_Traveler_System
                                     traveler.PrintLabel();
                                     returnMessage = "Printed traveler label: " + traveler.ID + "<br>Please place this label with the pallet that you just submitted";
                                 }
-                                traveler.Station = Traveler.GetStation(obj["destination"]);
-                                traveler.Advance(); // this traveler was fully completed
+                                m_travelerCore.AdvanceTraveler(traveler);
                             } else
                             {
-                                Traveler made = (Traveler)traveler.Clone();
+                                Traveler made = m_travelerCore.CreateCompletedChild(traveler, qtyMade, Convert.ToDouble(obj["time"]));
+                                //Traveler made = (Traveler)traveler.Clone();
                                 made.PrintLabel();
                                 returnMessage = "Printed traveler label: " + made.ID + "<br>Please place this label with the pallet that you just submitted";
-                                // relational dependencies to original traveler
-                                //made.Parents.Add(traveler.ID);
-                                //traveler.Children.Add(made.ID);
-                                //---------------------------------------------
-                                made.Quantity = qtyMade;
-                                traveler.Quantity -= qtyMade;
-                                made.Station = Traveler.GetStation(obj["destination"]);
-                                made.Advance();
-                                // log this event
-                                made.History.Add(new Event(TravelerEvent.Completed, made.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
-                                m_travelers.Add(made);
+                                //// relational dependencies to original traveler
+                                ////made.Parents.Add(traveler.ID);
+                                ////traveler.Children.Add(made.ID);
+                                ////---------------------------------------------
+                                //made.Quantity = qtyMade;
+                                //traveler.Quantity -= qtyMade;
+                                //made.Station = Traveler.GetStation(obj["destination"]);
+                                //made.Advance();
+                                //// log this event
+                                //made.History.Add(new Event(TravelerEvent.Completed, made.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
+                                //m_travelers.Add(made);
                             }
                         } 
                     }
@@ -146,15 +151,17 @@ namespace Efficient_Automatic_Traveler_System
             message += travelerJSON + "]}";
             SendMessage(message);
         }
+
         //------------------------------
         // Private members
         //------------------------------
         //------------------------------
         // Properties
         //------------------------------
-        
+        protected ITravelerCore m_travelerCore;
         protected List<Traveler> m_travelers;
         protected int m_station;
+        
         internal int Station
         {
             get

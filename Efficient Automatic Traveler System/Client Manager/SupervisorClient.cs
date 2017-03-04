@@ -16,9 +16,10 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Public members
         //------------------------------
-        public SupervisorClient(TcpClient client, ref List<Traveler> travelers) : base(client)
+        public SupervisorClient(TcpClient client, ITravelerCore travelerCore) : base(client)
         {
-            m_travelers = travelers;
+            m_travelerCore = travelerCore;
+            m_travelers = m_travelerCore.GetTravelers;
             string stationList = "";
             foreach (string station in Traveler.Stations.Keys)
             {
@@ -86,7 +87,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Properties
         //------------------------------
-
+        protected ITravelerCore m_travelerCore;
         protected List<Traveler> m_travelers;
         protected int m_station;
         internal int Station

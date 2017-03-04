@@ -19,87 +19,73 @@ namespace Efficient_Automatic_Traveler_System
         // Public members
         //-----------------------
         public TableManager() : base() { }
-        public TableManager(ref OdbcConnection mas, ref List<Order> orders, ref List<Traveler> travelers) : base(ref mas, ref orders, ref travelers)
+        public TableManager(ref OdbcConnection mas, ITravelerCore travelerCore) : base(ref mas, travelerCore)
         {
         }
-        public override void CompileTravelers(ref List<Order> newOrders)
-        {
-            int index = 0;
-            for (int orderIndex = 0; orderIndex < newOrders.Count;orderIndex++)
-            {
-                Order order = newOrders[orderIndex];
-                for (int itemIndex = 0; itemIndex < order.Items.Count; itemIndex++)
-                {
-                    OrderItem item = order.Items[itemIndex];
-                    // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
-                    if (item.ChildTraveler < 0 && Traveler.IsTable(item.ItemCode))
-                    {
-                        // check inventory first, to see if a traveler even needs to be created
-                        OdbcCommand command = m_MAS.CreateCommand();
-                        command.CommandText = "SELECT QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + item.ItemCode + "'";
-                        OdbcDataReader reader = command.ExecuteReader();
-                        if (reader.Read())
-                        {
-                            int onHand = Convert.ToInt32(reader.GetValue(0));
-                            if (onHand > 0)
-                            {
-                                // No parts need to be produced
-                            }
-                            else
-                            {
-                                Console.Write("\r{0}%   ", "Compiling Tables..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
+        //public override void CompileTravelers(ref List<Order> newOrders)
+        //{
+        //    int index = 0;
+        //    for (int orderIndex = 0; orderIndex < newOrders.Count;orderIndex++)
+        //    {
+        //        Order order = newOrders[orderIndex];
+        //        for (int itemIndex = 0; itemIndex < order.Items.Count; itemIndex++)
+        //        {
+        //            OrderItem item = order.Items[itemIndex];
+        //            // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
+        //            if (item.ChildTraveler < 0 && Traveler.IsTable(item.ItemCode))
+        //            {
+        //                Console.Write("\r{0}%   ", "Compiling Tables..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
 
-                                // search for existing traveler
-                                // can only combine if same itemCode, hasn't started, and has no parents
-                                Traveler traveler = m_travelers.Find(x => x.PartNo == item.ItemCode && x.LastStation == Traveler.GetStation("Start") && x.Parents.Count == 0);
-                                if (traveler != null)
-                                {
-                                    // add to existing traveler
-                                    traveler.Quantity += item.QtyOrdered;
+        //                // search for existing traveler
+        //                // can only combine if same itemCode, hasn't started, and has no parents
+        //                Traveler traveler = m_travelers.Find(x => x.ItemCode == item.ItemCode && x.LastStation == Traveler.GetStation("Start") && x.Parents.Count == 0);
+        //                if (traveler != null)
+        //                {
+        //                    // add to existing traveler
+        //                    traveler.Quantity += item.QtyOrdered;
 
-                                    // RELATIONAL =============================================================
-                                    item.ChildTraveler = traveler.ID;
-                                    traveler.ParentOrders.Add(order.SalesOrderNo);
-                                    //=========================================================================
-                                }
-                                else 
-                                {
-                                    // create a new traveler from the new item
-                                    Table newTraveler = new Table(item.ItemCode, item.QtyOrdered, ref m_MAS);
+        //                    // RELATIONAL =============================================================
+        //                    item.ChildTraveler = traveler.ID;
+        //                    traveler.ParentOrders.Add(order.SalesOrderNo);
+        //                    //=========================================================================
+        //                }
+        //                else 
+        //                {
+        //                    // create a new traveler from the new item
+        //                    Table newTraveler = new Table(item.ItemCode, item.QtyOrdered, ref m_MAS);
 
-                                    // RELATIONAL =============================================================
-                                    item.ChildTraveler = newTraveler.ID;
-                                    newTraveler.ParentOrders.Add(order.SalesOrderNo);
-                                    //=========================================================================
+        //                    // RELATIONAL =============================================================
+        //                    item.ChildTraveler = newTraveler.ID;
+        //                    newTraveler.ParentOrders.Add(order.SalesOrderNo);
+        //                    //=========================================================================
 
-                                    // start the new traveler's journey
-                                    newTraveler.Start();
-                                    // add the new traveler to the list
-                                    m_travelers.Add(newTraveler);
-                                }
-                            }
-                        }
-                    }
-                }
-                index++;
-            }
-            Console.Write("\r{0}   ", "Compiling Tables...Finished\n");
-        }
+        //                    // start the new traveler's journey
+        //                    newTraveler.Start();
+        //                    // add the new traveler to the list
+        //                    m_travelers.Add(newTraveler);
+        //                }
+        //            }
+        //        }
+        //        index++;
+        //    }
+        //    Console.Write("\r{0}   ", "Compiling Tables...Finished\n");
+        //}
         // Import information for all tables
-        public override void ImportInformation()
+        public override void FinalizeTravelers()
         {
             int index = 0;
-            foreach (Table table in m_travelers.OfType<Table>())
+            List<Traveler> preCulled = new List<Traveler>(m_travelerCore.GetTravelers.OfType<Table>());
+            foreach (Table table in preCulled)
             {
                 if (table.Part == null) table.ImportPart(ref m_MAS);
-                Server.Write("\r{0}%", "Importing Table Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-                ImportInformation(table);
+                Server.Write("\r{0}%", "Importing Table Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelerCore.GetTravelers.Count)) * 100));
+                FinalizeTable(table);
                 index++;
             }
             Server.Write("\r{0}", "Importing Table Info...Finished" + Environment.NewLine);
         }
         // Import information for a specific table
-        public void ImportInformation(Table table)
+        public void FinalizeTable(Table table)
         {
             // compensate for items covered by inventory (already calculated for the order item)
             UpdateQuantity(table);
@@ -111,16 +97,31 @@ namespace Efficient_Automatic_Traveler_System
                 table.Quantity += table.LeftoverParts;
                 // update and total the final parts
                 table.Part.TotalQuantity = table.Quantity;
+                
             }
-            table.FindComponents(table.Part);
-            // Table specific (Color and box dimensions)
-            GetColorInfo(table);
-            GetPackInfo(table);
+            if (table.Quantity == 0)
+            {
+                m_travelerCore.RemoveTraveler(table);
+            }
+            else
+            {
+                table.FindComponents(table.Part);
+                // Table specific (Color and box dimensions)
+                GetColorInfo(table);
+                GetPackInfo(table);
+            }
         }
         //-----------------------
         // Private members
         //-----------------------
-
+        //protected override bool InstanceOf(string itemCode)
+        //{
+        //    return Traveler.IsTable(itemCode);
+        //}
+        //protected override Traveler NewDerivedInstance(string itemCode, int qty, ref OdbcConnection mas)
+        //{
+        //    return (Traveler)new Table(itemCode, qty, ref mas);
+        //}
         // get a reader friendly string for the color
         private void GetColorInfo(Table traveler)
         {
@@ -153,7 +154,7 @@ namespace Efficient_Automatic_Traveler_System
             while (line != "" && line != null)
             {
                 string[] row = line.Split(',');
-                if (traveler.PartNo.Contains(row[0]))
+                if (traveler.ItemCode.Contains(row[0]))
                 {
                     //--------------------------------------------
                     // BLANK INFO
@@ -220,8 +221,8 @@ namespace Efficient_Automatic_Traveler_System
                     traveler.RegPack = row[9];
                     foreach (string orderNo in traveler.ParentOrders)
                     {
-                        Order order = m_orders[FindOrderIndex(ref m_orders, orderNo)];
-                        OrderItem orderItem = order.Items[FindOrderItemIndex(ref order, traveler.ID)];
+                        Order order = m_travelerCore.FindOrder(orderNo);
+                        OrderItem orderItem = order.FindItem(traveler.ID);
 
                         // Get box information
                         if (order.ShipVia != "" && (order.ShipVia.ToUpper().IndexOf("FEDEX") != -1 || order.ShipVia.ToUpper().IndexOf("UPS") != -1))

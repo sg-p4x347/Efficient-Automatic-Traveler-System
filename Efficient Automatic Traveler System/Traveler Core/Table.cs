@@ -17,14 +17,14 @@ namespace Efficient_Automatic_Traveler_System
         //--------------------------
         public Table(Traveler t, bool copyID = false) : base(t,copyID) {
             GetBlacklist();
-            m_colorNo = Convert.ToInt32(m_partNo.Substring(m_partNo.Length - 2));
-            m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
+            m_colorNo = Convert.ToInt32(m_itemCode.Substring(m_itemCode.Length - 2));
+            m_shapeNo = m_itemCode.Substring(0, m_itemCode.Length - 3);
         }
         public Table(Dictionary<string,string> obj) : base(obj)
         {
             GetBlacklist();
-            m_colorNo = Convert.ToInt32(m_partNo.Substring(m_partNo.Length - 2));
-            m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
+            m_colorNo = Convert.ToInt32(m_itemCode.Substring(m_itemCode.Length - 2));
+            m_shapeNo = m_itemCode.Substring(0, m_itemCode.Length - 3);
         }
         public Table(Table table) : base((Traveler) table)
         {
@@ -47,21 +47,21 @@ namespace Efficient_Automatic_Traveler_System
         public Table() : base() { }
         public Table(string json) : base(json) {
             GetBlacklist();
-            m_colorNo = Convert.ToInt32(m_partNo.Substring(m_partNo.Length - 2));
-            m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
+            m_colorNo = Convert.ToInt32(m_itemCode.Substring(m_itemCode.Length - 2));
+            m_shapeNo = m_itemCode.Substring(0, m_itemCode.Length - 3);
         }
         // Creates a traveler from a part number and quantity
         public Table(string partNo, int quantity) : base(partNo, quantity)
         {
             GetBlacklist();
-            m_colorNo = Convert.ToInt32(m_partNo.Substring(m_partNo.Length - 2));
-            m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
+            m_colorNo = Convert.ToInt32(m_itemCode.Substring(m_itemCode.Length - 2));
+            m_shapeNo = m_itemCode.Substring(0, m_itemCode.Length - 3);
         }
         public Table(string partNo, int quantity, ref OdbcConnection MAS) : base(partNo,quantity,ref MAS)
         {
             GetBlacklist();
-            m_colorNo = Convert.ToInt32(m_partNo.Substring(m_partNo.Length - 2));
-            m_shapeNo = m_partNo.Substring(0, m_partNo.Length - 3);
+            m_colorNo = Convert.ToInt32(m_itemCode.Substring(m_itemCode.Length - 2));
+            m_shapeNo = m_itemCode.Substring(0, m_itemCode.Length - 3);
         }
         // returns a JSON formatted string to be sent to a client
         public override string Export(string clientType)
@@ -75,8 +75,16 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"lastStation\":" + '"' + Traveler.GetStationName(m_lastStation) + '"' + ',';
             json += "\"station\":" + '"' + Traveler.GetStationName(m_station) + '"' + ',';
             json += "\"nextStation\":" + '"' + Traveler.GetStationName(m_nextStation) + '"' + ',';
-            json += "\"members\":[";
+            json += "\"history\":[";
             string rows = "";
+            foreach (Event travelerEvent in m_history)
+            {
+                rows += (rows.Length > 0 ? "," : "") + travelerEvent.ToString();
+            }
+            json += rows;
+            json += "],";
+            json += "\"members\":[";
+            rows = "";
             rows += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
             if (clientType == "OperatorClient" && m_station ==  Traveler.GetStation("Heian")) {
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Drawing", m_drawingNo, "").ToString();

@@ -13,9 +13,9 @@ using System.Net.Sockets;
 
 namespace Efficient_Automatic_Traveler_System
 {
-
     class Server
     {
+        
         //------------------------------
         // Public members
         //------------------------------
@@ -32,7 +32,7 @@ namespace Efficient_Automatic_Traveler_System
 
             
             m_travelerCore = new TravelerCore();
-            m_clientManager = new ClientManager(m_ip, m_port,ref m_travelerCore.m_travelers);
+            m_clientManager = new ClientManager(m_ip, m_port,m_travelerCore as ITravelerCore);
             // Subscribe events
             m_travelerCore.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
             m_clientManager.TravelersChanged += new TravelersChangedSubscriber(m_travelerCore.HandleTravelersChanged);
@@ -86,51 +86,53 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         private async void GetInputAsync()
         {
-            string input =  await Task.Run(() => Console.ReadLine());
+            string input = await Task.Run(() => Console.ReadLine());
             switch (input)
             {
-                case "update": m_travelerCore.CreateTravelers(); break;
-                case "labels":
-                    PrintLabels();
+                case "update":
+                    m_travelerCore.CreateTravelers();
                     break;
                 case "reset":
-                    m_travelerCore.Travelers.Clear();
-                    m_travelerCore.Orders.Clear();
+                    m_travelerCore.GetTravelers.Clear();
+                    m_travelerCore.GetOrders.Clear();
                     m_travelerCore.HandleTravelersChanged();
                     m_travelerCore.CreateTravelers();
+                    break;
+                default:
+                    Console.WriteLine("Invalid; commands are [udpate, reset]");
                     break;
             }
             GetInputAsync();
         }
-        async public void PrintLabels()
-        {
-            foreach (Traveler traveler in m_travelerCore.Travelers)
-            {
-                try
-                {
-                    string result = "";
-                    using (var client = new WebClient())
-                    {
-                        //client.Credentials = new NetworkCredential("gage", "Stargatep4x347");
-                        client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                        string json = "{\"ID\":\"" + traveler.ID + "\",";
-                        json += "\"Desc1\":\"" + traveler.Part.BillDesc + "\",";
-                        json += "\"Desc2\":\"" + traveler.Eband + "\",";
-                        json += "\"Pack\":\"" + "\",";
-                        //json += "\"Date\":\"" + DateTime.Today.ToString(@"yyyy\-MM\-dd") + "\",";
-                        json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
-                        json += "\"qty\":" + 1 + ",";
-                        json += "\"printer\":\"" + "4x2Pack" + "\"}";
+        //async public void PrintLabels()
+        //{
+        //    foreach (Traveler traveler in m_travelerCore.Travelers)
+        //    {
+        //        try
+        //        {
+        //            string result = "";
+        //            using (var client = new WebClient())
+        //            {
+        //                //client.Credentials = new NetworkCredential("gage", "Stargatep4x347");
+        //                client.Headers[HttpRequestHeader.ContentType] = "application/json";
+        //                string json = "{\"ID\":\"" + traveler.ID + "\",";
+        //                json += "\"Desc1\":\"" + traveler.Part.BillDesc + "\",";
+        //                json += "\"Desc2\":\"" + traveler.Eband + "\",";
+        //                json += "\"Pack\":\"" + "\",";
+        //                //json += "\"Date\":\"" + DateTime.Today.ToString(@"yyyy\-MM\-dd") + "\",";
+        //                json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
+        //                json += "\"qty\":" + 1 + ",";
+        //                json += "\"printer\":\"" + "4x2Pack" + "\"}";
 
-                        result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
-                        //http://192.168.2.6:8080/printLabel
-                    }
-                } catch (Exception ex)
-                {
-                    Console.WriteLine("Label printing exception: " + ex.Message);
-                }
-            }
-        }
+        //                result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+        //                //http://192.168.2.6:8080/printLabel
+        //            }
+        //        } catch (Exception ex)
+        //        {
+        //            Console.WriteLine("Label printing exception: " + ex.Message);
+        //        }
+        //    }
+        //}
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());

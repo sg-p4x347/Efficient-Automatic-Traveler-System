@@ -15,19 +15,35 @@ namespace Efficient_Automatic_Traveler_System
     // Class: Used to generate and store the digital "travelers" that are used throughout the system
     // Developer: Gage Coates
     // Date started: 1/25/17
-    public delegate void TravelersChangedSubscriber();
-    class TravelerCore
+
+    interface ITravelerCore
     {
-        //------------------------------
-        // Public members
-        //------------------------------
+        void CreateScrapChild(Traveler parent, int qtyScrapped);
+        Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time);
+        Order FindOrder(string orderNo);
+        Traveler FindTraveler(int ID);
+        void AdvanceTraveler(Traveler traveler);
+        void RemoveTraveler(Traveler traveler);
+        List<Traveler> GetTravelers
+        {
+            get;
+        }
+        List<Order> GetOrders
+        {
+            get;
+        }
+    }
+    public delegate void TravelersChangedSubscriber();
+    class TravelerCore : ITravelerCore
+    {
+        #region Public methods
         public TravelerCore()
         {
             m_MAS = new OdbcConnection();
             m_orders = new List<Order>();
             
             TravelersChanged = delegate { };
-            Travelers = new List<Traveler>();
+            m_travelers = new List<Traveler>();
             // set up the station list
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             System.IO.StreamReader stationsFile = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "stations.txt"));
@@ -62,11 +78,12 @@ namespace Efficient_Automatic_Traveler_System
             m_travelers.Clear();
             ImportStoredTravelers();
 
-            
+
 
             // Create and combine new travelers w/all travelers
-            m_tableManager.CompileTravelers(ref newOrders);
-            m_chairManager.CompileTravelers(ref newOrders);
+            //m_tableManager.CompileTravelers(ref newOrders);
+            //m_chairManager.CompileTravelers(ref newOrders);
+            CompileTravelers(ref newOrders);
 
             
             // The order list has been updated
@@ -76,8 +93,8 @@ namespace Efficient_Automatic_Traveler_System
             CheckInventory();
 
             // Finalize the travelers by importing external information
-            m_tableManager.ImportInformation();
-            m_chairManager.ImportInformation();
+            m_tableManager.FinalizeTravelers();
+            m_chairManager.FinalizeTravelers();
 
             // The traveler list has been updated
             OnTravelersChanged();
@@ -89,7 +106,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string contents = "";
-            foreach (Traveler traveler in Travelers)
+            foreach (Traveler traveler in m_travelers)
             {
                 contents += traveler.Export();
 
@@ -111,53 +128,236 @@ namespace Efficient_Automatic_Traveler_System
         {
             OnTravelersChanged();
         }
-        // Relational
-        public int FindOrderIndex(string orderNo)
+        #endregion
+        //----------------------------------
+        #region ITravelerCore Interface
+        // Creates a child of the parent, returns the child if the quantity was not 0
+        public void CreateScrapChild(Traveler parent, int qtyScrapped)
         {
-            for (int index = 0; index < m_orders.Count; index++)
-            {
-                if (m_orders[index].SalesOrderNo == orderNo) return index;
-            }
-            return -1;
+            Traveler scrapped = parent.Clone();
+
+            scrapped.Quantity = qtyScrapped;
+            parent.Quantity -= qtyScrapped;
+            scrapped.Start();
+            scrapped.History.Add(new Event(TravelerEvent.Scrapped, scrapped.Quantity, parent.Station));
+            m_travelers.Add(scrapped);
+
+            // compensate for inventory
+            UpdateQuantity(parent);
         }
-
-        //------------------------------
-        // Private members
-        //------------------------------
-
-        // reserve inventory items under order items by item type (by traveler)
-        private void CheckInventory()
+        public Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time)
         {
-            
-            foreach (Traveler traveler in m_travelers)
+            Traveler made = (Traveler)parent.Clone();
+
+            made.Quantity = qtyMade;
+            parent.Quantity -= qtyMade;
+            made.Station = parent.NextStation;
+            made.Advance();
+            made.History.Add(new Event(TravelerEvent.Completed, made.Quantity, parent.Station, time));
+            m_travelers.Add(made);
+
+            return made;
+        }
+       
+        public Order FindOrder(string orderNo)
+        {
+            return m_orders.Find(x => x.SalesOrderNo == orderNo);
+        }
+        public Traveler FindTraveler(int ID)
+        {
+            return m_travelers.Find(x => x.ID == ID);
+        }
+        public void RemoveTraveler(Traveler traveler)
+        {
+            // Can only remove travelers that haven't started yet
+            if (Traveler.GetStation("Start") == traveler.LastStation)
             {
-                OdbcCommand command = m_MAS.CreateCommand();
-                command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + traveler.PartNo + "'";
-                OdbcDataReader reader = command.ExecuteReader();
-                if (reader.Read())
+                // remove itself from order items
+                foreach (string orderNo in traveler.ParentOrders)
                 {
-                    int onHand = Convert.ToInt32(reader.GetValue(1));
-                    // adjust the quantity on hand for orders
-                    List<Order> parentOrders = new List<Order>();
-                    foreach (string orderNo in traveler.ParentOrders)
+                    FindOrder(orderNo).FindItem(traveler.ID).ChildTraveler = -1;
+                }
+                // remove itself from parents
+                foreach (int parentID in traveler.Parents)
+                {
+                    FindTraveler(parentID).Children.Remove(traveler.ID);
+                }
+                // recursively remove children
+                foreach (int childID in traveler.Children)
+                {
+                    RemoveTraveler(FindTraveler(childID));
+                }
+                // finally... remove THIS traveler
+                m_travelers.Remove(traveler);
+            }
+        }
+        public void AdvanceTraveler(Traveler traveler)
+        {
+            traveler.Station = traveler.NextStation;
+            traveler.Advance();
+            // check to see if this traveler can re-combine with family
+            Traveler toRemove = null;
+            foreach (Traveler relative in m_travelers)
+            {
+                // if they have a common ancestor
+                if (relative.ID != traveler.ID && (FindAncestor(relative).ID == FindAncestor(traveler).ID))
+                {
+                    if (relative.ID < traveler.ID)
                     {
-                        parentOrders.Add(m_orders[FindOrderIndex(orderNo)]);
+                        // the relative is older if the ID is less
+                        relative.Quantity += traveler.Quantity;
+                        Event e = new Event(TravelerEvent.Merged, traveler.Quantity, traveler.LastStation);
+                        e.message = "Traveler [" + traveler.ID.ToString("D6") + "] has merged with this traveler. Please combine it's parts with this traveler's parts and destroy it's label.";
+                        relative.History.Add(e);
+                        toRemove = traveler;
+                    } else
+                    {
+                        // the traveler is older than the relative
+                        traveler.Quantity += relative.Quantity;
+                        Event e = new Event(TravelerEvent.Merged, relative.Quantity, relative.LastStation);
+                        e.message = "Traveler [" + relative.ID.ToString("D6") + "] has merged with this traveler. Please combine it's parts with this traveler's parts and destroy it's label.";
+                        traveler.History.Add(e);
+                        toRemove = relative;
                     }
-                    parentOrders.Sort((a, b) => b.OrderDate.CompareTo(a.OrderDate)); // sort in descending order (oldest first)
-                    for (int i = 0; i < parentOrders.Count && onHand > 0; i++)
+                }
+            }
+            if (toRemove != null)
+            {
+                RemoveTraveler(toRemove);
+            }
+        }
+        public Traveler FindAncestor(Traveler child)
+        {
+            foreach (int parentID in child.Parents)
+            {
+                return FindAncestor(FindTraveler(parentID));
+            }
+            return child;
+        }
+        public List<Traveler> GetTravelers
+        {
+            get
+            {
+                return m_travelers;
+            }
+        }
+        public List<Order> GetOrders
+        {
+            get
+            {
+                return m_orders;
+            }
+        }
+        #endregion
+        //----------------------------------
+        #region Private methods
+        // Gets the total quantity ordered, compensated by what is in stock
+        private int QuantityNeeded(Traveler traveler)
+        {
+            int qtyNeeded = 0;
+            foreach (string orderNo in traveler.ParentOrders)
+            {
+                Order order = FindOrder(orderNo);
+                if (order != null)
+                {
+                    foreach (OrderItem item in order.Items)
                     {
-                        Order order = parentOrders[i];
-                        foreach (OrderItem item in order.Items)
+                        if (item.ChildTraveler == traveler.ID)
                         {
-                            if (item.ChildTraveler == traveler.ID)
-                            {
-                                item.QtyOnHand = Math.Min(onHand, item.QtyOrdered);
-                                onHand -= item.QtyOnHand;
-                            }
+                            qtyNeeded += Math.Max(0, item.QtyOrdered - item.QtyOnHand);
                         }
                     }
                 }
-                reader.Close();
+            }
+            return qtyNeeded;
+        }
+        // updates the quantity of a traveler and all its children
+        private void UpdateQuantity(Traveler traveler)
+        {
+            // 1.) compensate highest level traveler with inventory
+            // if it has parent orders and hasn't started, the quantity can change
+            if (traveler.LastStation == Traveler.GetStation("Start") && traveler.ParentOrders.Count > 0)
+            {
+                traveler.Quantity = QuantityNeeded(traveler);
+            }
+            // 2.) adjust children quantities
+            if (traveler.Children.Count > 0)
+            {
+                int qtyNeeded = Math.Max(0, QuantityNeeded(traveler) - traveler.Quantity);
+                List<Traveler> started = new List<Traveler>();
+                List<Traveler> notStarted = new List<Traveler>();
+                foreach (int childID in traveler.Children)
+                {
+                    Traveler child = FindTraveler(childID);
+                    if (child != null)
+                    {
+                        // update children of child
+                        // can only change quantity if this child hasn't started
+                        if (child.LastStation == Traveler.GetStation("Start"))
+                        {
+                            notStarted.Add(child);
+                        }
+                        else
+                        {
+                            started.Add(child);
+                            qtyNeeded -= child.Quantity;
+                        }
+                    }
+                }
+                foreach (Traveler child in notStarted)
+                {
+                    if (qtyNeeded == 0)
+                    {
+                        m_travelers.Remove(child); // don't need this anymore
+                        traveler.Children.RemoveAll(x => x == child.ID);
+                    }
+                    else
+                    {
+                        child.Quantity = qtyNeeded;
+                        qtyNeeded = 0;
+                    }
+                }
+            }
+        }
+        // reserve inventory items under order items by item type (by traveler)
+        private void CheckInventory()
+        {
+            try
+            {
+                foreach (Traveler traveler in m_travelers)
+                {
+                    if (m_MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                    OdbcCommand command = m_MAS.CreateCommand();
+                    command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + traveler.ItemCode + "'";
+                    OdbcDataReader reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        int onHand = Convert.ToInt32(reader.GetValue(1));
+                        // adjust the quantity on hand for orders
+                        List<Order> parentOrders = new List<Order>();
+                        foreach (string orderNo in traveler.ParentOrders)
+                        {
+                            parentOrders.Add(FindOrder(orderNo));
+                        }
+                        parentOrders.Sort((a, b) => b.OrderDate.CompareTo(a.OrderDate)); // sort in descending order (oldest first)
+                        for (int i = 0; i < parentOrders.Count && onHand > 0; i++)
+                        {
+                            Order order = parentOrders[i];
+                            foreach (OrderItem item in order.Items)
+                            {
+                                if (item.ChildTraveler == traveler.ID)
+                                {
+                                    item.QtyOnHand = Math.Min(onHand, item.QtyOrdered);
+                                    onHand -= item.QtyOnHand;
+                                }
+                            }
+                        }
+                    }
+                    reader.Close();
+                }
+            } catch (Exception ex)
+            {
+                Server.WriteLine("Problem checking order items against inventory: " + ex.Message + " Stack Trace: " + ex.StackTrace);
             }
         }
         // Opens a connection to the MAS database
@@ -184,86 +384,87 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void InitializeManagers()
         {
-            m_tableManager = new TableManager(ref m_MAS,ref m_orders, ref m_travelers);
-            m_chairManager = new ChairManager(ref m_MAS,ref m_orders, ref m_travelers);
-        }
-        
-        private void Clear()
-        {
-            m_tableManager.Orders.Clear();
-            m_tableManager.Travelers.Clear();
-            m_chairManager.Orders.Clear();
-            m_chairManager.Travelers.Clear();
+            m_tableManager = new TableManager(ref m_MAS,this as ITravelerCore);
+            m_chairManager = new ChairManager(ref m_MAS,this as ITravelerCore);
         }
 
         // Imports and stores all open orders that have not already been stored
         private void ImportOrders(ref List<Order> orders)
         {
-            Server.WriteLine("Importing orders...");
-            List<string> currentOrderNumbers = new List<string>();
-            // get informatino from header
-            OdbcCommand command = m_MAS.CreateCommand();
-            command.CommandText = "SELECT SalesOrderNo, CustomerNo, ShipVia, OrderDate, ShipExpireDate FROM SO_SalesOrderHeader";
-            OdbcDataReader reader = command.ExecuteReader();
-            // read info
-            while (reader.Read())
+            try
             {
-                string salesOrderNo = reader.GetString(0);
-                currentOrderNumbers.Add(salesOrderNo);
-                int index = m_orders.FindIndex(x => x.SalesOrderNo == salesOrderNo);
-                
-                // does not match any stored records
-                if (index == -1)
+                Server.WriteLine("Importing orders...");
+                List<string> currentOrderNumbers = new List<string>();
+                // get informatino from header
+                if (m_MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                OdbcCommand command = m_MAS.CreateCommand();
+                command.CommandText = "SELECT SalesOrderNo, CustomerNo, ShipVia, OrderDate, ShipExpireDate FROM SO_SalesOrderHeader";
+                OdbcDataReader reader = command.ExecuteReader();
+                // read info
+                while (reader.Read())
                 {
-                    // create a new order
-                    Order order = new Order();
-                    if (!reader.IsDBNull(0)) order.SalesOrderNo = reader.GetString(0);
-                    if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
-                    if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
-                    if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
-                    if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
-                    if (!reader.IsDBNull(4)) order.ShipDate =reader.GetDateTime(4);
-                    // get information from detail
-                    OdbcCommand detailCommand = m_MAS.CreateCommand();
-                    detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
-                    OdbcDataReader detailReader = detailCommand.ExecuteReader();
+                    string salesOrderNo = reader.GetString(0);
+                    currentOrderNumbers.Add(salesOrderNo);
+                    int index = m_orders.FindIndex(x => x.SalesOrderNo == salesOrderNo);
 
-                    // Read each line of the Sales Order, looking for the base Table, Chair, ect items, ignoring kits
-                    while (detailReader.Read())
+                    // does not match any stored records
+                    if (index == -1)
                     {
-                        string billCode = detailReader.GetString(0);
-                        if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
+                        // create a new order
+                        Order order = new Order();
+                        if (!reader.IsDBNull(0)) order.SalesOrderNo = reader.GetString(0);
+                        if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
+                        if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
+                        if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
+                        if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
+                        if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
+                        // get information from detail
+                        if (m_MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                        OdbcCommand detailCommand = m_MAS.CreateCommand();
+                        detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
+                        OdbcDataReader detailReader = detailCommand.ExecuteReader();
+
+                        // Read each line of the Sales Order, looking for the base Table, Chair, ect items, ignoring kits
+                        while (detailReader.Read())
                         {
-                            OrderItem item = new OrderItem();
-                            if (!detailReader.IsDBNull(0)) item.ItemCode = detailReader.GetString(0);  // itemCode
-                            if (!detailReader.IsDBNull(1)) item.QtyOrdered = Convert.ToInt32(detailReader.GetValue(1)); // Quantity
-                            order.Items.Add(item);
+                            string billCode = detailReader.GetString(0);
+                            if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
+                            {
+                                OrderItem item = new OrderItem();
+                                if (!detailReader.IsDBNull(0)) item.ItemCode = detailReader.GetString(0);  // itemCode
+                                if (!detailReader.IsDBNull(1)) item.QtyOrdered = Convert.ToInt32(detailReader.GetValue(1)); // Quantity
+                                order.Items.Add(item);
+                            }
                         }
+                        detailReader.Close();
+                        orders.Add(order);
                     }
-                    detailReader.Close();
-                    orders.Add(order);
+                    // Update information for existing order
+                    else
+                    {
+                        if (!reader.IsDBNull(1)) m_orders[index].CustomerNo = reader.GetString(1);
+                        if (!reader.IsDBNull(2)) m_orders[index].ShipVia = reader.GetString(2);
+                        if (m_orders[index].ShipVia == null) m_orders[index].ShipVia = ""; // havent found a shipper yet, will be LTL regardless
+                        if (!reader.IsDBNull(3)) m_orders[index].OrderDate = reader.GetDateTime(3);
+                        if (!reader.IsDBNull(4)) m_orders[index].ShipDate = reader.GetDateTime(4);
+                    }
                 }
-                // Update information for existing order
-                else
+                reader.Close();
+                // cull orders that do not exist anymore
+                List<Order> preCullList = new List<Order>(m_orders);
+                m_orders.Clear();
+                foreach (Order order in preCullList)
                 {
-                    if (!reader.IsDBNull(1)) m_orders[index].CustomerNo = reader.GetString(1);
-                    if (!reader.IsDBNull(2)) m_orders[index].ShipVia = reader.GetString(2);
-                    if (m_orders[index].ShipVia == null) m_orders[index].ShipVia = ""; // havent found a shipper yet, will be LTL regardless
-                    if (!reader.IsDBNull(3)) m_orders[index].OrderDate = reader.GetDateTime(3);
-                    if (!reader.IsDBNull(4)) m_orders[index].ShipDate = reader.GetDateTime(4);
+                    if (currentOrderNumbers.Exists(x => x == order.SalesOrderNo))
+                    {
+                        // phew! the order is still here
+                        m_orders.Add(order);
+                    }
                 }
             }
-            reader.Close();
-            // cull orders that do not exist anymore
-            List<Order> preCullList = new List<Order>(m_orders);
-            m_orders.Clear();
-            foreach (Order order in preCullList)
+            catch (Exception ex)
             {
-                if (currentOrderNumbers.Exists(x => x == order.SalesOrderNo))
-                {
-                    // phew! the order is still here
-                    m_orders.Add(order); 
-                }
+                Server.WriteLine("Problem importing new orders: " + ex.Message + " Stack Trace: " + ex.StackTrace);
             }
         }
         // Imports orders that have been stored
@@ -328,11 +529,11 @@ namespace Efficient_Automatic_Traveler_System
                             table.ImportPart(ref m_MAS);
                             if (table.Station == Traveler.GetStation("Start")) table.Start();
                             table.Advance();
-                            m_tableManager.ImportInformation(table);
+                            m_tableManager.FinalizeTable(table);
                             m_travelers.Add(table);
                             break;
                         case "Chair":
-                            Chair chair = new Chair(traveler);
+                            Chair chair = new Chair(traveler,true);
                             chair.ParentOrders = chair.ParentOrders;
                             chair.ImportPart(ref m_MAS);
                             if (chair.Station == Traveler.GetStation("Start")) chair.Start();
@@ -366,48 +567,65 @@ namespace Efficient_Automatic_Traveler_System
             // fire the event
             TravelersChanged();
         }
+        public virtual void CompileTravelers(ref List<Order> newOrders)
+        {
+            int index = 0;
+            foreach (Order order in newOrders)
+            {
+                foreach (OrderItem item in order.Items)
+                {
+                    // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
+                    if (item.ChildTraveler < 0 && (Traveler.IsTable(item.ItemCode) || Traveler.IsChair(item.ItemCode)))
+                    {
+                        Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
 
-        //------------------------------
-        // Properties
-        //------------------------------
-        private List<Order> m_orders;
+                        // search for existing traveler
+                        // can only combine if same itemCode, hasn't started, and has no parents
+                        Traveler traveler = m_travelers.Find(x => x.ItemCode == item.ItemCode && x.LastStation == Traveler.GetStation("Start") && x.Parents.Count == 0);
+                        if (traveler != null)
+                        {
+                            // add to existing traveler
+                            traveler.Quantity += item.QtyOrdered;
+
+                            // RELATIONAL =============================================================
+                            item.ChildTraveler = traveler.ID;
+                            traveler.ParentOrders.Add(order.SalesOrderNo);
+                            //=========================================================================
+                        }
+                        else
+                        {
+                            // create a new traveler from the new item
+                            Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode,item.QtyOrdered,ref m_MAS) : (Traveler)new Chair(item.ItemCode, item.QtyOrdered, ref m_MAS));
+
+                            // RELATIONAL =============================================================
+                            item.ChildTraveler = newTraveler.ID;
+                            newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                            //=========================================================================
+
+                            // start the new traveler's journey
+                            newTraveler.Start();
+                            // add the new traveler to the list
+                            m_travelers.Add(newTraveler);
+                        }
+                    }
+                }
+                index++;
+            }
+            Console.Write("\r{0}   ", "Compiling Tables...Finished\n");
+        }
+
+        #endregion
+        //----------------------------------
+        #region Private member variables
+
         private TableManager m_tableManager;
         private ChairManager m_chairManager;
 
+        private List<Order> m_orders;
         public List<Traveler> m_travelers;
+
         public event TravelersChangedSubscriber TravelersChanged;
-        //private List<Traveler> m_weeke;
-        //private List<Traveler> m_heian;
-        //private List<Traveler> m_vector;
-        //private List<Traveler> m_box;
-        //private List<Traveler> m_assm;
         private OdbcConnection m_MAS;
-
-        internal List<Traveler> Travelers
-        {
-            get
-            {
-                return m_travelers;
-            }
-
-            set
-            {
-                m_travelers = value;
-                TravelersChanged();
-            }
-        }
-
-        internal List<Order> Orders
-        {
-            get
-            {
-                return m_orders;
-            }
-
-            set
-            {
-                m_orders = value;
-            }
-        }
+        #endregion
     }
 }

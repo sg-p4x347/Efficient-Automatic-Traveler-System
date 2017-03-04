@@ -41,6 +41,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     // get bill information from MAS
                     {
+                        if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand command = MAS.CreateCommand();
                         command.CommandText = "SELECT BillType, BillDesc1, CurrentBillRevision, DrawingNo, Revision FROM BM_billHeader WHERE billno = '" + m_billNo + "'";
                         OdbcDataReader reader = command.ExecuteReader();
@@ -66,6 +67,7 @@ namespace Efficient_Automatic_Traveler_System
                     }
                     // add the components from MAS
                     {
+                        if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand command = MAS.CreateCommand();
                         command.CommandText = "SELECT ItemType, BillType, Revision, ComponentItemCode, QuantityPerBill FROM BM_billDetail WHERE billno = '" + m_billNo + "'";
                         OdbcDataReader reader = command.ExecuteReader();

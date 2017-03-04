@@ -15,10 +15,26 @@ namespace Efficient_Automatic_Traveler_System
         Completed,
         Scrapped,
         Reworked,
-        Moved
+        Moved,
+        Merged
     }
     class Event
     {
+        public Event (Dictionary<string,string> obj)
+        {
+            try
+            {
+                type = (TravelerEvent)Enum.Parse(typeof(TravelerEvent), obj["type"]);
+                date = DateTime.Parse(obj["date"]);
+                message = obj["message"];
+                time = Convert.ToDouble(obj["time"]);
+                quantity = Convert.ToInt32(obj["quantity"]);
+                station = Convert.ToInt32(obj["station"]);
+            } catch (Exception ex)
+            {
+                Server.WriteLine("Problem when reading event from file: " + ex.Message + "; StackTrace: " + ex.StackTrace);
+            }
+        }
         public Event (TravelerEvent e, DateTime t, int q, int s)
         {
             type = e;
@@ -49,6 +65,7 @@ namespace Efficient_Automatic_Traveler_System
             json += "{";
             json += "\"type\":" + '"' + type.ToString() + '"' + ",";
             json += "\"date\":" + '"' + date.ToString("MM/dd/yyyy") + '"' + ",";
+            json += "\"message\":" + '"' + message + '"' + ',';
             json += "\"time\":" + '"' + time.ToString() + '"' + ",";
             json += "\"quantity\":" + '"' + quantity.ToString() + '"' + ",";
             json += "\"station\":" + '"' + station.ToString() + '"';
@@ -56,6 +73,7 @@ namespace Efficient_Automatic_Traveler_System
             return json;
         }
         public TravelerEvent type;
+        public string message;
         public DateTime date;
         public double time;
         public int quantity;
@@ -97,7 +115,7 @@ namespace Efficient_Automatic_Traveler_System
         public Traveler(Dictionary<string,string> obj)
         {
             m_ID = Convert.ToInt32(obj["ID"]);
-            m_partNo = obj["itemCode"];
+            m_itemCode = obj["itemCode"];
             m_quantity = Convert.ToInt32(obj["quantity"]);
             m_lastStation = Convert.ToInt32(obj["lastStation"]);
             m_station = Convert.ToInt32(obj["station"]);
@@ -112,6 +130,11 @@ namespace Efficient_Automatic_Traveler_System
                 m_parents.Add(Convert.ToInt32(parent));
             }
             m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
+            m_history = new List<Event>();
+            foreach (string eventJSON in (new StringStream(obj["history"])).ParseJSONarray())
+            {
+                m_history.Add((new Event((new StringStream(eventJSON)).ParseJSON())));
+            }
         }
         // Copy constructor
         public Traveler(Traveler t,bool copyID = false)
@@ -125,7 +148,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             m_timeStamp = t.TimeStamp;
             m_printed = t.Printed;
-            m_partNo = t.PartNo;
+            m_itemCode = t.ItemCode;
             m_drawingNo = t.DrawingNo;
             m_quantity = t.Quantity;
             m_color = t.Color;
@@ -173,7 +196,7 @@ namespace Efficient_Automatic_Traveler_System
         public Traveler(string partNo, int quantity)
         {
             // set META information
-            m_partNo = partNo;
+            m_itemCode = partNo;
             m_quantity = quantity;
             NewID();
         }
@@ -181,7 +204,7 @@ namespace Efficient_Automatic_Traveler_System
         public Traveler(string partNo, int quantity, ref OdbcConnection MAS)
         {
             // set META information
-            m_partNo = partNo;
+            m_itemCode = partNo;
             m_quantity = quantity;
             NewID();
 
@@ -190,9 +213,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void ImportPart(ref OdbcConnection MAS)
         {
-            if (m_partNo != "")
+            if (m_itemCode != "")
             {
-                m_part = new Bill(m_partNo, m_quantity, ref MAS);
+                m_part = new Bill(m_itemCode, m_quantity, ref MAS);
                 m_drawingNo = m_part.DrawingNo;
                 m_part.BillDesc = m_part.BillDesc.Replace("TableTopAsm,", ""); // tabletopasm is pretty obvious and therefore extraneous
                 FindComponents(m_part);
@@ -356,6 +379,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
+                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                 OdbcCommand command = MAS.CreateCommand();
                 command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + m_part.BillNo + "'";
                 OdbcDataReader reader = command.ExecuteReader();
@@ -477,7 +501,14 @@ namespace Efficient_Automatic_Traveler_System
             // PARENT ORDERS [...]
             json += "\"parentOrders\":" + m_parentOrders.Stringify<string>() + ',';
             // HISTORY [...]
-            json += "\"history\":" + m_history.Stringify<Event>();
+            json += "\"history\":[";
+            string rows = "";
+            foreach (Event travelerEvent in m_history)
+            {
+                rows += (rows.Length > 0 ? "," : "") + travelerEvent.ToString();
+            }
+            json += rows;
+            json += "]";
             // packs in members specific to derived classes
             json += ExportProperties(); 
 
@@ -502,7 +533,7 @@ namespace Efficient_Automatic_Traveler_System
                     json += "\"qty\":" + qty + ",";
                     json += "\"printer\":\"" + "4x2Pack" + "\"}";
 
-                    // result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+                    result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
                     //http://192.168.2.6:8080/printLabel
                 }
             }
@@ -601,7 +632,7 @@ namespace Efficient_Automatic_Traveler_System
         protected int m_ID = 0;
         protected string m_timeStamp = "";
         protected bool m_printed = false;
-        protected string m_partNo = "";
+        protected string m_itemCode = "";
         protected string m_drawingNo = "";
         protected int m_quantity = 0;
         protected string m_color = "";
@@ -676,16 +707,16 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal string PartNo
+        internal string ItemCode
         {
             get
             {
-                return m_partNo;
+                return m_itemCode;
             }
 
             set
             {
-                m_partNo = value;
+                m_itemCode = value;
             }
         }
 

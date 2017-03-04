@@ -84,6 +84,10 @@ namespace Efficient_Automatic_Traveler_System
             }
             
         }
+        public OrderItem FindItem(int travelerID)
+        {
+            return m_items.Find(x => x.ChildTraveler == travelerID);
+        }
         public string Export()
         {
             string json = "{";
