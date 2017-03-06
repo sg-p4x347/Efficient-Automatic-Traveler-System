@@ -39,7 +39,7 @@ namespace Efficient_Automatic_Traveler_System
 
             m_clientManagerThread = new Thread(m_clientManager.Start);
             m_clientManagerThread.Name = "Client Manager";
-            m_updateInterval = new TimeSpan(0, 5, 0);
+            m_updateInterval = new TimeSpan(6, 0, 0);
             // HTTP file serving
             
         }

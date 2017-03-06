@@ -43,8 +43,16 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
             json += "\"station\":" + '"' + Traveler.GetStationName(m_station) + '"' + ',';
             json += "\"nextStation\":" + '"' + Traveler.GetStationName(m_nextStation) + '"' + ',';
-            json += "\"members\":[";
+            json += "\"history\":[";
             string rows = "";
+            foreach (Event travelerEvent in m_history)
+            {
+                rows += (rows.Length > 0 ? "," : "") + travelerEvent.ToString();
+            }
+            json += rows;
+            json += "],";
+            json += "\"members\":[";
+            rows = "";
             rows += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
             if (clientType == "OperatorClient" && m_station == Traveler.GetStation("Chairs"))
             {

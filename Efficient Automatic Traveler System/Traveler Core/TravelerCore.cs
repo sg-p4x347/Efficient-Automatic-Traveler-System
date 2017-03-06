@@ -135,7 +135,6 @@ namespace Efficient_Automatic_Traveler_System
         public void CreateScrapChild(Traveler parent, int qtyScrapped)
         {
             Traveler scrapped = parent.Clone();
-
             scrapped.Quantity = qtyScrapped;
             parent.Quantity -= qtyScrapped;
             scrapped.Start();
@@ -151,10 +150,11 @@ namespace Efficient_Automatic_Traveler_System
 
             made.Quantity = qtyMade;
             parent.Quantity -= qtyMade;
-            made.Station = parent.NextStation;
-            made.Advance();
+            made.NextStation = parent.NextStation;
             made.History.Add(new Event(TravelerEvent.Completed, made.Quantity, parent.Station, time));
             m_travelers.Add(made);
+            AdvanceTraveler(made);
+            
 
             return made;
         }
@@ -195,12 +195,13 @@ namespace Efficient_Automatic_Traveler_System
         {
             traveler.Station = traveler.NextStation;
             traveler.Advance();
+            int ancestor = FindAncestor(traveler).ID;
             // check to see if this traveler can re-combine with family
             Traveler toRemove = null;
             foreach (Traveler relative in m_travelers)
             {
                 // if they have a common ancestor
-                if (relative.ID != traveler.ID && (FindAncestor(relative).ID == FindAncestor(traveler).ID))
+                if (relative.Station == traveler.Station && relative.ID != traveler.ID && (FindAncestor(relative).ID == ancestor))
                 {
                     if (relative.ID < traveler.ID)
                     {
@@ -215,7 +216,7 @@ namespace Efficient_Automatic_Traveler_System
                         // the traveler is older than the relative
                         traveler.Quantity += relative.Quantity;
                         Event e = new Event(TravelerEvent.Merged, relative.Quantity, relative.LastStation);
-                        e.message = "Traveler [" + relative.ID.ToString("D6") + "] has merged with this traveler. Please combine it's parts with this traveler's parts and destroy it's label.";
+                        e.message = "Traveler [" + relative.ID.ToString("D6") + "] has merged with this traveler. Please combine its parts with this traveler's parts and destroy its label.";
                         traveler.History.Add(e);
                         toRemove = relative;
                     }
@@ -401,8 +402,10 @@ namespace Efficient_Automatic_Traveler_System
                 command.CommandText = "SELECT SalesOrderNo, CustomerNo, ShipVia, OrderDate, ShipExpireDate FROM SO_SalesOrderHeader";
                 OdbcDataReader reader = command.ExecuteReader();
                 // read info
-                while (reader.Read())
+                int max = 20;
+                while (reader.Read() && max > 0)
                 {
+                    max--;
                     string salesOrderNo = reader.GetString(0);
                     currentOrderNumbers.Add(salesOrderNo);
                     int index = m_orders.FindIndex(x => x.SalesOrderNo == salesOrderNo);
@@ -525,7 +528,11 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         case "Table":
                             Table table = new Table(traveler,true);
+                            // Relational -------------------------------
                             table.ParentOrders = traveler.ParentOrders;
+                            table.Parents = traveler.Parents;
+                            table.Children = traveler.Children;
+                            //-------------------------------------------
                             table.ImportPart(ref m_MAS);
                             if (table.Station == Traveler.GetStation("Start")) table.Start();
                             table.Advance();
@@ -534,7 +541,11 @@ namespace Efficient_Automatic_Traveler_System
                             break;
                         case "Chair":
                             Chair chair = new Chair(traveler,true);
+                            // Relational -------------------------------
                             chair.ParentOrders = chair.ParentOrders;
+                            chair.Parents = traveler.Parents;
+                            chair.Children = traveler.Children;
+                            //-------------------------------------------
                             chair.ImportPart(ref m_MAS);
                             if (chair.Station == Traveler.GetStation("Start")) chair.Start();
                             chair.Advance();

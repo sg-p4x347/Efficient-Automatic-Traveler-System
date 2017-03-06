@@ -53,7 +53,7 @@ namespace Efficient_Automatic_Traveler_System
             char next = ' ';
             while (Get(ref next))
             {
-                if (next == '[' || next == '{' || next == '"')
+                if (next == '[' || next == '{' || next == '"' || Char.IsNumber(next) || next == '-')
                 {
                     PutBack();
                     array.Add(GetJsonScope().Trim('"'));

@@ -62,6 +62,10 @@ namespace Efficient_Automatic_Traveler_System
         public string ToString()
         {
             string json = "";
+            if (type == TravelerEvent.Merged)
+            {
+                var test = "catch";
+            }
             json += "{";
             json += "\"type\":" + '"' + type.ToString() + '"' + ",";
             json += "\"date\":" + '"' + date.ToString("MM/dd/yyyy") + '"' + ",";
@@ -182,8 +186,8 @@ namespace Efficient_Automatic_Traveler_System
         public virtual Traveler Clone() {
             Traveler t = new Traveler((Traveler)this);
             // relational
-            m_parents.Add(t.ID);
-            t.Children.Add(m_ID);
+            m_children.Add(t.ID);
+            t.Parents.Add(m_ID);
             return t;
 
         }
@@ -527,13 +531,13 @@ namespace Efficient_Automatic_Traveler_System
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
                     string json = "{\"ID\":\"" + ID + "\",";
                     json += "\"Desc1\":\"" + Part.BillDesc + "\",";
-                    json += "\"Desc2\":\"" + Eband.ItemCodeDesc + "\",";
+                    json += "\"Desc2\":\"" + (Eband != null ? Eband.ItemCodeDesc  : "N/A" )+ "\",";
                     //json += "\"Date\":\"" + DateTime.Today.ToString(@"yyyy\-MM\-dd") + "\",";
                     json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
                     json += "\"qty\":" + qty + ",";
                     json += "\"printer\":\"" + "4x2Pack" + "\"}";
 
-                    result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+                    //result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
                     //http://192.168.2.6:8080/printLabel
                 }
             }

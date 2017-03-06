@@ -42,7 +42,10 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override Traveler Clone()
         {
-            return new Table(this);
+            Table t = new Table(this);
+            m_children.Add(t.ID);
+            t.Parents.Add(m_ID);
+            return t;
         }
         public Table() : base() { }
         public Table(string json) : base(json) {
