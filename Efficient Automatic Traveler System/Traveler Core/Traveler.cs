@@ -20,68 +20,43 @@ namespace Efficient_Automatic_Traveler_System
     }
     class Event
     {
-        public Event (Dictionary<string,string> obj)
+        public Event (string json)
         {
             try
             {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 type = (TravelerEvent)Enum.Parse(typeof(TravelerEvent), obj["type"]);
-                date = DateTime.Parse(obj["date"]);
-                message = obj["message"];
+                date = obj["date"];
                 time = Convert.ToDouble(obj["time"]);
-                quantity = Convert.ToInt32(obj["quantity"]);
                 station = Convert.ToInt32(obj["station"]);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Server.WriteLine("Problem when reading event from file: " + ex.Message + "; StackTrace: " + ex.StackTrace);
             }
         }
-        public Event (TravelerEvent e, DateTime t, int q, int s)
+        public Event (TravelerEvent e, double t, int s)
         {
             type = e;
-            date = t;
             time = 0;
-            quantity = q;
             station = s;
+            date = DateTime.Now.ToString("MM/dd/yy @ hh:00");
         }
-        public Event(TravelerEvent e, int q, int s)
-        {
-            type = e;
-            date = DateTime.Now;
-            time = 0;
-            quantity = q;
-            station = s;
-        }
-        public Event(TravelerEvent e, int q, int s, double el)
-        {
-            type = e;
-            date = DateTime.Now;
-            time = el;
-            quantity = q;
-            station = s;
-        }
-        public string ToString()
+        public override string ToString()
         {
             string json = "";
-            if (type == TravelerEvent.Merged)
-            {
-                var test = "catch";
-            }
             json += "{";
-            json += "\"type\":" + '"' + type.ToString() + '"' + ",";
-            json += "\"date\":" + '"' + date.ToString("MM/dd/yyyy") + '"' + ",";
-            json += "\"message\":" + '"' + message + '"' + ',';
-            json += "\"time\":" + '"' + time.ToString() + '"' + ",";
-            json += "\"quantity\":" + '"' + quantity.ToString() + '"' + ",";
-            json += "\"station\":" + '"' + station.ToString() + '"';
+            json += "\"type\":" + type.ToString("d") + ",";
+            json += "\"date\":" + '"' + date + '"' + ",";
+            json += "\"time\":" + time + ",";
+            json += "\"station\":" + station;
             json += "}";
             return json;
         }
         public TravelerEvent type;
-        public string message;
-        public DateTime date;
         public double time;
-        public int quantity;
         public int station;
+        public string date;
     }
     struct NameValueQty<valueType,qtyType>
     {
@@ -105,125 +80,147 @@ namespace Efficient_Automatic_Traveler_System
         public valueType Value;
         public qtyType Qty;
     }
-    class Traveler
+    class TravelerItem
     {
-        //-----------------------
-        // Public members
-        //-----------------------
-
-        // Doesn't do anything
-        public Traveler()
+        public TravelerItem(UInt16 ID)
         {
-
-        }
-        public Traveler(Dictionary<string,string> obj)
-        {
-            m_ID = Convert.ToInt32(obj["ID"]);
-            m_itemCode = obj["itemCode"];
-            m_quantity = Convert.ToInt32(obj["quantity"]);
-            m_lastStation = Convert.ToInt32(obj["lastStation"]);
-            m_station = Convert.ToInt32(obj["station"]);
-            m_children = new List<int>();
-            foreach (string child in (new StringStream(obj["children"])).ParseJSONarray())
-            {
-                m_children.Add(Convert.ToInt32(child));
-            }
-            m_parents = new List<int>();
-            foreach (string parent in (new StringStream(obj["parents"])).ParseJSONarray())
-            {
-                m_parents.Add(Convert.ToInt32(parent));
-            }
-            m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
+            m_ID = ID;
+            m_scrapped = false;
+            m_station = -1;
+            m_lastStation = -1;
             m_history = new List<Event>();
-            foreach (string eventJSON in (new StringStream(obj["history"])).ParseJSONarray())
-            {
-                m_history.Add((new Event((new StringStream(eventJSON)).ParseJSON())));
-            }
         }
-        // Copy constructor
-        public Traveler(Traveler t,bool copyID = false)
+        public TravelerItem(string json)
         {
-            // general
-            m_part = t.Part;
-            if (copyID) {
-                m_ID = t.ID;
-            } else {
-                NewID();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                m_ID = Convert.ToUInt16(obj["ID"]);
+                m_scrapped = Convert.ToBoolean(obj["scrapped"]);
+                m_station = Convert.ToInt32(obj["station"]);
+                m_lastStation = Convert.ToInt32(obj["lastStaion"]);
+                m_history = new List<Event>();
+                foreach (string eventString in (new StringStream(obj["history"])).ParseJSONarray())
+                {
+                    m_history.Add(new Event(eventString));
+                }
             }
-            m_timeStamp = t.TimeStamp;
-            m_printed = t.Printed;
-            m_itemCode = t.ItemCode;
-            m_drawingNo = t.DrawingNo;
-            m_quantity = t.Quantity;
-            m_color = t.Color;
-            m_lastStation = t.LastStation;
-            m_station = t.Station;
-            m_nextStation = t.NextStation;
-            m_history = t.History;
-            
-            //m_parentOrders = t.ParentOrders;
-            // Labor
-            m_cnc = t.Cnc;
-            m_vector = t.Vector;
-            m_ebander = t.Ebander;
-            m_saw = t.Saw;
-            m_assm = t.Assm;
-            m_box = t.Box;
-            // Material
-            m_material = t.Material;
-            m_eband = t.Eband;
-            m_components = t.Components;
-            m_blacklist = t.Blacklist;
-            // Box
-            m_partsPerBox = t.PartsPerBox;
-            m_boxItemCode = t.BoxItemCode;
-            m_regPack = t.RegPack;
-            m_regPackQty = t.RegPackQty;
-            m_supPack = t.SupPack;
-            m_supPackQty = t.SupPackQty;
-
+            catch (Exception ex)
+            {
+                Server.WriteLine("Problem when reading TravelerItem from file: " + ex.Message + "; StackTrace: " + ex.StackTrace);
+            }
         }
-        public virtual Traveler Clone() {
-            Traveler t = new Traveler((Traveler)this);
-            // relational
-            m_children.Add(t.ID);
-            t.Parents.Add(m_ID);
-            return t;
-
+        public override string ToString()
+        {
+            string json = "{";
+            json += "\"ID\":" + m_ID;
+            json += ",\"scrapped\":" + '"' + m_scrapped + '"';
+            json += ",\"station\":" + m_station;
+            json += ",\"lastStation\":" + m_lastStation;
+            json += ",\"history\":" + m_history.Stringify<Event>();
+            json += '}';
+            return json;
         }
+        // Properties
+        private UInt16 m_ID;
+        private bool m_scrapped;
+        private int m_station;
+        private int m_lastStation;
+        private List<Event> m_history;
+
+        public ushort ID
+        {
+            get
+            {
+                return m_ID;
+            }
+        }
+
+        public int Station
+        {
+            get
+            {
+                return m_station;
+            }
+
+            set
+            {
+                m_lastStation = m_station;
+                m_station = value;
+            }
+        }
+
+        public int LastStation
+        {
+            get
+            {
+                return m_lastStation;
+            }
+
+            set
+            {
+                m_lastStation = value;
+            }
+        }
+
+        public bool Scrapped
+        {
+            get
+            {
+                return m_scrapped;
+            }
+
+            set
+            {
+                m_scrapped = value;
+            }
+        }
+
+        internal List<Event> History
+        {
+            get
+            {
+                return m_history;
+            }
+
+            set
+            {
+                m_history = value;
+            }
+        }
+    }
+    abstract class Traveler
+    {
+        #region Public Methods
+        public Traveler() { }
         // Gets the base properties and orders of the traveler from a json string
         public Traveler(string json)
         {
-            //Import(json);
-        }
-        // Creates a traveler from a part number and quantity
-        public Traveler(string partNo, int quantity)
-        {
-            // set META information
-            m_itemCode = partNo;
-            m_quantity = quantity;
-            NewID();
+            Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+            m_ID = Convert.ToInt32(obj["ID"]);
+            m_quantity = Convert.ToInt32(obj["quantity"]);
+            m_items = new List<TravelerItem>();
+            foreach (string item in (new StringStream(obj["items"])).ParseJSONarray())
+            {
+                m_items.Add(new TravelerItem(item));
+            }
+            m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
-        public Traveler(string partNo, int quantity, ref OdbcConnection MAS)
+        public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
         {
             // set META information
-            m_itemCode = partNo;
+            m_part = new Bill(billNo, quantity);
             m_quantity = quantity;
             NewID();
 
             // Import the part
             ImportPart(ref MAS);
         }
-        public void ImportPart(ref OdbcConnection MAS)
+        public virtual void ImportPart(ref OdbcConnection MAS)
         {
-            if (m_itemCode != "")
-            {
-                m_part = new Bill(m_itemCode, m_quantity, ref MAS);
-                m_drawingNo = m_part.DrawingNo;
-                m_part.BillDesc = m_part.BillDesc.Replace("TableTopAsm,", ""); // tabletopasm is pretty obvious and therefore extraneous
-                FindComponents(m_part);
-            }
+            m_part = new Bill(m_part.BillNo, m_quantity, ref MAS);
+            
         }
         public void NewID()
         {
@@ -236,178 +233,178 @@ namespace Efficient_Automatic_Traveler_System
             File.WriteAllText(System.IO.Path.Combine(exeDir, "currentID.txt"), (m_ID + 1).ToString() + '\n');
         }
         // Finds all the components in the top level bill, setting key components along the way
-        public void FindComponents(Bill bill)
-        {
-            // find work and or material
-            foreach (Item componentItem in bill.ComponentItems)
-            {
-                // update the component's total quantity
-                componentItem.TotalQuantity = bill.TotalQuantity * componentItem.QuantityPerBill;
-                // sort out key components
-                string itemCode = componentItem.ItemCode;
-                if (itemCode == "/LWKE1" || itemCode == "/LWKE2" || itemCode == "/LCNC1" || itemCode == "/LCNC2")
-                {
-                    // CNC labor
-                    if (m_cnc == null)
-                    {
-                        m_cnc = componentItem;
-                    } else
-                    {
-                        m_cnc.TotalQuantity += componentItem.TotalQuantity;
-                    }
-                }
-                else if (itemCode == "/LBND2" || itemCode == "/LBND3")
-                {
-                    // Straight Edgebander labor
-                    if (m_ebander == null)
-                    {
-                        m_ebander = componentItem;
-                    } else
-                    {
-                        m_ebander.TotalQuantity += componentItem.TotalQuantity;
-                    }
-                }
-                else if (itemCode == "/LPNL1" || itemCode == "/LPNL2")
-                {
-                    // Panel Saw labor
-                    if (m_saw == null)
-                    {
-                        m_saw = componentItem;
-                    } else
-                    {
-                        m_saw.TotalQuantity += componentItem.TotalQuantity;
-                    }
-                }
-                else if (itemCode == "/LCEB1" | itemCode == "/LCEB2")
-                {
-                    // Contour Edge Bander labor (vector)
-                    if (m_vector == null)
-                    {
-                        m_vector = componentItem;
-                    } else
-                    {
-                        m_vector.TotalQuantity += componentItem.TotalQuantity;
-                    }
-                }
-                else if ( itemCode == "/LATB1" || itemCode == "/LATB2" || itemCode == "/LATB3" || itemCode == "/LACH1" || itemCode == "/LACH2" || itemCode == "/LACH3")
-                {
-                    // Assembly labor
-                    if (m_assm == null)
-                    {
-                        m_assm = componentItem;
-                    } else
-                    {
-                        m_assm.TotalQuantity += componentItem.TotalQuantity;
-                    }
-                }
-                else if (itemCode == "/LBOX1")
-                {
-                    // Box construction labor
-                    if (m_box == null)
-                    {
-                        m_box = componentItem;
-                    } else
-                    {
-                        m_box.TotalQuantity += componentItem.TotalQuantity;
-                    }
-                }
-                else if (itemCode.Substring(0, 3) == "006")
-                {
-                    // Material
-                    if (m_material == null)
-                    {
-                        m_material = componentItem;
-                    } else
-                    {
-                        m_material.TotalQuantity += componentItem.TotalQuantity;
-                    }
-                }
-                else if (itemCode.Substring(0, 2) == "87")
-                {
-                    // Edgeband
-                    if (m_eband == null)
-                    {
-                        m_eband = componentItem;
-                    } else
-                    {
-                        m_eband.TotalQuantity += componentItem.TotalQuantity;
-                    }
-                }
-                else if (m_box == null && itemCode.Substring(0, 2) == "90")
-                {
-                    // Paid for box
-                    m_boxItemCode = itemCode;
-                }
-                else
-                {
-                    // anything else
-                    // check the blacklist
-                    bool blacklisted = false;
-                    foreach (BlacklistItem blItem in m_blacklist )
-                    {
-                        if (blItem.StartsWith(itemCode))
-                        {
-                            blacklisted = true;
-                            break;
-                        }
-                    }
-                    if (!blacklisted)
-                    {
-                        // check for existing item first
-                        bool foundItem = false;
-                        foreach (Item component in m_components)
-                        {
-                            if (component.ItemCode == itemCode)
-                            {
-                                foundItem = true;
-                                component.TotalQuantity += componentItem.TotalQuantity;
-                                break;
-                            }
-                        }
-                        if (!foundItem)
-                        {
-                            m_components.Add(componentItem);
-                        }
-                    }
-                }
-            }
-            // Go deeper into each component bill
-            foreach (Bill componentBill in bill.ComponentBills)
-            {
-                componentBill.TotalQuantity = bill.TotalQuantity * componentBill.QuantityPerBill;
-                FindComponents(componentBill);
-            }
-        }
+        //public void FindComponents(Bill bill)
+        //{
+        //    // find work and or material
+        //    foreach (Item componentItem in bill.ComponentItems)
+        //    {
+        //        // update the component's total quantity
+        //        componentItem.TotalQuantity = bill.TotalQuantity * componentItem.QuantityPerBill;
+        //        // sort out key components
+        //        string itemCode = componentItem.ItemCode;
+        //        if (itemCode == "/LWKE1" || itemCode == "/LWKE2" || itemCode == "/LCNC1" || itemCode == "/LCNC2")
+        //        {
+        //            // CNC labor
+        //            if (m_cnc == null)
+        //            {
+        //                m_cnc = componentItem;
+        //            } else
+        //            {
+        //                m_cnc.TotalQuantity += componentItem.TotalQuantity;
+        //            }
+        //        }
+        //        else if (itemCode == "/LBND2" || itemCode == "/LBND3")
+        //        {
+        //            // Straight Edgebander labor
+        //            if (m_ebander == null)
+        //            {
+        //                m_ebander = componentItem;
+        //            } else
+        //            {
+        //                m_ebander.TotalQuantity += componentItem.TotalQuantity;
+        //            }
+        //        }
+        //        else if (itemCode == "/LPNL1" || itemCode == "/LPNL2")
+        //        {
+        //            // Panel Saw labor
+        //            if (m_saw == null)
+        //            {
+        //                m_saw = componentItem;
+        //            } else
+        //            {
+        //                m_saw.TotalQuantity += componentItem.TotalQuantity;
+        //            }
+        //        }
+        //        else if (itemCode == "/LCEB1" | itemCode == "/LCEB2")
+        //        {
+        //            // Contour Edge Bander labor (vector)
+        //            if (m_vector == null)
+        //            {
+        //                m_vector = componentItem;
+        //            } else
+        //            {
+        //                m_vector.TotalQuantity += componentItem.TotalQuantity;
+        //            }
+        //        }
+        //        else if ( itemCode == "/LATB1" || itemCode == "/LATB2" || itemCode == "/LATB3" || itemCode == "/LACH1" || itemCode == "/LACH2" || itemCode == "/LACH3")
+        //        {
+        //            // Assembly labor
+        //            if (m_assm == null)
+        //            {
+        //                m_assm = componentItem;
+        //            } else
+        //            {
+        //                m_assm.TotalQuantity += componentItem.TotalQuantity;
+        //            }
+        //        }
+        //        else if (itemCode == "/LBOX1")
+        //        {
+        //            // Box construction labor
+        //            if (m_box == null)
+        //            {
+        //                m_box = componentItem;
+        //            } else
+        //            {
+        //                m_box.TotalQuantity += componentItem.TotalQuantity;
+        //            }
+        //        }
+        //        else if (itemCode.Substring(0, 3) == "006")
+        //        {
+        //            // Material
+        //            if (m_material == null)
+        //            {
+        //                m_material = componentItem;
+        //            } else
+        //            {
+        //                m_material.TotalQuantity += componentItem.TotalQuantity;
+        //            }
+        //        }
+        //        else if (itemCode.Substring(0, 2) == "87")
+        //        {
+        //            // Edgeband
+        //            if (m_eband == null)
+        //            {
+        //                m_eband = componentItem;
+        //            } else
+        //            {
+        //                m_eband.TotalQuantity += componentItem.TotalQuantity;
+        //            }
+        //        }
+        //        else if (m_box == null && itemCode.Substring(0, 2) == "90")
+        //        {
+        //            // Paid for box
+        //            m_boxItemCode = itemCode;
+        //        }
+        //        else
+        //        {
+        //            // anything else
+        //            // check the blacklist
+        //            bool blacklisted = false;
+        //            foreach (BlacklistItem blItem in m_blacklist )
+        //            {
+        //                if (blItem.StartsWith(itemCode))
+        //                {
+        //                    blacklisted = true;
+        //                    break;
+        //                }
+        //            }
+        //            if (!blacklisted)
+        //            {
+        //                // check for existing item first
+        //                bool foundItem = false;
+        //                foreach (Item component in m_components)
+        //                {
+        //                    if (component.ItemCode == itemCode)
+        //                    {
+        //                        foundItem = true;
+        //                        component.TotalQuantity += componentItem.TotalQuantity;
+        //                        break;
+        //                    }
+        //                }
+        //                if (!foundItem)
+        //                {
+        //                    m_components.Add(componentItem);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    // Go deeper into each component bill
+        //    foreach (Bill componentBill in bill.ComponentBills)
+        //    {
+        //        componentBill.TotalQuantity = bill.TotalQuantity * componentBill.QuantityPerBill;
+        //        FindComponents(componentBill);
+        //    }
+        //}
         //check inventory to see how many actually need to be produced.
-        public void CheckInventory(ref OdbcConnection MAS)
-        {
-            try
-            {
-                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-                OdbcCommand command = MAS.CreateCommand();
-                command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + m_part.BillNo + "'";
-                OdbcDataReader reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    int available = Convert.ToInt32(reader.GetValue(1)) - Convert.ToInt32(reader.GetValue(0));
-                    if (available >= 0)
-                    {
-                        // No parts need to be produced
-                        m_quantity = 0;
-                    }
-                    else
-                    {
-                        // adjust the quantity that needs to be produced
-                        m_quantity = Math.Min(-available, m_quantity);
-                    }
-                }
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("An error occured when accessing inventory: " + ex.Message);
-            }
-        }
+        //public void CheckInventory(ref OdbcConnection MAS)
+        //{
+        //    try
+        //    {
+        //        if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+        //        OdbcCommand command = MAS.CreateCommand();
+        //        command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + m_part.BillNo + "'";
+        //        OdbcDataReader reader = command.ExecuteReader();
+        //        if (reader.Read())
+        //        {
+        //            int available = Convert.ToInt32(reader.GetValue(1)) - Convert.ToInt32(reader.GetValue(0));
+        //            if (available >= 0)
+        //            {
+        //                // No parts need to be produced
+        //                m_quantity = 0;
+        //            }
+        //            else
+        //            {
+        //                // adjust the quantity that needs to be produced
+        //                m_quantity = Math.Min(-available, m_quantity);
+        //            }
+        //        }
+        //        reader.Close();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("An error occured when accessing inventory: " + ex.Message);
+        //    }
+        //}
         //public void Import(string json)
         //{
         //    try
@@ -488,7 +485,7 @@ namespace Efficient_Automatic_Traveler_System
         //    m_printed = true;
         //}
         // returns a JSON formatted string containing traveler information
-        public virtual string Export()
+        public override string ToString()
         {
             string json = "";
             json += "{";
@@ -496,23 +493,10 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"ID\":" + m_ID + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + m_quantity + ",";
-            json += "\"lastStation\":" + m_lastStation + ",";
-            json += "\"station\":" + m_station + ",";
-            // CHILDREN [...]
-            json += "\"children\":" + m_children.Stringify<int>() + ',';
-            // PARENTS [...]
-            json += "\"parents\":" + m_parents.Stringify<int>() + ',';
+            // ITEMS [...]
+            json += "\"children\":" + m_items.Stringify<TravelerItem>() + ',';
             // PARENT ORDERS [...]
             json += "\"parentOrders\":" + m_parentOrders.Stringify<string>() + ',';
-            // HISTORY [...]
-            json += "\"history\":[";
-            string rows = "";
-            foreach (Event travelerEvent in m_history)
-            {
-                rows += (rows.Length > 0 ? "," : "") + travelerEvent.ToString();
-            }
-            json += rows;
-            json += "]";
             // packs in members specific to derived classes
             json += ExportProperties(); 
 
@@ -531,7 +515,7 @@ namespace Efficient_Automatic_Traveler_System
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
                     string json = "{\"ID\":\"" + ID + "\",";
                     json += "\"Desc1\":\"" + Part.BillDesc + "\",";
-                    json += "\"Desc2\":\"" + (Eband != null ? Eband.ItemCodeDesc  : "N/A" )+ "\",";
+                    json += "\"Desc2\":\"" + "Blank" + "\",";
                     //json += "\"Date\":\"" + DateTime.Today.ToString(@"yyyy\-MM\-dd") + "\",";
                     json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
                     json += "\"qty\":" + qty + ",";
@@ -598,86 +582,33 @@ namespace Efficient_Automatic_Traveler_System
                 return "";
             }
         }
-        // sorts the traveler out to its beginning station
-        public virtual void Start()
+        // Manually moves all items in a traveler to the same station
+        public virtual void MoveTo(int station)
         {
-            m_station = Traveler.GetStation("Start");
-            m_history.Clear();
-            SetNextStation();
-            Station = m_nextStation;
-            m_lastStation = Traveler.GetStation("Start");
-            SetNextStation();
-        }
-        // advances this traveler to the next station
-        public virtual void Advance()
-        {
-            SetNextStation();
-        }
-        //-----------------------
-        // Private members
-        //-----------------------
-        
-        // overridden in derived classes, packs properties into the Export() json string
-        protected virtual string ExportProperties()
-        {
-            return "";
-        }
-        protected virtual void SetNextStation()
-        {
-            m_nextStation = Traveler.GetStation("Start");
-        }
-        
-        //-----------------------
-        // Properties
-        //-----------------------
-
-        // general
-        protected Bill m_part = null;
-        protected int m_ID = 0;
-        protected string m_timeStamp = "";
-        protected bool m_printed = false;
-        protected string m_itemCode = "";
-        protected string m_drawingNo = "";
-        protected int m_quantity = 0;
-        protected string m_color = "";
-        protected int m_lastStation = Traveler.GetStation("Start");
-        protected int m_station = Traveler.GetStation("Start");
-        protected int m_nextStation = Traveler.GetStation("Start");
-        protected List<Event> m_history = new List<Event>();
-        // relational
-        protected List<int> m_children = new List<int>();
-        protected List<int> m_parents = new List<int>(); // common parts may be part of several parent travelers
-        protected List<string> m_parentOrders = new List<string>();
-        // static
-        internal static Dictionary<string, int> Stations = new Dictionary<string, int>();
-        // Labor
-        protected Item m_cnc = null; // labor item
-        protected Item m_vector = null; // labor item
-        protected Item m_ebander = null; // labor item
-        protected Item m_saw = null; // labor item
-        protected Item m_assm= null; // labor item
-        protected Item m_box = null; // labor item
-        // Material
-        protected Item m_material = null; // board material
-        protected Item m_eband = null; // edgebanding
-        protected List<Item> m_components = new List<Item>(); // everything that isn't work, boxes, material or edgebanding
-        protected List<BlacklistItem> m_blacklist = new List<BlacklistItem>();
-        // Box
-        protected int m_partsPerBox = 1;
-        protected string m_boxItemCode = "";
-        protected string m_regPack = "N/A";
-        protected int m_regPackQty = 0;
-        protected string m_supPack = "N/A";
-        protected int m_supPackQty = 0;
-
-        internal Bill Part
-        {
-            get
+            foreach (TravelerItem item in m_items)
             {
-                return m_part;
+                item.Station = station;
             }
         }
+        #endregion
+        //--------------------------------------------------------
+        #region Private Methods
+        // overridden in derived classes, packs properties into the Export() json string
+        protected abstract string ExportProperties();
+        #endregion
+        //--------------------------------------------------------
+        #region Properties
 
+        // general
+        protected int m_ID;
+        protected Bill m_part;
+        protected int m_quantity;
+        protected List<TravelerItem> m_items;
+        protected List<string> m_parentOrders;
+
+        #endregion
+        //--------------------------------------------------------
+        #region Interface
         internal int ID
         {
             get
@@ -685,55 +616,11 @@ namespace Efficient_Automatic_Traveler_System
                 return m_ID;
             }
         }
-
-        internal string TimeStamp
+        internal Bill Part
         {
             get
             {
-                return m_timeStamp;
-            }
-            set
-            {
-                m_timeStamp = value;
-            }
-        }
-
-        internal bool Printed
-        {
-            get
-            {
-                return m_printed;
-            }
-
-            set
-            {
-                m_printed = value;
-            }
-        }
-
-        internal string ItemCode
-        {
-            get
-            {
-                return m_itemCode;
-            }
-
-            set
-            {
-                m_itemCode = value;
-            }
-        }
-
-        internal string DrawingNo
-        {
-            get
-            {
-                return m_drawingNo;
-            }
-
-            set
-            {
-                m_drawingNo = value;
+                return m_part;
             }
         }
 
@@ -747,268 +634,316 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_quantity = value;
-                m_part.TotalQuantity = m_quantity;
-                FindComponents(m_part);
+                //m_part.TotalQuantity = m_quantity;
+                //FindComponents(m_part);
             }
         }
-
-        internal string Color
+        internal string ItemCode
         {
             get
             {
-                return m_color;
-            }
-
-            set
-            {
-                m_color = value;
+                return m_part.BillNo;
             }
         }
+        //internal string TimeStamp
+        //{
+        //    get
+        //    {
+        //        return m_timeStamp;
+        //    }
+        //    set
+        //    {
+        //        m_timeStamp = value;
+        //    }
+        //}
 
-        internal Item Cnc
-        {
-            get
-            {
-                return m_cnc;
-            }
+        //internal bool Printed
+        //{
+        //    get
+        //    {
+        //        return m_printed;
+        //    }
 
-            set
-            {
-                m_cnc = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_printed = value;
+        //    }
+        //}
 
-        internal Item Vector
-        {
-            get
-            {
-                return m_vector;
-            }
 
-            set
-            {
-                m_vector = value;
-            }
-        }
 
-        internal Item Ebander
-        {
-            get
-            {
-                return m_ebander;
-            }
+        //internal string DrawingNo
+        //{
+        //    get
+        //    {
+        //        return m_drawingNo;
+        //    }
 
-            set
-            {
-                m_ebander = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_drawingNo = value;
+        //    }
+        //}
 
-        internal Item Saw
-        {
-            get
-            {
-                return m_saw;
-            }
 
-            set
-            {
-                m_saw = value;
-            }
-        }
 
-        internal Item Assm
-        {
-            get
-            {
-                return m_assm;
-            }
+        //internal string Color
+        //{
+        //    get
+        //    {
+        //        return m_color;
+        //    }
 
-            set
-            {
-                m_assm = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_color = value;
+        //    }
+        //}
 
-        internal Item Box
-        {
-            get
-            {
-                return m_box;
-            }
+        //internal Item Cnc
+        //{
+        //    get
+        //    {
+        //        return m_cnc;
+        //    }
 
-            set
-            {
-                m_box = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_cnc = value;
+        //    }
+        //}
 
-        internal Item Material
-        {
-            get
-            {
-                return m_material;
-            }
+        //internal Item Vector
+        //{
+        //    get
+        //    {
+        //        return m_vector;
+        //    }
 
-            set
-            {
-                m_material = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_vector = value;
+        //    }
+        //}
 
-        internal Item Eband
-        {
-            get
-            {
-                return m_eband;
-            }
+        //internal Item Ebander
+        //{
+        //    get
+        //    {
+        //        return m_ebander;
+        //    }
 
-            set
-            {
-                m_eband = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_ebander = value;
+        //    }
+        //}
 
-        internal List<Item> Components
-        {
-            get
-            {
-                return m_components;
-            }
+        //internal Item Saw
+        //{
+        //    get
+        //    {
+        //        return m_saw;
+        //    }
 
-            set
-            {
-                m_components = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_saw = value;
+        //    }
+        //}
 
-        internal List<BlacklistItem> Blacklist
-        {
-            get
-            {
-                return m_blacklist;
-            }
+        //internal Item Assm
+        //{
+        //    get
+        //    {
+        //        return m_assm;
+        //    }
 
-            set
-            {
-                m_blacklist = value;
-            }
-        }
-        internal int PartsPerBox
-        {
-            get
-            {
-                return m_partsPerBox;
-            }
+        //    set
+        //    {
+        //        m_assm = value;
+        //    }
+        //}
 
-            set
-            {
-                m_partsPerBox = value;
-            }
-        }
-        internal string BoxItemCode
-        {
-            get
-            {
-                return m_boxItemCode;
-            }
+        //internal Item Box
+        //{
+        //    get
+        //    {
+        //        return m_box;
+        //    }
 
-            set
-            {
-                m_boxItemCode = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_box = value;
+        //    }
+        //}
 
-        internal string RegPack
-        {
-            get
-            {
-                return m_regPack;
-            }
+        //internal Item Material
+        //{
+        //    get
+        //    {
+        //        return m_material;
+        //    }
 
-            set
-            {
-                m_regPack = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_material = value;
+        //    }
+        //}
 
-        internal int RegPackQty
-        {
-            get
-            {
-                return m_regPackQty;
-            }
+        //internal Item Eband
+        //{
+        //    get
+        //    {
+        //        return m_eband;
+        //    }
 
-            set
-            {
-                m_regPackQty = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_eband = value;
+        //    }
+        //}
 
-        internal string SupPack
-        {
-            get
-            {
-                return m_supPack;
-            }
+        //internal List<Item> Components
+        //{
+        //    get
+        //    {
+        //        return m_components;
+        //    }
 
-            set
-            {
-                m_supPack = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_components = value;
+        //    }
+        //}
 
-        internal int SupPackQty
-        {
-            get
-            {
-                return m_supPackQty;
-            }
+        //internal List<BlacklistItem> Blacklist
+        //{
+        //    get
+        //    {
+        //        return m_blacklist;
+        //    }
 
-            set
-            {
-                m_supPackQty = value;
-            }
-        }
+        //    set
+        //    {
+        //        m_blacklist = value;
+        //    }
+        //}
+        //internal int PartsPerBox
+        //{
+        //    get
+        //    {
+        //        return m_partsPerBox;
+        //    }
 
-        internal int Station
-        {
-            get
-            {
-                return m_station;
-            }
+        //    set
+        //    {
+        //        m_partsPerBox = value;
+        //    }
+        //}
+        //internal string BoxItemCode
+        //{
+        //    get
+        //    {
+        //        return m_boxItemCode;
+        //    }
 
-            set
-            {
-                m_lastStation = m_station;
-                m_station = value;
-            }
-        }
-        internal int NextStation
-        {
-            get
-            {
-                return m_nextStation;
-            }
+        //    set
+        //    {
+        //        m_boxItemCode = value;
+        //    }
+        //}
 
-            set
-            {
-                m_nextStation = value;
-            }
-        }
+        //internal string RegPack
+        //{
+        //    get
+        //    {
+        //        return m_regPack;
+        //    }
 
-        internal List<Event> History
-        {
-            get
-            {
-                return m_history;
-            }
+        //    set
+        //    {
+        //        m_regPack = value;
+        //    }
+        //}
 
-            set
-            {
-                m_history = value;
-            }
-        }
+        //internal int RegPackQty
+        //{
+        //    get
+        //    {
+        //        return m_regPackQty;
+        //    }
+
+        //    set
+        //    {
+        //        m_regPackQty = value;
+        //    }
+        //}
+
+        //internal string SupPack
+        //{
+        //    get
+        //    {
+        //        return m_supPack;
+        //    }
+
+        //    set
+        //    {
+        //        m_supPack = value;
+        //    }
+        //}
+
+        //internal int SupPackQty
+        //{
+        //    get
+        //    {
+        //        return m_supPackQty;
+        //    }
+
+        //    set
+        //    {
+        //        m_supPackQty = value;
+        //    }
+        //}
+
+        //internal int Station
+        //{
+        //    get
+        //    {
+        //        return m_station;
+        //    }
+
+        //    set
+        //    {
+        //        m_lastStation = m_station;
+        //        m_station = value;
+        //    }
+        //}
+        //internal int NextStation
+        //{
+        //    get
+        //    {
+        //        return m_nextStation;
+        //    }
+
+        //    set
+        //    {
+        //        m_nextStation = value;
+        //    }
+        //}
+
+        //internal List<Event> History
+        //{
+        //    get
+        //    {
+        //        return m_history;
+        //    }
+
+        //    set
+        //    {
+        //        m_history = value;
+        //    }
+        //}
 
         internal List<string> ParentOrders
         {
@@ -1022,44 +957,9 @@ namespace Efficient_Automatic_Traveler_System
                 m_parentOrders = value;
             }
         }
-
-        public List<int> Children
-        {
-            get
-            {
-                return m_children;
-            }
-
-            set
-            {
-                m_children = value;
-            }
-        }
-
-        public List<int> Parents
-        {
-            get
-            {
-                return m_parents;
-            }
-
-            set
-            {
-                m_parents = value;
-            }
-        }
-
-        public int LastStation
-        {
-            get
-            {
-                return m_lastStation;
-            }
-
-            set
-            {
-                m_lastStation = value;
-            }
-        }
+        #endregion
+        //--------------------------------------------------------
+        // static
+        internal static Dictionary<string, int> Stations = new Dictionary<string, int>();
     }
 }

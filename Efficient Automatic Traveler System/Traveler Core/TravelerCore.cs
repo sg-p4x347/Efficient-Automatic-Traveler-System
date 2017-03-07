@@ -108,7 +108,7 @@ namespace Efficient_Automatic_Traveler_System
             string contents = "";
             foreach (Traveler traveler in m_travelers)
             {
-                contents += traveler.Export();
+                contents += traveler.ToString();
 
             }
             System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "travelers.json"),contents);

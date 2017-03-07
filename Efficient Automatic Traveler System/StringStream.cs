@@ -61,7 +61,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return array;
         }
-
+    
         private string GetJsonScope()
         {
             string scope = "";
