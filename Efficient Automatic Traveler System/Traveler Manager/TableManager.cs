@@ -19,7 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         // Public members
         //-----------------------
         public TableManager() : base() { }
-        public TableManager(ref OdbcConnection mas, ITravelerCore travelerCore) : base(ref mas, travelerCore)
+        public TableManager(ref OdbcConnection mas, ITravelerManager travelerCore) : base(ref mas, travelerCore)
         {
         }
         //public override void CompileTravelers(ref List<Order> newOrders)

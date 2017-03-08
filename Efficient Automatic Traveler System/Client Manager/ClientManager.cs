@@ -14,7 +14,7 @@ namespace Efficient_Automatic_Traveler_System
 {
     class ClientManager
     {
-        public ClientManager(string ip, int port, ITravelerCore travelerCore)
+        public ClientManager(string ip, int port, ITravelerManager travelerCore)
         {
             try
             {
@@ -178,7 +178,7 @@ namespace Efficient_Automatic_Traveler_System
         private int m_nextClientID;
         private Timer m_timer;
         private TimeSpan m_pollInterval;
-        private ITravelerCore m_travelerCore;
+        private ITravelerManager m_travelerCore;
         //----------
         // Events
         //----------

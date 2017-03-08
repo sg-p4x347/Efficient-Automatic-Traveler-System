@@ -30,12 +30,12 @@ namespace Efficient_Automatic_Traveler_System
 
             CreateClientConfig();
 
-            
-            m_travelerCore = new TravelerCore();
-            m_clientManager = new ClientManager(m_ip, m_port,m_travelerCore as ITravelerCore);
+            m_orderManager = new OrderManager();
+            m_travelerManager = new TravelerManager(m_orderManager as IOrderManager);
+            m_clientManager = new ClientManager(m_ip, m_port, m_travelerManager as ITravelerManager);
             // Subscribe events
-            m_travelerCore.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
-            m_clientManager.TravelersChanged += new TravelersChangedSubscriber(m_travelerCore.HandleTravelersChanged);
+            m_travelerManager.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
+            m_clientManager.TravelersChanged += new TravelersChangedSubscriber(m_travelerManager.HandleTravelersChanged);
 
             m_clientManagerThread = new Thread(m_clientManager.Start);
             m_clientManagerThread.Name = "Client Manager";
@@ -50,13 +50,13 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Server has started on " + m_ip + ":" + m_port.ToString());
                 m_clientManagerThread.Start();
 
-                // start the MAS update loop
-                m_travelerCore.CreateTravelers(); // update immediatly upon server start
-                Update();
-                GetInputAsync();
+                
+                Update(); // immediately create travelers upon server start
+                UpdateTimer(); // start the update loop
+                GetInputAsync(); // get console commands from the user
                 m_outputLog.Flush();
-                // start listening
-                Listen();
+                
+                Listen(); // start listening for http requests on port 80
             }
             catch (Exception ex)
             {
@@ -90,13 +90,13 @@ namespace Efficient_Automatic_Traveler_System
             switch (input)
             {
                 case "update":
-                    m_travelerCore.CreateTravelers();
+                    Update();
                     break;
                 case "reset":
-                    m_travelerCore.GetTravelers.Clear();
-                    m_travelerCore.GetOrders.Clear();
-                    m_travelerCore.HandleTravelersChanged();
-                    m_travelerCore.CreateTravelers();
+                    //m_travelerManager.GetTravelers.Clear();
+                    //m_travelerManager.GetOrders.Clear();
+                    //m_travelerManager.HandleTravelersChanged();
+                    //m_travelerManager.CreateTravelers();
                     break;
                 default:
                     Console.WriteLine("Invalid; commands are [udpate, reset]");
@@ -145,16 +145,62 @@ namespace Efficient_Automatic_Traveler_System
             }
             throw new Exception("Local IP Address Not Found!");
         }
-        private void Update()
+        private void UpdateTimer()
         {
             DateTime current = DateTime.Now;
             TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay;
             Console.WriteLine("Will update again in: " + timeToGo.TotalMinutes + " Minutes");
             m_timer = new System.Threading.Timer(x =>
             {
-                m_travelerCore.CreateTravelers();
                 Update();
+                UpdateTimer();
             }, null, timeToGo, Timeout.InfiniteTimeSpan);
+        }
+        private void Update()
+        {
+            // open the MAS connection
+            ConnectToData();
+
+            // Import stored orders from json file and MAS
+            List<Order> newOrders = new List<Order>();
+            m_orderManager.ImportOrders(ref newOrders, ref m_MAS);
+
+            // Load, Create, and combine all travelers
+            m_travelerManager.CompileTravelers(ref newOrders);
+
+            // compensate order items for inventory balances
+            m_orderManager.CheckInventory(m_travelerManager as ITravelerManager, ref m_MAS);
+
+            // Finalize the travelers by importing external information
+            m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
+
+            // the travelers have changed
+            m_travelerManager.HandleTravelersChanged();
+
+            // No more data is need at this time
+            CloseMAS();
+        }
+        // Opens a connection to the MAS database
+        private void ConnectToData()
+        {
+            Server.WriteLine("Connecting to MAS");
+
+            // initialize the MAS connection
+            m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;";
+            m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;UID=GKC;PWD=sgp4x347;";
+            try
+            {
+                m_MAS.Open();
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine("Failed to log in :" + ex.Message);
+            }
+        }
+        private void CloseMAS()
+        {
+            m_MAS.Close();
+            Server.WriteLine("Disconnected from MAS");
         }
         private void CreateClientConfig()
         {
@@ -251,7 +297,9 @@ namespace Efficient_Automatic_Traveler_System
         private Thread m_clientManagerThread;
         private TimeSpan m_updateInterval;
         private Timer m_timer;
-        private TravelerCore m_travelerCore;
+        private TravelerManager m_travelerManager;
+        private OrderManager m_orderManager;
+        private OdbcConnection m_MAS;
         private static StreamWriter m_outputLog = new StreamWriter(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "server log.txt"));
 
         // FILE SERVING---------------------------------------

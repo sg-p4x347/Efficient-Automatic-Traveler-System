@@ -188,6 +188,17 @@ namespace Efficient_Automatic_Traveler_System
                 m_history = value;
             }
         }
+        public bool IsComplete()
+        {
+            foreach (Event evt in History)
+            {
+                if (evt.station == Station && evt.type == TravelerEvent.Completed)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
     abstract class Traveler
     {
@@ -198,29 +209,37 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
             m_ID = Convert.ToInt32(obj["ID"]);
+            
             m_quantity = Convert.ToInt32(obj["quantity"]);
-            m_items = new List<TravelerItem>();
+            m_part = new Bill(obj["itemCode"], m_quantity);
+            Items = new List<TravelerItem>();
             foreach (string item in (new StringStream(obj["items"])).ParseJSONarray())
             {
-                m_items.Add(new TravelerItem(item));
+                Items.Add(new TravelerItem(item));
             }
             m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
-        public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
+        //public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
+        //{
+        //    // set META information
+        //    m_part = new Bill(billNo, quantity, ref MAS);
+        //    m_quantity = quantity;
+        //    NewID();
+
+        //    // Import the part
+        //    ImportPart(ref MAS);
+        //}
+        public Traveler(string billNo, int quantity)
         {
             // set META information
             m_part = new Bill(billNo, quantity);
             m_quantity = quantity;
             NewID();
-
-            // Import the part
-            ImportPart(ref MAS);
         }
-        public virtual void ImportPart(ref OdbcConnection MAS)
+        public virtual void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
         {
             m_part = new Bill(m_part.BillNo, m_quantity, ref MAS);
-            
         }
         public void NewID()
         {
@@ -494,7 +513,7 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + m_quantity + ",";
             // ITEMS [...]
-            json += "\"children\":" + m_items.Stringify<TravelerItem>() + ',';
+            json += "\"items\":" + Items.Stringify<TravelerItem>() + ',';
             // PARENT ORDERS [...]
             json += "\"parentOrders\":" + m_parentOrders.Stringify<string>() + ',';
             // packs in members specific to derived classes
@@ -531,7 +550,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // export for clients to display
-        public virtual string Export(string station) { return ""; }
+        public abstract string Export(string clientType, int station);
         public static bool IsTable(string s)
         {
             return s != null && ((s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-")));
@@ -585,10 +604,29 @@ namespace Efficient_Automatic_Traveler_System
         // Manually moves all items in a traveler to the same station
         public virtual void MoveTo(int station)
         {
-            foreach (TravelerItem item in m_items)
+            foreach (TravelerItem item in Items)
             {
                 item.Station = station;
             }
+        }
+        public TravelerItem FindItem(ushort ID)
+        {
+            return Items.Find(x => x.ID == ID);
+        }
+        public abstract void AdvanceItem(ushort ID);
+        public void Advance(int station)
+        {
+            foreach (TravelerItem item in Items)
+            {
+                if (item.Station == station)
+                {
+                    AdvanceItem(item.ID);
+                }
+            }
+        }
+        public void ScrapItem(ushort ID)
+        {
+            FindItem(ID).Scrapped = true;
         }
         #endregion
         //--------------------------------------------------------
@@ -603,7 +641,7 @@ namespace Efficient_Automatic_Traveler_System
         protected int m_ID;
         protected Bill m_part;
         protected int m_quantity;
-        protected List<TravelerItem> m_items;
+        private List<TravelerItem> items;
         protected List<string> m_parentOrders;
 
         #endregion
@@ -955,6 +993,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_parentOrders = value;
+            }
+        }
+
+        public List<TravelerItem> Items
+        {
+            get
+            {
+                return items;
+            }
+
+            set
+            {
+                items = value;
             }
         }
         #endregion

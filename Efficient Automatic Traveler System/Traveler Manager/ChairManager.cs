@@ -20,7 +20,7 @@ namespace Efficient_Automatic_Traveler_System
         // Public members
         //-----------------------
         public ChairManager() : base(){ }
-        public ChairManager(ref OdbcConnection mas, ITravelerCore travelerCore) : base(ref mas, travelerCore) {
+        public ChairManager(ref OdbcConnection mas, ITravelerManager travelerCore) : base(ref mas, travelerCore) {
 
         }
         //public override void CompileTravelers(ref List<Order> newOrders)
