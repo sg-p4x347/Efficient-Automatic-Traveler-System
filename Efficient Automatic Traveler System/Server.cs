@@ -21,6 +21,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         public Server()
         {
+            m_MAS = new OdbcConnection();
             m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             StreamReader config = new StreamReader(System.IO.Path.Combine(m_rootDirectory, "config.cfg"));
             StringStream ss = new StringStream(config.ReadToEnd());
@@ -167,6 +168,7 @@ namespace Efficient_Automatic_Traveler_System
 
             // Load, Create, and combine all travelers
             m_travelerManager.CompileTravelers(ref newOrders);
+            m_orderManager.BackupOrders();
 
             // compensate order items for inventory balances
             m_orderManager.CheckInventory(m_travelerManager as ITravelerManager, ref m_MAS);

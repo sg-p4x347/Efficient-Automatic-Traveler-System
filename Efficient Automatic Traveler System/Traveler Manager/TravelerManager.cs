@@ -30,15 +30,17 @@ namespace Efficient_Automatic_Traveler_System
         }
         
     }
-    interface IClientToTraveler
+    interface IOperator : ITravelerManager
     {
         void AddTravelerEvent(string json);
         void SubmitTraveler(string json);
-        
+    }
+    interface ISupervisor : ITravelerManager
+    {
 
     }
     public delegate void TravelersChangedSubscriber();
-    class TravelerManager : ITravelerManager, IClientToTraveler
+    class TravelerManager : ITravelerManager, IOperator, ISupervisor
     {
         #region Public methods
         public TravelerManager(IOrderManager orderManager)
@@ -94,7 +96,7 @@ namespace Efficient_Automatic_Traveler_System
                             //=========================================================================
 
                             // start the new traveler's journey
-                            newTraveler.MoveTo(Traveler.GetStation("Start"));
+                            newTraveler.Station = Traveler.GetStation("Start");
                             // add the new traveler to the list
                             m_travelers.Add(newTraveler);
                         }
@@ -102,7 +104,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 index++;
             }
-            Console.Write("\r{0}   ", "Compiling Tables...Finished\n");
+            Console.Write("\r{0}", "Compiling Travelers...Finished\n");
 
             BackupTravelers();
         }

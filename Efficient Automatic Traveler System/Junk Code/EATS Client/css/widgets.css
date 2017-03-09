@@ -1,0 +1,154 @@
+/* Style The Dropdown Button */
+.dropdown__btn {
+    
+	text-align: center;
+    cursor: pointer;
+	padding-top: 0.125em;
+	padding-bottom: 0.125em;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {  
+
+   opacity: 1;
+
+}
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+	display: inline-block;
+	text-align: center;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown__content {
+    display: none;
+	font-size: 0.5em;
+	position: absolute;
+	width: 20%;
+	left: 40%;
+    background-color: #f9f9f9;
+	max-height: 75%;
+	overflow-y: scroll;
+	text-align: center;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown__content {
+    display: block;
+}
+.dropdown__item {
+	display: block;
+	background-color: #202020;
+	color: white;
+	padding: 16px;
+}
+.dropdown__item:hover {
+	background-color: silver;
+	color: black;
+}
+div.button {
+	font-family: Verdana, Geneva, sans-serif;
+	
+	padding: 8px;
+	margin: 8px;
+	
+	border-radius: 8px;
+}
+.numberBox {
+	font-size: inherit;
+	margin: 8px;
+	width: 30%;
+	border: 1px solid grey;
+}
+.percentBar {
+	height: 100%;
+	border-radius: 0px 0.25em 0.25em 0px;
+	background-color: lime;
+}
+div.percentContainer {
+	display: flex;
+	flex-direction: row;
+	padding: 8px;
+	width: 70%;
+}
+div.list--horizontal {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	width: 100%;
+}
+/*access modifiers*/
+.disabled {
+	background-color: rgb(230,230,230);
+	color: white;
+	pointer-events: none;
+}
+.hidden {
+	visibility: hidden;
+}
+/*color modifiers*/
+.red {
+	color: red;
+}
+.green {
+	color: lime;
+}
+.greenBack {
+	background-color: green;
+}
+.greenBack:active, .greenBack:hover {
+	background-color: lime;
+}
+.redBack {
+	background-color: maroon;
+}
+.redBack:active {
+	background-color: red;
+}
+/* color themes */
+.dark {
+	background-color: #202020;
+	color: white;
+}
+.dark:active, .dark:hover {
+	background-color: silver;
+	color: black;
+}
+.darkAero {
+	background: linear-gradient(to right, transparent, #4d4d4d, transparent);
+    color: white;
+}
+.darkAero:hover, .darkAero:focus {
+	background: linear-gradient(to right, transparent, gray, transparent);
+}
+
+/* font */
+.halfEM {
+	font-size: 0.5em;
+}
+.oneEM {
+	font-size: 1em;
+}
+.twoEM {
+	font-size: 2em;
+}
+.threeEM {
+	font-size: 3em;
+}
+.fourEM {
+	font-size: 4em;
+}
+.center {
+	text-align: center;
+}
+.shadow {
+	text-shadow: 1px 1px 1px black;
+}
+.italics {
+	font-style: italic;
+}
+/* margins */
+.stdMargin {
+	margin: 8px;
+}

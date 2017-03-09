@@ -17,24 +17,7 @@
 				Submit this to:
 				<!-- DESTINATION SELECTION -->
 				<select id = "destList" class = "dark"></select>
-				<!-- QUANTITY MADE -->
-				Quantity made:
-				<div class = "qtyRow">
-					<input id = "qtyMade" pattern="[0-9]*" min = "0" step = "1" value = "0" class = "numberBox dark" type = "number">
-					<div class = "percentContainer"><div id = "qtyMadePercent" class = "percentBar"></div></div>
-				</div>
-				<!-- QUANTITY SCRAPPED -->
-				Quantity scrapped:
-				<div class = "qtyRow">
-					<input id = "qtyScrapped"pattern="[0-9]d*" min = "0" step = "1" value = "0" class = "numberBox dark" type = "number">
-					<div class = "percentContainer"><div id = "qtyScrappedPercent" class = "percentBar redBack"></div></div>
-				</div>
-				<!-- QUANTITY PENDING -->
-				Quantity pending:
-				<div class = "qtyRow">
-					<input id = "qtyPending"pattern="[0-9]d*" min = "0" step = "1" value = "0" class = "numberBox dark" type = "number">
-					<div class = "percentContainer"><div id = "qtyPendingPercent" class = "percentBar"></div></div>
-				</div>
+				
 				<div class = "list--horizontal">
 					<div id = "cancel" class = "dark button">Cancel</div>
 					
@@ -50,40 +33,52 @@
 		</div>
 		<!-- HEADER -->
 		<div class = "header">
-			<!-- DESTINATION SELECTION -->
-			<select id = "stationList" class = "dark fourEM"></select>
-			<div class = "center">
-			<!-- TRAVELER ID -->
-			
-			<!-- COMPLETE BUTTON -->
-			<div id = "completeBtn" class = "dark button fourEM hidden">
-				<p>Submit</p>
-				<p id = "travelerID"></p>
+
+		</div>
+		<!-- BODY -->
+		<div class = "body">
+			<div id = "viewContainer" class = "viewContainer">
+				<table class = "view"></table>
 			</div>
-			</div>
-			<!-- RIGHT -->
-			<div class = "flank">
+			<div id = "travelerQueue" class = "queue"></div> 
+			<div class = "interfaceContainer twoEM">
+				<!-- STATION SELECTION -->
+				<select id = "stationList" class = "dark twoEM"></select>
+				
+
 				<div class = "timer">
 					<div id = "startTimer" class = "timer__btn greenBack">Start</div>
 					<div id = "timerTime">00:00</div>
 					<!-- <div id = "stopTimer" class = "timer__btn redBack">Stop</div> -->
 				</div>
+				Quantity left:
+				<div class = "qtyRow">
+				
+					<p id = "qtyMade"></p>
+					<div class = "percentContainer"><div id = "qtyMadePercent" class = "percentBar"></div></div>
+				</div>
+				<!-- COMPLETE BUTTON -->
+				<div class = "dark button twoEM">Complete part</div>
+				Quantity scrapped:
+				<div class = "qtyRow">
+				
+					<p id = "qtyScrapped"></p>
+					<div class = "percentContainer"><div id = "qtyScrappedPercent" class = "percentBar redBack"></div></div>
+				</div>
+				<!-- SCRAP BUTTON -->
+				<div class = "dark button twoEM">Scrap part</div>
+				Quantity completed:
+				<div class = "qtyRow">
+				
+					<p id = "qtyPending"></p>
+					<div class = "percentContainer"><div id = "qtyPendingPercent" class = "percentBar"></div></div>
+				</div>
+				<!-- SUBMIT BUTTON -->
+				<div id = "completeBtn" class = "dark button twoEM">Submit completed parts</div>
 			</div>
-		</div>
-		<!-- BODY -->
-		<div class = "body">
-			<!-- LEFT -->
-			<div id = "travelerQueue" class = "queue"></div> 
-			<!-- CENTER -->
-			<div id = "viewContainer" class = "viewContainer">
-				<table class = "view"></table>
-			</div>
-			
 		</div>
 		<!-- FOOTER -->
 		<div class = "footer">
-		<!-- <object id = "pdfViewer" data="./test.pdf" type="application/pdf" width="100%" height="100%">
-		</object> -->
 		</div>
 	</body>
 </html>

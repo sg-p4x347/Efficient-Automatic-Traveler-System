@@ -111,8 +111,7 @@ namespace Efficient_Automatic_Traveler_System
                         m_orders.Add(order);
                     }
                 }
-                // Backup Orders
-                BackupOrders();
+                m_orders.AddRange(newOrders);
             }
             catch (Exception ex)
             {
@@ -162,6 +161,18 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Problem checking order items against inventory: " + ex.Message + " Stack Trace: " + ex.StackTrace);
             }
         }
+        // Writes the orders to the json database
+        public void BackupOrders()
+        {
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string contents = "";
+            foreach (Order order in m_orders)
+            {
+                contents += order.Export();
+
+            }
+            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "orders.json"), contents);
+        }
         #endregion
         //--------------------------------------------
         #region Interface
@@ -196,17 +207,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             file.Close();
         }
-        private void BackupOrders()
-        {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string contents = "";
-            foreach (Order order in m_orders)
-            {
-                contents += order.Export();
-
-            }
-            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "orders.json"), contents);
-        }
+        
         #endregion
         //--------------------------------------------
         #region Properties

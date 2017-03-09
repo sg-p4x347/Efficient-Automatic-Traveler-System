@@ -14,7 +14,7 @@ namespace Efficient_Automatic_Traveler_System
 {
     class ClientManager
     {
-        public ClientManager(string ip, int port, ITravelerManager travelerCore)
+        public ClientManager(string ip, int port, ITravelerManager travelerManager)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_nextClientID = 0;
                 
                 m_pollInterval = new TimeSpan(0, 0, 3);
-                m_travelerCore = travelerCore;
+                m_travelerManager = travelerManager;
             } catch (Exception ex)
             {
                 Server.WriteLine("Failed to create ClientManager: " + ex.Message);
@@ -100,14 +100,14 @@ namespace Efficient_Automatic_Traveler_System
                 switch (await Client.RecieveMessageAsync(tcpClient.GetStream()))
                 {
                     case "OperatorClient":
-                        OperatorClient operatorClient = new OperatorClient(tcpClient,m_travelerCore);
+                        OperatorClient operatorClient = new OperatorClient(tcpClient,m_travelerManager as IOperator);
                         operatorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         operatorClient.ListenAsync();
                         m_clients.Add(operatorClient);
                         Console.WriteLine("An operator connected (" + m_clients.Count + " total clients)");
                         break;
                     case "SupervisorClient":
-                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient,m_travelerCore);
+                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient,m_travelerManager);
                         supervisorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         supervisorClient.ListenAsync();
                         m_clients.Add(supervisorClient);
@@ -178,7 +178,7 @@ namespace Efficient_Automatic_Traveler_System
         private int m_nextClientID;
         private Timer m_timer;
         private TimeSpan m_pollInterval;
-        private ITravelerManager m_travelerCore;
+        private ITravelerManager m_travelerManager;
         //----------
         // Events
         //----------

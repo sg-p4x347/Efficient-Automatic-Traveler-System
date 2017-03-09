@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>EATS Operator</title>
+		<script type="text/javascript" src="./js/config.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/moment.js?<%=DateTime.Now.Ticks %>"></script>		
+        <script type="text/javascript" src="./js/operator.js?<%=DateTime.Now.Ticks %>"></script>
+		<link rel="stylesheet" type="text/css" href="./css/operator.css?<%=DateTime.Now.Ticks %>">
+		<link rel="stylesheet" type="text/css" href="./css/widgets.css?<%=DateTime.Now.Ticks %>">
+		<link rel="shortcut icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>">
+    </head>
+	<body onload = "Initialize()">
+		
+		<div id = "blackout">
+		<!-- SUBMITTING A TRAVELER TO THE NEXT STATION -->
+			<div id = "finalizeContainer">
+				Submit this to:
+				<!-- DESTINATION SELECTION -->
+				<select id = "destList" class = "dark"></select>
+				<!-- QUANTITY MADE -->
+				Quantity made:
+				<div class = "qtyRow">
+					<input id = "qtyMade" pattern="[0-9]*" min = "0" step = "1" value = "0" class = "numberBox dark" type = "number">
+					<div class = "percentContainer"><div id = "qtyMadePercent" class = "percentBar"></div></div>
+				</div>
+				<!-- QUANTITY SCRAPPED -->
+				Quantity scrapped:
+				<div class = "qtyRow">
+					<input id = "qtyScrapped"pattern="[0-9]d*" min = "0" step = "1" value = "0" class = "numberBox dark" type = "number">
+					<div class = "percentContainer"><div id = "qtyScrappedPercent" class = "percentBar redBack"></div></div>
+				</div>
+				<!-- QUANTITY PENDING -->
+				Quantity pending:
+				<div class = "qtyRow">
+					<input id = "qtyPending"pattern="[0-9]d*" min = "0" step = "1" value = "0" class = "numberBox dark" type = "number">
+					<div class = "percentContainer"><div id = "qtyPendingPercent" class = "percentBar"></div></div>
+				</div>
+				<div class = "list--horizontal">
+					<div id = "cancel" class = "dark button">Cancel</div>
+					
+					<div id = "submit" class = "dark button">Submit</div>
+				</div>
+			</div>
+			<!-- A FANCY MESSAGE BOX -->
+			<div id = "confirm">
+				<p id = "confirmMessage"></p>
+				<div id = "confirmBtn" class = "dark button">Ok</div>
+			</div>
+			</div>
+		</div>
+		<!-- HEADER -->
+		<div class = "header">
+			<!-- DESTINATION SELECTION -->
+			<select id = "stationList" class = "dark fourEM"></select>
+			<div class = "center">
+			<!-- TRAVELER ID -->
+			
+			<!-- COMPLETE BUTTON -->
+			<div id = "completeBtn" class = "dark button fourEM hidden">
+				<p>Submit</p>
+				<p id = "travelerID"></p>
+			</div>
+			</div>
+			<!-- RIGHT -->
+			<div class = "flank">
+				<div class = "timer">
+					<div id = "startTimer" class = "timer__btn greenBack">Start</div>
+					<div id = "timerTime">00:00</div>
+					<!-- <div id = "stopTimer" class = "timer__btn redBack">Stop</div> -->
+				</div>
+			</div>
+		</div>
+		<!-- BODY -->
+		<div class = "body">
+			<!-- LEFT -->
+			<div id = "travelerQueue" class = "queue"></div> 
+			<!-- CENTER -->
+			<div id = "viewContainer" class = "viewContainer">
+				<table class = "view"></table>
+			</div>
+			
+		</div>
+		<!-- FOOTER -->
+		<div class = "footer">
+		<!-- <object id = "pdfViewer" data="./test.pdf" type="application/pdf" width="100%" height="100%">
+		</object> -->
+		</div>
+	</body>
+</html>

@@ -86,7 +86,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public List<OrderItem> FindItems(int travelerID)
         {
-            return (List<OrderItem>)m_items.Where(x => x.ChildTraveler == travelerID);
+            return m_items.Where(x => x.ChildTraveler == travelerID).ToList();
         }
         public string Export()
         {

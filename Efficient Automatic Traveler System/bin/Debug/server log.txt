@@ -1,5 +1,6 @@
 Server has started on 192.168.0.59:81
-Connecting to MAS
 Waiting for a connection...
+Connecting to MAS
 Importing orders...
-Loading travelers from backup...0%
+Loading travelers from backup...0%Loading travelers from backup...17%Loading travelers from backup...33%Loading travelers from backup...50%Loading travelers from backup...67%Loading travelers from backup...83%Loading travelers from backup...Finished
+Disconnected from MAS

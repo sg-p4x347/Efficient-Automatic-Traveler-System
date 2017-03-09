@@ -290,10 +290,18 @@ function TravelerView() {
 			destList.removeChild(destList.firstChild);
 		}
 		if (!traveler)  {
+			self.btnComplete.className = "hidden";
 			return;
 		}
+		traveler.history.forEach(function (event) {
+			if (event.type == "Merged") {
+				application.Popup(event.message);
+			}
+		});
 		
 		self.ResetSliders();
+		// TRAVELER ID
+		document.getElementById("travelerID").innerHTML = pad(traveler.ID,6);
 		
 		// clear old DOM objects
 		while (self.DOMcontainer.hasChildNodes()) {
@@ -313,9 +321,12 @@ function TravelerView() {
 		DOMtable.className = "view";
 		// create the complete button
 		self.btnComplete = document.getElementById("completeBtn");
+		self.btnComplete.className = "dark button threeEM";
 		// create and add new DOM objects
 		document.getElementById("destList").value = self.traveler.nextStation;
 		// configure complete button
+		var travelerID = document.getElementById("travelerID");
+		travelerID.innerHTML = pad(self.traveler.ID,6);
 		self.btnComplete.onclick = function () {
 			self.StopTimer();
 			document.getElementById("blackout").style.visibility = "visible";

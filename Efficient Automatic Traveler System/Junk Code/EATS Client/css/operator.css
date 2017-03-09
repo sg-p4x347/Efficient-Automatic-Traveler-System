@@ -99,43 +99,10 @@ div.header {
 	align-items: center;
 }
 div.body {
-	
 	display: flex;
 	width: 100%;
-	height: 100%;
+	height: 70%;
 	justify-content: space-around;
-	flex-wrap: wrap;
-}
-div.interfaceContainer {
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-around;
-	width: 80%;
-	height: 50%;
-	border: 4px inset gray;
-	background-color: #404040;
-}
-div.viewContainer {
-	box-sizing: border-box;
-	display: flex;
-	align-items: center;
-	flex-direction: column;
-	width: 100%;
-	height: 50%;
-	border: 4px inset gray;
-	background-color: #404040;
-	overflow: auto;
-}
-div.queue {
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: column-reverse;
-	border: 4px inset gray;
-	background-color: #404040;
-	overflow: auto;
-	width: 20%;
-	height: 50%;
 }
 div.footer {
 	display: flex;
@@ -169,7 +136,15 @@ div.qtyRow {
 }
 
 /*Traveler Queue*/
-
+div.queue {
+	display: flex;
+	flex-direction: column-reverse;
+	border: 4px inset gray;
+	background-color: #404040;
+	overflow: auto;
+	width: 20%;
+	height: 100%;
+}
 div.queue__item {
 	transition-duration: 0.25s;
 	
@@ -194,7 +169,16 @@ div.queue__item:active {
 }
 
 /*Traveler View*/
-
+div.viewContainer {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	width: 70%;
+	height: 100%;
+	border: 4px inset gray;
+	background-color: #404040;
+	overflow: auto;
+}
 table.view {
 	width: 100%;
 	font-size: 1.5em;

@@ -12,30 +12,17 @@ namespace Efficient_Automatic_Traveler_System
 {
     class Chair : Traveler
     {
-        //===========================
-        // PUBLIC
-        //===========================
-
-        // Doesn't do anything
-        public Chair(Traveler t, bool copyID = false) : base(t, copyID) { }
-        public Chair(Dictionary<string, string> obj) : base(obj) { }
-        // Gets the base properties and orders of the traveler from a json string
+        #region Public Methods
+        public Chair() : base() { }
+        // create Chair by parsing json string
         public Chair(string json) : base(json)
         {
-            GetBlacklist();
+
         }
-        // Creates a traveler from a part number and quantity
-        public Chair(string partNo, int quantity) : base(partNo, quantity)
-        {
-            GetBlacklist();
-        }
-        // Creates a traveler from a part number and quantity, then loads the bill of materials
-        public Chair(string partNo, int quantity, ref OdbcConnection MAS) : base(partNo, quantity, ref MAS)
-        {
-            GetBlacklist();
-        }
+        // create a Chair from partNo, quantity, and a MAS connection
+        public Chair(string partNo, int quantity) : base(partNo, quantity) { }
         // returns a JSON formatted string to be sent to a client
-        public override string Export(string clientType)
+        public override string Export(string clientType, int station)
         {
             string json = "";
             json += "{";
@@ -43,25 +30,11 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + m_quantity + ",";
             json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
-            json += "\"station\":" + '"' + Traveler.GetStationName(m_station) + '"' + ',';
-            json += "\"nextStation\":" + '"' + Traveler.GetStationName(m_nextStation) + '"' + ',';
-            json += "\"history\":[";
-            string rows = "";
-            foreach (Event travelerEvent in m_history)
-            {
-                rows += (rows.Length > 0 ? "," : "") + travelerEvent.ToString();
-            }
-            json += rows;
-            json += "],";
             json += "\"members\":[";
-            rows = "";
+            string rows = "";
             rows += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
-            if (clientType == "OperatorClient" && m_station == Traveler.GetStation("Chairs"))
+            if (clientType == "OperatorClient" && station == Traveler.GetStation("Chairs"))
             {
-                foreach (Item component in m_components)
-                {
-                    rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>(component.ItemCode, component.ItemCodeDesc, component.TotalQuantity.ToString()).ToString();
-                }
 
             }
             json += rows;
@@ -69,32 +42,93 @@ namespace Efficient_Automatic_Traveler_System
             json += "}\n";
             return json;
         }
-        //===========================
-        // Private
-        //===========================
+        public override void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
+        {
+            base.ImportPart(orderManager, ref MAS);
+            // Chair info in the chair csv
+            GetPackInfo(orderManager);
+        }
+        public override void AdvanceItem(ushort ID)
+        {
+            FindItem(ID).Station = GetNextStation(ID);
+        }
+        #endregion
+        //--------------------------------------------------------
+        #region Private Methods
         protected override string ExportProperties()
         {
             return ",\"type\":\"Chair\"";
         }
-        // returns the next station for this table
-        protected override void SetNextStation()
+        // returns the next station for this chair
+        protected int GetNextStation(UInt16 itemID)
         {
-            if (m_station == Traveler.GetStation("Start"))
+            int station = Items.Find(x => x.ID == itemID).Station;
+            if (station == Traveler.GetStation("Start"))
             {
-                m_nextStation = Traveler.GetStation("Chairs");
+                return Traveler.GetStation("Start");
             }
-            else if (m_station == Traveler.GetStation("Chairs"))
+            else if (station == Traveler.GetStation("Chairs"))
             {
-                m_nextStation = Traveler.GetStation("Finished");
+                return Traveler.GetStation("Finished");
+
             }
-            else
+            else if (station == Traveler.GetStation("Finished"))
             {
-                m_nextStation = Traveler.GetStation("Start");
+                return Traveler.GetStation("Finished");
+            }
+            return -1;
+        }
+        
+        private void GetPackInfo(IOrderManager orderManager)
+        {
+            //// open the table ref csv file
+            //string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            //System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, "Table Reference.csv"));
+            //tableRef.ReadLine(); // read past the header
+            //string line = tableRef.ReadLine();
+            //while (line != "" && line != null)
+            //{
+            //    string[] row = line.Split(',');
+            //    if (Part.BillNo.Contains(row[0]))
+            //    {
+            //        //--------------------------------------------
+            //        // PACK & BOX INFO
+            //        //--------------------------------------------
+                   
+            //        break;
+            //    }
+            //    line = tableRef.ReadLine();
+            //}
+            //tableRef.Close();
+        }
+        #endregion
+        //--------------------------------------------------------
+        #region Properties
+
+        // Labor
+        private Item m_assm = null; // labor item
+        private Item m_box = null; // labor item
+
+        // Box
+        private string m_boxItemCode = "";
+
+
+        #endregion
+        //--------------------------------------------------------
+        #region Interface
+        internal string BoxItemCode
+        {
+            get
+            {
+                return m_boxItemCode;
+            }
+
+            set
+            {
+                m_boxItemCode = value;
             }
         }
-        private void GetBlacklist()
-        {
-            m_blacklist.Add(new BlacklistItem("/")); // Misc work items
-        }
+        #endregion
+        //--------------------------------------------------------
     }
 }
