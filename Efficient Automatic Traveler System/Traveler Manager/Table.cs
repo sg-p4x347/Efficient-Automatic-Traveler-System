@@ -61,7 +61,7 @@ namespace Efficient_Automatic_Traveler_System
             json += "{";
             json += "\"ID\":" + m_ID + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
-            json += "\"quantity\":" + m_quantity + ",";
+            json += "\"quantity\":" + QuantityPendingAt(station) + ",";
             json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
             json += "\"members\":[";
             string rows = "";
@@ -69,12 +69,12 @@ namespace Efficient_Automatic_Traveler_System
             if (clientType == "OperatorClient" && station ==  Traveler.GetStation("Heian")) {
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
-                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
+                //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Color", m_color, "").ToString();
             } else if (clientType == "OperatorClient" && station == Traveler.GetStation("Vector")) {
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
                 rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Color", m_color, "").ToString();
-                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Edgebanding", m_eband.ItemCode, m_eband.TotalQuantity.ToString() + " " + m_eband.Unit).ToString();
+                //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Edgebanding", m_eband.ItemCode, m_eband.TotalQuantity.ToString() + " " + m_eband.Unit).ToString();
             }
             json += rows;
             json += ']';
@@ -118,11 +118,12 @@ namespace Efficient_Automatic_Traveler_System
             } else if (station == Traveler.GetStation("Heian") || station == Traveler.GetStation("Weeke"))
             {
                 // switch between vector and straightline edgebander based on what was in the bill
-                if (m_vector != null) {
-                     return Traveler.GetStation("Vector");
-                } else if (m_ebander != null)
-                {
+                if (m_ebander != null) {
                     return Traveler.GetStation("Edgebander");
+                    
+                } else
+                {
+                    return Traveler.GetStation("Vector");
                 }
                
             } else if (station == Traveler.GetStation("Vector") || station == Traveler.GetStation("Edgebander"))
@@ -205,9 +206,9 @@ namespace Efficient_Automatic_Traveler_System
                         BlankNo = "";
                     }
                     // calculate production numbers
-                    //if (PartsPerBlank <= 0) PartsPerBlank = 1;
-                    //decimal tablesPerBlank = Convert.ToDecimal(PartsPerBlank);
-                    //BlankQuantity = Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(Quantity) / tablesPerBlank));
+                    if (PartsPerBlank <= 0) PartsPerBlank = 1;
+                    decimal tablesPerBlank = Convert.ToDecimal(PartsPerBlank);
+                    BlankQuantity = Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(Quantity) / tablesPerBlank));
                     //int partsProduced = BlankQuantity * Convert.ToInt32(tablesPerBlank);
                     //LeftoverParts = partsProduced - Quantity;
                 }

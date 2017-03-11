@@ -219,7 +219,7 @@ function TravelerQueue() {
 		// create and add the new DOM objects
 		self.travelers.forEach(function (traveler) {
 			var DOMqueueItem = document.createElement("DIV");
-			DOMqueueItem.className = "queue__item";
+			DOMqueueItem.className = "button blueBack queue__item";
 			DOMqueueItem.innerHTML = pad(traveler.ID,6);
 			DOMqueueItem.onmousedown = function () {
 				application.travelerView.Load(traveler);
@@ -237,6 +237,7 @@ function TravelerQueue() {
 function TravelerView() {
 	// properties
 	this.traveler;
+	this.currentItem;
 	this.lastTravelerID;
 	this.destination;
 	// DOM
@@ -300,14 +301,22 @@ function TravelerView() {
 			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
 		}
 		
-		// populate destination list
+		/* // populate destination list
 		application.stationList.forEach(function (station) {
 			var option = document.createElement("OPTION");
 			option.innerHTML = station;
 			option.className = "dark button";
 			option.value = station;
 			destList.appendChild(option);
-		});
+		}); */
+		// create the view header
+		var viewHeader = document.createElement("DIV");
+		viewHeader.className = "view__header";
+		viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6);
+		if (self.item != undefined) {
+			viewHeader.innerHTML += ", Item: " + self.item;
+		}
+		self.DOMcontainer.appendChild(viewHeader);
 		// create the table
 		var DOMtable = document.createElement("TABLE");
 		DOMtable.className = "view";
@@ -315,12 +324,12 @@ function TravelerView() {
 		self.btnComplete = document.getElementById("completeBtn");
 		// create and add new DOM objects
 		document.getElementById("destList").value = self.traveler.nextStation;
-		// configure complete button
+/* 		// configure complete button
 		self.btnComplete.onclick = function () {
 			self.StopTimer();
 			document.getElementById("blackout").style.visibility = "visible";
 			document.getElementById("finalizeContainer").style.display = "flex";
-		}
+		} */
 		
 		// add the part row
 		traveler.members.unshift({name: "Part", value: traveler.itemCode, qty: traveler.quantity});
@@ -423,9 +432,36 @@ function TravelerView() {
 			qtyMade.value = self.traveler.quantity - (parseInt(qtyScrapped.value) + parseInt(this.value));
 			self.BalanceSliders();
 		}
-		
+		// completing a finished traveler item
+		document.getElementById("completeItemBtn").onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("AddTravelerEvent",
+			{
+				travelerID: self.traveler.ID,
+				eventType: "Completed",
+				time: self.timerTime.asMinutes(),
+				station: document.getElementById("stationList").value,
+				itemID: (typeof self.currentItem == "number" ? self.currentItem : "undefined")
+			});
+			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+		}
+		// scrapping a traveler item
+		document.getElementById("scrapItemBtn").onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("AddTravelerEvent",
+			{
+				travelerID: self.traveler.ID,
+				eventType: "Scrapped",
+				time: self.timerTime.asMinutes(),
+				station: document.getElementById("stationList").value,
+				itemID: (typeof self.currentItem == "number" ? self.currentItem : "undefined")
+			});
+			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+		}
 		// Submitting a finished traveler
-		document.getElementById("submit").onclick = function () {
+		document.getElementById("submitTravelerBtn").onclick = function () {
 			/* this is just for responsiveness, 
 			the server will soon confirm traveler positions in an update*/
 			var completedTraveler;
@@ -435,14 +471,14 @@ function TravelerView() {
 				completedTraveler = application.travelerQueue.ShiftTraveler(self.traveler);
 			}
 			self.lastTravelerID = completedTraveler.ID;
-			var message = {
-				completed: completedTraveler.ID,
-				destination: document.getElementById("destList").value,
-				time: self.timerTime.asMinutes(),
-				qtyMade: Math.min(Math.round(document.getElementById("qtyMade").value),completedTraveler.quantity),
-				qtyScrapped: Math.min(Math.round(document.getElementById("qtyScrapped").value),completedTraveler.quantity)
-			};
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("SubmitTraveler",
+			{
+				travelerID: completedTraveler.ID,
+				station: document.getElementById("stationList").value
+			});
 			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
 			self.ResetSliders();
 			// load the next traveler
 			if (application.travelerQueue.travelers.length > 0) {
@@ -460,7 +496,7 @@ function TravelerView() {
 			} else {
 				self.Clear();
 			}
-/* 			if ((parseInt(qtyMade.value) > 0 && parseInt(qtyMade.value) < self.traveler.quantity) || (parseInt(qtyScrapped.value) > 0 && parseInt(qtyScrapped.value) < self.traveler.quantity)) {
+	/* 			if ((parseInt(qtyMade.value) > 0 && parseInt(qtyMade.value) < self.traveler.quantity) || (parseInt(qtyScrapped.value) > 0 && parseInt(qtyScrapped.value) < self.traveler.quantity)) {
 				document.getElementById("submit").innerHTML = "Printing...";
 			} */
 			// close the window
@@ -504,6 +540,10 @@ function Traveler(obj) {
 		self.description = obj.description;
 	}
 	this.Initialize(obj); */
+}
+function InterfaceCall(methodName, parameters) {
+	this.interfaceMethod = methodName;
+	this.parameters = parameters;
 }
 function PopulateStations (stations,DOMparent,callback) {
 	var self = this

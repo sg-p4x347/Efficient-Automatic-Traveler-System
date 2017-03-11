@@ -32,7 +32,7 @@ namespace Efficient_Automatic_Traveler_System
     }
     interface IOperator : ITravelerManager
     {
-        void AddTravelerEvent(string json);
+        string AddTravelerEvent(string json);
         void SubmitTraveler(string json);
     }
     interface ISupervisor : ITravelerManager
@@ -56,6 +56,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Traveler.Stations.Add(line, i);
             }
+            stationsFile.Close();
         }
         public void CompileTravelers(ref List<Order> newOrders)
         {
@@ -96,7 +97,7 @@ namespace Efficient_Automatic_Traveler_System
                             //=========================================================================
 
                             // start the new traveler's journey
-                            newTraveler.Station = Traveler.GetStation("Start");
+                            newTraveler.Station = Traveler.GetStation("Heian");
                             // add the new traveler to the list
                             m_travelers.Add(newTraveler);
                         }
@@ -239,18 +240,51 @@ namespace Efficient_Automatic_Traveler_System
         {
             FindTraveler(travelerID).ScrapItem(itemID);
         }
+
         // has to know which station this is being completed from
-        public void AddTravelerEvent(string json)
+        public string AddTravelerEvent(string json)
         {
+            string returnMessage = "";
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                TravelerItem item = FindTraveler(Convert.ToInt32(obj["travelerID"])).FindItem(Convert.ToUInt16(obj["itemID"]));
-                item.History.Add(new Event((TravelerEvent)Enum.Parse(typeof(TravelerEvent), obj["eventType"]), Convert.ToDouble(obj["time"]), Traveler.GetStation(obj["station"])));
+                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                TravelerEvent eventType = (TravelerEvent)Enum.Parse(typeof(TravelerEvent), obj["eventType"]);
+                Event itemEvent = new Event(eventType, Convert.ToDouble(obj["time"]), Traveler.GetStation(obj["station"]));
+                TravelerItem item;
+                bool newItem = false;
+                if (obj["itemID"] == "undefined")
+                {
+                    newItem = true;
+                    // create a new item
+                    item = traveler.AddItem(Traveler.GetStation(obj["station"]));
+                } else
+                {
+                    // change existing item
+                    item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+                }
+                
+                item.History.Add(itemEvent);
+                // print labels
+                if (itemEvent.type == TravelerEvent.Scrapped)
+                {
+                    
+                    ScrapTravelerItem(traveler.ID, item.ID);
+                    traveler.PrintLabel(item.ID, true);
+                    returnMessage = "Printed scrap label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                    item.Station = Traveler.GetStation("Scrapped");
+
+                } else if (newItem)
+                {
+                    traveler.PrintLabel(item.ID);
+                    returnMessage = "Printed label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                }
+                TravelersChanged();
             } catch (Exception ex)
             {
                 Server.WriteLine("Problem completing travelerItem: " + ex.Message + "stack trace: " + ex.StackTrace);
             }
+            return returnMessage;
         }
         // has to know which station this is being submitted from
         public void SubmitTraveler(string json)
@@ -260,6 +294,7 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 traveler.Advance(Traveler.GetStation(obj["station"]));
+                TravelersChanged();
             }
             catch (Exception ex)
             {

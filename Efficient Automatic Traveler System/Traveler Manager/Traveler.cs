@@ -15,11 +15,11 @@ namespace Efficient_Automatic_Traveler_System
         Completed,
         Scrapped,
         Reworked,
-        Moved,
-        Merged
+        Moved
     }
     class Event
     {
+        public Event() { }
         public Event (string json)
         {
             try
@@ -136,7 +136,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public int Station
+        internal int Station
         {
             get
             {
@@ -528,7 +528,7 @@ namespace Efficient_Automatic_Traveler_System
             return json;
         }
         // print a label for this traveler
-        public void PrintLabel(int qty = 1)
+        public void PrintLabel(ushort itemID, bool scrap = false, int qty = 1)
         {
             try
             {
@@ -537,9 +537,9 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     //client.Credentials = new NetworkCredential("gage", "Stargatep4x347");
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                    string json = "{\"ID\":\"" + ID + "\",";
-                    json += "\"Desc1\":\"" + Part.BillDesc + "\",";
-                    json += "\"Desc2\":\"" + "Blank" + "\",";
+                    string json = "{\"ID\":\"" + ID + '-' + itemID + "\",";
+                    json += "\"Desc1\":\"" + Part.BillNo + "\",";
+                    json += "\"Desc2\":\"" + (scrap ? "!!!***SCRAP***!!!" : Part.BillDesc) + "\",";
                     //json += "\"Date\":\"" + DateTime.Today.ToString(@"yyyy\-MM\-dd") + "\",";
                     json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
                     json += "\"qty\":" + qty + ",";
@@ -631,7 +631,41 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-
+        public TravelerItem AddItem(int station)
+        {
+            // find the highest id
+            ushort highestID = 0;
+            foreach (TravelerItem item in Items)
+            {
+                highestID = Math.Max(highestID, item.ID);
+            }
+            // use the next id (highest + 1)
+            TravelerItem newItem = new TravelerItem((ushort)(highestID + 1));
+            newItem.Station = station;
+            Items.Add(newItem);
+            return newItem;
+        }
+        public int QuantityPendingAt(int station)
+        {
+            int quantityPending = 0;
+            foreach (TravelerItem item in Items)
+            {
+                if (item.Station == station && !item.History.Exists(x => x.station == station && x.type == TravelerEvent.Completed))
+                {
+                    quantityPending++;
+                }
+            }
+            // these stations can create items //STATION CLASS
+            if (station == Traveler.GetStation("Heian") || station == Traveler.GetStation("Weeke"))
+            {
+                quantityPending = m_quantity - Items.Where(x => !x.Scrapped).Count(); // calculates the total item deficit for this traveler
+            }
+            return quantityPending;
+        }
+        public int QuantityAt(int station)
+        {
+            return Items.Where(x => x.Station == station).Count();
+        }
         #endregion
         //--------------------------------------------------------
         #region Abstract Methods
@@ -712,308 +746,13 @@ namespace Efficient_Automatic_Traveler_System
             }
             set
             {
+                foreach (TravelerItem item in Items)
+                {
+                    item.Station = value;
+                }
                 m_station = value;
             }
         }
-        //internal string TimeStamp
-        //{
-        //    get
-        //    {
-        //        return m_timeStamp;
-        //    }
-        //    set
-        //    {
-        //        m_timeStamp = value;
-        //    }
-        //}
-
-        //internal bool Printed
-        //{
-        //    get
-        //    {
-        //        return m_printed;
-        //    }
-
-        //    set
-        //    {
-        //        m_printed = value;
-        //    }
-        //}
-
-
-
-        //internal string DrawingNo
-        //{
-        //    get
-        //    {
-        //        return m_drawingNo;
-        //    }
-
-        //    set
-        //    {
-        //        m_drawingNo = value;
-        //    }
-        //}
-
-
-
-        //internal string Color
-        //{
-        //    get
-        //    {
-        //        return m_color;
-        //    }
-
-        //    set
-        //    {
-        //        m_color = value;
-        //    }
-        //}
-
-        //internal Item Cnc
-        //{
-        //    get
-        //    {
-        //        return m_cnc;
-        //    }
-
-        //    set
-        //    {
-        //        m_cnc = value;
-        //    }
-        //}
-
-        //internal Item Vector
-        //{
-        //    get
-        //    {
-        //        return m_vector;
-        //    }
-
-        //    set
-        //    {
-        //        m_vector = value;
-        //    }
-        //}
-
-        //internal Item Ebander
-        //{
-        //    get
-        //    {
-        //        return m_ebander;
-        //    }
-
-        //    set
-        //    {
-        //        m_ebander = value;
-        //    }
-        //}
-
-        //internal Item Saw
-        //{
-        //    get
-        //    {
-        //        return m_saw;
-        //    }
-
-        //    set
-        //    {
-        //        m_saw = value;
-        //    }
-        //}
-
-        //internal Item Assm
-        //{
-        //    get
-        //    {
-        //        return m_assm;
-        //    }
-
-        //    set
-        //    {
-        //        m_assm = value;
-        //    }
-        //}
-
-        //internal Item Box
-        //{
-        //    get
-        //    {
-        //        return m_box;
-        //    }
-
-        //    set
-        //    {
-        //        m_box = value;
-        //    }
-        //}
-
-        //internal Item Material
-        //{
-        //    get
-        //    {
-        //        return m_material;
-        //    }
-
-        //    set
-        //    {
-        //        m_material = value;
-        //    }
-        //}
-
-        //internal Item Eband
-        //{
-        //    get
-        //    {
-        //        return m_eband;
-        //    }
-
-        //    set
-        //    {
-        //        m_eband = value;
-        //    }
-        //}
-
-        //internal List<Item> Components
-        //{
-        //    get
-        //    {
-        //        return m_components;
-        //    }
-
-        //    set
-        //    {
-        //        m_components = value;
-        //    }
-        //}
-
-        //internal List<BlacklistItem> Blacklist
-        //{
-        //    get
-        //    {
-        //        return m_blacklist;
-        //    }
-
-        //    set
-        //    {
-        //        m_blacklist = value;
-        //    }
-        //}
-        //internal int PartsPerBox
-        //{
-        //    get
-        //    {
-        //        return m_partsPerBox;
-        //    }
-
-        //    set
-        //    {
-        //        m_partsPerBox = value;
-        //    }
-        //}
-        //internal string BoxItemCode
-        //{
-        //    get
-        //    {
-        //        return m_boxItemCode;
-        //    }
-
-        //    set
-        //    {
-        //        m_boxItemCode = value;
-        //    }
-        //}
-
-        //internal string RegPack
-        //{
-        //    get
-        //    {
-        //        return m_regPack;
-        //    }
-
-        //    set
-        //    {
-        //        m_regPack = value;
-        //    }
-        //}
-
-        //internal int RegPackQty
-        //{
-        //    get
-        //    {
-        //        return m_regPackQty;
-        //    }
-
-        //    set
-        //    {
-        //        m_regPackQty = value;
-        //    }
-        //}
-
-        //internal string SupPack
-        //{
-        //    get
-        //    {
-        //        return m_supPack;
-        //    }
-
-        //    set
-        //    {
-        //        m_supPack = value;
-        //    }
-        //}
-
-        //internal int SupPackQty
-        //{
-        //    get
-        //    {
-        //        return m_supPackQty;
-        //    }
-
-        //    set
-        //    {
-        //        m_supPackQty = value;
-        //    }
-        //}
-
-        //internal int Station
-        //{
-        //    get
-        //    {
-        //        return m_station;
-        //    }
-
-        //    set
-        //    {
-        //        m_lastStation = m_station;
-        //        m_station = value;
-        //    }
-        //}
-        //internal int NextStation
-        //{
-        //    get
-        //    {
-        //        return m_nextStation;
-        //    }
-
-        //    set
-        //    {
-        //        m_nextStation = value;
-        //    }
-        //}
-
-        //internal List<Event> History
-        //{
-        //    get
-        //    {
-        //        return m_history;
-        //    }
-
-        //    set
-        //    {
-        //        m_history = value;
-        //    }
-        //}
 
         internal List<string> ParentOrders
         {

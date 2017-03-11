@@ -73,11 +73,8 @@ p {
 }
 /*timer UI*/
 div.timer {
-	padding: 8px;
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
-	float: left;
 	align-items: center;
 }
 div.timer__btn {
@@ -85,11 +82,23 @@ div.timer__btn {
 	font-size: 2em;
 	border-radius: 0.5em;
 	border: 2px outset silver;
-	padding: 0.25em;
+	padding: 0.125em;
 }
 #timerTime {
 	font-size: 3em;
 	margin: 8px;
+}
+/*UI items*/
+#stationList {
+	box-sizing: border-box;
+	width: 40%;
+}
+#optionsBtn {
+	height: 100%;
+	opacity: 0.5
+}
+#optionsBtn:hover, .active {
+	opacity: 1.0;
 }
 /*Organizational divs*/
 div.header {
@@ -131,6 +140,18 @@ div.queue {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column-reverse;
+	border-top: 4px inset gray;
+	background-color: #303030;
+	overflow: auto;
+	width: 100%;
+	height: 100%;
+	
+}
+div.queueContainer {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	
 	border: 4px inset gray;
 	background-color: #404040;
 	overflow: auto;
@@ -174,15 +195,18 @@ div.queue__item {
 	transition-duration: 0.25s;
 	
 	font-family: "Arial Black", Gadget, sans-serif;
-	font-size: 1.5em;
+	font-size: 1em;
 	text-align: center;
+	
+	margin: 0px;
+	padding: 2px;
 	
 	
 	color: white;
 	text-shadow: 1px 1px 1px black;
-	background-color: dodgerBlue;
-	border: 4px outset deepSkyBlue;
-	border-radius: 4px;
+	
+	border-width: 3px;
+	border-radius: 6px;
 }
 div.queue__item:hover {
 	background-color: deepSkyBlue;
@@ -194,10 +218,16 @@ div.queue__item:active {
 }
 
 /*Traveler View*/
-
+div.view__header {
+	width: 100%;
+	color: yellow;
+	text-shadow: 1px 1px 2px black;
+	text-align: center;
+	font-size: 3em;
+}
 table.view {
 	width: 100%;
-	font-size: 1.5em;
+	font-size: 2em;
 	border: 2px solid darkGray;
 	border-collapse: collapse;
 }

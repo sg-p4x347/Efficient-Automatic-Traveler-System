@@ -40,41 +40,47 @@
 			<div id = "viewContainer" class = "viewContainer">
 				<table class = "view"></table>
 			</div>
-			<div id = "travelerQueue" class = "queue"></div> 
+			<div class = "queueContainer center twoEM">
+				Travelers
+				<div id = "travelerQueue" class = "queue"></div> 
+			</div>
 			<div class = "interfaceContainer twoEM">
-				<!-- STATION SELECTION -->
-				<select id = "stationList" class = "dark twoEM"></select>
 				
-
-				<div class = "timer">
-					<div id = "startTimer" class = "timer__btn greenBack">Start</div>
-					<div id = "timerTime">00:00</div>
-					<!-- <div id = "stopTimer" class = "timer__btn redBack">Stop</div> -->
+				<div class = "list--horizontal justify-space-between">
+					<!-- STATION SELECTION -->
+					<select id = "stationList" class = "dark twoEM"></select>
+					<!-- TIMER -->
+					<div class = "timer">
+						<div id = "startTimer" class = "button greenBack">Start</div>
+						<div id = "timerTime">00:00</div>
+					</div>
+					<!-- OPTIONS BUTTON -->
+					<img id = "optionsBtn" src = "./img/options.png"></img>
 				</div>
-				Quantity left:
+				<p class = "stdMargin">Quantity left:</p>
 				<div class = "qtyRow">
 				
 					<p id = "qtyMade"></p>
 					<div class = "percentContainer"><div id = "qtyMadePercent" class = "percentBar"></div></div>
 				</div>
 				<!-- COMPLETE BUTTON -->
-				<div class = "dark button twoEM">Complete part</div>
-				Quantity scrapped:
+				<div id = "completeItemBtn" class = "dark button twoEM">Complete part</div>
+				<p class = "stdMargin">Quantity scrapped:</p>
 				<div class = "qtyRow">
 				
 					<p id = "qtyScrapped"></p>
 					<div class = "percentContainer"><div id = "qtyScrappedPercent" class = "percentBar redBack"></div></div>
 				</div>
 				<!-- SCRAP BUTTON -->
-				<div class = "dark button twoEM">Scrap part</div>
-				Quantity completed:
+				<div id = "scrapItemBtn" class = "dark button twoEM">Scrap part</div>
+				<p class = "stdMargin">Quantity completed:</p>
 				<div class = "qtyRow">
 				
 					<p id = "qtyPending"></p>
 					<div class = "percentContainer"><div id = "qtyPendingPercent" class = "percentBar"></div></div>
 				</div>
 				<!-- SUBMIT BUTTON -->
-				<div id = "completeBtn" class = "dark button twoEM">Submit completed parts</div>
+				<div id = "submitTravelerBtn" class = "dark button twoEM">Submit completed parts</div>
 			</div>
 		</div>
 		<!-- FOOTER -->

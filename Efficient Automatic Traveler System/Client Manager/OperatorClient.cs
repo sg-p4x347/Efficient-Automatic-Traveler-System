@@ -43,12 +43,13 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     m_station = Traveler.GetStation(obj["station"]);
                     HandleTravelersChanged();
-                } else if (obj.ContainsKey("interface"))
+                } else if (obj.ContainsKey("interfaceMethod"))
                 {
-                    MethodInfo mi = m_travelerManager.GetType().GetMethod(obj["interface"]);
+                    MethodInfo mi = m_travelerManager.GetType().GetMethod(obj["interfaceMethod"]);
                     if (mi != null)
                     {
-                        mi.Invoke(this, new object[] { obj["parameters"] });
+                        string returnMessage = (string)mi.Invoke(m_travelerManager, new object[] { obj["parameters"] });
+                        if (returnMessage != null) SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
                     }
                 }
                 //else if (obj.ContainsKey("completed") && obj.ContainsKey("destination") && obj.ContainsKey("time") && obj.ContainsKey("qtyMade") && obj.ContainsKey("qtyScrapped"))
@@ -143,7 +144,7 @@ namespace Efficient_Automatic_Traveler_System
         public void HandleTravelersChanged()
         {
             // get the list of travelers that have items at this station
-            List<Traveler> stationSpecific = m_travelerManager.GetTravelers.Where(x => x.Station == m_station || x.Items.Exists(y => y.Station == m_station)).ToList();
+            List<Traveler> stationSpecific = m_travelerManager.GetTravelers.Where(x => x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0).ToList();
             string message = @"{""travelers"":[";
             string travelerJSON = "";
             foreach (Traveler traveler in stationSpecific)

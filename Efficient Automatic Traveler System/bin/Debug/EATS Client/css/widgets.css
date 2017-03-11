@@ -47,13 +47,17 @@ input[type=number]::-webkit-outer-spin-button {
 	background-color: silver;
 	color: black;
 }
-div.button {
+.button {
 	font-family: Verdana, Geneva, sans-serif;
 	
-	padding: 8px;
-	margin: 8px;
+	text-align: center;
 	
 	border-radius: 8px;
+}
+div.button:hover, div.button:active {
+	background-color: silver;
+	border-color: white;
+	color: black;
 }
 .numberBox {
 	font-size: inherit;
@@ -75,8 +79,11 @@ div.percentContainer {
 div.list--horizontal {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-around;
 	width: 100%;
+}
+/*flex modifiers*/
+.justify-space-between {
+	justify-content: space-between;
 }
 /*access modifiers*/
 .disabled {
@@ -96,24 +103,20 @@ div.list--horizontal {
 }
 .greenBack {
 	background-color: green;
-}
-.greenBack:active, .greenBack:hover {
-	background-color: lime;
+	border: 2px outset #00A000;
 }
 .redBack {
 	background-color: maroon;
 }
-.redBack:active {
-	background-color: red;
+.blueBack {
+	background-color: dodgerblue;
+	border: 2px outset #4da6ff;
 }
 /* color themes */
 .dark {
 	background-color: #202020;
+	border: 2px outset #303030;
 	color: white;
-}
-.dark:active, .dark:hover {
-	background-color: silver;
-	color: black;
 }
 .darkAero {
 	background: linear-gradient(to right, transparent, #4d4d4d, transparent);
@@ -149,6 +152,7 @@ div.list--horizontal {
 	font-style: italic;
 }
 /* margins */
-.stdMargin {
-	margin: 8px;
+.stdMargin, .button {
+	margin: 4px;
+	padding: 4px;
 }

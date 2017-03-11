@@ -13,3 +13,4 @@ Packline
 Assembly
 Box
 Finished
+Scrapped
