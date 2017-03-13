@@ -32,6 +32,8 @@ p.heading {
 }
 p {
 	margin: 0px;
+	text-align: center;
+	height: auto;
 }
 /*UI*/
 #destList {
@@ -100,6 +102,9 @@ div.timer__btn {
 #optionsBtn:hover, .active {
 	opacity: 1.0;
 }
+#travelerSearchBox {
+	width: 100%;
+}
 /*Organizational divs*/
 div.header {
 	display: flex;
@@ -128,7 +133,7 @@ div.interfaceContainer {
 div.viewContainer {
 	box-sizing: border-box;
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	flex-direction: column;
 	width: 100%;
 	height: 50%;

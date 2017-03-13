@@ -22,24 +22,9 @@ namespace Efficient_Automatic_Traveler_System
         // create a Chair from partNo, quantity, and a MAS connection
         public Chair(string partNo, int quantity) : base(partNo, quantity) { }
         // returns a JSON formatted string to be sent to a client
-        public override string Export(string clientType, int station)
+        public override string ExportTableRows(string clientType, int station)
         {
             string json = "";
-            json += "{";
-            json += "\"ID\":" + m_ID + ",";
-            json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
-            json += "\"quantity\":" + m_quantity + ",";
-            json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
-            json += "\"members\":[";
-            string rows = "";
-            rows += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
-            if (clientType == "OperatorClient" && station == Traveler.GetStation("Chairs"))
-            {
-
-            }
-            json += rows;
-            json += ']';
-            json += "}\n";
             return json;
         }
         public override void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
@@ -63,18 +48,18 @@ namespace Efficient_Automatic_Traveler_System
         protected int GetNextStation(UInt16 itemID)
         {
             int station = Items.Find(x => x.ID == itemID).Station;
-            if (station == Traveler.GetStation("Start"))
+            if (station == StationClass.GetStation("Start"))
             {
-                return Traveler.GetStation("Start");
+                return StationClass.GetStation("Start");
             }
-            else if (station == Traveler.GetStation("Chairs"))
+            else if (station == StationClass.GetStation("Chairs"))
             {
-                return Traveler.GetStation("Finished");
+                return StationClass.GetStation("Finished");
 
             }
-            else if (station == Traveler.GetStation("Finished"))
+            else if (station == StationClass.GetStation("Finished"))
             {
-                return Traveler.GetStation("Finished");
+                return StationClass.GetStation("Finished");
             }
             return -1;
         }

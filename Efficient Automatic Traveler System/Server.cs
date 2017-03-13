@@ -36,11 +36,10 @@ namespace Efficient_Automatic_Traveler_System
             m_clientManager = new ClientManager(m_ip, m_port, m_travelerManager as ITravelerManager);
             // Subscribe events
             m_travelerManager.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
-            m_clientManager.TravelersChanged += new TravelersChangedSubscriber(m_travelerManager.HandleTravelersChanged);
 
             m_clientManagerThread = new Thread(m_clientManager.Start);
             m_clientManagerThread.Name = "Client Manager";
-            m_updateInterval = new TimeSpan(6, 0, 0);
+            m_updateInterval = new TimeSpan(1, 0, 0);
             // HTTP file serving
             
         }
@@ -100,7 +99,7 @@ namespace Efficient_Automatic_Traveler_System
                     //m_travelerManager.CreateTravelers();
                     break;
                 default:
-                    Console.WriteLine("Invalid; commands are [udpate, reset]");
+                    Console.WriteLine("Invalid; commands are [update, reset]");
                     break;
             }
             GetInputAsync();
@@ -175,9 +174,6 @@ namespace Efficient_Automatic_Traveler_System
 
             // Finalize the travelers by importing external information
             m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
-
-            // the travelers have changed
-            m_travelerManager.HandleTravelersChanged();
 
             // No more data is need at this time
             CloseMAS();

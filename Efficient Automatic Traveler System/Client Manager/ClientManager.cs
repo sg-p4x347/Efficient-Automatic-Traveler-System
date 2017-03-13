@@ -38,7 +38,7 @@ namespace Efficient_Automatic_Traveler_System
             ConnectAsync();
             Poll();
         }
-        public void HandleTravelersChanged() {
+        public void HandleTravelersChanged(List<Traveler> travelers) {
             for( int i = 0; i < m_clients.Count; i++)
             {
                 if (m_clients[i].Connected) {
@@ -46,15 +46,15 @@ namespace Efficient_Automatic_Traveler_System
                     var obj = m_clients[i] as ITravelers;
                     if (obj != null)
                     {
-                        obj.HandleTravelersChanged();
+                        obj.HandleTravelersChanged(travelers);
                     }
                     //---------------------------------------------------
                 }
             }
         }
-        public void HandleTravelerChanged()
+        public void HandleTravelerChanged(List<Traveler> travelers)
         {
-            TravelersChanged();
+            TravelersChanged(travelers);
         }
         //------------------------------
         // Private

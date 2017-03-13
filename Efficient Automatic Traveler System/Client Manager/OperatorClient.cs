@@ -21,12 +21,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_travelerManager = travelerManager;
             string stationList = "";
-            foreach(string station in Traveler.Stations.Keys)
+            foreach(StationClass station in Traveler.Stations)
             {
-                stationList += (stationList.Length != 0 ? "," : "") + '"' + station + '"';
+                stationList += (stationList.Length != 0 ? "," : "") + '"' + station.Name + '"';
             }
-            SendMessage(@"{""stationList"":[" + stationList + "]}");
-            HandleTravelersChanged();
+            SendMessage(@"{""stationList"":" + StationClass.Stations.Stringify() + "}");
+            HandleTravelersChanged(m_travelerManager.GetTravelers);
         }
         public virtual async void ListenAsync()
         {
@@ -41,8 +41,8 @@ namespace Efficient_Automatic_Traveler_System
 
                 if (obj.ContainsKey("station"))
                 {
-                    m_station = Traveler.GetStation(obj["station"]);
-                    HandleTravelersChanged();
+                    m_station = Convert.ToInt32(obj["station"]);
+                    HandleTravelersChanged(m_travelerManager.GetTravelers);
                 } else if (obj.ContainsKey("interfaceMethod"))
                 {
                     MethodInfo mi = m_travelerManager.GetType().GetMethod(obj["interfaceMethod"]);
@@ -141,10 +141,15 @@ namespace Efficient_Automatic_Traveler_System
             }
             ListenAsync();
         }
-        public void HandleTravelersChanged()
+        public void HandleTravelersChanged(List<Traveler> travelers)
         {
             // get the list of travelers that have items at this station
-            List<Traveler> stationSpecific = m_travelerManager.GetTravelers.Where(x => x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0).ToList();
+            List<Traveler> stationSpecific = travelers.Where(x => x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0).ToList();
+            bool mirror = (stationSpecific.Count < travelers.Count);
+            if (mirror)
+            {
+                stationSpecific = m_travelerManager.GetTravelers.Where(x => x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0).ToList();
+            }
             string message = @"{""travelers"":[";
             string travelerJSON = "";
             foreach (Traveler traveler in stationSpecific)
@@ -158,7 +163,9 @@ namespace Efficient_Automatic_Traveler_System
                     travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Chair)traveler).Export(this.GetType().Name,m_station);
                 }
             }
-            message += travelerJSON + "]}";
+            message += travelerJSON + "],";
+            message += "\"mirror\":" + mirror.ToString().ToLower();
+            message += "}";
             SendMessage(message);
         }
 

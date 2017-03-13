@@ -1,0 +1,82 @@
+[
+	{
+		"name": "Start",
+		"ID": 0,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "Saw",
+		"ID": 1,
+		"canCreateItems": "true"
+	},
+	{
+		"name": "Heian",
+		"ID": 2,
+		"canCreateItems": "true"
+	},
+	{
+		"name": "Vector",
+		"ID": 3,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "Edgebander",
+		"ID": 4,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "Weeke",
+		"ID": 5,
+		"canCreateItems": "true"
+	},
+	{
+		"name": "Drill",
+		"ID": 6,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "T-nut",
+		"ID": 7,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "Paint",
+		"ID": 8,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "Chairs",
+		"ID": 9,
+		"canCreateItems": "true"
+	},
+	{
+		"name": "Table-Pack",
+		"ID": 10,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "Packline",
+		"ID": 11,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "Assembly",
+		"ID": 12,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "Box",
+		"ID": 13,
+		"canCreateItems": "true"
+	},
+	{
+		"name": "Finished",
+		"ID": 14,
+		"canCreateItems": "false"
+	},
+	{
+		"name": "Scrapped",
+		"ID": 15,
+		"canCreateItems": "false"
+	}
+]

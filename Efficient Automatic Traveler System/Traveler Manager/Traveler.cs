@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define Labels
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -98,7 +99,6 @@ namespace Efficient_Automatic_Traveler_System
                 m_ID = Convert.ToUInt16(obj["ID"]);
                 m_scrapped = Convert.ToBoolean(obj["scrapped"]);
                 m_station = Convert.ToInt32(obj["station"]);
-                m_lastStation = Convert.ToInt32(obj["lastStaion"]);
                 m_history = new List<Event>();
                 foreach (string eventString in (new StringStream(obj["history"])).ParseJSONarray())
                 {
@@ -218,7 +218,7 @@ namespace Efficient_Automatic_Traveler_System
                 Items.Add(new TravelerItem(item));
             }
             m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
-            m_station = Traveler.GetStation(obj["station"]);
+            m_station = StationClass.GetStation(obj["station"]);
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
         //public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
@@ -520,7 +520,7 @@ namespace Efficient_Automatic_Traveler_System
             // PARENT ORDERS [...]
             json += "\"parentOrders\":" + m_parentOrders.Stringify<string>() + ',';
             // UNIFIED STATION
-            json += "\"station\":" + '"' + Traveler.GetStationName(Station) + '"';
+            json += "\"station\":" + '"' + StationClass.GetStationName(Station) + '"';
             // packs in members specific to derived classes
             json += ExportProperties(); 
 
@@ -544,8 +544,9 @@ namespace Efficient_Automatic_Traveler_System
                     json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
                     json += "\"qty\":" + qty + ",";
                     json += "\"printer\":\"" + "4x2Pack" + "\"}";
-
-                    //result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+#if Labels
+                    result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+#endif
                     //http://192.168.2.6:8080/printLabel
                 }
             }
@@ -577,34 +578,7 @@ namespace Efficient_Automatic_Traveler_System
             }
 
         }
-        public static int GetStation(string key)
-        {
-            try
-            {
-                return Stations[key];
-            } catch (Exception ex)
-            {
-                return -1;
-            }
-        }
-        public static string GetStationName(int value)
-        {
-            try
-            {
-                foreach (KeyValuePair<string,int> pair in Stations)
-                {
-                    if (pair.Value == value)
-                    {
-                        return pair.Key;
-                    }
-                }
-                return "None";
-            }
-            catch (Exception ex)
-            {
-                return "None";
-            }
-        }
+        
         // Manually sets the station 
         //public virtual void MoveTo(int station)
         //{
@@ -648,15 +622,9 @@ namespace Efficient_Automatic_Traveler_System
         public int QuantityPendingAt(int station)
         {
             int quantityPending = 0;
-            foreach (TravelerItem item in Items)
-            {
-                if (item.Station == station && !item.History.Exists(x => x.station == station && x.type == TravelerEvent.Completed))
-                {
-                    quantityPending++;
-                }
-            }
-            // these stations can create items //STATION CLASS
-            if (station == Traveler.GetStation("Heian") || station == Traveler.GetStation("Weeke"))
+            quantityPending += Items.Where(x => x.Station == station && !x.History.Exists(e => e.station == station && e.type == TravelerEvent.Completed)).Count();
+            // these stations can create items
+            if (StationClass.FindStation(station).CanCreateItems && m_station == station)
             {
                 quantityPending = m_quantity - Items.Where(x => !x.Scrapped).Count(); // calculates the total item deficit for this traveler
             }
@@ -666,21 +634,48 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Where(x => x.Station == station).Count();
         }
-        #endregion
+        public int QuantityScrappedAt(int station)
+        {
+            return Items.Where(x => x.Station == station && x.Scrapped).Count();
+        }
+        public int QuantityCompleteAt(int station)
+        {
+            return Items.Where(x => x.Station == station && x.History.Exists(e => e.station == station && e.type == TravelerEvent.Completed)).Count();
+        }
+#endregion
         //--------------------------------------------------------
-        #region Abstract Methods
+#region Abstract Methods
         // export for clients to display
-        public abstract string Export(string clientType, int station);
+        public string Export(string clientType, int station)
+        {
+            string json = "";
+            json += "{";
+            json += "\"ID\":" + m_ID + ",";
+            json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
+            json += "\"quantity\":" + m_quantity + ",";
+            json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
+            json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
+            json += "\"qtyScrapped\":" + QuantityScrappedAt(station) + ",";
+            json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
+            json += "\"items\":" + Items.Stringify() + ',';
+            json += "\"members\":[";
+            json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
+            json += ExportTableRows(clientType,station);
+            json += "]}";
+            return json;
+
+        }
+        public abstract string ExportTableRows(string clientType, int station);
         // advances the item to the next station
         public abstract void AdvanceItem(ushort ID);
-        #endregion
+#endregion
         //--------------------------------------------------------
-        #region Private Methods
+#region Private Methods
         // overridden in derived classes, packs properties into the Export() json string
         protected abstract string ExportProperties();
-        #endregion
+#endregion
         //--------------------------------------------------------
-        #region Properties
+#region Properties
 
         // general
         protected int m_ID;
@@ -690,9 +685,9 @@ namespace Efficient_Automatic_Traveler_System
         protected List<string> m_parentOrders;
         private int m_station;
 
-        #endregion
+#endregion
         //--------------------------------------------------------
-        #region Interface
+#region Interface
         internal int ID
         {
             get
@@ -779,9 +774,9 @@ namespace Efficient_Automatic_Traveler_System
                 items = value;
             }
         }
-        #endregion
+#endregion
         //--------------------------------------------------------
         // static
-        internal static Dictionary<string, int> Stations = new Dictionary<string, int>();
+        internal static List<StationClass> Stations = new List<StationClass>();
     }
 }

@@ -16,6 +16,7 @@ function Application () {
 	this.completedList;
 	// client information
 	this.lastStation;
+	this.station;
 	// key information
 	this.stationList;
 	// Websocket
@@ -47,12 +48,19 @@ function Application () {
 		}
 		self.stationList.forEach(function (station) {
 			var option = document.createElement("OPTION");
-			option.innerHTML = station;
-			option.value = station;
+			option.innerHTML = station.name;
+			option.value = station.ID;
 			select.appendChild(option);
 		});
 		select.onchange = function () {
-			self.websocket.send('{"station":"' + this.value + '"}');
+			var stationID = parseInt(this.value);
+			self.websocket.send('{"station":' + stationID + '}');
+			self.stationList.some(function (station) {
+				if (station.ID == stationID) {
+					self.station = station;
+					return true;
+				}
+			});
 		}
 	}
 	// Executes when the connection closes
@@ -128,12 +136,19 @@ function Application () {
 						if (object.hasOwnProperty("stationList")) {
 							self.stationList = object.stationList;
 							self.PopulateStations();
-						} else if (object.hasOwnProperty("travelers")) {
-							self.travelerQueue.Clear();
-							object.travelers.forEach(function (obj) {
-								var traveler = new Traveler(obj);
-								self.travelerQueue.AddTraveler(traveler);
-							});
+						} else if (object.hasOwnProperty("travelers") && object.hasOwnProperty("mirror")) {
+							if (object.mirror) {
+								// The only travelers in the queue are explicitly the ones in the message
+								self.travelerQueue.Clear();
+								object.travelers.forEach(function (obj) {
+									self.travelerQueue.AddTraveler(new Traveler(obj));
+								});
+							} else {
+								// Only update existing travelers in the queue
+								object.travelers.forEach(function (obj) {
+									self.travelerQueue.UpdateTraveler(new Traveler(obj));
+								});
+							}
 							// autoload the first traveler in the queue if just now visiting
 							if ((document.getElementById("stationList").value != self.lastStation && self.travelerQueue.travelers[0])
 								|| !self.travelerQueue.Exists(self.travelerView.traveler)) {
@@ -179,16 +194,61 @@ function TravelerQueue() {
 	}
 	this.Exists = function (mask) {
 		var self = this;
+		var exists = false;
 		if (mask) {
-			self.travelers.forEach(function (traveler) {
-				if (traveler.ID == mask.ID) return true;
+			self.travelers.some(function (traveler) {
+				if (traveler.ID == mask.ID) exists = true;
+				return true;
 			});
 		}
-		return false;
+		return exists;
+	}
+	this.FindTraveler = function (id) {
+		var t;
+		this.travelers.some(function (traveler) {
+			if (traveler.ID == id) {
+				t = traveler;
+				return true;
+			}
+		});
+		return t;
+	}
+	this.FindItem = function (travelerID, itemID) {
+		var self = this;
+		var traveler = self.FindTraveler(travelerID);
+		var itm;
+		if (traveler) {
+			traveler.items.some(function (item) {
+				if (item.ID == itemID) {
+					itm = item;
+					return true;
+				}
+			});
+		}
+		return itm;
 	}
 	this.AddTraveler = function (traveler) {
+		var self = this;
 		this.travelers.push(traveler);
 		this.RePaint();
+		
+	}
+	this.UpdateTraveler = function (updated) {
+		var self = this;
+		var found = false;
+		for (var i = 0; i < self.travelers.length; i++) {
+			if (self.travelers[i].ID == updated.ID) {
+				self.travelers[i] = updated;
+				found = true;
+				if (application.travelerView.traveler && updated.ID == application.travelerView.traveler.ID) {
+					application.travelerView.Load(updated);
+				}
+				break;
+			}
+		};
+		if (!found) {
+			this.AddTraveler(updated);
+		}
 	}
 	this.UnshiftTraveler = function (traveler) {
 		this.travelers.unshift(traveler);
@@ -232,6 +292,7 @@ function TravelerQueue() {
 		var self = this;
 		self.DOMelement = document.getElementById(DOMid);
 		self.travelers = [];
+		
 	}
 }
 function TravelerView() {
@@ -278,66 +339,29 @@ function TravelerView() {
 			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
 		}
 	}
-	this.Load = function (traveler) {
+	this.DisableUI = function () {
+		document.getElementById("completeItemBtn").className = "dark button twoEM disabled";
+		document.getElementById("scrapItemBtn").className = "dark button twoEM disabled";
+		document.getElementById("submitTravelerBtn").className = "dark button twoEM disabled";
+	}
+	this.EnableUI = function () {
+		document.getElementById("completeItemBtn").className = "dark button twoEM";
+		document.getElementById("scrapItemBtn").className = "dark button twoEM";
+		document.getElementById("submitTravelerBtn").className = "dark button twoEM";
+	}
+	this.LoadTable = function () {
 		var self = this;
-		
-		// initialize
-		self.traveler = traveler;
-		self.Clear();
-		// initialize the destination list
-		var destList = document.getElementById("destList");
-		// remove old
-		while (destList.firstChild) {
-			destList.removeChild(destList.firstChild);
-		}
-		if (!traveler)  {
-			return;
-		}
-		
-		self.ResetSliders();
-		
-		// clear old DOM objects
-		while (self.DOMcontainer.hasChildNodes()) {
-			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
-		}
-		
-		/* // populate destination list
-		application.stationList.forEach(function (station) {
-			var option = document.createElement("OPTION");
-			option.innerHTML = station;
-			option.className = "dark button";
-			option.value = station;
-			destList.appendChild(option);
-		}); */
-		// create the view header
-		var viewHeader = document.createElement("DIV");
-		viewHeader.className = "view__header";
-		viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6);
-		if (self.item != undefined) {
-			viewHeader.innerHTML += ", Item: " + self.item;
-		}
-		self.DOMcontainer.appendChild(viewHeader);
 		// create the table
 		var DOMtable = document.createElement("TABLE");
 		DOMtable.className = "view";
-		// create the complete button
-		self.btnComplete = document.getElementById("completeBtn");
-		// create and add new DOM objects
-		document.getElementById("destList").value = self.traveler.nextStation;
-/* 		// configure complete button
-		self.btnComplete.onclick = function () {
-			self.StopTimer();
-			document.getElementById("blackout").style.visibility = "visible";
-			document.getElementById("finalizeContainer").style.display = "flex";
-		} */
 		
 		// add the part row
-		traveler.members.unshift({name: "Part", value: traveler.itemCode, qty: traveler.quantity});
+		self.traveler.members.unshift({name: "Part", value: self.traveler.itemCode, qty: self.traveler.quantity});
 		// add the column header
-		traveler.members.unshift({name: "Property", value: "Value", qty: "Qty.",style:"view__row--header italics"});
+		self.traveler.members.unshift({name: "Property", value: "Value", qty: "Qty.",style:"view__row--header italics"});
 		
 		// all other properties are in the table body
-		traveler.members.forEach(function (property) {
+		self.traveler.members.forEach(function (property) {
 			var row = document.createElement("TR");
 			if (property.hasOwnProperty("style")) row.className = property.style;
 			// Property name
@@ -363,22 +387,105 @@ function TravelerView() {
 			DOMtable.appendChild(row);
 		});
 		// remove the column header
-		traveler.members.shift();
-		traveler.members.shift();
+		self.traveler.members.shift();
+		self.traveler.members.shift();
 		
 		// add the table
 		self.DOMcontainer.appendChild(DOMtable);
-	
 		// start the timer
 		self.StartTimer();
 	}
+	this.LoadItem = function (traveler, item) {
+		var self = this;
+		self.traveler = traveler;
+		self.item = item;
+		// enable the buttons
+		self.EnableUI();
+		// clear old DOM objects
+		if (self.DOMcontainer.lastChild.tagName == "TABLE") {
+			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
+		}
+		document.getElementById("completeItemBtn").innerHTML = "Complete item #" + self.item.ID;
+		/* // create the view header
+		var viewHeader = document.createElement("DIV");
+		viewHeader.className = "view__header";
+		viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6);
+		if (self.item != undefined) {
+			viewHeader.innerHTML += ", Item: " + self.item.ID;
+		}
+		self.DOMcontainer.appendChild(viewHeader); */
+		
+		self.LoadTable();
+	}
+	this.Load = function (traveler) {
+		var self = this;
+		
+		// initialize
+		self.traveler = traveler;
+		self.Clear();
+		self.ResetSliders();
+		
+		// clear old DOM objects
+		while (self.DOMcontainer.hasChildNodes()) {
+			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
+		}
+		
+		if (!traveler)  {
+			return;
+		}
+		
+		
+		
+		
+		if (application.station.canCreateItems) {
+			//=================================
+			// CLIENTS THAT CAN CREATE ITEMS
+			//=================================
+			// create the view header
+			var viewHeader = document.createElement("DIV");
+			viewHeader.className = "view__header";
+			viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6);
+			if (self.item != undefined) {
+				viewHeader.innerHTML += ", Item: ";
+			}
+			self.DOMcontainer.appendChild(viewHeader);
+			self.LoadTable();
+			// enable the buttons
+			self.EnableUI();
+		} else {
+			//=================================
+			// CLIENTS THAT CAN'T CREATE ITEMS
+			//=================================
+			self.DisableUI();
+			// create the view header
+			var viewHeader = document.createElement("DIV");
+			viewHeader.className = "view__header";
+			viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6) + ", Item: ";
+			self.DOMcontainer.appendChild(viewHeader);
+			// create the selection for traveler items
+			var select = document.createElement("SELECT");
+			select.className = "dark twoEM";
+			self.traveler.items.forEach(function (item) {
+				var option = document.createElement("OPTION");
+				option.value = item.ID;
+				option.innerHTML = item.ID;
+				select.appendChild(option);
+			});
+			select.onchange = function () {
+				self.LoadItem(self.traveler,self.traveler.FindItem(select.value));
+			}
+			select.value = 0;
+			self.DOMcontainer.appendChild(select);
+		}
+		
+	}
 	this.ResetSliders = function () {
-		var qtyMade = document.getElementById("qtyMade");
+		var qtyMade = document.getElementById("qtyCompleted");
 		var qtyScrapped = document.getElementById("qtyScrapped");
 		var qtyPending = document.getElementById("qtyPending");
-		qtyMade.value = this.traveler.quantity;
-		qtyScrapped.value = 0;
-		qtyPending.value = 0;
+		qtyMade.innerHTML = this.traveler ? this.traveler.qtyCompleted : '-';
+		qtyScrapped.innerHTML = this.traveler ? this.traveler.qtyScrapped : '-';
+		qtyPending.innerHTML = this.traveler ? this.traveler.qtyPending : '-';
 		
 		
 		
@@ -386,7 +493,7 @@ function TravelerView() {
 	}
 	this.BalanceSliders = function() {
 		var self = this;
-		var qtyMade = parseInt(document.getElementById("qtyMade").value);
+		/* var qtyMade = parseInt(document.getElementById("qtyMade").value);
 		var qtyScrapped = parseInt(document.getElementById("qtyScrapped").value);
 		var qtyPending = parseInt(document.getElementById("qtyPending").value);
 		if ((qtyMade > 0 && qtyMade < self.traveler.quantity) || (qtyScrapped > 0 && qtyScrapped < self.traveler.quantity)) {
@@ -397,7 +504,7 @@ function TravelerView() {
 		document.getElementById("qtyMadePercent").style.width = ((qtyMade / self.traveler.quantity) * 100) + "%";
 		document.getElementById("qtyScrappedPercent").style.width = ((qtyScrapped / self.traveler.quantity) * 100) + "%";
 		document.getElementById("qtyPendingPercent").style.width = ((qtyPending / self.traveler.quantity) * 100) + "%";
-		
+		 */
 	}
 	this.Initialize = function () {
 		var self = this;
@@ -408,7 +515,7 @@ function TravelerView() {
 		var qtyMade = document.getElementById("qtyMade");
 		var qtyScrapped = document.getElementById("qtyScrapped");
 		var qtyPending = document.getElementById("qtyPending");
-		qtyMade.onchange = function () {
+		/* qtyMade.onchange = function () {
 			this.value = Math.min(self.traveler.quantity-parseInt(qtyScrapped.value), this.value);
 			this.max = self.traveler.quantity-parseInt(qtyScrapped.value);
 			qtyPending.value = self.traveler.quantity - (parseInt(qtyScrapped.value) + parseInt(this.value));
@@ -431,7 +538,7 @@ function TravelerView() {
 			this.max = self.traveler.quantity-parseInt(qtyScrapped.value);
 			qtyMade.value = self.traveler.quantity - (parseInt(qtyScrapped.value) + parseInt(this.value));
 			self.BalanceSliders();
-		}
+		} */
 		// completing a finished traveler item
 		document.getElementById("completeItemBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
@@ -516,13 +623,54 @@ function TravelerView() {
 			self.StartTimer();
 		}
 		/* self.timerStop = document.getElementById("stopTimer");
+		
 		self.timerStop.onmousedown = function () {
 			self.StopTimer();
 		} */
+		// Traveler Search
+		document.getElementById("travelerSearch").onsubmit = function () {
+			var search = document.getElementById("travelerSearchBox").value;
+			// try to parse the search string
+			var travelerID;
+			var itemID;
+			// as traveler + item
+			var success = false;
+			var separators = ['-',',',' ','+','/','\t'];
+			separators.some(function (separator) {
+				var array = search.split('-');
+				if (array.length == 2) {
+					travelerID = parseInt(array[0],10);
+					itemID = parseInt(array[1]);
+					if (!isNaN(travelerID) && !isNaN(itemID)) {
+						var traveler = application.travelerQueue.FindTraveler(travelerID)
+						self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
+						success = true;
+						return true;
+					}
+				}
+			});
+			if (!success) {
+				// as traveler number
+				travelerID = parseInt(search,10);
+				if (!isNaN(travelerID)) {
+					self.Load(application.travelerQueue.FindTraveler(travelerID))
+				};
+			}
+			return false;
+		}
 	}
 }
 function Traveler(obj) {
-	obj.completed = false;
+	obj.FindItem = function (itemID) {
+		var item;
+		obj.items.some(function (i) {
+			if (i.ID == itemID) {
+				item = i;
+				return true;
+			}
+		});
+		return item;
+	}
 	return obj;
 	/* // Common properties
 	this.ID;

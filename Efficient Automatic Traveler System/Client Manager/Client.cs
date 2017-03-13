@@ -18,7 +18,7 @@ namespace Efficient_Automatic_Traveler_System
     interface ITravelers
     {
         event TravelersChangedSubscriber TravelersChanged;
-        void HandleTravelersChanged();
+        void HandleTravelersChanged(List<Traveler> travelers);
     }
     // The base class for a TcpClient that connects to the EATS server
     abstract class Client

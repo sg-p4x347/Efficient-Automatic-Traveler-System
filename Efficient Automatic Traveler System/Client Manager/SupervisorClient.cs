@@ -18,15 +18,15 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         public SupervisorClient(TcpClient client, ITravelerManager travelerCore) : base(client)
         {
-            m_travelerCore = travelerCore;
-            m_travelers = m_travelerCore.GetTravelers;
+            m_travelerManager = travelerCore;
+            m_travelers = m_travelerManager.GetTravelers;
             string stationList = "";
-            foreach (string station in Traveler.Stations.Keys)
+            foreach (StationClass station in Traveler.Stations)
             {
-                stationList += (stationList.Length != 0 ? "," : "") + '"' + station + '"';
+                stationList += (stationList.Length != 0 ? "," : "") + '"' + station.Name + '"';
             }
             SendMessage(@"{""stationList"":[" + stationList + "]}");
-            HandleTravelersChanged();
+            HandleTravelersChanged(m_travelerManager.GetTravelers);
         }
         public virtual async void ListenAsync()
         {
@@ -70,7 +70,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             ListenAsync();
         }
-        public void HandleTravelersChanged()
+        public void HandleTravelersChanged(List<Traveler> travelers)
         {
             //string message = @"{""travelers"":[";
             //string travelerJSON = "";
@@ -87,7 +87,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Properties
         //------------------------------
-        protected ITravelerManager m_travelerCore;
+        protected ITravelerManager m_travelerManager;
         protected List<Traveler> m_travelers;
         protected int m_station;
         internal int Station

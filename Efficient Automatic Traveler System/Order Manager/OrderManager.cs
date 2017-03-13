@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define LessOrders
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -49,10 +50,11 @@ namespace Efficient_Automatic_Traveler_System
                 command.CommandText = "SELECT SalesOrderNo, CustomerNo, ShipVia, OrderDate, ShipExpireDate FROM SO_SalesOrderHeader";
                 OdbcDataReader reader = command.ExecuteReader();
                 // read info
-                int max = 20;
-                while (reader.Read() && max > 0)
+                while (reader.Read())
                 {
-                    max--;
+#if LessOrders
+                    if (m_orders.Count > 20 || newOrders.Count > 20) break;
+#endif
                     string salesOrderNo = reader.GetString(0);
                     currentOrderNumbers.Add(salesOrderNo);
                     int index = m_orders.FindIndex(x => x.SalesOrderNo == salesOrderNo);
@@ -109,6 +111,9 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         // phew! the order is still here
                         m_orders.Add(order);
+                    } else
+                    {
+
                     }
                 }
                 m_orders.AddRange(newOrders);
@@ -136,8 +141,14 @@ namespace Efficient_Automatic_Traveler_System
                         List<Order> parentOrders = new List<Order>();
                         foreach (string orderNo in traveler.ParentOrders)
                         {
-                            parentOrders.Add(FindOrder(orderNo));
+                            Order parentOrder = FindOrder(orderNo);
+                            if (parentOrder != null)
+                            {
+                                parentOrders.Add(parentOrder);
+                            }
                         }
+                        // remove orders that no longer exisst
+                        traveler.ParentOrders.RemoveAll(x => !parentOrders.Exists(y => y.SalesOrderNo == x));
                         parentOrders.Sort((a, b) => b.OrderDate.CompareTo(a.OrderDate)); // sort in descending order (oldest first)
                         for (int i = 0; i < parentOrders.Count && onHand > 0; i++)
                         {
@@ -173,9 +184,9 @@ namespace Efficient_Automatic_Traveler_System
             }
             System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "orders.json"), contents);
         }
-        #endregion
+#endregion
         //--------------------------------------------
-        #region Interface
+#region Interface
 
         public Order FindOrder(string orderNo)
         {
@@ -188,9 +199,9 @@ namespace Efficient_Automatic_Traveler_System
                 return m_orders;
             }
         }
-        #endregion
+#endregion
         //--------------------------------------------
-        #region Private Methods
+#region Private Methods
         // Imports orders that have been stored
         private void ImportStoredOrders()
         {
@@ -208,11 +219,11 @@ namespace Efficient_Automatic_Traveler_System
             file.Close();
         }
         
-        #endregion
+#endregion
         //--------------------------------------------
-        #region Properties
+#region Properties
         private List<Order> m_orders;
-        #endregion
+#endregion
         //--------------------------------------------
     }
 }

@@ -39,7 +39,7 @@ namespace Efficient_Automatic_Traveler_System
     {
 
     }
-    public delegate void TravelersChangedSubscriber();
+    internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
     class TravelerManager : ITravelerManager, IOperator, ISupervisor
     {
         #region Public methods
@@ -50,13 +50,11 @@ namespace Efficient_Automatic_Traveler_System
             m_orderManager = orderManager;
             // set up the station list
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            System.IO.StreamReader stationsFile = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "stations.txt"));
-            string line;
-            for  ( int i = 0;  (line = stationsFile.ReadLine()) != null && line != ""; i++)
+            List<string> stations = (new StringStream(File.ReadAllText(System.IO.Path.Combine(exeDir, "stations.json")))).ParseJSONarray();
+            foreach (string json in stations)
             {
-                Traveler.Stations.Add(line, i);
+                Traveler.Stations.Add(new StationClass(json));
             }
-            stationsFile.Close();
         }
         public void CompileTravelers(ref List<Order> newOrders)
         {
@@ -97,7 +95,7 @@ namespace Efficient_Automatic_Traveler_System
                             //=========================================================================
 
                             // start the new traveler's journey
-                            newTraveler.Station = Traveler.GetStation("Heian");
+                            newTraveler.Station = StationClass.GetStation("Heian");
                             // add the new traveler to the list
                             m_travelers.Add(newTraveler);
                         }
@@ -111,16 +109,23 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS)
         {
+            int index = 0;
             foreach (Traveler traveler in m_travelers)
             {
+                
                 traveler.ImportPart(orderManager, ref MAS);
+                index++;
+                Console.Write("\r{0}%   ", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
             }
+            Console.Write("\r{0}%   ", "Gathering Info...Finished");
+            // travelers have changed
+            OnTravelersChanged(m_travelers);
         }
         
-        public void HandleTravelersChanged()
-        {
-            OnTravelersChanged();
-        }
+        //public void HandleTravelersChanged()
+        //{
+        //    OnTravelersChanged();
+        //}
         #endregion
         //----------------------------------
         #region Interface
@@ -250,14 +255,14 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 TravelerEvent eventType = (TravelerEvent)Enum.Parse(typeof(TravelerEvent), obj["eventType"]);
-                Event itemEvent = new Event(eventType, Convert.ToDouble(obj["time"]), Traveler.GetStation(obj["station"]));
+                Event itemEvent = new Event(eventType, Convert.ToDouble(obj["time"]), Convert.ToInt32(obj["station"]));
                 TravelerItem item;
                 bool newItem = false;
                 if (obj["itemID"] == "undefined")
                 {
                     newItem = true;
                     // create a new item
-                    item = traveler.AddItem(Traveler.GetStation(obj["station"]));
+                    item = traveler.AddItem(Convert.ToInt32(obj["station"]));
                 } else
                 {
                     // change existing item
@@ -272,14 +277,14 @@ namespace Efficient_Automatic_Traveler_System
                     ScrapTravelerItem(traveler.ID, item.ID);
                     traveler.PrintLabel(item.ID, true);
                     returnMessage = "Printed scrap label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
-                    item.Station = Traveler.GetStation("Scrapped");
+                    item.Station = StationClass.GetStation("Scrapped");
 
                 } else if (newItem)
                 {
                     traveler.PrintLabel(item.ID);
                     returnMessage = "Printed label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
                 }
-                TravelersChanged();
+                OnTravelersChanged(new List<Traveler>() { traveler });
             } catch (Exception ex)
             {
                 Server.WriteLine("Problem completing travelerItem: " + ex.Message + "stack trace: " + ex.StackTrace);
@@ -293,8 +298,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                traveler.Advance(Traveler.GetStation(obj["station"]));
-                TravelersChanged();
+                traveler.Advance(Convert.ToInt32(obj["station"]));
+                OnTravelersChanged(new List<Traveler>() { traveler });
             }
             catch (Exception ex)
             {
@@ -466,12 +471,12 @@ namespace Efficient_Automatic_Traveler_System
                 return false;
             }
         }
-        private void OnTravelersChanged()
+        private void OnTravelersChanged(List<Traveler> travelers)
         {
             // Update the travelers.json file with all the current travelers
             BackupTravelers();
             // fire the event
-            TravelersChanged();
+            TravelersChanged(travelers);
         }
 
        
@@ -482,8 +487,8 @@ namespace Efficient_Automatic_Traveler_System
         private List<Traveler> m_travelers;
         private IOrderManager m_orderManager;
 
-        public event TravelersChangedSubscriber TravelersChanged;
-        
+        public event TravelersChangedSubscriber TravelersChanged; // plural
+        //public event TravelerChangedSubscriber TravelerChanged; // singular
         #endregion
     }
 }

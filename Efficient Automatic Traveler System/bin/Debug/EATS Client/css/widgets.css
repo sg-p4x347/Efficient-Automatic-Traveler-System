@@ -79,6 +79,7 @@ div.percentContainer {
 div.list--horizontal {
 	display: flex;
 	flex-direction: row;
+	align-items: center;
 	width: 100%;
 }
 /*flex modifiers*/
@@ -86,9 +87,11 @@ div.list--horizontal {
 	justify-content: space-between;
 }
 /*access modifiers*/
-.disabled {
-	background-color: rgb(230,230,230);
-	color: white;
+.button.disabled {
+	background-color: rgba(230,230,230,0.2);
+	border-color: rgba(230,230,230,0.2);
+	border-style: inset;
+	color: grey;
 	pointer-events: none;
 }
 .hidden {
@@ -100,6 +103,12 @@ div.list--horizontal {
 }
 .green {
 	color: lime;
+}
+.blue {
+	color: blue;
+}
+.black {
+color: black;
 }
 .greenBack {
 	background-color: green;

@@ -2,6 +2,7 @@
 
 namespace Efficient_Automatic_Traveler_System
 {
+
     class Program
     {
         static void Main()

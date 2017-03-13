@@ -55,30 +55,19 @@ namespace Efficient_Automatic_Traveler_System
         // create a Table from partNo, quantity, and a MAS connection
         public Table(string partNo, int quantity) : base(partNo, quantity) { }
         // returns a JSON formatted string to be sent to a client
-        public override string Export(string clientType, int station)
+        public override string ExportTableRows(string clientType, int station)
         {
             string json = "";
-            json += "{";
-            json += "\"ID\":" + m_ID + ",";
-            json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
-            json += "\"quantity\":" + QuantityPendingAt(station) + ",";
-            json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
-            json += "\"members\":[";
-            string rows = "";
-            rows += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
-            if (clientType == "OperatorClient" && station ==  Traveler.GetStation("Heian")) {
-                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
-                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
+            if (clientType == "OperatorClient" && station == StationClass.GetStation("Heian")) {
+                json += ',' + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
+                json += ',' + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
-                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Color", m_color, "").ToString();
-            } else if (clientType == "OperatorClient" && station == Traveler.GetStation("Vector")) {
-                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
-                rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Color", m_color, "").ToString();
+                json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
+            } else if (clientType == "OperatorClient" && station == StationClass.GetStation("Vector")) {
+                json += ',' + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
+                json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Edgebanding", m_eband.ItemCode, m_eband.TotalQuantity.ToString() + " " + m_eband.Unit).ToString();
             }
-            json += rows;
-            json += ']';
-            json += "}\n";
             return json;
         }
         public override void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
@@ -112,29 +101,29 @@ namespace Efficient_Automatic_Traveler_System
         protected int GetNextStation(UInt16 itemID)
         {
             int station = Items.Find(x => x.ID == itemID).Station;
-            if (station == Traveler.GetStation("Start"))
+            if (station == StationClass.GetStation("Start"))
             {
-                return Traveler.GetStation("Start");
-            } else if (station == Traveler.GetStation("Heian") || station == Traveler.GetStation("Weeke"))
+                return StationClass.GetStation("Start");
+            } else if (station == StationClass.GetStation("Heian") || station == StationClass.GetStation("Weeke"))
             {
                 // switch between vector and straightline edgebander based on what was in the bill
                 if (m_ebander != null) {
-                    return Traveler.GetStation("Edgebander");
+                    return StationClass.GetStation("Edgebander");
                     
                 } else
                 {
-                    return Traveler.GetStation("Vector");
+                    return StationClass.GetStation("Vector");
                 }
                
-            } else if (station == Traveler.GetStation("Vector") || station == Traveler.GetStation("Edgebander"))
+            } else if (station == StationClass.GetStation("Vector") || station == StationClass.GetStation("Edgebander"))
             {
-                return Traveler.GetStation("Table-Pack");
-            } else if (station == Traveler.GetStation("Table-Pack"))
+                return StationClass.GetStation("Table-Pack");
+            } else if (station == StationClass.GetStation("Table-Pack"))
             {
-                return Traveler.GetStation("Finished");
-            } else if (station == Traveler.GetStation("Finished"))
+                return StationClass.GetStation("Finished");
+            } else if (station == StationClass.GetStation("Finished"))
             {
-                return Traveler.GetStation("Finished");
+                return StationClass.GetStation("Finished");
             }
             return -1;
         }
