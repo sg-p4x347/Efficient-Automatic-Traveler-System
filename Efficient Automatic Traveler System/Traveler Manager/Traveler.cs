@@ -1,4 +1,4 @@
-﻿//#define Labels
+﻿#define Labels
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -528,7 +528,7 @@ namespace Efficient_Automatic_Traveler_System
             return json;
         }
         // print a label for this traveler
-        public void PrintLabel(ushort itemID, bool scrap = false, int qty = 1)
+        public bool PrintLabel(ushort itemID, bool scrap = false, int qty = 1)
         {
             try
             {
@@ -537,23 +537,29 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     //client.Credentials = new NetworkCredential("gage", "Stargatep4x347");
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                    string json = "{\"ID\":\"" + ID + '-' + itemID + "\",";
+                    // Fields
+                    string json = "{";
+                    json += "\"ID\":\"" + ID + '-' + itemID + "\",";
                     json += "\"Desc1\":\"" + Part.BillNo + "\",";
                     json += "\"Desc2\":\"" + (scrap ? "!!!***SCRAP***!!!" : Part.BillDesc) + "\",";
-                    //json += "\"Date\":\"" + DateTime.Today.ToString(@"yyyy\-MM\-dd") + "\",";
+                    json += "\"Barcode\":" + ID * 10000 + itemID + ','; // ten digits [000000][0000]
+
+                    // Meta
                     json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
                     json += "\"qty\":" + qty + ",";
                     json += "\"printer\":\"" + "4x2Pack" + "\"}";
 #if Labels
                     result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+                    return result == "Label Printed";
 #endif
                     //http://192.168.2.6:8080/printLabel
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Traveler [" + ID + "] could not print a label: " + ex.Message);
+                Console.WriteLine("Traveler [" + ID + "] could not print a label: " + ex.Message); 
             }
+            return false;
         }
         
         public static bool IsTable(string s)
@@ -598,7 +604,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             foreach (TravelerItem item in Items)
             {
-                if (item.Station == station)
+                if (item.Station == station && item.IsComplete())
                 {
                     AdvanceItem(item.ID);
                 }
@@ -658,10 +664,30 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"qtyScrapped\":" + QuantityScrappedAt(station) + ",";
             json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
             json += "\"items\":" + Items.Stringify() + ',';
-            json += "\"members\":[";
-            json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
-            json += ExportTableRows(clientType,station);
-            json += "]}";
+            if (clientType == "OperatorClient")
+            {
+                json += "\"members\":[";
+                json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
+                json += ExportTableRows(clientType, station);
+                json += "]";
+            } else
+            {
+                json += "\"stations\":";
+                List<int> stations = new List<int>();
+                if (m_station > 0 && QuantityPendingAt(m_station) > 0)
+                {
+                    stations.Add(m_station);
+                }
+                foreach (TravelerItem item in Items)
+                {
+                    if (!stations.Exists(x => x == item.Station))
+                    {
+                        stations.Add(item.Station);
+                    }
+                }
+                json += stations.Stringify();
+            }
+            json += "}";
             return json;
 
         }
@@ -728,15 +754,15 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                foreach (TravelerItem item in Items)
-                {
-                    m_station = item.Station;
-                    if (item.Station != Items[0].Station)
-                    {
-                        m_station = -1;
-                        return -1;
-                    }
-                }
+                //foreach (TravelerItem item in Items)
+                //{
+                //    m_station = item.Station;
+                //    if (item.Station != Items[0].Station)
+                //    {
+                //        m_station = -1;
+                //        return -1;
+                //    }
+                //}
                 return m_station;
             }
             set

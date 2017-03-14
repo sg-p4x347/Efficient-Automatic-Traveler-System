@@ -31,9 +31,40 @@ function Application () {
 	this.SetWindow = function () {
 		// fit the body to the screen resolution
 		document.body.style.height = window.innerHeight + "px";
-		// Small screens
 		
-		document.body.style.fontSize = Math.round(window.innerWidth/72) + "px";
+		var viewContainer = document.getElementById("viewContainer");
+		var queueContainer = document.getElementById("queueContainer");
+		var interfaceContainer = document.getElementById("interfaceContainer");
+		
+		if (window.innerHeight / window.innerWidth < (3/4)) {
+			// landscape layout
+			viewContainer.style.width = "50%";
+			viewContainer.style.height = "100%";
+			
+			
+			queueContainer.style.width = "10%";
+			queueContainer.style.height = "100%";
+			
+			
+			interfaceContainer.style.width = "40%";
+			interfaceContainer.style.height = "100%";
+		} else {
+			// portrait layout
+			
+			viewContainer.style.width = "100%";
+			viewContainer.style.height = "50%";
+			
+			
+			queueContainer.style.width = "20%";
+			queueContainer.style.maxWidth = "none";
+			queueContainer.style.height = "50%";
+			
+			
+			interfaceContainer.style.width = "80%";
+			interfaceContainer.style.height = "50%";
+		}
+		// Small screens
+		document.body.style.fontSize = Math.min(10,Math.round(window.innerWidth/72)) + "px";
 	};
 	
 	//----------------
@@ -57,11 +88,12 @@ function Application () {
 			self.websocket.send('{"station":' + stationID + '}');
 			self.stationList.some(function (station) {
 				if (station.ID == stationID) {
-					self.station = station;
+					self.station = JSON.parse(JSON.stringify(station));
 					return true;
 				}
 			});
 		}
+		select.onchange();
 	}
 	// Executes when the connection closes
 	this.ConnectionClosed = function () {
@@ -150,15 +182,21 @@ function Application () {
 								});
 							}
 							// autoload the first traveler in the queue if just now visiting
-							if ((document.getElementById("stationList").value != self.lastStation && self.travelerQueue.travelers[0])
-								|| !self.travelerQueue.Exists(self.travelerView.traveler)) {
-								self.travelerView.Load(self.travelerQueue.travelers[0]);
-								self.lastStation = document.getElementById("stationList").value;
+							if ((!self.lastStation || self.station.ID != self.lastStation.ID) && self.travelerQueue.travelers[0]) {
+								self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(self.travelerQueue.travelers[0].ID)); // this ensures that the item is selected
+							} else if (!self.travelerQueue.Exists(self.travelerView.traveler)) {
+								if (self.travelerQueue.travelers[0]) {
+									self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(self.travelerQueue.travelers[0].ID)); // this ensures that the item is selected
+									self.Popup("A new traveler has been loaded automatically");
+								} else {
+									self.travelerView.Clear();
+								}
 							}
 							// try and load the old traveler
 							self.travelerQueue.travelers.forEach(function (traveler) {
 								if (traveler.ID == self.travelerView.lastTravelerID) {
-									self.travelerView.Load(traveler);
+									self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(traveler.ID));
+									//self.travelerView.Load(traveler);
 								}
 							});
 						} else if (object.hasOwnProperty("confirmation")) {
@@ -197,8 +235,10 @@ function TravelerQueue() {
 		var exists = false;
 		if (mask) {
 			self.travelers.some(function (traveler) {
-				if (traveler.ID == mask.ID) exists = true;
-				return true;
+				if (traveler.ID == mask.ID) {
+					exists = true;
+					return true;
+				}
 			});
 		}
 		return exists;
@@ -250,6 +290,14 @@ function TravelerQueue() {
 			this.AddTraveler(updated);
 		}
 	}
+	this.SelectTraveler = function (traveler) {
+		var self = this;
+		self.travelers.forEach(function (trav) {
+			trav.selected = trav.ID == traveler.ID;
+		});
+		application.travelerView.Load(traveler)
+		self.RePaint();
+	}
 	this.UnshiftTraveler = function (traveler) {
 		this.travelers.unshift(traveler);
 		this.RePaint();
@@ -279,11 +327,15 @@ function TravelerQueue() {
 		// create and add the new DOM objects
 		self.travelers.forEach(function (traveler) {
 			var DOMqueueItem = document.createElement("DIV");
-			DOMqueueItem.className = "button blueBack queue__item";
+			
+			if (traveler.selected) {
+				DOMqueueItem.className = "button blueBack queue__item selected";
+			} else {
+				DOMqueueItem.className = "button blueBack queue__item";
+			}
 			DOMqueueItem.innerHTML = pad(traveler.ID,6);
 			DOMqueueItem.onmousedown = function () {
-				application.travelerView.Load(traveler);
-				self.RePaint();
+				self.SelectTraveler(traveler);
 			}
 			self.DOMelement.appendChild(DOMqueueItem);
 		});
@@ -298,7 +350,7 @@ function TravelerQueue() {
 function TravelerView() {
 	// properties
 	this.traveler;
-	this.currentItem;
+	this.item;
 	this.lastTravelerID;
 	this.destination;
 	// DOM
@@ -335,22 +387,40 @@ function TravelerView() {
 	}
 	this.Clear = function () {
 		var self = this;
+		delete self.traveler;
+		self.traveler;
+		delete self.item;
+		self.item;
 		while (self.DOMcontainer.hasChildNodes()) {
 			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
 		}
+		// disable the buttons (temporarily)
+		self.DisableUI();
+		// hide the item area
+		document.getElementById("itemQueue").style.display = "none";
+		document.getElementById("completeItemBtn").innerHTML = "Complete item";
+		self.ResetSliders();
 	}
 	this.DisableUI = function () {
 		document.getElementById("completeItemBtn").className = "dark button twoEM disabled";
 		document.getElementById("scrapItemBtn").className = "dark button twoEM disabled";
-		document.getElementById("submitTravelerBtn").className = "dark button twoEM disabled";
+		//document.getElementById("submitTravelerBtn").className = "dark button twoEM disabled";
 	}
 	this.EnableUI = function () {
 		document.getElementById("completeItemBtn").className = "dark button twoEM";
 		document.getElementById("scrapItemBtn").className = "dark button twoEM";
-		document.getElementById("submitTravelerBtn").className = "dark button twoEM";
+		//document.getElementById("submitTravelerBtn").className = "dark button twoEM";
 	}
 	this.LoadTable = function () {
 		var self = this;
+		// create the view header
+		var viewHeader = document.createElement("DIV");
+		viewHeader.className = "view__header";
+		viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6);
+		if (self.item != undefined) {
+			viewHeader.innerHTML += " &#8213 " + self.item.ID;
+		}
+		self.DOMcontainer.appendChild(viewHeader);
 		// create the table
 		var DOMtable = document.createElement("TABLE");
 		DOMtable.className = "view";
@@ -402,18 +472,10 @@ function TravelerView() {
 		// enable the buttons
 		self.EnableUI();
 		// clear old DOM objects
-		if (self.DOMcontainer.lastChild.tagName == "TABLE") {
+		while (self.DOMcontainer.hasChildNodes()) {
 			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
 		}
 		document.getElementById("completeItemBtn").innerHTML = "Complete item #" + self.item.ID;
-		/* // create the view header
-		var viewHeader = document.createElement("DIV");
-		viewHeader.className = "view__header";
-		viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6);
-		if (self.item != undefined) {
-			viewHeader.innerHTML += ", Item: " + self.item.ID;
-		}
-		self.DOMcontainer.appendChild(viewHeader); */
 		
 		self.LoadTable();
 	}
@@ -421,61 +483,66 @@ function TravelerView() {
 		var self = this;
 		
 		// initialize
-		self.traveler = traveler;
 		self.Clear();
+		self.traveler = traveler;
+		
 		self.ResetSliders();
 		
-		// clear old DOM objects
-		while (self.DOMcontainer.hasChildNodes()) {
-			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
-		}
-		
-		if (!traveler)  {
+		if (!self.traveler)  {
 			return;
 		}
-		
-		
+		// store the last state (this current state)
+		self.lastTravelerID = self.traveler.ID;
+		if (application.station) {
+			application.lastStation = JSON.parse(JSON.stringify(application.station));
+		}
 		
 		
 		if (application.station.canCreateItems) {
 			//=================================
 			// CLIENTS THAT CAN CREATE ITEMS
 			//=================================
-			// create the view header
-			var viewHeader = document.createElement("DIV");
-			viewHeader.className = "view__header";
-			viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6);
-			if (self.item != undefined) {
-				viewHeader.innerHTML += ", Item: ";
-			}
-			self.DOMcontainer.appendChild(viewHeader);
+			self.item = undefined;
 			self.LoadTable();
 			// enable the buttons
 			self.EnableUI();
+			// hide the item area
+			document.getElementById("itemQueue").style.display = "none";
+			document.getElementById("completeItemBtn").innerHTML = "Complete item";
 		} else {
 			//=================================
 			// CLIENTS THAT CAN'T CREATE ITEMS
 			//=================================
+			
+			// message
+			var p = document.createElement("P");
+			p.className = "fourEM";
+			p.innerHTML = "Select an item to work on"
+			self.DOMcontainer.appendChild(p);
+			// disable the buttons (temporarily)
 			self.DisableUI();
-			// create the view header
-			var viewHeader = document.createElement("DIV");
-			viewHeader.className = "view__header";
-			viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6) + ", Item: ";
-			self.DOMcontainer.appendChild(viewHeader);
+			// show the item area
+			document.getElementById("itemQueue").style.display = "block";
 			// create the selection for traveler items
-			var select = document.createElement("SELECT");
+			var select = document.getElementById("itemSelect");
+			// clear old options
+			while (select.hasChildNodes()) {
+				select.removeChild(select.lastChild);
+			}
 			select.className = "dark twoEM";
 			self.traveler.items.forEach(function (item) {
-				var option = document.createElement("OPTION");
-				option.value = item.ID;
-				option.innerHTML = item.ID;
-				select.appendChild(option);
+				// only add item if it is at this station and uncomplete
+				if (item.station == application.station.ID && !Contains(item.history,[{prop:"type",value:0},{prop:"station",value:item.station}])) {
+					var option = document.createElement("OPTION");
+					option.value = item.ID;
+					option.innerHTML = item.ID;
+					select.appendChild(option);
+				}
 			});
 			select.onchange = function () {
 				self.LoadItem(self.traveler,self.traveler.FindItem(select.value));
 			}
 			select.value = 0;
-			self.DOMcontainer.appendChild(select);
 		}
 		
 	}
@@ -548,7 +615,7 @@ function TravelerView() {
 				eventType: "Completed",
 				time: self.timerTime.asMinutes(),
 				station: document.getElementById("stationList").value,
-				itemID: (typeof self.currentItem == "number" ? self.currentItem : "undefined")
+				itemID: (self.item ? self.item.ID : "undefined")
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
@@ -562,7 +629,7 @@ function TravelerView() {
 				eventType: "Scrapped",
 				time: self.timerTime.asMinutes(),
 				station: document.getElementById("stationList").value,
-				itemID: (typeof self.currentItem == "number" ? self.currentItem : "undefined")
+				itemID: (self.item ? self.item.ID : "undefined")
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
@@ -589,7 +656,7 @@ function TravelerView() {
 			self.ResetSliders();
 			// load the next traveler
 			if (application.travelerQueue.travelers.length > 0) {
-				// try and find the old traveler first
+				/* // try and find the old traveler first
 				var found = false;
 				application.travelerQueue.travelers.forEach(function (traveler) {
 					if (traveler.ID == completedTraveler.ID) {
@@ -599,7 +666,7 @@ function TravelerView() {
 				});
 				// if not found, load the bottom traveler in the queue
 				if (!found) self.Load(application.travelerQueue.travelers[0]);
-				
+				 */
 			} else {
 				self.Clear();
 			}
@@ -635,32 +702,47 @@ function TravelerView() {
 			var itemID;
 			// as traveler + item
 			var success = false;
-			var separators = ['-',',',' ','+','/','\t'];
-			separators.some(function (separator) {
-				var array = search.split('-');
-				if (array.length == 2) {
-					travelerID = parseInt(array[0],10);
-					itemID = parseInt(array[1]);
-					if (!isNaN(travelerID) && !isNaN(itemID)) {
-						var traveler = application.travelerQueue.FindTraveler(travelerID)
-						self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
-						success = true;
-						return true;
+			var array = search.split('-');
+			//if (array.length == 2) {
+				travelerID = parseInt(array[0],10);
+				itemID = parseInt(array[1],10);
+				if (!isNaN(travelerID)) {
+					var traveler = application.travelerQueue.FindTraveler(travelerID);
+					if (traveler) {
+						application.travelerQueue.SelectTraveler(traveler);
+						var item = traveler.FindItem(itemID);
+						if (item) {
+							self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
+						} else if (!isNaN(itemID)) {
+							application.Popup("Item [" + itemID + "] is not at your station :(");
+						}
+					} else {
+						application.Popup("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");
 					}
+				} else {
+					application.Popup("Invalid traveler ID :(");
 				}
-			});
-			if (!success) {
+			//}
+			/* if (!success) {
 				// as traveler number
 				travelerID = parseInt(search,10);
 				if (!isNaN(travelerID)) {
-					self.Load(application.travelerQueue.FindTraveler(travelerID))
-				};
-			}
+					var traveler = application.travelerQueue.FindTraveler(travelerID)
+					if (traveler) {
+						application.SelectTraveler(traveler);
+					} else {
+						application.Popup("This traveler isn't at your station :(");
+					}
+				} else {
+					application.Popup("Invalid traveler ID :(");
+				}
+			} */
 			return false;
-		}
+		};
 	}
 }
 function Traveler(obj) {
+	obj.selected = false;
 	obj.FindItem = function (itemID) {
 		var item;
 		obj.items.some(function (i) {
@@ -712,4 +794,23 @@ function pad(num, size) {
     var s = num+"";
     while (s.length < size) s = "0" + s;
     return s;
+}
+// use like : Contains(someArray,[{prop:"propName",value:9},{...},...])
+// ALL predicate must be true 
+function Contains(list,predicateList) {
+	var match = false;
+	list.some(function (element) {
+		var allTrue = true;
+		predicateList.some(function (predicate) {
+			if (element[predicate.prop] != predicate.value) {
+				allTrue = false;
+				return true; // break loop
+			}
+		});
+		if (allTrue) {
+			match = true;
+			return true; // break loop
+		}
+	});
+	return match;
 }

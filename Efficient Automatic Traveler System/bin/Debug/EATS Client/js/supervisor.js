@@ -34,7 +34,7 @@ function Application () {
 			queue.DOMcontainer.appendChild(queue.DOMelement);
 			self.queueArray.appendChild(queue.DOMcontainer);
 			
-			self.queues[station] = queue;
+			self.queues[station.ID] = queue;
 		});
 	}
 	// updates the queues with the current travelers
@@ -46,9 +46,11 @@ function Application () {
 		}
 		// add all the travelers back
 		self.travelers.forEach(function (traveler) {
-			if (self.queues.hasOwnProperty(traveler.station)) {
-				self.queues[traveler.station].AddTraveler(traveler);
-			}
+			traveler.stations.forEach(function (station) {
+				
+				self.queues[station].AddTraveler(traveler);
+				
+			});
 		});
 	}
 	// Executes when the connection closes

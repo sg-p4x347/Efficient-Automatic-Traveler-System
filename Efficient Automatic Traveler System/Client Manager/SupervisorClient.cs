@@ -25,7 +25,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 stationList += (stationList.Length != 0 ? "," : "") + '"' + station.Name + '"';
             }
-            SendMessage(@"{""stationList"":[" + stationList + "]}");
+            SendMessage(@"{""stationList"":" + StationClass.Stations.Stringify() + "}");
             HandleTravelersChanged(m_travelerManager.GetTravelers);
         }
         public virtual async void ListenAsync()
@@ -72,14 +72,17 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
-            //string message = @"{""travelers"":[";
-            //string travelerJSON = "";
-            //foreach (Traveler traveler in m_travelers)
-            //{
-            //    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + traveler.Export(this.GetType().Name);
-            //}
-            //message += travelerJSON + "]}";
-            //SendMessage(message);
+            bool mirror = travelers.Count == m_travelerManager.GetTravelers.Count;
+            string message = @"{""travelers"":[";
+            string travelerJSON = "";
+            foreach (Traveler traveler in travelers)
+            {
+                travelerJSON += (travelerJSON.Length > 0 ? "," : "") + traveler.Export(this.GetType().Name, m_station);
+            }
+            message += travelerJSON + "],";
+            message += "\"mirror\":" + mirror.ToString().ToLower();
+            message += "}";
+            SendMessage(message);
         }
         //------------------------------
         // Private members

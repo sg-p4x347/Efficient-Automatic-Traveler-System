@@ -58,7 +58,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void CompileTravelers(ref List<Order> newOrders)
         {
-            // first import stored travelers
+            // first clear what is already stored
+            m_travelers.Clear();
+            // second, import stored travelers
             ImportStoredTravelers();
 
             int index = 0;
@@ -275,14 +277,26 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     
                     ScrapTravelerItem(traveler.ID, item.ID);
-                    traveler.PrintLabel(item.ID, true);
-                    returnMessage = "Printed scrap label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                    if (traveler.PrintLabel(item.ID, true))
+                    {
+                        returnMessage = "Printed scrap label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                    } else
+                    {
+                        returnMessage = "Could not print scrap label";
+                    }
+                    
                     item.Station = StationClass.GetStation("Scrapped");
 
                 } else if (newItem)
                 {
-                    traveler.PrintLabel(item.ID);
-                    returnMessage = "Printed label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                    if (traveler.PrintLabel(item.ID, true))
+                    {
+                        returnMessage = "Printed label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                    }
+                    else
+                    {
+                        returnMessage = "Could not print label";
+                    }
                 }
                 OnTravelersChanged(new List<Traveler>() { traveler });
             } catch (Exception ex)

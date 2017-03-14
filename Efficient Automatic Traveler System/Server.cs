@@ -39,7 +39,7 @@ namespace Efficient_Automatic_Traveler_System
 
             m_clientManagerThread = new Thread(m_clientManager.Start);
             m_clientManagerThread.Name = "Client Manager";
-            m_updateInterval = new TimeSpan(1, 0, 0);
+            m_updateInterval = new TimeSpan(24, 0, 0);
             // HTTP file serving
             
         }
@@ -149,7 +149,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             DateTime current = DateTime.Now;
             TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay;
-            Console.WriteLine("Will update again in: " + timeToGo.TotalMinutes + " Minutes");
+            if (timeToGo.Ticks < 0) timeToGo = timeToGo.Add(new TimeSpan(24,0,0));
             m_timer = new System.Threading.Timer(x =>
             {
                 Update();

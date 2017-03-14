@@ -49,7 +49,7 @@ namespace Efficient_Automatic_Traveler_System
                     if (mi != null)
                     {
                         string returnMessage = (string)mi.Invoke(m_travelerManager, new object[] { obj["parameters"] });
-                        if (returnMessage != null) SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
+                        if (returnMessage != null && returnMessage != "") SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
                     }
                 }
                 //else if (obj.ContainsKey("completed") && obj.ContainsKey("destination") && obj.ContainsKey("time") && obj.ContainsKey("qtyMade") && obj.ContainsKey("qtyScrapped"))

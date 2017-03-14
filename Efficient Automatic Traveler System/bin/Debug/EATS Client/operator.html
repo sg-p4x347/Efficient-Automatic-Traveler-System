@@ -40,15 +40,21 @@
 			<div id = "viewContainer" class = "viewContainer">
 				<table class = "view"></table>
 			</div>
-			<div class = "queueContainer center twoEM">
-				Travelers
+			<div id = "queueContainer" class = "queueContainer center twoEM">
+				<!-- TRAVELER QUEUE -->
+				<p>Travelers</p>
 				<form id = "travelerSearch">
 					<p class = "halfEM black" >traveler#-item#</p>
 					<input type="search" id = "travelerSearchBox"pattern="\d*|(\d*-\d*)">
 				</form>
-				<div id = "travelerQueue" class = "queue"></div> 
+				<div id = "travelerQueue" class = "queue"></div>
+				<!-- ITEM QUEUE -->
+				<div id = "itemQueue">
+					<p>Items</p>
+					<select id = "itemSelect"></select>
+				</div>
 			</div>
-			<div class = "interfaceContainer twoEM">
+			<div id = "interfaceContainer" class = "interfaceContainer twoEM">
 				
 				<div class = "list--horizontal justify-space-between">
 					<!-- STATION SELECTION -->
@@ -61,9 +67,9 @@
 					<!-- OPTIONS BUTTON -->
 					<img id = "optionsBtn" src = "./img/options.png"></img>
 				</div>
+				
+				
 				<!-- QTY LEFT -->
-				
-				
 				<div class = "list--horizontal">
 					<p>Quantity left:</p>
 					<p id = "qtyPending" class = "blue shadow stdMargin"></p>
@@ -71,8 +77,9 @@
 				</div>
 				<!-- COMPLETE BUTTON -->
 				<div id = "completeItemBtn" class = "dark button twoEM">Complete part</div>
-				<!-- QTY SCRAPPED -->
 				
+				
+				<!-- QTY SCRAPPED -->
 				<div class = "list--horizontal">
 					<p>Quantity scrapped:</p>
 					<p id = "qtyScrapped" class = "red shadow stdMargin"></p>
@@ -80,17 +87,18 @@
 				</div>
 				<!-- SCRAP BUTTON -->
 				<div id = "scrapItemBtn" class = "dark button twoEM">Scrap part</div>
-				<!-- QTY COMPLETED -->
 				
+				
+				<!-- QTY COMPLETED -->
 				<div class = "list--horizontal">
 					<p>Quantity completed:</p>
 					<p id = "qtyCompleted" class = "green shadow stdMargin"></p>
 					<!--<div class = "percentContainer"><div id = "qtyMadePercent" class = "percentBar"></div></div>-->
 				</div>
-				
-				
 				<!-- SUBMIT BUTTON -->
 				<div id = "submitTravelerBtn" class = "dark button twoEM">Submit completed parts</div>
+				
+				
 			</div>
 		</div>
 		<!-- FOOTER -->

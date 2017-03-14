@@ -65,6 +65,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             DateTime current = DateTime.Now;
             TimeSpan timeToGo = current.RoundUp(m_pollInterval).TimeOfDay - current.TimeOfDay;
+            if (timeToGo.Ticks < 0) timeToGo = timeToGo.Add(new TimeSpan(24, 0, 0));
             m_timer = new System.Threading.Timer(x =>
             {
                 for (int i = 0; i < m_clients.Count; i++)
