@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 using System.Net.Sockets;
 using System.Net;
@@ -36,33 +37,17 @@ namespace Efficient_Automatic_Traveler_System
                 if (!Connected) return;
                 message = message.Trim('"');
                 if (message.Length == 0) throw new Exception("bad message");
-                //StringStream ss = new StringStream(message);
-                //Dictionary<string, string> obj = ss.ParseJSON();
-                //if (obj.ContainsKey("move") && obj.ContainsKey("destination") && obj.ContainsKey("quantity"))
-                //{
-                //    //----------------------
-                //    // Traveler Completed
-                //    //----------------------
-                //    for (int i = 0; i < m_travelers.Count; i++)
-                //    {
-                //        if (m_travelers[i].ID == Convert.ToInt32(obj["move"]))
-                //        {
-                //            m_travelers[i].Station = Traveler.GetStation(obj["destination"]);
-                //            if (m_travelers[i].Station == Traveler.GetStation("Start"))
-                //            {
-                //                m_travelers[i].Start();
-                //            } else
-                //            {
-                //                m_travelers[i].Advance();
-                //            }
-
-                //            // log this event
-                //            m_travelers[i].History.Add(new Event(TravelerEvent.Moved, m_travelers[i].Quantity, m_travelers[i].Station));
-                //            break;
-                //        }
-                //    }
-                //    TravelersChanged();
-                //}
+                StringStream ss = new StringStream(message);
+                Dictionary<string, string> obj = ss.ParseJSON();
+                if (obj.ContainsKey("interfaceMethod"))
+                {
+                    MethodInfo mi = m_travelerManager.GetType().GetMethod(obj["interfaceMethod"]);
+                    if (mi != null)
+                    {
+                        string returnMessage = (string)mi.Invoke(m_travelerManager, new object[] { obj["parameters"] });
+                        if (returnMessage != null && returnMessage != "") SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -77,7 +62,7 @@ namespace Efficient_Automatic_Traveler_System
             string travelerJSON = "";
             foreach (Traveler traveler in travelers)
             {
-                travelerJSON += (travelerJSON.Length > 0 ? "," : "") + traveler.Export(this.GetType().Name, m_station);
+                travelerJSON += (travelerJSON.Length > 0 ? "," : "") + traveler.Export(this.GetType().Name, -1);
             }
             message += travelerJSON + "],";
             message += "\"mirror\":" + mirror.ToString().ToLower();
@@ -92,19 +77,6 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         protected ITravelerManager m_travelerManager;
         protected List<Traveler> m_travelers;
-        protected int m_station;
-        internal int Station
-        {
-            get
-            {
-                return m_station;
-            }
-
-            set
-            {
-                m_station = value;
-            }
-        }
         //----------
         // Events
         //----------

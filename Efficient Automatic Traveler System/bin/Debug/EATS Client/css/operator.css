@@ -200,26 +200,6 @@ div.qtyRow {
 
 /*Traveler Queue*/
 
-div.queue__item {
-	transition-duration: 0.25s;
-	
-	font-family: "Arial Black", Gadget, sans-serif;
-	font-size: 1em;
-	text-align: center;
-	
-	margin: 0px;
-	padding: 2px;
-	
-	
-	color: white;
-	text-shadow: 1px 1px 1px black;
-	
-	border-width: 3px;
-	border-radius: 6px;
-}
-div {
-	
-}
 /*Traveler View*/
 div.view__header {
 	width: 100%;

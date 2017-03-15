@@ -37,7 +37,7 @@ namespace Efficient_Automatic_Traveler_System
     }
     interface ISupervisor : ITravelerManager
     {
-
+        string MoveTravelerStart(string json);
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
     class TravelerManager : ITravelerManager, IOperator, ISupervisor
@@ -96,8 +96,6 @@ namespace Efficient_Automatic_Traveler_System
                             newTraveler.ParentOrders.Add(order.SalesOrderNo);
                             //=========================================================================
 
-                            // start the new traveler's journey
-                            newTraveler.Station = StationClass.GetStation("Heian");
                             // add the new traveler to the list
                             m_travelers.Add(newTraveler);
                         }
@@ -124,40 +122,9 @@ namespace Efficient_Automatic_Traveler_System
             OnTravelersChanged(m_travelers);
         }
         
-        //public void HandleTravelersChanged()
-        //{
-        //    OnTravelersChanged();
-        //}
         #endregion
         //----------------------------------
-        #region Interface
-        // Creates a child of the parent, returns the child if the quantity was not 0
-        //public void CreateScrapChild(Traveler parent, int qtyScrapped)
-        //{
-        //    Traveler scrapped = parent.Clone();
-        //    scrapped.Quantity = qtyScrapped;
-        //    parent.Quantity -= qtyScrapped;
-        //    scrapped.Start();
-        //    scrapped.History.Add(new Event(TravelerEvent.Scrapped, scrapped.Quantity, parent.Station));
-        //    m_travelers.Add(scrapped);
-
-        //    // compensate for inventory
-        //    UpdateQuantity(parent);
-        //}
-        //public Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time)
-        //{
-        //    Traveler made = (Traveler)parent.Clone();
-
-        //    made.Quantity = qtyMade;
-        //    parent.Quantity -= qtyMade;
-        //    made.NextStation = parent.NextStation;
-        //    made.History.Add(new Event(TravelerEvent.Completed, made.Quantity, parent.Station, time));
-        //    m_travelers.Add(made);
-        //    AdvanceTraveler(made);
-            
-
-        //    return made;
-        //}
+        #region ITravelerManager
         
         public Traveler FindTraveler(int ID)
         {
@@ -186,50 +153,6 @@ namespace Efficient_Automatic_Traveler_System
             // finally... remove THIS traveler
             m_travelers.RemoveAll(x => x.ID == ID);
         }
-        //public void AdvanceTraveler(Traveler traveler)
-        //{
-        //    traveler.Station = traveler.NextStation;
-        //    traveler.Advance();
-        //    int ancestor = FindAncestor(traveler).ID;
-        //    // check to see if this traveler can re-combine with family
-        //    Traveler toRemove = null;
-        //    foreach (Traveler relative in m_travelers)
-        //    {
-        //        // if they have a common ancestor
-        //        if (relative.Station == traveler.Station && relative.ID != traveler.ID && (FindAncestor(relative).ID == ancestor))
-        //        {
-        //            if (relative.ID < traveler.ID)
-        //            {
-        //                // the relative is older if the ID is less
-        //                relative.Quantity += traveler.Quantity;
-        //                Event e = new Event(TravelerEvent.Merged, traveler.Quantity, traveler.LastStation);
-        //                e.message = "Traveler [" + traveler.ID.ToString("D6") + "] has merged with this traveler. Please combine it's parts with this traveler's parts and destroy it's label.";
-        //                relative.History.Add(e);
-        //                toRemove = traveler;
-        //            } else
-        //            {
-        //                // the traveler is older than the relative
-        //                traveler.Quantity += relative.Quantity;
-        //                Event e = new Event(TravelerEvent.Merged, relative.Quantity, relative.LastStation);
-        //                e.message = "Traveler [" + relative.ID.ToString("D6") + "] has merged with this traveler. Please combine its parts with this traveler's parts and destroy its label.";
-        //                traveler.History.Add(e);
-        //                toRemove = relative;
-        //            }
-        //        }
-        //    }
-        //    if (toRemove != null)
-        //    {
-        //        RemoveTraveler(toRemove);
-        //    }
-        //}
-        //public Traveler FindAncestor(Traveler child)
-        //{
-        //    foreach (int parentID in child.Parents)
-        //    {
-        //        return FindAncestor(FindTraveler(parentID));
-        //    }
-        //    return child;
-        //}
         public List<Traveler> GetTravelers
         {
             get
@@ -242,12 +165,13 @@ namespace Efficient_Automatic_Traveler_System
         {
             FindTraveler(travelerID).AdvanceItem(itemID);
         }
-
+        #endregion
+        //----------------------------------
+        #region IOperator
         public void ScrapTravelerItem(int travelerID, ushort itemID)
         {
             FindTraveler(travelerID).ScrapItem(itemID);
         }
-
         // has to know which station this is being completed from
         public string AddTravelerEvent(string json)
         {
@@ -289,7 +213,7 @@ namespace Efficient_Automatic_Traveler_System
 
                 } else if (newItem)
                 {
-                    if (traveler.PrintLabel(item.ID, true))
+                    if (traveler.PrintLabel(item.ID))
                     {
                         returnMessage = "Printed label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
                     }
@@ -320,7 +244,24 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Problem submitting traveler: " + ex.Message + "stack trace: " + ex.StackTrace);
             }
         }
-
+        #endregion
+        //----------------------------------
+        #region ISupervisor
+        public string MoveTravelerStart(string json)
+        {
+            string returnMessage = "";
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                traveler.Station = Convert.ToInt32(obj["station"]);
+                OnTravelersChanged(new List<Traveler>() { traveler });
+            } catch (Exception ex)
+            {
+                Server.WriteLine("Problem MovingTravelerStart from supervisor client: " + ex.Message + "stack trace: " + ex.StackTrace);
+            }
+            return returnMessage;
+        }
         #endregion
         //----------------------------------
         #region Private methods

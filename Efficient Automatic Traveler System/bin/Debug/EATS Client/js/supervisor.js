@@ -18,9 +18,29 @@ function Application () {
 	this.queues = {};
 	// Websocket
 	this.websocket;
-	this.SetWindowHeight = function () {
+	this.SetWindow = function () {
+		// Small screens
+		var fontsize = Math.max(8,Math.min(20,Math.round(window.innerWidth/24)));
+		document.body.style.fontSize = fontsize + "px";
 		// fit the body to the screen resolution
 		document.body.style.height = window.innerHeight + "px";
+		
+		var viewContainer = document.getElementById("viewContainer");
+		var queueContainer = document.getElementById("queueContainer");
+		var interfaceContainer = document.getElementById("interfaceContainer");
+		
+		// change the size of the queues with respect to the font size
+		for (var key in application.queues) {
+			application.queues[key].DOMcontainer.style.width = "auto";
+		}
+		
+		if (window.innerHeight / window.innerWidth < (3/4)) {
+			// landscape layout
+		} else {
+			// portrait layout
+
+		}
+		
 	};
 	
 	//----------------
@@ -29,9 +49,7 @@ function Application () {
 	this.PopulateQueues = function () {
 		var self = this;
 		self.stationList.forEach(function (station) {
-			var queue = new TravelerQueue();
-			queue.DOMcontainer.innerHTML = station;
-			queue.DOMcontainer.appendChild(queue.DOMelement);
+			var queue = new TravelerQueue(station);
 			self.queueArray.appendChild(queue.DOMcontainer);
 			
 			self.queues[station.ID] = queue;
@@ -71,8 +89,8 @@ function Application () {
 	this.Initialize = function () {
 		var self = this;
 		
-		self.SetWindowHeight();
-		window.addEventListener("resize",self.SetWindowHeight,false);
+		self.SetWindow();
+		window.addEventListener("resize",self.SetWindow,false);
 		//----------------
 		// queueArray
 		//----------------
@@ -109,13 +127,24 @@ function Application () {
 						if (object.hasOwnProperty("stationList")) {
 							self.stationList = object.stationList;
 							self.PopulateQueues();
+							self.SetWindow();
 						}
-						if (object.hasOwnProperty("travelers")) {
-							self.travelers = [];
-							object.travelers.forEach(function (obj) {
-								var traveler = new Traveler(obj);
-								self.travelers.push(traveler);
-							});
+						if (object.hasOwnProperty("travelers") && object.hasOwnProperty("mirror")) {
+							if (object.mirror) {
+								self.travelers = [];
+								object.travelers.forEach(function (obj) {
+									var traveler = new Traveler(obj);
+									self.travelers.push(traveler);
+								});
+							} else {
+								object.travelers.forEach(function (obj) {
+									self.travelers.forEach(function (traveler, index) {
+										if (traveler.ID == obj.ID) {
+											self.travelers[index] = new Traveler(obj);
+										}
+									});
+								});
+							}
 							self.HandleTravelersChanged();
 						}
 					}
@@ -133,10 +162,11 @@ function Application () {
         }
 	}
 }
-function TravelerQueue() {
+function TravelerQueue(station) {
 	this.DOMcontainer;
 	this.DOMelement;
 	this.travelers;
+	this.station;
 	
 	this.Clear = function () {
 		this.travelers = [];
@@ -175,8 +205,12 @@ function TravelerQueue() {
 		// create and add the new DOM objects
 		self.travelers.forEach(function (traveler) {
 			var DOMqueueItem = document.createElement("DIV");
-			DOMqueueItem.className = "queue__item";
-			DOMqueueItem.innerHTML = pad(traveler.ID,6);
+			DOMqueueItem.className = "button queue__item blueBack twoEM";
+			DOMqueueItem.innerHTML = pad(traveler.ID,6) + "<br>";
+			var itemCode = document.createElement("SPAN");
+			itemCode.className = "queue__item__desc";
+			itemCode.innerHTML = traveler.itemCode;
+			DOMqueueItem.appendChild(itemCode);
 			DOMqueueItem.onmousedown = function () {
 				self.PromptAction(traveler);
 			}
@@ -192,25 +226,29 @@ function TravelerQueue() {
 		var blackout = document.getElementById("blackout");
 		blackout.style.visibility = "visible";
 		var promptBox = document.getElementById("promptBox");
-		// clear the promptBox
+		promptBox.className = "promptBox";
+		/* // clear the promptBox
 		while (promptBox.hasChildNodes()) {
 			promptBox.removeChild(promptBox.lastChild);
-		}
+		} */
+		var promptInfo = document.getElementById("promptInfo");
+		document.getElementById("promptInfoTravelerID").innerHTML = pad(traveler.ID,6);
+		document.getElementById("promptInfoItemCode").innerHTML = traveler.itemCode;
+		document.getElementById("promptInfoQuantity").innerHTML = "Qty on traveler: " + traveler.quantity;
+		document.getElementById("promptInfoAction").innerHTML = "Move [" + pad(traveler.ID,6) + "]'s starting location to...";
 		//-----------------
-		// Send to...
+		// Move starting station to...
 		//-----------------
-		promptBox.innerHTML = "Send [" + pad(traveler.ID,6) + "] to...";
-		var destList = document.createElement("SELECT");
-		destList.className = "dark stdMargin halfEM";
+		var promptMoveBtn = document.getElementById("promptMoveBtn");
+		var promptSelect = document.getElementById("promptSelect");
 		// add the station options
 		application.stationList.forEach(function (station) {
 			var option = document.createElement("OPTION");
-			option.innerHTML = station;
-			option.value = station;
-			destList.appendChild(option);
+			option.innerHTML = station.name;
+			option.value = station.ID;
+			promptSelect.appendChild(option);
 		});
-		promptBox.appendChild(destList);
-		//-----------------
+		/* //-----------------
 		// Quantity sliders
 		//-----------------
 		
@@ -264,50 +302,43 @@ function TravelerQueue() {
 			this.min = 0;
 			qtyMoving.value = traveler.quantity - parseInt(this.value);
 			self.BalanceSliders(qtyMoving,qtyStaying,movingBar,stayingBar,traveler);
-		}
+		} */
 		
-		// create a horizontal grouping for buttons
-		var buttonList = document.createElement("DIV");
-		buttonList.className = "list--horizontal";
-		{
 			//-----------------
 			// Cancel button
 			//-----------------
-			var cancel = document.createElement("DIV");
-			cancel.className = "dark button";
-			cancel.innerHTML = "Cancel";
-			cancel.onclick = function () {
+			var promptCancelBtn = document.getElementById("promptCancelBtn");
+			promptCancelBtn.onclick = function () {
 				blackout.style.visibility = "hidden";
 			}
-			buttonList.appendChild(cancel);
 			//-----------------
-			// Submit button
+			// Move button
 			//-----------------
-			var cancel = document.createElement("DIV");
-			cancel.className = "dark button";
-			cancel.innerHTML = "Send";
-			cancel.onclick = function () {
+			var promptMoveBtn = document.getElementById("promptMoveBtn");
+			promptMoveBtn.onclick = function () {
 				/* this is just for responsiveness, 
 				the server will soon confirm traveler positions in an update*/
-				var completedTraveler = self.ShiftTraveler(traveler); 
-				var message = {
-					move: completedTraveler.ID,
-					destination: destList.value,
-					quantity: completedTraveler.quantity
-				};
+				var movedTraveler = self.ShiftTraveler(traveler); 
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("MoveTravelerStart",
+				{
+					travelerID: movedTraveler.ID,
+					station: promptSelect.value
+				});
 				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
 				
 				blackout.style.visibility = "hidden";
 			}
-			buttonList.appendChild(cancel);
-		}
-		
-		promptBox.appendChild(buttonList);
 	}
-	this.Initialize = function () {
+	this.Initialize = function (station) {
 		var self = this;
+		self.station = station;
+		
 		self.DOMcontainer = document.createElement("DIV");
 		self.DOMcontainer.className = "queueContainer";
+		self.DOMcontainer.innerHTML = self.station.name;
+		
 		self.DOMelement = document.createElement("DIV");
 		self.DOMelement.className = "queue";
 		
@@ -318,7 +349,7 @@ function TravelerQueue() {
 		this.DOMelement.parent.removeChild(this.DOMelement);
 		this.travelers = [];
 	}
-	this.Initialize();
+	this.Initialize(station);
 }
 function TravelerView() {
 	// properties
@@ -434,12 +465,4 @@ function TravelerView() {
 		var self = this;
 		self.DOMcontainer = document.getElementById("viewContainer");
 	}
-}
-function Traveler(obj) {
-	return obj;
-}
-function pad(num, size) {
-    var s = num+"";
-    while (s.length < size) s = "0" + s;
-    return s;
 }

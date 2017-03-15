@@ -13,6 +13,21 @@ using System.Security.Cryptography;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    struct ClientMessage
+    {
+        public ClientMessage(string type, string message)
+        {
+            Type = type;
+            Message = message;
+        }
+        public override string ToString()
+        {
+            //return "{\"type\":" + '"' + Type + '"';
+            return "";
+        }
+        public string Type;
+        public string Message;
+    }
     /* all derived classes that use ITravelers 
      * implement definitions for thise prototypes */
     interface ITravelers

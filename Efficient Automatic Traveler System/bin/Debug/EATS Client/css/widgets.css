@@ -58,6 +58,7 @@ div.button:hover, div.button:active, div.selected {
 	background-color: silver;
 	border-color: white;
 	color: black;
+	text-shadow: none;
 }
 .numberBox {
 	font-size: inherit;
@@ -95,32 +96,92 @@ div.list--horizontal {
 	pointer-events: none;
 }
 .hidden {
-	visibility: hidden;
+	display: none;
 }
 /*color modifiers*/
 .red {
-	color: red;
+	color: #FF0000;
 }
-.green {
-	color: lime;
+.white {
+	color: white;
+}
+.black {
+	color: black;
 }
 .blue {
 	color: blue;
 }
-.black {
-color: black;
+.cyan {
+	color: cyan;
+}
+.green {
+	color: green;
+}
+.yellow {
+	color: yellow;
+}
+.orange {
+	color: orange;
+}
+.red {
+	color: red;
+}
+.purple {
+	color: purple;
+}
+
+.whiteBack {
+	background-color: whitesmoke;
+	border: 2px outset white;
+}
+.blackBack {
+	background-color: black;
+	border-top: 2px solid #202020;
+	border-left: 2px solid #202020;
+}
+.blueBack {
+	background-color: blue;
+	border: 2px outset darkblue;
+	border-top-color: RoyalBlue;
+	border-left-color: RoyalBlue;
+}
+.cyanBack {
+	background-color: cyan;
+	border: 2px outset LightSeaGreen;
+	border-top-color: PaleTurquoise;
+	border-left-color: PaleTurquoise;
 }
 .greenBack {
 	background-color: green;
-	border: 2px outset #00A000;
+	border: 2px outset green;
+	border-top-color: limegreen;
+	border-left-color: limegreen;
+}
+.yellowBack {
+	background-color: yellow;
+	border: 2px outset darkkhaki;
+	border-top-color: LightYellow;
+	border-left-color: LightYellow;
+}
+.orangeBack {
+	background-color: orange;
+	border: 2px outset orange;
+	border-top-color: LightOrange;
+	border-left-color: LightOrange;
 }
 .redBack {
-	background-color: maroon;
+	background-color: red;
+	border: 2px outset maroon;
+	border-top-color: IndianRed;
+	border-left-color: IndianRed;
 }
-.blueBack {
-	background-color: dodgerblue;
-	border: 2px outset #4da6ff;
+.purpleBack {
+	background-color: purple;
+	border: 2px outset indigo;
+	border-top-color: violet;
+	border-left-color: violet;
 }
+
 /* color themes */
 .dark {
 	background-color: #202020;
@@ -160,8 +221,42 @@ color: black;
 .italics {
 	font-style: italic;
 }
+.retro {
+	color: #d7ceb2;
+	text-shadow: 3px 3px 0px #2c2e38, 5px 5px 0px #5c5f72;
+	font: 80px 'BazarMedium';
+	font-style: bold;
+	letter-spacing: 10px;
+}
+.three-d {
+	text-shadow: 0px 1px 0px #999, 0px 2px 0px #888, 0px 3px 0px #777, 0px 4px 0px #666, 0px 5px 0px #555, 0px 6px 0px #444, 0px 7px 0px #333, 0px 8px 7px #001135;
+	font: 80px 'ChunkFiveRegular';
+}
 /* margins */
 .stdMargin, .button {
 	margin: 4px;
 	padding: 4px;
+}
+
+div.queue__item {
+	transition-duration: 0.25s;
+
+	
+	font-family: "Arial Black", Gadget, sans-serif;
+	text-align: center;
+	text-shadow: 0px 0px 5px black;
+	
+	margin: 0px;
+	padding: 2px;
+	
+	
+	color: white;
+	text-shadow: 0px 0px 15px black, 0px 0px 15px black;
+	
+	border-width: 3px;
+	border-radius: 6px;
+}
+div.queue__item__desc {
+	color: white;
+	text-shadow: 1px 1px 1px black;
 }

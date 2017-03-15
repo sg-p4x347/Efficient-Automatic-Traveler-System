@@ -4,15 +4,32 @@
         <title>EATS Supervisor</title>
 		<script type="text/javascript" src="./js/config.js?<%=DateTime.Now.Ticks %>"></script>
         <script type="text/javascript" src="./js/supervisor.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/utility.js?<%=DateTime.Now.Ticks %>"></script>
 		<link rel="stylesheet" type="text/css" href="./css/supervisor.css?<%=DateTime.Now.Ticks %>"></link>
 		<link rel="stylesheet" type="text/css" href="./css/widgets.css?<%=DateTime.Now.Ticks %>"></link>
 		<link rel="icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>"></link>
     </head>
 	<body onload = "Initialize()">
 		<div id = "blackout">
-			<div id = "promptBox"></div>
+			<div id = "promptBox" class = "hidden">
+				<!-- OPTIONS BUTTON -->
+				<div class = "list--horizontal">
+					<p id = "promptInfo">
+						<span id = "promptInfoTravelerID" class = "white three-d"></span><br>
+						<span id = "promptInfoItemCode" class = "white three-d"></span><br>
+						<span id = "promptInfoQuantity"></span><br>
+						<span id = "promptInfoAction"></span>
+					</p>
+				</div>
+				<select id = "promptSelect" class = "dark oneEM"></select>
+				<div class = "list--horizontal">
+					<div id = "promptCancelBtn" class = "dark button">Cancel</div>
+					<div id = "promptMoveBtn" class = "dark button">Move</div>
+					<img id = "optionsBtn" src = "./img/options.png"></img>
+				</div>
+			</div>
 		</div>
-		<div class = "header fourEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
+		<div class = "header twoEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
 			<span style = "color: #001a66;">Supervisor</span>
 		</div>
 		

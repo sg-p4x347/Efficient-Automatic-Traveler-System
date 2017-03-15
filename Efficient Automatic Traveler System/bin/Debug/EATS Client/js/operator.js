@@ -21,6 +21,10 @@ function Application () {
 	this.stationList;
 	// Websocket
 	this.websocket;
+	// timeouts
+	this.AutoFocusTimeout;
+	// barcode scanner
+	this.IDbuffer = "";
 	// update and render
 	this.Render = function () {
 		
@@ -66,7 +70,9 @@ function Application () {
 		// Small screens
 		document.body.style.fontSize = Math.min(10,Math.round(window.innerWidth/72)) + "px";
 	};
-	
+	this.FocusOnSearch = function () {
+		document.getElementById("travelerSearchBox").focus();
+	}
 	//----------------
 	// station list
 	//----------------
@@ -121,6 +127,13 @@ function Application () {
 		self.SetWindow();
 		window.addEventListener("resize",self.SetWindow,false);
 		
+		window.onmousedown = function() {
+			clearTimeout(application.AutoFocusTimeout);
+			application.AutoFocusTimeout = setTimeout(application.FocusOnSearch,5000);
+		}
+		window.addEventListener("keydown",function (evt) {
+			application.FocusOnSearch();
+		});
 		//----------------
 		// traveler view
 		//----------------
@@ -333,7 +346,13 @@ function TravelerQueue() {
 			} else {
 				DOMqueueItem.className = "button blueBack queue__item";
 			}
+			
 			DOMqueueItem.innerHTML = pad(traveler.ID,6);
+			var itemCode = document.createElement("SPAN");
+			itemCode.className = "queue_item__desc";
+			itemCode.innerHTML = traveler.itemCode;
+			DOMqueueItem.appendChild(itemCode);
+			
 			DOMqueueItem.onmousedown = function () {
 				self.SelectTraveler(traveler);
 			}
@@ -399,6 +418,7 @@ function TravelerView() {
 		// hide the item area
 		document.getElementById("itemQueue").style.display = "none";
 		document.getElementById("completeItemBtn").innerHTML = "Complete item";
+		document.getElementById("scrapItemBtn").innerHTML = "Scrap item";
 		self.ResetSliders();
 	}
 	this.DisableUI = function () {
@@ -476,7 +496,7 @@ function TravelerView() {
 			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
 		}
 		document.getElementById("completeItemBtn").innerHTML = "Complete item #" + self.item.ID;
-		
+		document.getElementById("scrapItemBtn").innerHTML = "Scrap item #" + self.item.ID;
 		self.LoadTable();
 	}
 	this.Load = function (traveler) {
@@ -508,7 +528,7 @@ function TravelerView() {
 			self.EnableUI();
 			// hide the item area
 			document.getElementById("itemQueue").style.display = "none";
-			document.getElementById("completeItemBtn").innerHTML = "Complete item";
+			
 		} else {
 			//=================================
 			// CLIENTS THAT CAN'T CREATE ITEMS
@@ -619,6 +639,7 @@ function TravelerView() {
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
+			application.FocusOnSearch();
 		}
 		// scrapping a traveler item
 		document.getElementById("scrapItemBtn").onclick = function () {
@@ -633,6 +654,7 @@ function TravelerView() {
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
+			application.FocusOnSearch();
 		}
 		// Submitting a finished traveler
 		document.getElementById("submitTravelerBtn").onclick = function () {
@@ -653,29 +675,7 @@ function TravelerView() {
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
-			self.ResetSliders();
-			// load the next traveler
-			if (application.travelerQueue.travelers.length > 0) {
-				/* // try and find the old traveler first
-				var found = false;
-				application.travelerQueue.travelers.forEach(function (traveler) {
-					if (traveler.ID == completedTraveler.ID) {
-						self.Load(traveler);
-						found = true;
-					}
-				});
-				// if not found, load the bottom traveler in the queue
-				if (!found) self.Load(application.travelerQueue.travelers[0]);
-				 */
-			} else {
-				self.Clear();
-			}
-	/* 			if ((parseInt(qtyMade.value) > 0 && parseInt(qtyMade.value) < self.traveler.quantity) || (parseInt(qtyScrapped.value) > 0 && parseInt(qtyScrapped.value) < self.traveler.quantity)) {
-				document.getElementById("submit").innerHTML = "Printing...";
-			} */
-			// close the window
-			document.getElementById("blackout").style.visibility = "hidden";
-			document.getElementById("finalizeContainer").style.display = "none";
+			application.FocusOnSearch();
 		}
 		// cancel submission
 		document.getElementById("cancel").onclick = function () {
@@ -703,78 +703,32 @@ function TravelerView() {
 			// as traveler + item
 			var success = false;
 			var array = search.split('-');
-			//if (array.length == 2) {
-				travelerID = parseInt(array[0],10);
-				itemID = parseInt(array[1],10);
-				if (!isNaN(travelerID)) {
-					var traveler = application.travelerQueue.FindTraveler(travelerID);
-					if (traveler) {
-						application.travelerQueue.SelectTraveler(traveler);
-						var item = traveler.FindItem(itemID);
-						if (item) {
-							self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
-						} else if (!isNaN(itemID)) {
-							application.Popup("Item [" + itemID + "] is not at your station :(");
-						}
-					} else {
-						application.Popup("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");
+
+			travelerID = parseInt(array[0],10);
+			itemID = parseInt(array[1],10);
+			if (!isNaN(travelerID)) {
+				var traveler = application.travelerQueue.FindTraveler(travelerID);
+				if (traveler) {
+					application.travelerQueue.SelectTraveler(traveler);
+					var item = traveler.FindItem(itemID);
+					if (item && item.station == application.station.ID) {
+						self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
+					} else if (!isNaN(itemID)) {
+						application.Popup("Item [" + itemID + "] is not at your station");
 					}
 				} else {
-					application.Popup("Invalid traveler ID :(");
+					application.Popup("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");
 				}
-			//}
-			/* if (!success) {
-				// as traveler number
-				travelerID = parseInt(search,10);
-				if (!isNaN(travelerID)) {
-					var traveler = application.travelerQueue.FindTraveler(travelerID)
-					if (traveler) {
-						application.SelectTraveler(traveler);
-					} else {
-						application.Popup("This traveler isn't at your station :(");
-					}
-				} else {
-					application.Popup("Invalid traveler ID :(");
-				}
-			} */
+			} else {
+				application.Popup("Invalid traveler ID :(");
+			}
+			document.getElementById("travelerSearchBox").value = "";
 			return false;
 		};
 	}
 }
-function Traveler(obj) {
-	obj.selected = false;
-	obj.FindItem = function (itemID) {
-		var item;
-		obj.items.some(function (i) {
-			if (i.ID == itemID) {
-				item = i;
-				return true;
-			}
-		});
-		return item;
-	}
-	return obj;
-	/* // Common properties
-	this.ID;
-	this.itemCode;
-	this.quantity;
-	this.description;
-	
-	this.Initialize = function (obj) {
-		var self = this;
-		
-		// Common properties
-		self.ID = obj.ID;
-		self.itemCode =  obj.itemCode;
-		self.quantity = obj.quantity;
-		self.description = obj.description;
-	}
-	this.Initialize(obj); */
-}
-function InterfaceCall(methodName, parameters) {
-	this.interfaceMethod = methodName;
-	this.parameters = parameters;
-}
+
+
 function PopulateStations (stations,DOMparent,callback) {
 	var self = this
 	// remove old
@@ -789,28 +743,4 @@ function PopulateStations (stations,DOMparent,callback) {
 		li.onmousedown = callback;
 		DOMparent.appendChild(li);
 	});
-}
-function pad(num, size) {
-    var s = num+"";
-    while (s.length < size) s = "0" + s;
-    return s;
-}
-// use like : Contains(someArray,[{prop:"propName",value:9},{...},...])
-// ALL predicate must be true 
-function Contains(list,predicateList) {
-	var match = false;
-	list.some(function (element) {
-		var allTrue = true;
-		predicateList.some(function (predicate) {
-			if (element[predicate.prop] != predicate.value) {
-				allTrue = false;
-				return true; // break loop
-			}
-		});
-		if (allTrue) {
-			match = true;
-			return true; // break loop
-		}
-	});
-	return match;
 }

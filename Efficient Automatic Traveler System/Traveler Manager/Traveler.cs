@@ -237,6 +237,7 @@ namespace Efficient_Automatic_Traveler_System
             m_part = new Bill(billNo, quantity);
             m_quantity = quantity;
             m_parentOrders = new List<string>();
+            Station = StationClass.GetStation("Start");
             Items = new List<TravelerItem>();
             NewID();
         }
@@ -427,85 +428,6 @@ namespace Efficient_Automatic_Traveler_System
         //        Console.WriteLine("An error occured when accessing inventory: " + ex.Message);
         //    }
         //}
-        //public void Import(string json)
-        //{
-        //    try
-        //    {
-        //        bool readString = false;
-        //        string stringToken = "";
-
-        //        string memberName = "";
-
-        //        string value = "";
-
-        //        // SalesOrderNo
-        //        for (int pos = 0; pos < json.Length; pos++)
-        //        {
-        //            char ch = json[pos];
-        //            switch (ch)
-        //            {
-        //                case ' ':
-        //                case '\t':
-        //                case '\n':
-        //                    continue;
-        //                case '"':
-        //                    readString = !readString;
-        //                    continue;
-        //                case ':':
-        //                    memberName = stringToken; stringToken = "";
-        //                    continue;
-        //                case '[':
-        //                    while (json[pos] != ']')
-        //                    {
-        //                        if (json[pos] == '{')
-        //                        {
-        //                            string orderJson = "";
-        //                            while (json[pos] != '}')
-        //                            {
-        //                                ch = json[pos];
-        //                                orderJson += ch;
-        //                                pos++;
-        //                            }
-        //                            m_orders.Add(new Order(orderJson + '}'));
-        //                        }
-        //                        pos++;
-        //                    }
-        //                    continue;
-        //                case ',':
-        //                    value = stringToken; stringToken = "";
-        //                    // set the corresponding member
-        //                    if (memberName == "ID")
-        //                    {
-        //                        m_ID = Convert.ToInt32(value);
-        //                    }
-        //                    else if (memberName == "itemCode")
-        //                    {
-        //                        m_partNo = value;
-        //                    }
-        //                    else if (memberName == "quantity")
-        //                    {
-        //                        m_quantity = Convert.ToInt32(value);
-        //                    }
-        //                    else if (memberName == "station")
-        //                    {
-        //                        m_station = Convert.ToInt32(value);
-        //                    }
-        //                    continue;
-        //                case '}': continue;
-        //            }
-        //            if (readString)
-        //            {
-        //                // read string character by character
-        //                stringToken += ch;
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Problem reading in traveler from printed.json: " + ex.Message);
-        //    }
-        //    m_printed = true;
-        //}
         // returns a JSON formatted string containing traveler information
         public override string ToString()
         {
@@ -539,13 +461,13 @@ namespace Efficient_Automatic_Traveler_System
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
                     // Fields
                     string json = "{";
-                    json += "\"ID\":\"" + ID + '-' + itemID + "\",";
+                    json += "\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\",";
                     json += "\"Desc1\":\"" + Part.BillNo + "\",";
                     json += "\"Desc2\":\"" + (scrap ? "!!!***SCRAP***!!!" : Part.BillDesc) + "\",";
-                    json += "\"Barcode\":" + ID * 10000 + itemID + ','; // ten digits [000000][0000]
+                    json += "\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"' + ','; // ten digits [000000][0000]
 
                     // Meta
-                    json += "\"template\":\"" + "4x2 Table Travel1" + "\",";
+                    json += "\"template\":\"" + (scrap ? "4x2 Table Scrap1" : "4x2 Table Travel1") + "\",";
                     json += "\"qty\":" + qty + ",";
                     json += "\"printer\":\"" + "4x2Pack" + "\"}";
 #if Labels
@@ -659,25 +581,22 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"ID\":" + m_ID + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + m_quantity + ",";
-            json += "\"type\":" + '"' + this.GetType().Name + '"' + ",";
-            json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
-            json += "\"qtyScrapped\":" + QuantityScrappedAt(station) + ",";
-            json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
+            
             json += "\"items\":" + Items.Stringify() + ',';
             if (clientType == "OperatorClient")
             {
+                json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
+                json += "\"qtyScrapped\":" + QuantityScrappedAt(station) + ",";
+                json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
                 json += "\"members\":[";
                 json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
                 json += ExportTableRows(clientType, station);
                 json += "]";
-            } else
+            } else if (clientType == "SupervisorClient")
             {
                 json += "\"stations\":";
                 List<int> stations = new List<int>();
-                if (m_station > 0 && QuantityPendingAt(m_station) > 0)
-                {
-                    stations.Add(m_station);
-                }
+                if (QuantityPendingAt(m_station) > 0) stations.Add(m_station);
                 foreach (TravelerItem item in Items)
                 {
                     if (!stations.Exists(x => x == item.Station))
@@ -767,10 +686,6 @@ namespace Efficient_Automatic_Traveler_System
             }
             set
             {
-                foreach (TravelerItem item in Items)
-                {
-                    item.Station = value;
-                }
                 m_station = value;
             }
         }
