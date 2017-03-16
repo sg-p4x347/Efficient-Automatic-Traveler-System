@@ -84,6 +84,11 @@ namespace Efficient_Automatic_Traveler_System
                         closing = '"';
                         scope += opening;
                         goto begin;
+                    case 't':
+                    case 'f':
+                        closing = 'e';
+                        scope += opening;
+                        goto begin;
                     default:
                         if (Char.IsNumber(opening) || opening == '-')
                         {

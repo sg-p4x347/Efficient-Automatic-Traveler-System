@@ -17,16 +17,20 @@ namespace Efficient_Automatic_Traveler_System
     {
         public ClientMessage(string type, string message)
         {
-            Type = type;
-            Message = message;
+            Method = type;
+            Parameters = message;
         }
         public override string ToString()
         {
-            //return "{\"type\":" + '"' + Type + '"';
-            return "";
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"method", Method.Quotate() },
+                {"parameters", Parameters }
+            };
+            return obj.Stringify();
         }
-        public string Type;
-        public string Message;
+        public string Method;
+        public string Parameters;
     }
     /* all derived classes that use ITravelers 
      * implement definitions for thise prototypes */

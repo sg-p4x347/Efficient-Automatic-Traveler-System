@@ -12,7 +12,7 @@
 	<body onload = "Initialize()">
 		<div id = "blackout">
 			<div id = "promptBox" class = "hidden">
-				<!-- OPTIONS BUTTON -->
+				
 				<div class = "list--horizontal">
 					<p id = "promptInfo">
 						<span id = "promptInfoTravelerID" class = "white three-d"></span><br>
@@ -22,17 +22,24 @@
 					</p>
 				</div>
 				<select id = "promptSelect" class = "dark oneEM"></select>
-				<div class = "list--horizontal">
+				<div class = "list--horizontal justify-space-between">
 					<div id = "promptCancelBtn" class = "dark button">Cancel</div>
 					<div id = "promptMoveBtn" class = "dark button">Move</div>
-					<img id = "optionsBtn" src = "./img/options.png"></img>
+					<div id = "promptInfoBtn" class = "dark button">More info</div>
+					<!-- OPTIONS BUTTON -->
+					<img id = "optionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
 				</div>
 			</div>
+			<!-- JSON VIEWER -->
+			<div id = "JSONviewer" class = "JSONviewer hidden"></div>
 		</div>
 		<div class = "header twoEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
 			<span style = "color: #001a66;">Supervisor</span>
 		</div>
-		
+		<form id = "searchForm" class = "list--horizontal">
+			<p>Search</p>
+			<input id = "searchBox" class = "dark inset twoEM" type = "search" pattern = "\d*|(\d*-\d*)">
+		</form>
 		<div class = "body">
 			<div id = "queueArray" class = "queueArray"></div> 
 		</div>

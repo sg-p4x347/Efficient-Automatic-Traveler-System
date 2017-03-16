@@ -37,7 +37,9 @@ namespace Efficient_Automatic_Traveler_System
     }
     interface ISupervisor : ITravelerManager
     {
-        string MoveTravelerStart(string json);
+        ClientMessage MoveTravelerStart(string json);
+        ClientMessage LoadTraveler(string json);
+        ClientMessage LoadItem(string json);
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
     class TravelerManager : ITravelerManager, IOperator, ISupervisor
@@ -247,18 +249,52 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //----------------------------------
         #region ISupervisor
-        public string MoveTravelerStart(string json)
+        public ClientMessage MoveTravelerStart(string json)
         {
-            string returnMessage = "";
+            ClientMessage returnMessage;
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 traveler.Station = Convert.ToInt32(obj["station"]);
                 OnTravelersChanged(new List<Traveler>() { traveler });
+                returnMessage = new ClientMessage();
             } catch (Exception ex)
             {
                 Server.WriteLine("Problem MovingTravelerStart from supervisor client: " + ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info","error");
+            }
+            return returnMessage;
+        }
+        public ClientMessage LoadTraveler(string json)
+        {
+            ClientMessage returnMessage;
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                returnMessage = new ClientMessage("LoadTraveler",traveler.Export("Raw",-1));
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine("Problem MovingTravelerStart from supervisor client: " + ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+        public ClientMessage LoadItem(string json)
+        {
+            ClientMessage returnMessage;
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                returnMessage = new ClientMessage("LoadItem", traveler.FindItem(Convert.ToUInt16(obj["itemID"])).ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine("Problem MovingTravelerStart from supervisor client: " + ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
             }
             return returnMessage;
         }

@@ -59,12 +59,12 @@ function Application () {
 			viewContainer.style.height = "50%";
 			
 			
-			queueContainer.style.width = "20%";
+			queueContainer.style.width = "25%";
 			queueContainer.style.maxWidth = "none";
 			queueContainer.style.height = "50%";
 			
 			
-			interfaceContainer.style.width = "80%";
+			interfaceContainer.style.width = "75%";
 			interfaceContainer.style.height = "50%";
 		}
 		// Small screens
@@ -347,7 +347,7 @@ function TravelerQueue() {
 				DOMqueueItem.className = "button blueBack queue__item";
 			}
 			
-			DOMqueueItem.innerHTML = pad(traveler.ID,6);
+			DOMqueueItem.innerHTML = pad(traveler.ID,6) + "<br>";
 			var itemCode = document.createElement("SPAN");
 			itemCode.className = "queue_item__desc";
 			itemCode.innerHTML = traveler.itemCode;
@@ -415,6 +415,8 @@ function TravelerView() {
 		}
 		// disable the buttons (temporarily)
 		self.DisableUI();
+		self.ResetSliders();
+		self.UpdateSubmitBtn();
 		// hide the item area
 		document.getElementById("itemQueue").style.display = "none";
 		document.getElementById("completeItemBtn").innerHTML = "Complete item";
@@ -424,13 +426,19 @@ function TravelerView() {
 	this.DisableUI = function () {
 		document.getElementById("completeItemBtn").className = "dark button twoEM disabled";
 		document.getElementById("scrapItemBtn").className = "dark button twoEM disabled";
-		//document.getElementById("submitTravelerBtn").className = "dark button twoEM disabled";
 	}
 	this.EnableUI = function () {
 		document.getElementById("completeItemBtn").className = "dark button twoEM";
 		document.getElementById("scrapItemBtn").className = "dark button twoEM";
-		//document.getElementById("submitTravelerBtn").className = "dark button twoEM";
 	}
+	this.UpdateSubmitBtn = function () {
+		if (this.traveler && this.traveler.qtyCompleted > 0) {
+			document.getElementById("submitTravelerBtn").className = "dark button twoEM";
+		} else {
+			document.getElementById("submitTravelerBtn").className = "dark button twoEM disabled";
+		}
+	}
+	
 	this.LoadTable = function () {
 		var self = this;
 		// create the view header
@@ -491,6 +499,7 @@ function TravelerView() {
 		self.item = item;
 		// enable the buttons
 		self.EnableUI();
+		self.UpdateSubmitBtn();
 		// clear old DOM objects
 		while (self.DOMcontainer.hasChildNodes()) {
 			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
@@ -505,9 +514,8 @@ function TravelerView() {
 		// initialize
 		self.Clear();
 		self.traveler = traveler;
-		
 		self.ResetSliders();
-		
+		self.UpdateSubmitBtn();
 		if (!self.traveler)  {
 			return;
 		}
@@ -639,6 +647,8 @@ function TravelerView() {
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
+			if (application.station.mode == "Serial") document.getElementById("submitTravelerBtn").onclick();
+			self.UpdateSubmitBtn();
 			application.FocusOnSearch();
 		}
 		// scrapping a traveler item
@@ -654,6 +664,7 @@ function TravelerView() {
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
+			self.UpdateSubmitBtn();
 			application.FocusOnSearch();
 		}
 		// Submitting a finished traveler
@@ -675,12 +686,8 @@ function TravelerView() {
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
+			self.UpdateSubmitBtn();
 			application.FocusOnSearch();
-		}
-		// cancel submission
-		document.getElementById("cancel").onclick = function () {
-			document.getElementById("blackout").style.visibility = "hidden";
-			self.ResumeTimer();
 		}
 		//----------------
 		// timer ui
@@ -701,7 +708,6 @@ function TravelerView() {
 			var travelerID;
 			var itemID;
 			// as traveler + item
-			var success = false;
 			var array = search.split('-');
 
 			travelerID = parseInt(array[0],10);
@@ -714,7 +720,7 @@ function TravelerView() {
 					if (item && item.station == application.station.ID) {
 						self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
 					} else if (!isNaN(itemID)) {
-						application.Popup("Item [" + itemID + "] is not at your station");
+						application.Popup("Item [" + pad(travelerID,6) + "-" + itemID + "] is not at your station;<br>It is at: " + application.stationList[item.station].name);
 					}
 				} else {
 					application.Popup("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");

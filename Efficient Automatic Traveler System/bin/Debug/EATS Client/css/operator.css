@@ -95,13 +95,7 @@ div.timer__btn {
 	box-sizing: border-box;
 	width: 40%;
 }
-#optionsBtn {
-	height: 100%;
-	opacity: 0.5
-}
-#optionsBtn:hover, :active {
-	opacity: 1.0;
-}
+
 #travelerSearchBox {
 	width: 100%;
 }

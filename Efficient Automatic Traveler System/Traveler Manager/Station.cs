@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    enum StationMode
+    {
+        Batch,
+        Serial
+    }
+
     class StationClass
     {
         #region Public Methods
@@ -15,6 +22,8 @@ namespace Efficient_Automatic_Traveler_System
             m_ID = Convert.ToInt32(obj["ID"]);
             m_name = obj["name"];
             m_canCreateItems = Convert.ToBoolean(obj["canCreateItems"]);
+            Enum.TryParse<StationMode>(obj["mode"], out m_mode);
+            
             Stations.Add(this);
         }
         public static StationClass FindStation(int ID)
@@ -23,12 +32,13 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            string json = "{";
-            json += "\"name\":" + '"' + m_name + '"' + ',';
-            json += "\"ID\":" + m_ID + ',';
-            json += "\"canCreateItems\":" + m_canCreateItems.ToString().ToLower();
-            json += "}";
-            return json;
+            Dictionary<string, string> obj = new Dictionary<string, string>() {
+                { "name", m_name.Quotate()},
+                { "ID", m_ID.ToString()},
+                { "canCreateItems", m_canCreateItems.ToString().ToLower()},
+                { "mode", m_mode.ToString().Quotate()},
+            };
+            return obj.Stringify();
         }
         public static int GetStation(string key)
         {
@@ -69,6 +79,7 @@ namespace Efficient_Automatic_Traveler_System
         private int m_ID;
         private string m_name;
         private bool m_canCreateItems;
+        private StationMode m_mode;
 
         public static List<StationClass> Stations = new List<StationClass>();
 
@@ -110,6 +121,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_canCreateItems = value;
+            }
+        }
+
+        internal StationMode Mode
+        {
+            get
+            {
+                return m_mode;
+            }
+
+            set
+            {
+                m_mode = value;
             }
         }
         #endregion

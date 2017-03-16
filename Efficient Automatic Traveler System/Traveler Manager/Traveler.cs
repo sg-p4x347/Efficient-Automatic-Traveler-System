@@ -114,7 +114,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             string json = "{";
             json += "\"ID\":" + m_ID;
-            json += ",\"scrapped\":" + '"' + m_scrapped + '"';
+            json += ",\"scrapped\":" + m_scrapped.ToString().ToLower();
             json += ",\"station\":" + m_station;
             json += ",\"lastStation\":" + m_lastStation;
             json += ",\"history\":" + m_history.Stringify<Event>();
@@ -581,8 +581,8 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"ID\":" + m_ID + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + m_quantity + ",";
-            
             json += "\"items\":" + Items.Stringify() + ',';
+
             if (clientType == "OperatorClient")
             {
                 json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
@@ -596,7 +596,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 json += "\"stations\":";
                 List<int> stations = new List<int>();
-                if (QuantityPendingAt(m_station) > 0) stations.Add(m_station);
+                if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station);
                 foreach (TravelerItem item in Items)
                 {
                     if (!stations.Exists(x => x == item.Station))
@@ -605,6 +605,10 @@ namespace Efficient_Automatic_Traveler_System
                     }
                 }
                 json += stations.Stringify();
+            } else if (clientType == "Raw")
+            {
+                json += "\"description\":" + m_part.BillDesc.Quotate() + ',';
+                json += "\"starting station\":" + m_station;
             }
             json += "}";
             return json;

@@ -86,17 +86,7 @@ div.footer {
 	background-color: rgba(255,255,255,0.25);
 	z-index: 100;
 }
-#promptBox {
-	padding: 8px;
-	font-size: 1.5em;
-	color: black;
-	background-color: rgb(255,165,0);
-	border: 2px solid black;
-	display: flex;
-	flex-direction: column;
-	text-align: center;
-	border-radius: 16px;
-}
+
 #optionsBtn {
 	display: flex;
 	float: right;

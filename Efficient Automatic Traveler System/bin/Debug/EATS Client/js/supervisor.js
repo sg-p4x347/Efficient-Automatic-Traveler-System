@@ -12,6 +12,7 @@ function Initialize() {
 function Application () {
 	// DOM
 	this.queueArray;
+	this.JSONviewer;
 	// DATA
 	this.stationList = [];
 	this.travelers = [];
@@ -85,12 +86,60 @@ function Application () {
 		blackout.style.textShadow = "0px 0px 8px yellow";
 		blackout.innerHTML = "You are not connected to the server;<br> either refresh the page, or inform Gage Coates";
 	}
+	// Loads the traveler GUI
+	this.LoadTraveler = function (traveler) {
+		this.JSONviewer = new JSONviewer(traveler,"Traveler");
+	}
+	// Loads the item GUI
+	this.LoadItem = function (item) {
+		this.JSONviewer = new JSONviewer(item,"Traveler Item");
+	}
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
 		
 		self.SetWindow();
 		window.addEventListener("resize",self.SetWindow,false);
+		//----------------
+		// search
+		//----------------
+		var searchBox = document.getElementById("searchBox");
+		window.addEventListener("keydown",function () {
+			searchBox.focus();
+		});
+		document.getElementById("searchForm").onsubmit = function () {
+			var searchArray = searchBox.value.split('-');
+			// try to parse the search string
+			var travelerID = parseInt(searchArray[0],10);
+			var itemID = parseInt(searchArray[1],10);
+
+			if (!isNaN(travelerID)) {
+				if (!isNaN(itemID)) {
+					// attempt to load the item
+					//----------INTERFACE CALL-----------------------
+					var message = new InterfaceCall("LoadItem",
+					{
+						travelerID: travelerID,
+						itemID: itemID
+					});
+					self.websocket.send(JSON.stringify(message));
+					//-----------------------------------------------
+				} else {
+					// attempt to load the traveler
+					//----------INTERFACE CALL-----------------------
+					var message = new InterfaceCall("LoadTraveler",
+					{
+						travelerID: travelerID
+					});
+					self.websocket.send(JSON.stringify(message));
+					//-----------------------------------------------
+				}
+			} else {
+				self.Popup("Invalid traveler ID :(");
+			}
+			searchBox.value = "";
+			return false;
+		}
 		//----------------
 		// queueArray
 		//----------------
@@ -146,6 +195,12 @@ function Application () {
 								});
 							}
 							self.HandleTravelersChanged();
+						}
+						if (object.hasOwnProperty("method")) {
+							if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
+								// The server is invoking a client method
+								self[object.method](object.parameters);
+							}
 						}
 					}
 				} else if (messageEvent.data instanceof Blob) {
@@ -310,6 +365,7 @@ function TravelerQueue(station) {
 			var promptCancelBtn = document.getElementById("promptCancelBtn");
 			promptCancelBtn.onclick = function () {
 				blackout.style.visibility = "hidden";
+				promptBox.className = "promptBox hidden";
 			}
 			//-----------------
 			// Move button
@@ -329,6 +385,16 @@ function TravelerQueue(station) {
 				//-----------------------------------------------
 				
 				blackout.style.visibility = "hidden";
+				promptBox.className = "hidden";
+			}
+			//-----------------
+			// Options button
+			//-----------------
+			document.getElementById("promptInfoBtn").onclick = function () {
+				blackout.style.visibility = "hidden";
+				promptBox.className = "promptBox hidden";
+				document.getElementById("searchBox").value = traveler.ID;
+				document.getElementById("searchForm").onsubmit();
 			}
 	}
 	this.Initialize = function (station) {
@@ -465,4 +531,120 @@ function TravelerView() {
 		var self = this;
 		self.DOMcontainer = document.getElementById("viewContainer");
 	}
+}
+function JSONviewer(object,name) {
+	this.stack = [];
+	this.DOMcontainer = document.getElementById("JSONviewer");
+	this.Open = function (obj) {
+		var self = this;
+		self.Clear();
+		// quit
+		if (!obj) {
+			self.Quit();
+			return;
+		}
+		// add this objet to the stack
+		self.stack.push(obj);
+		// add a back button
+		var backBtn = document.createElement("DIV");
+		backBtn.className = "JSONviewer__back";
+		
+		backBtn.onclick = function () {
+			self.Close();
+		}
+		/* var backImg = document.createElement("IMG");
+		backImg.src = "./img/back.png";
+		backImg.style.height = "50%";
+		backBtn.appendChild(backImg); */
+		backBtn.innerHTML = "Back";
+		/*backBtn.style.background = 'url("./img/back.png"), linear-gradient(to right, transparent, #4d4d4d, transparent)';
+		backBtn.style.backgroundX
+		backBtn.style.backgroundRepeat = "no-repeat";
+		backBtn.style.backgroundSize = "contain"; */
+		
+		self.DOMcontainer.appendChild(backBtn);
+		// title of current scope
+		var title = document.createElement("P");
+		title.className = "green shadow twoEM";
+		title.innerHTML = obj.Name;
+		self.DOMcontainer.appendChild(title);
+		
+		// list the properties
+		for (var property in obj) {
+			if (property != "Name") {
+				var value = obj[property];
+				var listHorizontal = document.createElement("DIV");
+				listHorizontal.className = "list--horizontal JSONviewer__field";
+				
+				var propName = document.createElement("P");
+				propName.innerHTML = property + ": ";
+				listHorizontal.appendChild(propName);
+		
+				if (Array.isArray(value)) {
+					var scrollDiv = document.createElement("DIV");
+					scrollDiv.className = "JSONviewer__scrollable";
+					value.forEach(function (element,index) {
+						var itemList = document.createElement("DIV");
+						itemList.className = "list--horizontal";
+						if (typeof(element) == "object") itemList.innerHTML = "item " + index + ":";
+						self.DisplayValue(property,element,itemList);
+						
+						scrollDiv.appendChild(itemList);
+					});
+					listHorizontal.appendChild(scrollDiv);
+				} else {
+					self.DisplayValue(property,value,listHorizontal);
+				}
+				self.DOMcontainer.append(listHorizontal);
+			}
+		}
+	}
+	this.Close = function () {
+		this.stack.pop();
+		this.Open(this.stack.pop(),this.lastName);
+	}
+	this.Clear = function () {
+		var self = this;
+		while (self.DOMcontainer.hasChildNodes()) {
+			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
+		}
+	}
+	this.Quit = function () {
+		this.DOMcontainer.className = "JSONviewer hidden";
+		document.getElementById("blackout").style.visibility = "hidden";
+	}
+	this.DisplayValue = function (property,value,DOMparent) {
+		var self = this;
+		
+		
+		var valueDiv = document.createElement("DIV");
+		if (typeof(value) == "object") {
+			valueDiv.className = "dark button";
+			valueDiv.onclick = function () {
+				value.Name = property;
+				self.Open(value);
+			}
+			valueDiv.innerHTML = "Open";
+		} else {
+			if (property.toLowerCase().includes("station")) {
+				valueDiv.innerHTML = application.stationList[value].name;
+			} else if (property.toLowerCase().includes("time")) {
+				valueDiv.innerHTML = value + " min";
+			} else {
+				valueDiv.innerHTML = value;
+			}
+		}
+		DOMparent.appendChild(valueDiv);
+					
+	}
+	this.Initialize = function (object,name) {
+		var self = this;
+		if (object) {
+			document.getElementById("blackout").style.visibility = "visible";
+			self.DOMcontainer.className = "JSONviewer";
+			object.Name = name;
+			self.Open(object);
+		}
+	}
+	this.Initialize(object,name);
 }

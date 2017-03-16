@@ -26,23 +26,44 @@ namespace Efficient_Automatic_Traveler_System
                 return true;
             }
         }
+        // turns a list into a json string: [obj.ToString(),obj.ToString(),...]
         public static string Stringify<itemType>(this List<itemType> list)
         {
             string json = "[";
-            foreach (itemType s in list)
+            if (list != null)
             {
-                if (json.Length > 1) json += ',';
-                if (typeof(itemType) == typeof(string))
+                foreach (itemType s in list)
                 {
-                    json += '"' + s.ToString() + '"';
-                } else
-                {
-                    json += s.ToString();
+                    if (json.Length > 1) json += ',';
+                    if (typeof(itemType) == typeof(string))
+                    {
+                        json += '"' + s.ToString() + '"';
+                    }
+                    else
+                    {
+                        json += s.ToString();
+                    }
+
                 }
-                
             }
             json += "]";
             return json;
+        }
+        // returns a JSON string representing the collection of name value pairs
+        public static string Stringify(this Dictionary<string,string> obj)
+        {
+            string json = "{";
+            foreach (KeyValuePair<string,string> pair in obj)
+            {
+                json += (json.Length > 1 ? "," : "") + pair.Key.Quotate() + ':' + pair.Value;
+            }
+            json += '}';
+            return json;
+        }
+        // calling ToString on a string should return a quoted string, for JSON formatting
+        public static string Quotate(this string s)
+        {
+            return '"' + s + '"';
         }
     }
 }

@@ -44,8 +44,8 @@ namespace Efficient_Automatic_Traveler_System
                     MethodInfo mi = m_travelerManager.GetType().GetMethod(obj["interfaceMethod"]);
                     if (mi != null)
                     {
-                        string returnMessage = (string)mi.Invoke(m_travelerManager, new object[] { obj["parameters"] });
-                        if (returnMessage != null && returnMessage != "") SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
+                        ClientMessage returnMessage = (ClientMessage)mi.Invoke(m_travelerManager, new object[] { obj["parameters"] });
+                        SendMessage(returnMessage.ToString());
                     }
                 }
             }

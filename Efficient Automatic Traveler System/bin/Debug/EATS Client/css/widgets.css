@@ -77,11 +77,59 @@ div.percentContainer {
 	padding: 8px;
 	width: 70%;
 }
-div.list--horizontal {
+.list--horizontal {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	width: 100%;
+}
+.JSONviewer {
+	font-size: 1.5em;
+	display: flex;
+	flex-direction: column;
+	background-color: black;
+	border-radius: 16px;
+	padding: 8px;
+	border: 8px solid white;
+}
+.JSONviewer__scrollable {
+	overflow-y: auto;
+	max-height: 100px;
+	
+}
+.JSONviewer__field{
+	border-top: 1px solid gray;
+	justify-content: space-between;
+}
+.JSONviewer__back {
+	transition-duration: 0.2s;
+	background: url("../img/back.png"), linear-gradient(to right, transparent, #4d4d4d, transparent);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+.JSONviewer__back:hover, .JSONviewer__back:active {
+	background: url("../img/back.png"), linear-gradient(to right, transparent, gray, transparent);
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: 30% top;
+}
+.optionsBtn {
+	height: 100%;
+	opacity: 0.5
+}
+.optionsBtn:hover, :active {
+	opacity: 1.0;
+}
+.promptBox {
+	padding: 8px;
+	font-size: 1.5em;
+	color: black;
+	background-color: rgb(255,165,0);
+	border: 2px solid black;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	border-radius: 16px;
 }
 /*flex modifiers*/
 .justify-space-between {
@@ -259,4 +307,8 @@ div.queue__item {
 div.queue__item__desc {
 	color: white;
 	text-shadow: 1px 1px 1px black;
+}
+/* border */
+.inset {
+	border-style: inset;
 }
