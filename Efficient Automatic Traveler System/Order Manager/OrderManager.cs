@@ -1,4 +1,4 @@
-﻿#define LessOrders
+﻿//#define LessOrders
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,9 +41,11 @@ namespace Efficient_Automatic_Traveler_System
                 m_orders.Clear();
                 // next, load the orders that have travelers from the json file
                 ImportStoredOrders();
+                List<string> currentOrderNumbers = new List<string>();
+                foreach (Order order in m_orders) { currentOrderNumbers.Add(order.SalesOrderNo); }
 
                 Server.WriteLine("Importing orders...");
-                List<string> currentOrderNumbers = new List<string>();
+                
                 // get informatino from header
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                 OdbcCommand command = MAS.CreateCommand();

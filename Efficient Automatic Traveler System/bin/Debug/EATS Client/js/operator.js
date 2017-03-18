@@ -14,6 +14,7 @@ function Application () {
 	this.travelerQueue;
 	this.travelerView;
 	this.completedList;
+	this.popupManager;
 	// client information
 	this.lastStation;
 	this.station;
@@ -22,7 +23,7 @@ function Application () {
 	// Websocket
 	this.websocket;
 	// timeouts
-	this.AutoFocusTimeout;
+	this.IOScheckTimeout;
 	// barcode scanner
 	this.IDbuffer = "";
 	// update and render
@@ -71,6 +72,7 @@ function Application () {
 		document.body.style.fontSize = Math.min(10,Math.round(window.innerWidth/72)) + "px";
 	};
 	this.FocusOnSearch = function () {
+		document.getElementById("travelerSearchBox").value = "";
 		document.getElementById("travelerSearchBox").focus();
 	}
 	//----------------
@@ -101,39 +103,30 @@ function Application () {
 		}
 		select.onchange();
 	}
-	// Executes when the connection closes
-	this.ConnectionClosed = function () {
-		var self = this;
-		var blackout = document.getElementById("blackout");
-		blackout.style.visibility = "visible";
-		while (blackout.firstChild) {
-			blackout.removeChild(blackout.firstChild);
-		}
-		blackout.style.fontSize = "3em";
-		blackout.style.color = "black";
-		blackout.style.backgroundColor = "rgba(255,255,255,0.8)";
-		blackout.style.textShadow = "0px 0px 8px yellow";
-		blackout.innerHTML = "You are not connected to the server;<br> either refresh the page, or inform your supervisor";
-	}
-	this.Popup = function (message) {
-		document.getElementById("blackout").style.visibility = "visible";
-		document.getElementById("confirm").style.display = "flex";
-		document.getElementById("confirmMessage").innerHTML = message;
+	this.Info = function (message) {
+		this.popupManager.Info(message);
 	}
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
-		
+		self.popupManager = new PopupManager(document.getElementById("blackout"));
 		self.SetWindow();
 		window.addEventListener("resize",self.SetWindow,false);
 		
-		window.onmousedown = function() {
-			clearTimeout(application.AutoFocusTimeout);
-			application.AutoFocusTimeout = setTimeout(application.FocusOnSearch,5000);
-		}
 		window.addEventListener("keydown",function (evt) {
-			application.FocusOnSearch();
+			if (document.getElementById("travelerSearchBox") != document.activeElement)  {application.FocusOnSearch();}
+			clearTimeout(self.IOScheckTimeout)
+			self.IOScheckTimeout = setTimeout(function () {
+				if (document.getElementById("travelerSearchBox").value.length >= 11) {
+					document.getElementById("travelerSearch").onsubmit();
+				}
+			},500);
 		});
+		/* window.addEventListener("keyup",function () {
+			if (document.getElementById("travelerSearchBox").value.length == 11) {
+				document.getElementById("travelerSearch").onsubmit();
+			}
+		}); */
 		//----------------
 		// traveler view
 		//----------------
@@ -200,7 +193,7 @@ function Application () {
 							} else if (!self.travelerQueue.Exists(self.travelerView.traveler)) {
 								if (self.travelerQueue.travelers[0]) {
 									self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(self.travelerQueue.travelers[0].ID)); // this ensures that the item is selected
-									self.Popup("A new traveler has been loaded automatically");
+									self.Info("A new traveler has been loaded automatically");
 								} else {
 									self.travelerView.Clear();
 								}
@@ -213,7 +206,7 @@ function Application () {
 								}
 							});
 						} else if (object.hasOwnProperty("confirmation")) {
-							self.Popup(object.confirmation);
+							self.Info(object.confirmation);
 						}
 					}
 				} else if (messageEvent.data instanceof Blob) {
@@ -222,17 +215,17 @@ function Application () {
 			};
 			// websocket is closed.
 			self.websocket.onclose = function() {
-				self.ConnectionClosed();
+				self.popupManager.Error("You are not connected to the server;<br> either refresh the page, or inform your supervisor");
 				console.log("Connection is closed..."); 
 			};
 		} else {
 			alert("WebSocket NOT supported by your Browser!");
         }
-		// Confirm box "OK" button
+		/* // Confirm box "OK" button
 		document.getElementById("confirmBtn").onclick = function () {
 			document.getElementById("confirm").style.display = "none";
 			document.getElementById("blackout").style.visibility = "hidden";
-		}
+		} */
 	}
 }
 function TravelerQueue() {
@@ -649,7 +642,6 @@ function TravelerView() {
 			//-----------------------------------------------
 			if (application.station.mode == "Serial") document.getElementById("submitTravelerBtn").onclick();
 			self.UpdateSubmitBtn();
-			application.FocusOnSearch();
 		}
 		// scrapping a traveler item
 		document.getElementById("scrapItemBtn").onclick = function () {
@@ -665,7 +657,6 @@ function TravelerView() {
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
 			self.UpdateSubmitBtn();
-			application.FocusOnSearch();
 		}
 		// Submitting a finished traveler
 		document.getElementById("submitTravelerBtn").onclick = function () {
@@ -687,7 +678,6 @@ function TravelerView() {
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
 			self.UpdateSubmitBtn();
-			application.FocusOnSearch();
 		}
 		//----------------
 		// timer ui
@@ -703,6 +693,7 @@ function TravelerView() {
 		} */
 		// Traveler Search
 		document.getElementById("travelerSearch").onsubmit = function () {
+			application.popupManager.CloseAll();
 			var search = document.getElementById("travelerSearchBox").value;
 			// try to parse the search string
 			var travelerID;
@@ -718,19 +709,56 @@ function TravelerView() {
 					application.travelerQueue.SelectTraveler(traveler);
 					var item = traveler.FindItem(itemID);
 					if (item && item.station == application.station.ID) {
-						self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
+						if (Contains(item.history,[{prop:"station",value:item.station},{prop:"type",value:0}])) {
+							application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] has already been completed at this station :)");
+						} else {
+							self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
+						}
 					} else if (!isNaN(itemID)) {
-						application.Popup("Item [" + pad(travelerID,6) + "-" + itemID + "] is not at your station;<br>It is at: " + application.stationList[item.station].name);
+						application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] is not at your station;<br>It is at: " + application.stationList[item.station].name);
 					}
 				} else {
-					application.Popup("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");
+					application.Info("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");
 				}
 			} else {
-				application.Popup("Invalid traveler ID :(");
+				application.Info("Invalid traveler ID :(");
 			}
 			document.getElementById("travelerSearchBox").value = "";
 			return false;
-		};
+		}
+	}
+	this.SubmitSearch = function() {
+		application.popupManager.CloseAll();
+		var search = document.getElementById("travelerSearchBox").value;
+		// try to parse the search string
+		var travelerID;
+		var itemID;
+		// as traveler + item
+		var array = search.split('-');
+
+		travelerID = parseInt(array[0],10);
+		itemID = parseInt(array[1],10);
+		if (!isNaN(travelerID)) {
+			var traveler = application.travelerQueue.FindTraveler(travelerID);
+			if (traveler) {
+				application.travelerQueue.SelectTraveler(traveler);
+				var item = traveler.FindItem(itemID);
+				if (item && item.station == application.station.ID) {
+					if (Contains(item.history,[{prop:"station",value:item.station},{prop:"type",value:0}])) {
+						application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] has already been completed at this station :)");
+					} else {
+						self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
+					}
+				} else if (!isNaN(itemID)) {
+					application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] is not at your station;<br>It is at: " + application.stationList[item.station].name);
+				}
+			} else {
+				application.Info("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");
+			}
+		} else {
+			application.Info("Invalid traveler ID :(");
+		}
+		document.getElementById("travelerSearchBox").value = "";
 	}
 }
 

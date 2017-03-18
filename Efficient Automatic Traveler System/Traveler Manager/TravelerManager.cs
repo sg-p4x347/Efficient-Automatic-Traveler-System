@@ -256,9 +256,15 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                traveler.Station = Convert.ToInt32(obj["station"]);
-                OnTravelersChanged(new List<Traveler>() { traveler });
-                returnMessage = new ClientMessage();
+                if (traveler != null)
+                {
+                    traveler.Station = Convert.ToInt32(obj["station"]);
+                    OnTravelersChanged(new List<Traveler>() { traveler });
+                    returnMessage = new ClientMessage();
+                } else
+                {
+                    returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
+                }
             } catch (Exception ex)
             {
                 Server.WriteLine("Problem MovingTravelerStart from supervisor client: " + ex.Message + "stack trace: " + ex.StackTrace);
@@ -273,7 +279,13 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                returnMessage = new ClientMessage("LoadTraveler",traveler.Export("Raw",-1));
+                if (traveler != null)
+                {
+                    returnMessage = new ClientMessage("LoadTraveler", traveler.ExportHuman());
+                } else
+                {
+                    returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
+                }
             }
             catch (Exception ex)
             {
@@ -289,7 +301,21 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                returnMessage = new ClientMessage("LoadItem", traveler.FindItem(Convert.ToUInt16(obj["itemID"])).ToString());
+                if (traveler != null)
+                {
+                    TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+                    if (item != null)
+                    {
+                        returnMessage = new ClientMessage("LoadItem", item.ToString());
+                    } else
+                    {
+                        returnMessage = new ClientMessage("Info", "\"Invalid traveler item number\"");
+                    }
+                    
+                } else
+                {
+                    returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
+                }
             }
             catch (Exception ex)
             {

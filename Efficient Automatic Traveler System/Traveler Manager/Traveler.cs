@@ -39,9 +39,9 @@ namespace Efficient_Automatic_Traveler_System
         public Event (TravelerEvent e, double t, int s)
         {
             type = e;
-            time = 0;
+            time = t;
             station = s;
-            date = DateTime.Now.ToString("MM/dd/yy @ hh:00");
+            date = DateTime.Now.ToString("MM/dd/yy @ hh:mm");
         }
         public override string ToString()
         {
@@ -471,7 +471,7 @@ namespace Efficient_Automatic_Traveler_System
                     json += "\"qty\":" + qty + ",";
                     json += "\"printer\":\"" + "4x2Pack" + "\"}";
 #if Labels
-                    result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+                    result = client.UploadString(@"http://192.168.2.6/printLabel", "POST", json);
                     return result == "Label Printed";
 #endif
                     //http://192.168.2.6:8080/printLabel
@@ -613,6 +613,20 @@ namespace Efficient_Automatic_Traveler_System
             json += "}";
             return json;
 
+        }
+        // export for raw data view
+        public string ExportHuman()
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"ID",m_ID.ToString() },
+                {"Model",m_part.BillNo.Quotate() },
+                {"Description",m_part.BillDesc.Quotate() },
+                {"Qty on traveler",m_quantity.ToString() },
+                {"Orders",m_parentOrders.Stringify() },
+                {"Items",Items.Stringify() }
+            };
+            return obj.Stringify();
         }
         public abstract string ExportTableRows(string clientType, int station);
         // advances the item to the next station

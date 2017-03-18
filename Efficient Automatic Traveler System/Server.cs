@@ -10,6 +10,7 @@ using System.Net;
 using System.IO;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Reflection;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -206,6 +207,15 @@ namespace Efficient_Automatic_Traveler_System
             config.WriteLine("var config = {");
             config.WriteLine("port:" + m_port + ',');
             config.WriteLine("server:\"" + m_ip + "\"");
+            // include all public enums
+            //var query = Assembly.GetExecutingAssembly()
+            //        .GetTypes()
+            //        .Where(t => t.IsEnum && t.IsPublic);
+
+            //foreach (Type t in query)
+            //{
+            //    Console.WriteLine(t);
+            //}
             config.WriteLine("};");
             config.Close();
         }

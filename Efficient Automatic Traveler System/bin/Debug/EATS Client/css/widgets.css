@@ -85,6 +85,7 @@ div.percentContainer {
 }
 .JSONviewer {
 	font-size: 1.5em;
+	text-align: center;
 	display: flex;
 	flex-direction: column;
 	background-color: black;
@@ -120,7 +121,22 @@ div.percentContainer {
 .optionsBtn:hover, :active {
 	opacity: 1.0;
 }
-.promptBox {
+
+.blackout {
+	font-size: 1em;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 0px;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	align-content: center;
+	background-color: rgba(255,255,255,0.25);
+	z-index: 100;
+}
+.blackout__popup {
 	padding: 8px;
 	font-size: 1.5em;
 	color: black;
@@ -152,6 +168,9 @@ div.percentContainer {
 }
 .white {
 	color: white;
+}
+.beige {
+	color: #e9e9af;
 }
 .black {
 	color: black;
@@ -285,7 +304,9 @@ div.percentContainer {
 	margin: 4px;
 	padding: 4px;
 }
-
+.noPadding {
+	padding: 0px;
+}
 div.queue__item {
 	transition-duration: 0.25s;
 

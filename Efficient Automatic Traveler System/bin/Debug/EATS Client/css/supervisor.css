@@ -71,21 +71,7 @@ div.footer {
 	color: white;
 	padding: 6px;
 }
-.noPadding {
-	
-}
-#blackout {
-	visibility: hidden;
-	position: absolute;
-	display: flex;
-	justify-content: space-around;
-	align-items: center;
-	text-align: center;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(255,255,255,0.25);
-	z-index: 100;
-}
+
 
 #optionsBtn {
 	display: flex;

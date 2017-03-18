@@ -10,9 +10,22 @@
 		<link rel="icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>"></link>
     </head>
 	<body onload = "Initialize()">
-		<div id = "blackout">
-			<div id = "promptBox" class = "hidden">
-				
+		<div id = "blackout" class = "blackout hidden"></div>
+		<div class = "header twoEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
+			<span style = "color: #001a66;">Supervisor</span>
+		</div>
+		<form id = "searchForm" class = "list--horizontal">
+			<p>Search</p>
+			<input id = "searchBox" class = "dark inset twoEM" type = "search" pattern = "\d*|(\d*-\d*)">
+		</form>
+		<div class = "body">
+			<div id = "queueArray" class = "queueArray"></div> 
+		</div>
+		
+		<div class = "footer"></div>
+		<!-- FORMATTED HTML BLOCKS -->
+		<div class = "hidden">
+			<div id = "travelerPopup" class = "blackout__popup">
 				<div class = "list--horizontal">
 					<p id = "promptInfo">
 						<span id = "promptInfoTravelerID" class = "white three-d"></span><br>
@@ -30,20 +43,6 @@
 					<img id = "optionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
 				</div>
 			</div>
-			<!-- JSON VIEWER -->
-			<div id = "JSONviewer" class = "JSONviewer hidden"></div>
 		</div>
-		<div class = "header twoEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
-			<span style = "color: #001a66;">Supervisor</span>
-		</div>
-		<form id = "searchForm" class = "list--horizontal">
-			<p>Search</p>
-			<input id = "searchBox" class = "dark inset twoEM" type = "search" pattern = "\d*|(\d*-\d*)">
-		</form>
-		<div class = "body">
-			<div id = "queueArray" class = "queueArray"></div> 
-		</div>
-		
-		<div class = "footer"></div>
 	</body>
 </html>

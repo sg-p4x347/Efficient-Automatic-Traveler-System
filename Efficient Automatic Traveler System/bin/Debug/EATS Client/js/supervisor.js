@@ -13,6 +13,8 @@ function Application () {
 	// DOM
 	this.queueArray;
 	this.JSONviewer;
+	this.popupManager;
+	this.IOScheckTimeout;
 	// DATA
 	this.stationList = [];
 	this.travelers = [];
@@ -72,40 +74,43 @@ function Application () {
 			});
 		});
 	}
-	// Executes when the connection closes
-	this.ConnectionClosed = function () {
-		var self = this;
-		var blackout = document.getElementById("blackout");
-		blackout.style.visibility = "visible";
-		while (blackout.firstChild) {
-			blackout.removeChild(blackout.firstChild);
-		}
-		blackout.style.fontSize = "3em";
-		blackout.style.color = "black";
-		blackout.style.backgroundColor = "rgba(255,255,255,0.8)";
-		blackout.style.textShadow = "0px 0px 8px yellow";
-		blackout.innerHTML = "You are not connected to the server;<br> either refresh the page, or inform Gage Coates";
-	}
 	// Loads the traveler GUI
 	this.LoadTraveler = function (traveler) {
-		this.JSONviewer = new JSONviewer(traveler,"Traveler");
+		this.popupManager.AddJSONviewer(traveler,"Traveler");
+		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
 	}
 	// Loads the item GUI
 	this.LoadItem = function (item) {
-		this.JSONviewer = new JSONviewer(item,"Traveler Item");
+		this.popupManager.AddJSONviewer(item,"Item");
+		//this.JSONviewer = new JSONviewer(item,"Traveler Item");
+	}
+	this.Info = function (message) {
+		this.popupManager.Info(message);
+	}
+	this.FocusOnSearch = function () {
+		document.getElementById("searchBox").value = "";
+		document.getElementById("searchBox").focus();
 	}
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
 		
+		self.popupManager = new PopupManager(document.getElementById("blackout"));
 		self.SetWindow();
 		window.addEventListener("resize",self.SetWindow,false);
 		//----------------
 		// search
 		//----------------
 		var searchBox = document.getElementById("searchBox");
+
 		window.addEventListener("keydown",function () {
-			searchBox.focus();
+			if (searchBox != document.activeElement)  {application.FocusOnSearch();}
+			clearTimeout(self.IOScheckTimeout)
+			self.IOScheckTimeout = setTimeout(function () {
+				if (searchBox.value.length >= 11) {
+					document.getElementById("searchForm").onsubmit();
+				}
+			},500);
 		});
 		document.getElementById("searchForm").onsubmit = function () {
 			var searchArray = searchBox.value.split('-');
@@ -135,7 +140,7 @@ function Application () {
 					//-----------------------------------------------
 				}
 			} else {
-				self.Popup("Invalid traveler ID :(");
+				self.Info("Invalid traveler ID :(");
 			}
 			searchBox.value = "";
 			return false;
@@ -209,7 +214,7 @@ function Application () {
 			};
 			// websocket is closed.
 			self.websocket.onclose = function() {
-				self.ConnectionClosed();
+				self.popupManager.Error("You are not connected to the server;<br> either refresh the page, or inform Gage Coates");
 				console.log("Connection is closed..."); 
 			};
 		} else {
@@ -278,10 +283,8 @@ function TravelerQueue(station) {
 	}
 	this.PromptAction = function (traveler) {
 		var self = this;
-		var blackout = document.getElementById("blackout");
-		blackout.style.visibility = "visible";
-		var promptBox = document.getElementById("promptBox");
-		promptBox.className = "promptBox";
+		var promptBox = document.getElementById("travelerPopup").cloneNode(true);
+		var closeFunction = application.popupManager.AddCustom(promptBox);
 		/* // clear the promptBox
 		while (promptBox.hasChildNodes()) {
 			promptBox.removeChild(promptBox.lastChild);
@@ -303,99 +306,41 @@ function TravelerQueue(station) {
 			option.value = station.ID;
 			promptSelect.appendChild(option);
 		});
-		/* //-----------------
-		// Quantity sliders
+		
+		//-----------------
+		// Cancel button
 		//-----------------
 		
-		// create a horizontal grouping for buttons
-		var movingP = document.createElement("P");
-		movingP.innerHTML = "Quantity Moving";
-		promptBox.appendChild(movingP);
-		var movingList = document.createElement("DIV");
-		movingList.className = "list--horizontal";
-		var qtyMoving = document.createElement("INPUT");
-		qtyMoving.type = "number";
-		qtyMoving.className = "numberBox dark";
-		qtyMoving.value = traveler.quantity;
-		movingList.appendChild(qtyMoving);
-		var movingBarContainer = document.createElement("DIV");
-		movingBarContainer.className = "percentContainer";
-		var movingBar = document.createElement("DIV");
-		movingBar.className = "percentBar";
-		movingBarContainer.appendChild(movingBar);
-		movingList.appendChild(movingBarContainer);
-		promptBox.appendChild(movingList);
-		
-		// create a horizontal grouping for buttons
-		var stayingP = document.createElement("P");
-		stayingP.innerHTML = "Quantity Staying";
-		promptBox.appendChild(stayingP);
-		var stayingList = document.createElement("DIV");
-		stayingList.className = "list--horizontal";
-		var qtyStaying = document.createElement("INPUT");
-		qtyStaying.type = "number"
-		qtyStaying.className = "numberBox dark";
-		stayingList.appendChild(qtyStaying);
-		var stayingBarContainer = document.createElement("DIV");
-		stayingBarContainer.className = "percentContainer";
-		var stayingBar = document.createElement("DIV");
-		stayingBar.className = "percentBar";
-		stayingBarContainer.appendChild(stayingBar);
-		stayingList.appendChild(stayingBarContainer);
-		promptBox.appendChild(stayingList);
-		
-		
-		self.BalanceSliders(qtyMoving,qtyStaying,movingBar,stayingBar,traveler);
-		qtyMoving.onchange = function () {
-			this.max = traveler.quantity;
-			this.min = 0;
-			qtyStaying.value = traveler.quantity - parseInt(this.value);
-			self.BalanceSliders(qtyMoving,qtyStaying,movingBar,stayingBar,traveler);
+		var promptCancelBtn = document.getElementById("promptCancelBtn");
+		promptCancelBtn.onclick = function () {
+			closeFunction();
 		}
-		qtyStaying.onchange = function () {
-			this.max = traveler.quantity;
-			this.min = 0;
-			qtyMoving.value = traveler.quantity - parseInt(this.value);
-			self.BalanceSliders(qtyMoving,qtyStaying,movingBar,stayingBar,traveler);
-		} */
-		
-			//-----------------
-			// Cancel button
-			//-----------------
-			var promptCancelBtn = document.getElementById("promptCancelBtn");
-			promptCancelBtn.onclick = function () {
-				blackout.style.visibility = "hidden";
-				promptBox.className = "promptBox hidden";
-			}
-			//-----------------
-			// Move button
-			//-----------------
-			var promptMoveBtn = document.getElementById("promptMoveBtn");
-			promptMoveBtn.onclick = function () {
-				/* this is just for responsiveness, 
-				the server will soon confirm traveler positions in an update*/
-				var movedTraveler = self.ShiftTraveler(traveler); 
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("MoveTravelerStart",
-				{
-					travelerID: movedTraveler.ID,
-					station: promptSelect.value
-				});
-				application.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-				
-				blackout.style.visibility = "hidden";
-				promptBox.className = "hidden";
-			}
-			//-----------------
-			// Options button
-			//-----------------
-			document.getElementById("promptInfoBtn").onclick = function () {
-				blackout.style.visibility = "hidden";
-				promptBox.className = "promptBox hidden";
-				document.getElementById("searchBox").value = traveler.ID;
-				document.getElementById("searchForm").onsubmit();
-			}
+		//-----------------
+		// Move button
+		//-----------------
+		var promptMoveBtn = document.getElementById("promptMoveBtn");
+		promptMoveBtn.onclick = function () {
+			/* this is just for responsiveness, 
+			the server will soon confirm traveler positions in an update*/
+			var movedTraveler = self.ShiftTraveler(traveler); 
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("MoveTravelerStart",
+			{
+				travelerID: movedTraveler.ID,
+				station: promptSelect.value
+			});
+			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			
+			closeFunction();
+		}
+		//-----------------
+		// Info button
+		//-----------------
+		document.getElementById("promptInfoBtn").onclick = function () {
+			document.getElementById("searchBox").value = traveler.ID;
+			document.getElementById("searchForm").onsubmit();
+		}
 	}
 	this.Initialize = function (station) {
 		var self = this;
@@ -531,120 +476,4 @@ function TravelerView() {
 		var self = this;
 		self.DOMcontainer = document.getElementById("viewContainer");
 	}
-}
-function JSONviewer(object,name) {
-	this.stack = [];
-	this.DOMcontainer = document.getElementById("JSONviewer");
-	this.Open = function (obj) {
-		var self = this;
-		self.Clear();
-		// quit
-		if (!obj) {
-			self.Quit();
-			return;
-		}
-		// add this objet to the stack
-		self.stack.push(obj);
-		// add a back button
-		var backBtn = document.createElement("DIV");
-		backBtn.className = "JSONviewer__back";
-		
-		backBtn.onclick = function () {
-			self.Close();
-		}
-		/* var backImg = document.createElement("IMG");
-		backImg.src = "./img/back.png";
-		backImg.style.height = "50%";
-		backBtn.appendChild(backImg); */
-		backBtn.innerHTML = "Back";
-		/*backBtn.style.background = 'url("./img/back.png"), linear-gradient(to right, transparent, #4d4d4d, transparent)';
-		backBtn.style.backgroundX
-		backBtn.style.backgroundRepeat = "no-repeat";
-		backBtn.style.backgroundSize = "contain"; */
-		
-		self.DOMcontainer.appendChild(backBtn);
-		// title of current scope
-		var title = document.createElement("P");
-		title.className = "green shadow twoEM";
-		title.innerHTML = obj.Name;
-		self.DOMcontainer.appendChild(title);
-		
-		// list the properties
-		for (var property in obj) {
-			if (property != "Name") {
-				var value = obj[property];
-				var listHorizontal = document.createElement("DIV");
-				listHorizontal.className = "list--horizontal JSONviewer__field";
-				
-				var propName = document.createElement("P");
-				propName.innerHTML = property + ": ";
-				listHorizontal.appendChild(propName);
-		
-				if (Array.isArray(value)) {
-					var scrollDiv = document.createElement("DIV");
-					scrollDiv.className = "JSONviewer__scrollable";
-					value.forEach(function (element,index) {
-						var itemList = document.createElement("DIV");
-						itemList.className = "list--horizontal";
-						if (typeof(element) == "object") itemList.innerHTML = "item " + index + ":";
-						self.DisplayValue(property,element,itemList);
-						
-						scrollDiv.appendChild(itemList);
-					});
-					listHorizontal.appendChild(scrollDiv);
-				} else {
-					self.DisplayValue(property,value,listHorizontal);
-				}
-				self.DOMcontainer.append(listHorizontal);
-			}
-		}
-	}
-	this.Close = function () {
-		this.stack.pop();
-		this.Open(this.stack.pop(),this.lastName);
-	}
-	this.Clear = function () {
-		var self = this;
-		while (self.DOMcontainer.hasChildNodes()) {
-			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
-		}
-	}
-	this.Quit = function () {
-		this.DOMcontainer.className = "JSONviewer hidden";
-		document.getElementById("blackout").style.visibility = "hidden";
-	}
-	this.DisplayValue = function (property,value,DOMparent) {
-		var self = this;
-		
-		
-		var valueDiv = document.createElement("DIV");
-		if (typeof(value) == "object") {
-			valueDiv.className = "dark button";
-			valueDiv.onclick = function () {
-				value.Name = property;
-				self.Open(value);
-			}
-			valueDiv.innerHTML = "Open";
-		} else {
-			if (property.toLowerCase().includes("station")) {
-				valueDiv.innerHTML = application.stationList[value].name;
-			} else if (property.toLowerCase().includes("time")) {
-				valueDiv.innerHTML = value + " min";
-			} else {
-				valueDiv.innerHTML = value;
-			}
-		}
-		DOMparent.appendChild(valueDiv);
-					
-	}
-	this.Initialize = function (object,name) {
-		var self = this;
-		if (object) {
-			document.getElementById("blackout").style.visibility = "visible";
-			self.DOMcontainer.className = "JSONviewer";
-			object.Name = name;
-			self.Open(object);
-		}
-	}
-	this.Initialize(object,name);
 }
