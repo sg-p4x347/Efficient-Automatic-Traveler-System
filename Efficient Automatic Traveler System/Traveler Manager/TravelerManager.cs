@@ -203,25 +203,37 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     
                     ScrapTravelerItem(traveler.ID, item.ID);
-                    if (traveler.PrintLabel(item.ID, true))
+                    if (traveler.PrintLabel(item.ID, LabelType.Scrap))
                     {
                         returnMessage = "Printed scrap label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
                     } else
                     {
-                        returnMessage = "Could not print scrap label";
+                        returnMessage = "Could not print label";
                     }
                     
                     item.Station = StationClass.GetStation("Scrapped");
 
                 } else if (newItem)
                 {
-                    if (traveler.PrintLabel(item.ID))
+                    if (traveler.PrintLabel(item.ID, LabelType.Tracking))
                     {
                         returnMessage = "Printed label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
                     }
                     else
                     {
                         returnMessage = "Could not print label";
+                    }
+                } else if (itemEvent.type == TravelerEvent.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
+                {
+                    // Finished, and pack tracking label must be printed
+                    AssignOrder(traveler, item);
+                    if (traveler.PrintLabel(item.ID, LabelType.Pack, 2) && traveler.PrintLabel(item.ID,LabelType.Table))
+                    {
+                        returnMessage = "Printed carton and table labels for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                    }
+                    else
+                    {
+                        returnMessage = "Could not print carton and table labels";
                     }
                 }
                 OnTravelersChanged(new List<Traveler>() { traveler });
@@ -496,7 +508,26 @@ namespace Efficient_Automatic_Traveler_System
             TravelersChanged(travelers);
         }
 
-       
+        private void AssignOrder(Traveler traveler, TravelerItem item)
+        {
+            List<Order> parentOrders = new List<Order>();
+            foreach (string orderNo in traveler.ParentOrders)
+            {
+                parentOrders.Add(m_orderManager.FindOrder(orderNo));
+            }
+            parentOrders.Sort((a, b) => a.ShipDate.CompareTo(b.ShipDate)); // sort in ascending order (soonest first)
+            foreach (Order order in parentOrders)
+            {
+                List<OrderItem> orderItems = order.FindItems(traveler.ID); // the items that apply to this traveler
+
+                // If there are less items assigned to that order than what was ordered (takes into account multiple order items that match the traveler)
+                if (traveler.Items.Where(x => x.Order == order.SalesOrderNo).Count() < orderItems.Sum(x => x.QtyOrdered))
+                {
+                    // assign this order to the item
+                    item.Order = order.SalesOrderNo;
+                }
+            }
+        }
 
         #endregion
         //----------------------------------

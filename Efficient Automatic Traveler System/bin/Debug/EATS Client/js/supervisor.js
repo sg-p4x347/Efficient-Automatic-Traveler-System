@@ -19,6 +19,8 @@ function Application () {
 	this.stationList = [];
 	this.travelers = [];
 	this.queues = {};
+	// MISC
+	this.lastSelectedStation;
 	// Websocket
 	this.websocket;
 	this.SetWindow = function () {
@@ -268,7 +270,7 @@ function TravelerQueue(station) {
 			DOMqueueItem.className = "button queue__item blueBack twoEM";
 			DOMqueueItem.innerHTML = pad(traveler.ID,6) + "<br>";
 			var itemCode = document.createElement("SPAN");
-			itemCode.className = "queue__item__desc";
+			itemCode.className = "queue__item__desc beige";
 			itemCode.innerHTML = traveler.itemCode;
 			DOMqueueItem.appendChild(itemCode);
 			DOMqueueItem.onmousedown = function () {
@@ -306,7 +308,7 @@ function TravelerQueue(station) {
 			option.value = station.ID;
 			promptSelect.appendChild(option);
 		});
-		
+		promptSelect.value = self.lastSelectedStation;
 		//-----------------
 		// Cancel button
 		//-----------------
@@ -320,6 +322,7 @@ function TravelerQueue(station) {
 		//-----------------
 		var promptMoveBtn = document.getElementById("promptMoveBtn");
 		promptMoveBtn.onclick = function () {
+			self.lastSelectedStation = promptSelect.value;
 			/* this is just for responsiveness, 
 			the server will soon confirm traveler positions in an update*/
 			var movedTraveler = self.ShiftTraveler(traveler); 

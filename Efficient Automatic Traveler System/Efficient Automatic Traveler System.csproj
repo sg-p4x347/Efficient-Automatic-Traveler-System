@@ -90,6 +90,7 @@
     <Compile Include="Traveler Manager\Station.cs" />
     <Compile Include="Traveler Manager\Table.cs" />
     <Compile Include="Traveler Manager\Traveler.cs" />
+    <Compile Include="Traveler Manager\TravelerItem.cs" />
     <Compile Include="Traveler Manager\TravelerManager.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -37,15 +37,30 @@ namespace Efficient_Automatic_Traveler_System
         {
             FindItem(ID).Station = GetNextStation(ID);
         }
-        #endregion
-        //--------------------------------------------------------
-        #region Private Methods
-        protected override string ExportProperties()
+        // labels
+        public override string GetLabelFields(ushort itemID, LabelType type)
         {
-            return ",\"type\":\"Chair\"";
+            string json = "\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
+            switch (type)
+            {
+                case LabelType.Tracking:
+                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
+                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
+                    json += ",\"Desc2\":\"" + Part.BillDesc + "\"";
+                    break;
+                case LabelType.Scrap:
+                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
+                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
+                    json += ",\"Desc2\":\"" + "!!!***SCRAP***!!!" + "\"";
+                    break;
+                case LabelType.Pack:
+                    json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";
+                    break;
+            }
+            return json;
         }
         // returns the next station for this chair
-        protected int GetNextStation(UInt16 itemID)
+        public override int GetNextStation(UInt16 itemID)
         {
             int station = Items.Find(x => x.ID == itemID).Station;
             if (station == StationClass.GetStation("Start"))
@@ -63,7 +78,13 @@ namespace Efficient_Automatic_Traveler_System
             }
             return -1;
         }
-        
+        #endregion
+            //--------------------------------------------------------
+            #region Private Methods
+        protected override string ExportProperties()
+        {
+            return ",\"type\":\"Chair\"";
+        }
         private void GetPackInfo(IOrderManager orderManager)
         {
             //// open the table ref csv file

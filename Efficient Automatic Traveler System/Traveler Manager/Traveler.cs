@@ -18,6 +18,13 @@ namespace Efficient_Automatic_Traveler_System
         Reworked,
         Moved
     }
+    enum LabelType
+    {
+        Tracking,
+        Scrap,
+        Pack,
+        Table
+    }
     class Event
     {
         public Event() { }
@@ -81,125 +88,7 @@ namespace Efficient_Automatic_Traveler_System
         public valueType Value;
         public qtyType Qty;
     }
-    class TravelerItem
-    {
-        public TravelerItem(UInt16 ID)
-        {
-            m_ID = ID;
-            m_scrapped = false;
-            m_station = -1;
-            m_lastStation = -1;
-            m_history = new List<Event>();
-        }
-        public TravelerItem(string json)
-        {
-            try
-            {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                m_ID = Convert.ToUInt16(obj["ID"]);
-                m_scrapped = Convert.ToBoolean(obj["scrapped"]);
-                m_station = Convert.ToInt32(obj["station"]);
-                m_history = new List<Event>();
-                foreach (string eventString in (new StringStream(obj["history"])).ParseJSONarray())
-                {
-                    m_history.Add(new Event(eventString));
-                }
-            }
-            catch (Exception ex)
-            {
-                Server.WriteLine("Problem when reading TravelerItem from file: " + ex.Message + "; StackTrace: " + ex.StackTrace);
-            }
-        }
-        public override string ToString()
-        {
-            string json = "{";
-            json += "\"ID\":" + m_ID;
-            json += ",\"scrapped\":" + m_scrapped.ToString().ToLower();
-            json += ",\"station\":" + m_station;
-            json += ",\"lastStation\":" + m_lastStation;
-            json += ",\"history\":" + m_history.Stringify<Event>();
-            json += '}';
-            return json;
-        }
-        // Properties
-        private UInt16 m_ID;
-        private bool m_scrapped;
-        private int m_station;
-        private int m_lastStation;
-        private List<Event> m_history;
-
-        public ushort ID
-        {
-            get
-            {
-                return m_ID;
-            }
-        }
-
-        internal int Station
-        {
-            get
-            {
-                return m_station;
-            }
-
-            set
-            {
-                m_lastStation = m_station;
-                m_station = value;
-            }
-        }
-
-        public int LastStation
-        {
-            get
-            {
-                return m_lastStation;
-            }
-
-            set
-            {
-                m_lastStation = value;
-            }
-        }
-
-        public bool Scrapped
-        {
-            get
-            {
-                return m_scrapped;
-            }
-
-            set
-            {
-                m_scrapped = value;
-            }
-        }
-
-        internal List<Event> History
-        {
-            get
-            {
-                return m_history;
-            }
-
-            set
-            {
-                m_history = value;
-            }
-        }
-        public bool IsComplete()
-        {
-            foreach (Event evt in History)
-            {
-                if (evt.station == Station && evt.type == TravelerEvent.Completed)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
+    
     abstract class Traveler
     {
         #region Public Methods
@@ -450,31 +339,37 @@ namespace Efficient_Automatic_Traveler_System
             return json;
         }
         // print a label for this traveler
-        public bool PrintLabel(ushort itemID, bool scrap = false, int qty = 1)
+        public bool PrintLabel(ushort itemID, LabelType type, int qty = 1)
         {
             try
             {
                 string result = "";
                 using (var client = new WebClient())
                 {
-                    //client.Credentials = new NetworkCredential("gage", "Stargatep4x347");
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                    // Fields
                     string json = "{";
-                    json += "\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\",";
-                    json += "\"Desc1\":\"" + Part.BillNo + "\",";
-                    json += "\"Desc2\":\"" + (scrap ? "!!!***SCRAP***!!!" : Part.BillDesc) + "\",";
-                    json += "\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"' + ','; // ten digits [000000][0000]
+                    string fields = GetLabelFields(itemID, type);
+                    string printer = "";
+                    string template = "";
 
-                    // Meta
-                    json += "\"template\":\"" + (scrap ? "4x2 Table Scrap1" : "4x2 Table Travel1") + "\",";
-                    json += "\"qty\":" + qty + ",";
-                    json += "\"printer\":\"" + "4x2Pack" + "\"}";
+                    switch (type)
+                    {
+                        case LabelType.Tracking:    template = "4x2 Table Travel1";     printer = "4x2Pack"; break;
+                        case LabelType.Scrap:       template = "4x2 Table Scrap1";      printer = "4x2Pack"; break;
+                        case LabelType.Pack:        template = "4x2 Table Carton EATS"; printer = "4x2Pack"; break;
+                        case LabelType.Table:       template = "4x6 Table EATS";        printer = "4x6Table"; break;
+                    }
+
+                    // piecing it together
+                    json += fields.Trim(',');
+                    json += ",\"printer\":\"" + printer + "\"";
+                    json += ",\"template\":\"" + template + "\"";
+                    json += ",\"qty\":" + qty;
+                    json += '}';
 #if Labels
-                    result = client.UploadString(@"http://192.168.2.6/printLabel", "POST", json);
+                    result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
                     return result == "Label Printed";
 #endif
-                    //http://192.168.2.6:8080/printLabel
                 }
             }
             catch (Exception ex)
@@ -483,7 +378,9 @@ namespace Efficient_Automatic_Traveler_System
             }
             return false;
         }
-        
+        // print a traveler pack label
+        public abstract string GetLabelFields(ushort itemID, LabelType type);
+
         public static bool IsTable(string s)
         {
             return s != null && ((s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-")));
@@ -631,9 +528,11 @@ namespace Efficient_Automatic_Traveler_System
         public abstract string ExportTableRows(string clientType, int station);
         // advances the item to the next station
         public abstract void AdvanceItem(ushort ID);
+        // gets the next station for the given item
+        public abstract int GetNextStation(UInt16 itemID);
 #endregion
         //--------------------------------------------------------
-#region Private Methods
+        #region Private Methods
         // overridden in derived classes, packs properties into the Export() json string
         protected abstract string ExportProperties();
 #endregion

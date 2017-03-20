@@ -57,16 +57,16 @@ function Application () {
 			// portrait layout
 			
 			viewContainer.style.width = "100%";
-			viewContainer.style.height = "50%";
+			viewContainer.style.height = "40%";
 			
 			
 			queueContainer.style.width = "25%";
 			queueContainer.style.maxWidth = "none";
-			queueContainer.style.height = "50%";
+			queueContainer.style.height = "60%";
 			
 			
 			interfaceContainer.style.width = "75%";
-			interfaceContainer.style.height = "50%";
+			interfaceContainer.style.height = "60%";
 		}
 		// Small screens
 		document.body.style.fontSize = Math.min(10,Math.round(window.innerWidth/72)) + "px";
@@ -342,7 +342,7 @@ function TravelerQueue() {
 			
 			DOMqueueItem.innerHTML = pad(traveler.ID,6) + "<br>";
 			var itemCode = document.createElement("SPAN");
-			itemCode.className = "queue_item__desc";
+			itemCode.className = "queue_item__desc beige";
 			itemCode.innerHTML = traveler.itemCode;
 			DOMqueueItem.appendChild(itemCode);
 			

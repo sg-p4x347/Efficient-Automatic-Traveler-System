@@ -84,6 +84,86 @@ namespace Efficient_Automatic_Traveler_System
         {
             FindItem(ID).Station = GetNextStation(ID);
         }
+        // labels
+        public override string GetLabelFields(ushort itemID, LabelType type)
+        {
+            string json = "";
+            switch (type)
+            {
+                case LabelType.Tracking:
+                    json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
+                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
+                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
+                    json += ",\"Desc2\":\"" + Part.BillDesc + "\"";
+                    break;
+                case LabelType.Scrap:
+                    json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
+                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
+                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
+                    json += ",\"Desc2\":\"" + "!!!***SCRAP***!!!" + "\"";
+                    break;
+                case LabelType.Table:
+                    json += GetLabelFields(new List<string>()
+                    {
+                        "Marco Item #",
+                        "ProdLine",
+                        "DescriptionShort",
+                        "Color1",
+                        "Color2",
+                        "Origin1"
+                    });
+                    break;
+                case LabelType.Pack:
+                    json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
+                    json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";
+
+                    json += GetLabelFields(new List<string>()
+                    {
+                        "Marco Item #",
+                        "ProdLine",
+                        "DescriptionShort",
+                        "Color1",
+                        "Color2"
+                    });
+                    break;
+            }
+            return json;
+        }
+        public override int GetNextStation(UInt16 itemID)
+        {
+            int station = Items.Find(x => x.ID == itemID).Station;
+            if (station == StationClass.GetStation("Start"))
+            {
+                return StationClass.GetStation("Start");
+            }
+            else if (station == StationClass.GetStation("Heian") || station == StationClass.GetStation("Weeke"))
+            {
+                // switch between vector and straightline edgebander based on what was in the bill
+                if (m_ebander != null)
+                {
+                    return StationClass.GetStation("Edgebander");
+
+                }
+                else
+                {
+                    return StationClass.GetStation("Vector");
+                }
+
+            }
+            else if (station == StationClass.GetStation("Vector") || station == StationClass.GetStation("Edgebander"))
+            {
+                return StationClass.GetStation("Table-Pack");
+            }
+            else if (station == StationClass.GetStation("Table-Pack"))
+            {
+                return StationClass.GetStation("Finished");
+            }
+            else if (station == StationClass.GetStation("Finished"))
+            {
+                return StationClass.GetStation("Finished");
+            }
+            return -1;
+        }
         #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -98,35 +178,7 @@ namespace Efficient_Automatic_Traveler_System
         //    m_blacklist.Add(new BlacklistItem("/")); // Misc work items
         //}
         // returns the next station for this table
-        protected int GetNextStation(UInt16 itemID)
-        {
-            int station = Items.Find(x => x.ID == itemID).Station;
-            if (station == StationClass.GetStation("Start"))
-            {
-                return StationClass.GetStation("Start");
-            } else if (station == StationClass.GetStation("Heian") || station == StationClass.GetStation("Weeke"))
-            {
-                // switch between vector and straightline edgebander based on what was in the bill
-                if (m_ebander != null) {
-                    return StationClass.GetStation("Edgebander");
-                    
-                } else
-                {
-                    return StationClass.GetStation("Vector");
-                }
-               
-            } else if (station == StationClass.GetStation("Vector") || station == StationClass.GetStation("Edgebander"))
-            {
-                return StationClass.GetStation("Table-Pack");
-            } else if (station == StationClass.GetStation("Table-Pack"))
-            {
-                return StationClass.GetStation("Finished");
-            } else if (station == StationClass.GetStation("Finished"))
-            {
-                return StationClass.GetStation("Finished");
-            }
-            return -1;
-        }
+        
         private void GetColorInfo()
         {
             // open the color ref csv file
@@ -228,17 +280,18 @@ namespace Efficient_Automatic_Traveler_System
                         Order order = orderManager.FindOrder(orderNo);
                         foreach (OrderItem orderItem in order.FindItems(ID))
                         {
-                            // Get box information
-                            if (order.ShipVia != "" && (order.ShipVia.ToUpper().IndexOf("FEDEX") != -1 || order.ShipVia.ToUpper().IndexOf("UPS") != -1))
-                            {
-                                SupPackQty += orderItem.QtyOrdered;
-                            }
-                            else
-                            {
-                                RegPackQty += orderItem.QtyOrdered;
-                                // approximately 20 max tables per pallet
-                                PalletQty += Convert.ToInt32(Math.Ceiling(Convert.ToDouble(orderItem.QtyOrdered) / 20));
-                            }
+                            // TEMP
+                            //// Get box information
+                            //if (order.ShipVia != "" && (order.ShipVia.ToUpper().IndexOf("FEDEX") != -1 || order.ShipVia.ToUpper().IndexOf("UPS") != -1))
+                            //{
+                            //    SupPackQty += orderItem.QtyOrdered;
+                            //}
+                            //else
+                            //{
+                            //    RegPackQty += orderItem.QtyOrdered;
+                            //    // approximately 20 max tables per pallet
+                            //    PalletQty += Convert.ToInt32(Math.Ceiling(Convert.ToDouble(orderItem.QtyOrdered) / 20));
+                            //}
                         }
                     }
                     //--------------------------------------------
@@ -250,6 +303,34 @@ namespace Efficient_Automatic_Traveler_System
                 line = tableRef.ReadLine();
             }
             tableRef.Close();
+        }
+        // get a list of fields from the label DB
+        private string GetLabelFields(List<string> fieldNames)
+        {
+            string json = "";
+            // open the pack label database
+            System.IO.StreamReader labelRef = new StreamReader(@"\\MGFS01\ZebraPrinter\data\databases\production.csv");
+            string[] headerArray = labelRef.ReadLine().Split(',');
+
+            string line = labelRef.ReadLine();
+            while (line != "" && line != null)
+            {
+                string[] rowArray = line.Split(',');
+                if (Part.BillNo.Contains(rowArray[0]))
+                {
+                    for (int index = 0; index < headerArray.Count(); index++)
+                    {
+                        if (fieldNames.Contains(headerArray[index]))
+                        {
+                            json += ',' + headerArray[index].Quotate() + ':' + rowArray[index].Quotate();
+                        }
+                    }
+                    break;
+                }
+
+                line = labelRef.ReadLine();
+            }
+            return json;
         }
         #endregion
         //--------------------------------------------------------

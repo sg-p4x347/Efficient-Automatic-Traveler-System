@@ -95,7 +95,7 @@ div.percentContainer {
 }
 .JSONviewer__scrollable {
 	overflow-y: auto;
-	max-height: 100px;
+	max-height: 200px;
 	
 }
 .JSONviewer__field{
