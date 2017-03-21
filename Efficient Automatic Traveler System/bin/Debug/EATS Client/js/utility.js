@@ -171,9 +171,14 @@ function PopupManager(blackout) {
 	this.AddCustom = function (popup) {
 		var self = this;
 		self.Open(popup);
-		return function () {
-			self.Close(popup);
-		}
+		// Close button
+		var close = self.CreateButton("Close");
+		close.classList.remove("dark");
+		close.className += " yellowBack";
+		close.removeClass
+		close.onclick = function () {self.Close(popup);}
+		popup.insertBefore(close,popup.firstChild);
+		return close.onclick;
 	}
 	// displays a message with an "OK" button
 	this.Info = function (message) {
@@ -251,6 +256,7 @@ function PopupManager(blackout) {
 		while (self.blackout.lastChild) {
 			self.blackout.removeChild(self.blackout.lastChild);
 		}
+		self.blackout.className = "blackout hidden";
 	}
 	this.Open = function (popup) {
 		var self = this;

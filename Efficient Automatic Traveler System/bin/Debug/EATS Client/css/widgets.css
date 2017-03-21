@@ -115,7 +115,9 @@ div.percentContainer {
 	background-position: 30% top;
 }
 .optionsBtn {
-	height: 100%;
+	width: 64px;
+	height: 64px;
+	display: flex;
 	opacity: 0.5
 }
 .optionsBtn:hover, :active {

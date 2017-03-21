@@ -10,14 +10,21 @@
 		<link rel="icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>"></link>
     </head>
 	<body onload = "Initialize()">
-		<div id = "blackout" class = "blackout hidden"></div>
+		<div id = "blackout" class = "blackout hidden" onclick = "(function (e,self) {
+	if (e.target == self) application.popupManager.CloseAll(); 
+	return false;
+})(event,this)"></div>
 		<div class = "header twoEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
 			<span style = "color: #001a66;">Supervisor</span>
 		</div>
-		<form id = "searchForm" class = "list--horizontal">
-			<p>Search</p>
-			<input id = "searchBox" class = "dark inset twoEM" type = "search" pattern = "\d*|(\d*-\d*)">
-		</form>
+		<div class = "list--horizontal">
+			<form id = "searchForm" class = "list--horizontal">
+				<p>Search</p>
+				<input id = "searchBox" class = "dark inset twoEM" type = "search" pattern = "\d*|(\d*-\d*)">
+			</form>
+			<!-- OPTIONS BUTTON -->
+			<img id = "superOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
+		</div>
 		<div class = "body">
 			<div id = "queueArray" class = "queueArray"></div> 
 		</div>
@@ -25,6 +32,7 @@
 		<div class = "footer"></div>
 		<!-- FORMATTED HTML BLOCKS -->
 		<div class = "hidden">
+			<!-- TRAVELER POPUP -->
 			<div id = "travelerPopup" class = "blackout__popup">
 				<div class = "list--horizontal">
 					<p id = "promptInfo">
@@ -36,12 +44,18 @@
 				</div>
 				<select id = "promptSelect" class = "dark oneEM"></select>
 				<div class = "list--horizontal justify-space-between">
-					<div id = "promptCancelBtn" class = "dark button">Cancel</div>
 					<div id = "promptMoveBtn" class = "dark button">Move</div>
 					<div id = "promptInfoBtn" class = "dark button">More info</div>
-					<!-- OPTIONS BUTTON -->
+					<!-- TRAVELER OPTIONS BUTTON -->
 					<img id = "optionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
 				</div>
+			</div>
+			<!-- SUPERVISOR OPTIONS POPUP -->
+			<div id = "superOptionsPopup" class = "blackout__popup">
+				<div id = "superOptionsSummaryBtn" class = "dark button">View current summary</div>
+			</div>
+			<div id = "summaryPopup">
+				<table id = "summary"></table>
 			</div>
 		</div>
 	</body>

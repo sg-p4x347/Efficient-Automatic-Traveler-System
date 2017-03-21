@@ -23,7 +23,8 @@ namespace Efficient_Automatic_Traveler_System
         Tracking,
         Scrap,
         Pack,
-        Table
+        Table,
+        Test
     }
     class Event
     {
@@ -351,13 +352,15 @@ namespace Efficient_Automatic_Traveler_System
                     string fields = GetLabelFields(itemID, type);
                     string printer = "";
                     string template = "";
-
+                    // TEMP
+                    //type = LabelType.Test;
                     switch (type)
                     {
-                        case LabelType.Tracking:    template = "4x2 Table Travel1";     printer = "4x2Pack"; break;
-                        case LabelType.Scrap:       template = "4x2 Table Scrap1";      printer = "4x2Pack"; break;
-                        case LabelType.Pack:        template = "4x2 Table Carton EATS"; printer = "4x2Pack"; break;
+                        case LabelType.Tracking:    template = "4x2 Table Travel1";     printer = "4x2IT"; break; // 4x2Pack --> in hall
+                        case LabelType.Scrap:       template = "4x2 Table Scrap1";      printer = "4x2IT"; break;
+                        case LabelType.Pack:        template = "4x2 Table Carton EATS"; printer = "4x2IT"; break;
                         case LabelType.Table:       template = "4x6 Table EATS";        printer = "4x6Table"; break;
+                        case LabelType.Test:        template = "4x2 Table Carton EATS logo"; printer = "4x2IT"; break;
                     }
 
                     // piecing it together

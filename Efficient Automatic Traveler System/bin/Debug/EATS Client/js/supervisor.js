@@ -9,6 +9,10 @@ function Initialize() {
 	//window.oncontextmenu = function () {return false;}
 	application.Initialize();
 }
+function Test(e,self) {
+	if (e.target == self) application.popupManager.CloseAll(); 
+	return false;
+}
 function Application () {
 	// DOM
 	this.queueArray;
@@ -93,6 +97,19 @@ function Application () {
 		document.getElementById("searchBox").value = "";
 		document.getElementById("searchBox").focus();
 	}
+	
+	//----------------
+	// supervisor Options
+	//----------------
+	this.Summary = function (DOMelement) {
+		var self = this;
+		self.popupManager.CloseAll();
+		self.popupManager.AddCustom(document.getElementById("summaryPopup").cloneNode(true));
+		
+		var summary = document.getElementById("summary"); // TABLE
+		
+	}
+	
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
@@ -147,6 +164,19 @@ function Application () {
 			searchBox.value = "";
 			return false;
 		}
+		
+		//----------------
+		// supervisor Options
+		//----------------
+		
+		document.getElementById("superOptionsBtn").onclick = function () {
+			self.popupManager.AddCustom(document.getElementById('superOptionsPopup').cloneNode(true));
+			document.getElementById("superOptionsSummaryBtn").onclick = function () {
+				self.Summary();
+			}
+		}
+		
+		
 		//----------------
 		// queueArray
 		//----------------
@@ -299,7 +329,6 @@ function TravelerQueue(station) {
 		//-----------------
 		// Move starting station to...
 		//-----------------
-		var promptMoveBtn = document.getElementById("promptMoveBtn");
 		var promptSelect = document.getElementById("promptSelect");
 		// add the station options
 		application.stationList.forEach(function (station) {
@@ -309,14 +338,6 @@ function TravelerQueue(station) {
 			promptSelect.appendChild(option);
 		});
 		promptSelect.value = self.lastSelectedStation;
-		//-----------------
-		// Cancel button
-		//-----------------
-		
-		var promptCancelBtn = document.getElementById("promptCancelBtn");
-		promptCancelBtn.onclick = function () {
-			closeFunction();
-		}
 		//-----------------
 		// Move button
 		//-----------------
