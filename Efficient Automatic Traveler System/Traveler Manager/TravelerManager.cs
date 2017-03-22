@@ -39,7 +39,10 @@ namespace Efficient_Automatic_Traveler_System
     {
         ClientMessage MoveTravelerStart(string json);
         ClientMessage LoadTraveler(string json);
+        ClientMessage LoadTravelerAt(string json);
         ClientMessage LoadItem(string json);
+        ClientMessage CreateSummary(string json);
+        
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
     class TravelerManager : ITravelerManager, IOperator, ISupervisor
@@ -227,7 +230,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     // Finished, and pack tracking label must be printed
                     AssignOrder(traveler, item);
-                    if (traveler.PrintLabel(item.ID, LabelType.Pack, 2) && traveler.PrintLabel(item.ID,LabelType.Table))
+                    if (traveler.PrintLabel(item.ID, LabelType.Pack, 2) /*&& traveler.PrintLabel(item.ID,LabelType.Table)*/)
                     {
                         returnMessage = "Printed carton and table labels for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
                     }
@@ -279,7 +282,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
             } catch (Exception ex)
             {
-                Server.WriteLine("Problem MovingTravelerStart from supervisor client: " + ex.Message + "stack trace: " + ex.StackTrace);
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info","error");
             }
             return returnMessage;
@@ -301,7 +304,30 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                Server.WriteLine("Problem MovingTravelerStart from supervisor client: " + ex.Message + "stack trace: " + ex.StackTrace);
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+        public ClientMessage LoadTravelerAt(string json)
+        {
+            ClientMessage returnMessage;
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                if (traveler != null)
+                {
+                    returnMessage = new ClientMessage("LoadTravelerAt", traveler.Export("OperatorClient",Convert.ToInt32(obj["station"])));
+                }
+                else
+                {
+                    returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
+                }
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
             return returnMessage;
@@ -331,7 +357,22 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                Server.WriteLine("Problem MovingTravelerStart from supervisor client: " + ex.Message + "stack trace: " + ex.StackTrace);
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+        public ClientMessage CreateSummary(string json)
+        {
+            ClientMessage returnMessage;
+            try
+            {
+                Summary summary = new Summary(this as ITravelerManager);
+                returnMessage = new ClientMessage("CreateSummary", summary.ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
             return returnMessage;

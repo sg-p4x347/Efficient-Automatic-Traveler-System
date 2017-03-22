@@ -79,11 +79,23 @@ function Application () {
 				
 			});
 		});
+		// update summary, if open
+		if (self.popupManager.Exists("summaryPopup")) {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("CreateSummary",{});
+			self.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+		}
 	}
 	// Loads the traveler GUI
 	this.LoadTraveler = function (traveler) {
 		this.popupManager.AddJSONviewer(traveler,"Traveler");
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
+	}
+	this.LoadTravelerAt = function (traveler) {
+		this.queues[traveler.station].PromptAction(traveler);
+	}
+	this.TravelerPopup = function (traveler) {
 	}
 	// Loads the item GUI
 	this.LoadItem = function (item) {
@@ -97,17 +109,39 @@ function Application () {
 		document.getElementById("searchBox").value = "";
 		document.getElementById("searchBox").focus();
 	}
-	
 	//----------------
 	// supervisor Options
 	//----------------
-	this.Summary = function (DOMelement) {
+	this.CreateSummary = function (summaryObj) {
 		var self = this;
 		self.popupManager.CloseAll();
 		self.popupManager.AddCustom(document.getElementById("summaryPopup").cloneNode(true));
 		
-		var summary = document.getElementById("summary"); // TABLE
-		
+		var summaryTable = document.getElementById("summary"); // TABLE
+		if (summaryObj.items.length > 0) {
+			document.getElementById("summaryTitle").innerHTML = summaryObj.sort + " travelers";
+			
+			var header = Object.keys(summaryObj.items[0]);
+			var headerRow = document.createElement("TR");
+			header.forEach(function (key) {
+				var th = document.createElement("TH");
+				th.innerHTML = key;
+				headerRow.appendChild(th);
+			});
+			summaryTable.appendChild(headerRow);
+			summaryObj.items.forEach(function (item) {
+				var row = document.createElement("TR");
+				header.forEach(function (key) {
+					var td = document.createElement("TD");
+					if (item[key]) td.innerHTML = item[key];
+					row.appendChild(td);
+				});
+				summaryTable.appendChild(row);
+			});
+		} else {
+			self.popupManager.CloseAll();
+			self.popupManager.Info("There are no items to display");
+		}
 	}
 	
 	// initialize html and application components
@@ -172,7 +206,10 @@ function Application () {
 		document.getElementById("superOptionsBtn").onclick = function () {
 			self.popupManager.AddCustom(document.getElementById('superOptionsPopup').cloneNode(true));
 			document.getElementById("superOptionsSummaryBtn").onclick = function () {
-				self.Summary();
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("CreateSummary",{});
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
 			}
 		}
 		
@@ -210,33 +247,35 @@ function Application () {
 					}
 					if (object) {					
 						// valid json object recieved, time to hande the message
-						if (object.hasOwnProperty("stationList")) {
-							self.stationList = object.stationList;
-							self.PopulateQueues();
-							self.SetWindow();
-						}
-						if (object.hasOwnProperty("travelers") && object.hasOwnProperty("mirror")) {
-							if (object.mirror) {
-								self.travelers = [];
-								object.travelers.forEach(function (obj) {
-									var traveler = new Traveler(obj);
-									self.travelers.push(traveler);
-								});
-							} else {
-								object.travelers.forEach(function (obj) {
-									self.travelers.forEach(function (traveler, index) {
-										if (traveler.ID == obj.ID) {
-											self.travelers[index] = new Traveler(obj);
-										}
-									});
-								});
+						if (!object.hasOwnProperty("ping")) {
+							if (object.hasOwnProperty("stationList")) {
+								self.stationList = object.stationList;
+								self.PopulateQueues();
+								self.SetWindow();
 							}
-							self.HandleTravelersChanged();
-						}
-						if (object.hasOwnProperty("method")) {
-							if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
-								// The server is invoking a client method
-								self[object.method](object.parameters);
+							if (object.hasOwnProperty("travelers") && object.hasOwnProperty("mirror")) {
+								if (object.mirror) {
+									self.travelers = [];
+									object.travelers.forEach(function (obj) {
+										var traveler = new Traveler(obj);
+										self.travelers.push(traveler);
+									});
+								} else {
+									object.travelers.forEach(function (obj) {
+										self.travelers.forEach(function (traveler, index) {
+											if (traveler.ID == obj.ID) {
+												self.travelers[index] = new Traveler(obj);
+											}
+										});
+									});
+								}
+								self.HandleTravelersChanged();
+							}
+							if (object.hasOwnProperty("method")) {
+								if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
+									// The server is invoking a client method
+									self[object.method](object.parameters);
+								}
 							}
 						}
 					}
@@ -304,7 +343,15 @@ function TravelerQueue(station) {
 			itemCode.innerHTML = traveler.itemCode;
 			DOMqueueItem.appendChild(itemCode);
 			DOMqueueItem.onmousedown = function () {
-				self.PromptAction(traveler);
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("LoadTravelerAt",
+				{
+					travelerID: traveler.ID,
+					station: self.station.ID
+				});
+				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				//self.PromptAction(traveler);
 			}
 			self.DOMelement.appendChild(DOMqueueItem);
 		});
@@ -322,9 +369,12 @@ function TravelerQueue(station) {
 			promptBox.removeChild(promptBox.lastChild);
 		} */
 		var promptInfo = document.getElementById("promptInfo");
+		document.getElementById("promptInfoStation").innerHTML = self.station.name;
 		document.getElementById("promptInfoTravelerID").innerHTML = pad(traveler.ID,6);
 		document.getElementById("promptInfoItemCode").innerHTML = traveler.itemCode;
-		document.getElementById("promptInfoQuantity").innerHTML = "Qty on traveler: " + traveler.quantity;
+		document.getElementById("promptInfoQuantity").innerHTML = traveler.quantity;
+		document.getElementById("promptInfoPending").innerHTML = traveler.qtyPending;
+		document.getElementById("promptInfoCompleted").innerHTML = traveler.qtyCompleted;
 		document.getElementById("promptInfoAction").innerHTML = "Move [" + pad(traveler.ID,6) + "]'s starting location to...";
 		//-----------------
 		// Move starting station to...

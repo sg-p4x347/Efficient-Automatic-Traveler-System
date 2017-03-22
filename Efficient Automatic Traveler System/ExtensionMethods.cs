@@ -27,7 +27,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // turns a list into a json string: [obj.ToString(),obj.ToString(),...]
-        public static string Stringify<itemType>(this List<itemType> list)
+        public static string Stringify<itemType>(this List<itemType> list, bool quotate = true)
         {
             string json = "[";
             if (list != null)
@@ -35,7 +35,7 @@ namespace Efficient_Automatic_Traveler_System
                 foreach (itemType s in list)
                 {
                     if (json.Length > 1) json += ',';
-                    if (typeof(itemType) == typeof(string))
+                    if (quotate && typeof(itemType) == typeof(string))
                     {
                         json += '"' + s.ToString() + '"';
                     }

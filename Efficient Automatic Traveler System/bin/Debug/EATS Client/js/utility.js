@@ -104,7 +104,7 @@ function JSONviewer(object,name,quit) {
 					value.forEach(function (element,index) {
 						var itemList = document.createElement("DIV");
 						itemList.className = "list--horizontal";
-						if (typeof(element) == "object") itemList.innerHTML = "item " + index + ":";
+						if (typeof(element) == "object") itemList.innerHTML = '[' + index + "]:";
 						self.DisplayValue(property,element,itemList);
 						
 						scrollDiv.appendChild(itemList);
@@ -207,7 +207,8 @@ function PopupManager(blackout) {
 	// displays an error message with no ability to close
 	this.Error = function (message) {
 		var self = this;
-
+		self.CloseAll();
+		
 		var popup = self.CreatePopup();
 		// the message
 		var infoP = self.CreateP(message);
@@ -215,6 +216,17 @@ function PopupManager(blackout) {
 		
 		self.Open(popup);
 	}
+	// test if a specific popup is open
+	this.Exists = function(DOMid) {
+		var self = this;
+		for (i = 0; i < self.blackout.childNodes.length; i++) {
+			if (self.blackout.childNodes[i].id == DOMid) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	//=========================================
 	// CREATE MODULAR DOM OBJECTS
 	

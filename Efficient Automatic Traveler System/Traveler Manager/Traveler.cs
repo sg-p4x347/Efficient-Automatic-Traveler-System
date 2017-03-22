@@ -470,9 +470,6 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Where(x => x.Station == station && x.History.Exists(e => e.station == station && e.type == TravelerEvent.Completed)).Count();
         }
-#endregion
-        //--------------------------------------------------------
-#region Abstract Methods
         // export for clients to display
         public string Export(string clientType, int station)
         {
@@ -485,6 +482,7 @@ namespace Efficient_Automatic_Traveler_System
 
             if (clientType == "OperatorClient")
             {
+                json += "\"station\":" + station.ToString() + ",";
                 json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
                 json += "\"qtyScrapped\":" + QuantityScrappedAt(station) + ",";
                 json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
@@ -492,7 +490,8 @@ namespace Efficient_Automatic_Traveler_System
                 json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
                 json += ExportTableRows(clientType, station);
                 json += "]";
-            } else if (clientType == "SupervisorClient")
+            }
+            else if (clientType == "SupervisorClient")
             {
                 json += "\"stations\":";
                 List<int> stations = new List<int>();
@@ -505,7 +504,8 @@ namespace Efficient_Automatic_Traveler_System
                     }
                 }
                 json += stations.Stringify();
-            } else if (clientType == "Raw")
+            }
+            else if (clientType == "Raw")
             {
                 json += "\"description\":" + m_part.BillDesc.Quotate() + ',';
                 json += "\"starting station\":" + m_station;
@@ -514,7 +514,7 @@ namespace Efficient_Automatic_Traveler_System
             return json;
 
         }
-        // export for raw data view
+        // export for JSON viewer
         public string ExportHuman()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>()
@@ -528,6 +528,24 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
+        // export for summary view
+        public string ExportSummary()
+        {
+            // Displays properties in order
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"Traveler",m_ID.ToString() },
+                {"Model",m_part.BillNo.Quotate() },
+                {"Qty complete",QuantityAt(StationClass.GetStation("Finished")).ToString() },
+                {"Qty pending",(m_quantity - QuantityAt(StationClass.GetStation("Finished"))).ToString()},
+                {"Orders",m_parentOrders.Stringify() }
+            };
+            return obj.Stringify();
+        }
+        #endregion
+        //--------------------------------------------------------
+        #region Abstract Methods
+
         public abstract string ExportTableRows(string clientType, int station);
         // advances the item to the next station
         public abstract void AdvanceItem(ushort ID);

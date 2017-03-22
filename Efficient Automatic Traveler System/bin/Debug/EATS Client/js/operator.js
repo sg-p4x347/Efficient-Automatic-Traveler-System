@@ -486,6 +486,11 @@ function TravelerView() {
 		// start the timer
 		self.StartTimer();
 	}
+	this.AutomaticReload = function (oldT,newT) {
+		if ((oldT && newT) && oldT.ID != newT.ID) {
+			application.Info("A new traveler has been loaded automatically");
+		}
+	}
 	this.LoadItem = function (traveler, item) {
 		var self = this;
 		self.traveler = traveler;
@@ -503,7 +508,6 @@ function TravelerView() {
 	}
 	this.Load = function (traveler) {
 		var self = this;
-		
 		// initialize
 		self.Clear();
 		self.traveler = traveler;
@@ -693,41 +697,12 @@ function TravelerView() {
 		} */
 		// Traveler Search
 		document.getElementById("travelerSearch").onsubmit = function () {
-			application.popupManager.CloseAll();
-			var search = document.getElementById("travelerSearchBox").value;
-			// try to parse the search string
-			var travelerID;
-			var itemID;
-			// as traveler + item
-			var array = search.split('-');
-
-			travelerID = parseInt(array[0],10);
-			itemID = parseInt(array[1],10);
-			if (!isNaN(travelerID)) {
-				var traveler = application.travelerQueue.FindTraveler(travelerID);
-				if (traveler) {
-					application.travelerQueue.SelectTraveler(traveler);
-					var item = traveler.FindItem(itemID);
-					if (item && item.station == application.station.ID) {
-						if (Contains(item.history,[{prop:"station",value:item.station},{prop:"type",value:0}])) {
-							application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] has already been completed at this station :)");
-						} else {
-							self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
-						}
-					} else if (!isNaN(itemID)) {
-						application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] is not at your station;<br>It is at: " + application.stationList[item.station].name);
-					}
-				} else {
-					application.Info("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");
-				}
-			} else {
-				application.Info("Invalid traveler ID :(");
-			}
-			document.getElementById("travelerSearchBox").value = "";
+			self.SubmitSearch();
 			return false;
 		}
 	}
 	this.SubmitSearch = function() {
+		var self = this;
 		application.popupManager.CloseAll();
 		var search = document.getElementById("travelerSearchBox").value;
 		// try to parse the search string
@@ -741,6 +716,7 @@ function TravelerView() {
 		if (!isNaN(travelerID)) {
 			var traveler = application.travelerQueue.FindTraveler(travelerID);
 			if (traveler) {
+				self.AutomaticReload(self.traveler,traveler);
 				application.travelerQueue.SelectTraveler(traveler);
 				var item = traveler.FindItem(itemID);
 				if (item && item.station == application.station.ID) {

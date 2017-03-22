@@ -71,8 +71,32 @@ div.footer {
 	color: white;
 	padding: 6px;
 }
-
-
+div.summaryPopup {
+	width: 100%;
+	height: 100%;
+	overflow-y: scroll;
+	font-size: 1.5em;
+	color: black;
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+div.summaryPopup table {
+	border-collapse: collapse;
+	border: 2px solid black;
+	width: 100%;
+}
+div.summaryPopup h1 {
+	font-size: 1.25em;
+	margin: 0px;
+}
+div.summaryPopup table tr {
+	border-top: 2px solid black;
+}
+div.summaryPopup table tr td,th {
+	border: 1px solid gray;
+}
 #optionsBtn {
 	
 	float: right;
