@@ -24,10 +24,17 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_MAS = new OdbcConnection();
             m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            StreamReader config = new StreamReader(System.IO.Path.Combine(m_rootDirectory, "config.cfg"));
-            StringStream ss = new StringStream(config.ReadToEnd());
-            Dictionary<string,string> obj = ss.ParseJSON();
-            m_port = Convert.ToInt32(obj["port"]);
+
+            ConfigManager.Open("config.json");
+            m_port = Convert.ToInt32(ConfigManager.Get("port"));
+
+            // set up the station list
+            List<string> stations = (new StringStream(ConfigManager.Get("stations"))).ParseJSONarray();
+            foreach (string json in stations)
+            {
+                new StationClass(json);
+            }
+
             m_ip = GetLocalIPAddress();
 
             CreateClientConfig();
@@ -48,7 +55,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Server.WriteLine("Server has started on " + m_ip + ":" + m_port.ToString());
+                Server.WriteLine("Server started on " + m_ip + ":80"); 
+                Server.WriteLine("websocket on " + m_ip + ":" + m_port.ToString());
                 m_clientManagerThread.Start();
 
                 
@@ -159,6 +167,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void Update()
         {
+            Server.WriteLine("\n<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>" + DateTime.Now.ToString("\tMM/dd/yyy @ hh:mm") + "\n");
             // open the MAS connection
             ConnectToData();
 
@@ -168,21 +177,49 @@ namespace Efficient_Automatic_Traveler_System
 
             // Load, Create, and combine all travelers
             m_travelerManager.CompileTravelers(ref newOrders);
+
+            // backup everything
             m_orderManager.BackupOrders();
+            m_travelerManager.BackupTravelers();
 
             // compensate order items for inventory balances
             m_orderManager.CheckInventory(m_travelerManager as ITravelerManager, ref m_MAS);
 
             // Finalize the travelers by importing external information
             m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
-
+            
             // No more data is needed at this time
             CloseMAS();
+
+            Backup();
+            Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
+        }
+        // copies memory into a new backup version as insurance
+        private void Backup()
+        {
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            // remove backups older than set time frame
+            int maxAge = -10; // in days
+            string[] backupFolders = System.IO.Directory.GetDirectories(System.IO.Path.Combine(exeDir, "backup\\"));
+            foreach (string folder in backupFolders)
+            {
+                if (DateTime.Parse(new DirectoryInfo(folder).Name) < DateTime.Today.AddDays(maxAge))
+                {
+                    System.IO.Directory.Delete(folder, true);
+                }
+            }
+            // backup folder for today
+            string folderName = DateTime.Today.ToString("MM-dd-yyyy");
+            System.IO.Directory.CreateDirectory(System.IO.Path.Combine(exeDir, "backup\\" + folderName));
+            // backup files
+            m_travelerManager.BackupTravelers("backup\\" + folderName + "\\travelers.json");
+            m_orderManager.BackupOrders("backup\\" + folderName + "\\orders.json");
+            ConfigManager.Backup("backup\\" + folderName + "\\config.json");
         }
         // Opens a connection to the MAS database
         private void ConnectToData()
         {
-            Server.WriteLine("Connecting to MAS");
+            Server.Write("\r{0}", "Connecting to MAS...");
 
             // initialize the MAS connection
             m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;";
@@ -190,10 +227,12 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 m_MAS.Open();
+                Server.Write("\r{0}", "Connecting to MAS...Connected\n");
             }
             catch (Exception ex)
             {
-                Server.WriteLine("Failed to log in :" + ex.Message);
+                Server.Write("\r{0}", "Connecting to MAS...Failed\n");
+                Server.WriteLine(ex.Message);
             }
         }
         private void CloseMAS()

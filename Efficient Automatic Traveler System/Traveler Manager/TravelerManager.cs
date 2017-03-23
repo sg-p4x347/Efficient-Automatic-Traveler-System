@@ -53,13 +53,7 @@ namespace Efficient_Automatic_Traveler_System
             TravelersChanged = delegate { };
             m_travelers = new List<Traveler>();
             m_orderManager = orderManager;
-            // set up the station list
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            List<string> stations = (new StringStream(File.ReadAllText(System.IO.Path.Combine(exeDir, "stations.json")))).ParseJSONarray();
-            foreach (string json in stations)
-            {
-                Traveler.Stations.Add(new StationClass(json));
-            }
+            
         }
         public void CompileTravelers(ref List<Order> newOrders)
         {
@@ -76,7 +70,7 @@ namespace Efficient_Automatic_Traveler_System
                     // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
                     if (item.ChildTraveler < 0 && (Traveler.IsTable(item.ItemCode) || Traveler.IsChair(item.ItemCode)))
                     {
-                        Console.Write("\r{0}%   ", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
+                        Server.Write("\r{0}%", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
 
                         // search for existing traveler
                         // can only combine if same itemCode, hasn't started, and has no parents
@@ -108,9 +102,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 index++;
             }
-            Console.Write("\r{0}", "Compiling Travelers...Finished\n");
-
-            BackupTravelers();
+            Server.Write("\r{0}", "Compiling Travelers...Finished\n");
         }
         public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS)
         {
@@ -120,9 +112,9 @@ namespace Efficient_Automatic_Traveler_System
                 
                 traveler.ImportPart(orderManager, ref MAS);
                 index++;
-                Console.Write("\r{0}%   ", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
+                Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
             }
-            Console.Write("\r{0}%   ", "Gathering Info...Finished");
+            Server.Write("\r{0}", "Gathering Info...Finished\n");
             // travelers have changed
             OnTravelersChanged(m_travelers);
         }
@@ -377,20 +369,20 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        #endregion
-        //----------------------------------
-        #region Private methods
-        private void BackupTravelers()
+        public void BackupTravelers(string file = "travelers.json")
         {
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string contents = "";
             foreach (Traveler traveler in m_travelers)
             {
                 contents += traveler.ToString();
-
             }
-            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "travelers.json"), contents);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, file), contents);
         }
+        #endregion
+        //----------------------------------
+        #region Private methods
+
         // Gets the total quantity ordered, compensated by what is in stock
         private int QuantityNeeded(Traveler traveler)
         {

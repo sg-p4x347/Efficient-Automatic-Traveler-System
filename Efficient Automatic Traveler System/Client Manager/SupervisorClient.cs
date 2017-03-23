@@ -22,7 +22,7 @@ namespace Efficient_Automatic_Traveler_System
             m_travelerManager = travelerCore;
             m_travelers = m_travelerManager.GetTravelers;
             string stationList = "";
-            foreach (StationClass station in Traveler.Stations)
+            foreach (StationClass station in StationClass.Stations)
             {
                 stationList += (stationList.Length != 0 ? "," : "") + '"' + station.Name + '"';
             }

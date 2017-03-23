@@ -138,12 +138,14 @@ namespace Efficient_Automatic_Traveler_System
         public void NewID()
         {
             // open the currentID.txt file
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            System.IO.StreamReader readID = new StreamReader(System.IO.Path.Combine(exeDir, "currentID.txt"));
-            m_ID = Convert.ToInt32(readID.ReadLine());
-            readID.Close();
+            //string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            //System.IO.StreamReader readID = new StreamReader(System.IO.Path.Combine(exeDir, "currentID.txt"));
+            //m_ID = Convert.ToInt32(readID.ReadLine());
+            m_ID = Convert.ToInt32(ConfigManager.Get("nextTravelerID"));
+            ConfigManager.Set("nextTravelerID", (m_ID + 1).ToString());
+            //readID.Close();
             // increment the current ID
-            File.WriteAllText(System.IO.Path.Combine(exeDir, "currentID.txt"), (m_ID + 1).ToString() + '\n');
+            //File.WriteAllText(System.IO.Path.Combine(exeDir, "currentID.txt"), (m_ID + 1).ToString() + '\n');
         }
         // Finds all the components in the top level bill, setting key components along the way
         //public void FindComponents(Bill bill)
@@ -531,13 +533,17 @@ namespace Efficient_Automatic_Traveler_System
         // export for summary view
         public string ExportSummary()
         {
+            int qtyPending = m_quantity - Items.Count();
+            int qtyComplete = QuantityAt(StationClass.GetStation("Finished"));
+            int qtyInProcess = Items.Count()-qtyComplete;
             // Displays properties in order
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"Traveler",m_ID.ToString() },
                 {"Model",m_part.BillNo.Quotate() },
-                {"Qty complete",QuantityAt(StationClass.GetStation("Finished")).ToString() },
-                {"Qty pending",(m_quantity - QuantityAt(StationClass.GetStation("Finished"))).ToString()},
+                {"Pending",qtyPending.ToString()},
+                {"In process",qtyInProcess.ToString()},
+                {"Complete",qtyComplete.ToString() },
                 {"Orders",m_parentOrders.Stringify() }
             };
             return obj.Stringify();
@@ -654,8 +660,5 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 #endregion
-        //--------------------------------------------------------
-        // static
-        internal static List<StationClass> Stations = new List<StationClass>();
     }
 }

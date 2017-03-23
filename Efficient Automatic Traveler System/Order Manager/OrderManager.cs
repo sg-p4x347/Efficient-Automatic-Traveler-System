@@ -44,7 +44,7 @@ namespace Efficient_Automatic_Traveler_System
                 List<string> currentOrderNumbers = new List<string>();
                 foreach (Order order in m_orders) { currentOrderNumbers.Add(order.SalesOrderNo); }
 
-                Server.WriteLine("Importing orders...");
+                Server.Write("\r{0}","Importing orders...");
                 
                 // get informatino from header
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
@@ -119,9 +119,11 @@ namespace Efficient_Automatic_Traveler_System
                     }
                 }
                 m_orders.AddRange(newOrders);
+                Server.Write("\r{0}", "Importing orders...Finished\n");
             }
             catch (Exception ex)
             {
+                Server.Write("\r{0}", "Importing orders...Failed\n");
                 Server.WriteLine("Problem importing new orders: " + ex.Message + " Stack Trace: " + ex.StackTrace);
             }
         }
@@ -175,7 +177,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // Writes the orders to the json database
-        public void BackupOrders()
+        public void BackupOrders(string file = "orders.json")
         {
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string contents = "";
@@ -184,7 +186,7 @@ namespace Efficient_Automatic_Traveler_System
                 contents += order.Export();
 
             }
-            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, "orders.json"), contents);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, file), contents);
         }
 #endregion
         //--------------------------------------------

@@ -50,13 +50,17 @@ namespace Efficient_Automatic_Traveler_System
             return json;
         }
         // returns a JSON string representing the collection of name value pairs
-        public static string Stringify(this Dictionary<string,string> obj)
+        public static string Stringify(this Dictionary<string,string> obj,bool pretty = false)
         {
             string json = "{";
+            bool first = true;
             foreach (KeyValuePair<string,string> pair in obj)
             {
-                json += (json.Length > 1 ? "," : "") + pair.Key.Quotate() + ':' + pair.Value;
+                if (pretty) json += "\n\t";
+                json += (first ? "" : ",") + pair.Key.Quotate() + ':' + pair.Value;
+                first = false;
             }
+            if (pretty) json += '\n';
             json += '}';
             return json;
         }

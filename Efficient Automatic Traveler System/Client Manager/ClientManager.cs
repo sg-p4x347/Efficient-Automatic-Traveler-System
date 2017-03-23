@@ -33,7 +33,6 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Start()
         {
-            Server.WriteLine("Waiting for a connection...");
             m_server.Start();
             ConnectAsync();
             Poll();

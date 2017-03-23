@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="Client Manager\OperatorClient.cs" />
     <Compile Include="Client Manager\SupervisorClient.cs" />
+    <Compile Include="ConfigManager.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Order Manager\OrderManager.cs" />
     <Compile Include="StringStream.cs" />

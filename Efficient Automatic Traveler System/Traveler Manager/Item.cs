@@ -35,7 +35,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occured when retrieving item information from MAS: " + ex.Message);
+                Server.WriteLine("An error occured when retrieving item information from MAS: " + ex.Message);
             }
         }
         public Item (Item item)
