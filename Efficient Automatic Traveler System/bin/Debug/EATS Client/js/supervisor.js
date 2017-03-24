@@ -87,6 +87,9 @@ function Application () {
 			//-----------------------------------------------
 		}
 	}
+	this.Info = function (message) {
+		this.popupManager.Info(message);
+	}
 	// Loads the traveler GUI
 	this.LoadTraveler = function (traveler) {
 		this.popupManager.AddJSONviewer(traveler,"Traveler");
@@ -133,7 +136,7 @@ function Application () {
 				var row = document.createElement("TR");
 				header.forEach(function (key) {
 					var td = document.createElement("TD");
-					if (item[key]) td.innerHTML = item[key];
+					if (item[key] != undefined) td.innerHTML = item[key];
 					row.appendChild(td);
 				});
 				summaryTable.appendChild(row);
@@ -204,13 +207,17 @@ function Application () {
 		//----------------
 		
 		document.getElementById("superOptionsBtn").onclick = function () {
-			self.popupManager.AddCustom(document.getElementById('superOptionsPopup').cloneNode(true));
-			document.getElementById("superOptionsSummaryBtn").onclick = function () {
+			var popup = self.popupManager.CreatePopup();
+			// OPEN SUMMARY --------------
+			var summaryBtn = self.popupManager.CreateButton("View Summary");
+			summaryBtn.onclick = function () {
 				//----------INTERFACE CALL-----------------------
 				var message = new InterfaceCall("CreateSummary",{});
 				self.websocket.send(JSON.stringify(message));
 				//-----------------------------------------------
 			}
+			popup.appendChild(summaryBtn);
+			self.popupManager.AddCustom(popup);
 		}
 		
 		
@@ -414,6 +421,42 @@ function TravelerQueue(station) {
 		document.getElementById("promptInfoBtn").onclick = function () {
 			document.getElementById("searchBox").value = traveler.ID;
 			document.getElementById("searchForm").onsubmit();
+		}
+		//---------------------
+		// Traveler options 
+		//---------------------
+		document.getElementById("travelerOptionsBtn").onclick = function () {
+			var popup = application.popupManager.CreatePopup();
+			// More Info --------------
+			var infoBtn = application.popupManager.CreateButton("More Info");
+			infoBtn.onclick = function () {
+				application.popupManager.Close(popup);
+				
+				document.getElementById("searchBox").value = traveler.ID;
+				document.getElementById("searchForm").onsubmit();
+			}
+			popup.appendChild(infoBtn);
+			//-------------------------
+			
+			// Disintegrate ----------
+			var disintegrateBtn = application.popupManager.CreateButton("Disintegrate this traveler");
+			AddTooltip(disintegrateBtn,"Deletes the traveler, and releases the orders to create and combine into new travelers during the next system update");
+			disintegrateBtn.onclick = function () {
+				application.popupManager.Close(popup);
+				
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("DisintegrateTraveler",
+				{
+					travelerID: traveler.ID
+				});
+				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				
+				closeFunction();
+			}
+			popup.appendChild(disintegrateBtn);
+			//-------------------------
+			application.popupManager.AddCustom(popup);
 		}
 	}
 	this.Initialize = function (station) {

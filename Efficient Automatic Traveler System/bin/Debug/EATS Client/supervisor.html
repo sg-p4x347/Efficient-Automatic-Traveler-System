@@ -10,11 +10,7 @@
 		<link rel="icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>"></link>
     </head>
 	<body onload = "Initialize()">
-		<div id = "blackout" class = "blackout hidden" onclick = 
-		"(function (e,self) {
-			if (e.target == self) application.popupManager.CloseAll(); 
-			return false;
-		})(event,this)">
+		<div id = "blackout" class = "blackout hidden">
 		</div>
 		<div class = "header twoEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
 			<span style = "color: #001a66;">Supervisor</span>
@@ -52,13 +48,10 @@
 					<div id = "promptMoveBtn" class = "dark button">Move</div>
 					<div id = "promptInfoBtn" class = "dark button">More info</div>
 					<!-- TRAVELER OPTIONS BUTTON -->
-					<img id = "optionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
+					<img id = "travelerOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
 				</div>
 			</div>
-			<!-- SUPERVISOR OPTIONS POPUP -->
-			<div id = "superOptionsPopup" class = "blackout__popup">
-				<div id = "superOptionsSummaryBtn" class = "dark button">View current summary</div>
-			</div>
+			<!-- SUMMARY POPUP -->
 			<div id = "summaryPopup" class = "summaryPopup">
 				<h1 id = "summaryTitle"></h1>
 				<table id = "summary"></table>

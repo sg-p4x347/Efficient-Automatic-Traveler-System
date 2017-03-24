@@ -190,6 +190,7 @@ function PopupManager(blackout) {
 		popup.appendChild(infoP);
 		// OK button
 		var button = self.CreateButton("OK");
+		button.className += " twoEM";
 		button.onclick = function () {self.Close(popup);}
 		popup.appendChild(button);
 		
@@ -279,7 +280,14 @@ function PopupManager(blackout) {
 	this.Initialize = function(blackout) {
 		var self = this;
 		self.blackout = blackout;
+		self.blackout.onclick = function (event) {
+			if (event.target == this) self.CloseAll(); 
+			return false;
+		}
 	}
 	
 	this.Initialize(blackout);
+}
+function AddTooltip(element,tip) {
+	element.title = tip;
 }

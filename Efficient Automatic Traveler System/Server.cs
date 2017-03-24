@@ -39,8 +39,8 @@ namespace Efficient_Automatic_Traveler_System
 
             CreateClientConfig();
 
-            m_orderManager = new OrderManager();
-            m_travelerManager = new TravelerManager(m_orderManager as IOrderManager);
+            m_orderManager = new OrderManager(m_rootDirectory);
+            m_travelerManager = new TravelerManager(m_orderManager as IOrderManager,m_rootDirectory);
             m_clientManager = new ClientManager(m_ip, m_port, m_travelerManager as ITravelerManager);
             // Subscribe events
             m_travelerManager.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
@@ -168,15 +168,18 @@ namespace Efficient_Automatic_Traveler_System
         private void Update()
         {
             Server.WriteLine("\n<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>" + DateTime.Now.ToString("\tMM/dd/yyy @ hh:mm") + "\n");
+            
+            // Store current state of data into backup folder
+            Backup();
+
             // open the MAS connection
             ConnectToData();
 
             // Import stored orders from json file and MAS
-            List<Order> newOrders = new List<Order>();
-            m_orderManager.ImportOrders(ref newOrders, ref m_MAS);
+            m_orderManager.ImportOrders(ref m_MAS);
 
             // Load, Create, and combine all travelers
-            m_travelerManager.CompileTravelers(ref newOrders);
+            m_travelerManager.CompileTravelers();
 
             // backup everything
             m_orderManager.BackupOrders();
@@ -191,7 +194,7 @@ namespace Efficient_Automatic_Traveler_System
             // No more data is needed at this time
             CloseMAS();
 
-            Backup();
+            
             Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
         }
         // copies memory into a new backup version as insurance

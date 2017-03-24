@@ -24,16 +24,19 @@ namespace Efficient_Automatic_Traveler_System
         {
             get;
         }
+        // removes all occurences of the specified traveler from order items
+        void ReleaseTraveler(Traveler traveler);
     }
     class OrderManager : IOrderManager
     {
         #region Public Methods
-        public OrderManager()
+        public OrderManager(string workingDirectory)
         {
             m_orders = new List<Order>();
+            m_workingDirectory = workingDirectory;
         }
         // Imports and stores all open orders that have not already been stored
-        public void ImportOrders(ref List<Order> newOrders, ref OdbcConnection MAS)
+        public void ImportOrders(ref OdbcConnection MAS)
         {
             try
             {
@@ -91,7 +94,7 @@ namespace Efficient_Automatic_Traveler_System
                             }
                         }
                         detailReader.Close();
-                        newOrders.Add(order);
+                        m_orders.Add(order);
                     }
                     // Update information for existing order
                     else
@@ -118,7 +121,6 @@ namespace Efficient_Automatic_Traveler_System
 
                     }
                 }
-                m_orders.AddRange(newOrders);
                 Server.Write("\r{0}", "Importing orders...Finished\n");
             }
             catch (Exception ex)
@@ -203,19 +205,34 @@ namespace Efficient_Automatic_Traveler_System
                 return m_orders;
             }
         }
+        public void ReleaseTraveler(Traveler traveler)
+        {
+            // iterate over all applicable orders
+            foreach (string orderNo in traveler.ParentOrders)
+            {
+                Order order = FindOrder(orderNo);
+                // for each item in the order
+                foreach (OrderItem item in order.Items)
+                {
+                    if (item.ChildTraveler == traveler.ID)
+                    {
+                        item.ChildTraveler = -1;
+                    }
+                }
+            }
+        }
 #endregion
         //--------------------------------------------
-#region Private Methods
+        #region Private Methods
         // Imports orders that have been stored
-        private void ImportStoredOrders()
+        public void ImportStoredOrders()
         {
             // create the file if it doesn't exist
-            StreamWriter w = File.AppendText("orders.json");
+            StreamWriter w = File.AppendText(Path.Combine(m_workingDirectory,"orders.json"));
             w.Close();
             // open the file
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string line;
-            System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "orders.json"));
+            System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(m_workingDirectory, "orders.json"));
             while ((line = file.ReadLine()) != null && line != "")
             {
                 m_orders.Add(new Order(line));
@@ -227,7 +244,8 @@ namespace Efficient_Automatic_Traveler_System
         //--------------------------------------------
 #region Properties
         private List<Order> m_orders;
-#endregion
+        private string m_workingDirectory;
+        #endregion
         //--------------------------------------------
     }
 }

@@ -42,20 +42,23 @@ namespace Efficient_Automatic_Traveler_System
         ClientMessage LoadTravelerAt(string json);
         ClientMessage LoadItem(string json);
         ClientMessage CreateSummary(string json);
+        ClientMessage DisintegrateTraveler(string json);
         
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
     class TravelerManager : ITravelerManager, IOperator, ISupervisor
     {
         #region Public methods
-        public TravelerManager(IOrderManager orderManager)
+        public TravelerManager(IOrderManager orderManager, string workingDirectory)
         {
             TravelersChanged = delegate { };
             m_travelers = new List<Traveler>();
             m_orderManager = orderManager;
-            
+            m_workingDirectory = workingDirectory;
+
+
         }
-        public void CompileTravelers(ref List<Order> newOrders)
+        public void CompileTravelers()
         {
             // first clear what is already stored
             m_travelers.Clear();
@@ -63,14 +66,14 @@ namespace Efficient_Automatic_Traveler_System
             ImportStoredTravelers();
 
             int index = 0;
-            foreach (Order order in newOrders)
+            foreach (Order order in m_orderManager.GetOrders)
             {
                 foreach (OrderItem item in order.Items)
                 {
                     // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
                     if (item.ChildTraveler < 0 && (Traveler.IsTable(item.ItemCode) || Traveler.IsChair(item.ItemCode)))
                     {
-                        Server.Write("\r{0}%", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(newOrders.Count)) * 100));
+                        Server.Write("\r{0}%", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orderManager.GetOrders.Count)) * 100));
 
                         // search for existing traveler
                         // can only combine if same itemCode, hasn't started, and has no parents
@@ -118,11 +121,21 @@ namespace Efficient_Automatic_Traveler_System
             // travelers have changed
             OnTravelersChanged(m_travelers);
         }
-        
+        public void BackupTravelers(string file = "travelers.json")
+        {
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string contents = "";
+            foreach (Traveler traveler in m_travelers)
+            {
+                contents += traveler.ToString();
+            }
+            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, file), contents);
+        }
+
         #endregion
         //----------------------------------
         #region ITravelerManager
-        
+
         public Traveler FindTraveler(int ID)
         {
             return m_travelers.Find(x => x.ID == ID);
@@ -359,7 +372,8 @@ namespace Efficient_Automatic_Traveler_System
             ClientMessage returnMessage;
             try
             {
-                Summary summary = new Summary(this as ITravelerManager);
+                //Summary summary = new Summary(this as ITravelerManager);
+                Summary summary = new Summary("C:\\Gage Omega\\Programming\\Efficient Automatic Traveler System\\Efficient Automatic Traveler System\\bin\\Debug\\backup\\03-24-2017", m_workingDirectory);
                 returnMessage = new ClientMessage("CreateSummary", summary.ToString());
             }
             catch (Exception ex)
@@ -369,15 +383,30 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        public void BackupTravelers(string file = "travelers.json")
+        public ClientMessage DisintegrateTraveler(string json)
         {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string contents = "";
-            foreach (Traveler traveler in m_travelers)
+            ClientMessage returnMessage;
+            try
             {
-                contents += traveler.ToString();
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                if (traveler != null && traveler.Items.Count == 0)
+                {
+                    m_travelers.Remove(traveler);
+                    m_orderManager.ReleaseTraveler(traveler);
+                    OnTravelersChanged(m_travelers);
+                    returnMessage = new ClientMessage("Info", "Successfully disintegrated the traveler".Quotate());
+                } else
+                {
+                    returnMessage = new ClientMessage("Info", "Cannot disintegrate this traveler, it still has items. :(".Quotate());
+                }
             }
-            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, file), contents);
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error".Quotate());
+            }
+            return returnMessage;
         }
         #endregion
         //----------------------------------
@@ -460,13 +489,12 @@ namespace Efficient_Automatic_Traveler_System
             // get the list of travelers and orders that have been created
             //--------------------------------------------------------------
             // create the file if it doesn't exist
-            StreamWriter w = File.AppendText("travelers.json");
+            StreamWriter w = File.AppendText(Path.Combine(m_workingDirectory,"travelers.json"));
             w.Close();
             // open the file
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string line;
-            System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(exeDir, "travelers.json"));
-            double travelerCount = File.ReadLines(System.IO.Path.Combine(exeDir, "travelers.json")).Count();
+            System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(m_workingDirectory, "travelers.json"));
+            double travelerCount = File.ReadLines(System.IO.Path.Combine(m_workingDirectory, "travelers.json")).Count();
             int index = 0;
             while ((line = file.ReadLine()) != null && line != "")
             {
@@ -567,6 +595,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Private member variables
         private List<Traveler> m_travelers;
         private IOrderManager m_orderManager;
+        private string m_workingDirectory;
 
         public event TravelersChangedSubscriber TravelersChanged; // plural
         //public event TravelerChangedSubscriber TravelerChanged; // singular

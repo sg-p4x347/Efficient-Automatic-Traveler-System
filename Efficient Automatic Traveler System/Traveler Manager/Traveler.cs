@@ -1,4 +1,4 @@
-﻿#define Labels
+﻿//#define Labels
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace Efficient_Automatic_Traveler_System
         Table,
         Test
     }
-    class Event
+    class Event : IEquatable<Event>
     {
         public Event() { }
         public Event (string json)
@@ -61,6 +61,33 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"station\":" + station;
             json += "}";
             return json;
+        }
+        public static bool operator ==(Event A, Event B)
+        {
+            return (A.type == B.type && A.time == B.time && A.station == B.station && A.date == B.date);
+        }
+        public bool Equals(Event B)
+        {
+            return (type == B.type && time == B.time && station == B.station && date == B.date);
+        }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+        public static bool operator !=(Event A, Event B)
+        {
+            return !(A.type == B.type && A.time == B.time && A.station == B.station && A.date == B.date);
+        }
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = type.GetHashCode();
+                hashCode = (hashCode * 397) ^ time.GetHashCode();
+                hashCode = (hashCode * 397) ^ station.GetHashCode();
+                hashCode = (hashCode * 397) ^ date.GetHashCode();
+                return hashCode;
+            }
         }
         public TravelerEvent type;
         public double time;
@@ -464,9 +491,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Where(x => x.Station == station).Count();
         }
-        public int QuantityScrappedAt(int station)
+        public int QuantityScrapped()
         {
-            return Items.Where(x => x.Station == station && x.Scrapped).Count();
+            return Items.Where(x => x.Scrapped).Count();
         }
         public int QuantityCompleteAt(int station)
         {
@@ -486,7 +513,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 json += "\"station\":" + station.ToString() + ",";
                 json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
-                json += "\"qtyScrapped\":" + QuantityScrappedAt(station) + ",";
+                json += "\"qtyScrapped\":" + QuantityScrapped() + ",";
                 json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
                 json += "\"members\":[";
                 json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
@@ -533,9 +560,9 @@ namespace Efficient_Automatic_Traveler_System
         // export for summary view
         public string ExportSummary()
         {
-            int qtyPending = m_quantity - Items.Count();
+            int qtyPending = m_quantity - Items.Where(x => !x.Scrapped).Count();
             int qtyComplete = QuantityAt(StationClass.GetStation("Finished"));
-            int qtyInProcess = Items.Count()-qtyComplete;
+            int qtyInProcess = Items.Where(x => !x.Scrapped).Count() - qtyComplete;
             // Displays properties in order
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
@@ -543,6 +570,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"Model",m_part.BillNo.Quotate() },
                 {"Pending",qtyPending.ToString()},
                 {"In process",qtyInProcess.ToString()},
+                {"Scrapped",QuantityScrapped().ToString() },
                 {"Complete",qtyComplete.ToString() },
                 {"Orders",m_parentOrders.Stringify() }
             };
