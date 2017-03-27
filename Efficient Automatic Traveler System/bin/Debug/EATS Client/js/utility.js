@@ -1,6 +1,7 @@
-function InterfaceCall(methodName, parameters) {
+function InterfaceCall(methodName, parameters, target) {
 	this.interfaceMethod = methodName;
 	this.parameters = parameters;
+	this.interfaceTarget = (target === undefined ? "TravelerManager" : target);
 }
 function Traveler(obj) {
 	obj.selected = false;
@@ -211,6 +212,7 @@ function PopupManager(blackout) {
 		self.CloseAll();
 		
 		var popup = self.CreatePopup();
+		popup.title = "error";
 		// the message
 		var infoP = self.CreateP(message);
 		popup.appendChild(infoP);
@@ -267,9 +269,9 @@ function PopupManager(blackout) {
 	this.CloseAll = function () {
 		var self = this;
 		while (self.blackout.lastChild) {
-			self.blackout.removeChild(self.blackout.lastChild);
+			if (self.blackout.lastChild.title == "error") break;
+			self.Close(self.blackout.lastChild);
 		}
-		self.blackout.className = "blackout hidden";
 	}
 	this.Open = function (popup) {
 		var self = this;

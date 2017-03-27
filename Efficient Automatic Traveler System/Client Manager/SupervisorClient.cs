@@ -17,7 +17,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Public members
         //------------------------------
-        public SupervisorClient(TcpClient client, ITravelerManager travelerCore) : base(client)
+        public SupervisorClient(TcpClient client, ISupervisor travelerCore) : base(client)
         {
             m_travelerManager = travelerCore;
             m_travelers = m_travelerManager.GetTravelers;
@@ -41,11 +41,15 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = ss.ParseJSON();
                 if (obj.ContainsKey("interfaceMethod"))
                 {
-                    MethodInfo mi = m_travelerManager.GetType().GetMethod(obj["interfaceMethod"]);
-                    if (mi != null)
+                    PropertyInfo pi = this.GetType().GetProperty(obj["interfaceTarget"]);
+                    if (pi != null)
                     {
-                        ClientMessage returnMessage = (ClientMessage)mi.Invoke(m_travelerManager, new object[] { obj["parameters"] });
-                        SendMessage(returnMessage.ToString());
+                        MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
+                        if (mi != null)
+                        {
+                            string returnMessage = (string)mi.Invoke(pi.GetValue(this), new object[] { obj["parameters"] });
+                            if (returnMessage != null && returnMessage != "") SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
+                        }
                     }
                 }
             }
@@ -75,8 +79,17 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Properties
         //------------------------------
-        protected ITravelerManager m_travelerManager;
+        protected ISupervisor m_travelerManager;
         protected List<Traveler> m_travelers;
+
+        public ISupervisor TravelerManager
+        {
+            get
+            {
+                return m_travelerManager;
+            }
+        }
+
         //----------
         // Events
         //----------

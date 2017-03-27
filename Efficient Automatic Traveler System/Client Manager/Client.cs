@@ -13,7 +13,7 @@ using System.Security.Cryptography;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    struct ClientMessage
+    public struct ClientMessage
     {
         public ClientMessage(string type, string message)
         {

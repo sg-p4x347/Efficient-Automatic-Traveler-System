@@ -45,96 +45,17 @@ namespace Efficient_Automatic_Traveler_System
                     HandleTravelersChanged(m_travelerManager.GetTravelers);
                 } else if (obj.ContainsKey("interfaceMethod"))
                 {
-                    MethodInfo mi = m_travelerManager.GetType().GetMethod(obj["interfaceMethod"]);
-                    if (mi != null)
+                    PropertyInfo pi = this.GetType().GetProperty(obj["interfaceTarget"]);
+                    if (pi != null)
                     {
-                        string returnMessage = (string)mi.Invoke(m_travelerManager, new object[] { obj["parameters"] });
-                        if (returnMessage != null && returnMessage != "") SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
+                        MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
+                        if (mi != null)
+                        {
+                            string returnMessage = (string)mi.Invoke(pi.GetValue(this), new object[] { obj["parameters"] });
+                            if (returnMessage != null && returnMessage != "") SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
+                        }
                     }
                 }
-                //else if (obj.ContainsKey("completed") && obj.ContainsKey("destination") && obj.ContainsKey("time") && obj.ContainsKey("qtyMade") && obj.ContainsKey("qtyScrapped"))
-                //{
-                //    //----------------------
-                //    // Traveler Completed
-                //    //----------------------
-                //    string returnMessage = "";
-                //    Traveler traveler = m_travelers.Find(x => x.ID == Convert.ToInt32(obj["completed"]));
-                //    if (traveler != null)
-                //    {
-                //        traveler.NextStation = Traveler.GetStation(obj["destination"]);
-
-                //        int qtyMade = Convert.ToInt32(obj["qtyMade"]);
-                //        int qtyScrapped = Convert.ToInt32(obj["qtyScrapped"]);
-                //        int qtyPending = traveler.Quantity - (qtyMade + qtyScrapped);
-
-                //        // SCRAP
-                //        if (qtyScrapped > 0)
-                //        {
-                //            if (qtyScrapped == traveler.Quantity)
-                //            {
-                //                // log this event
-                //                traveler.History.Add(new Event(TravelerEvent.Scrapped, qtyScrapped, traveler.Station, Convert.ToDouble(obj["time"])));
-                //                traveler.Start(); // the whole thing was scrapped
-                //            }
-                //            else
-                //            {
-                //                m_travelerManager.CreateScrapChild(traveler, qtyScrapped);
-                                
-                //                //Traveler scrapped = (Traveler)traveler.Clone();
-                //                //// relational dependencies to original traveler
-                //                ////scrapped.Parents.Add(traveler.ID);
-                //                ////traveler.Children.Add(scrapped.ID);
-                //                ////---------------------------------------------
-                //                //scrapped.Quantity = qtyScrapped;
-                //                //traveler.Quantity -= qtyScrapped;
-                //                //scrapped.Start();
-                //                //// log this event
-                //                //scrapped.History.Add(new Event(TravelerEvent.Scrapped, scrapped.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
-                //                //m_travelers.Add(scrapped);
-                //            }
-                //        }
-                //        if (qtyMade > 0)
-                //        {
-                //            if (qtyMade == traveler.Quantity)
-                //            {
-                //                // log this event
-                //                traveler.History.Add(new Event(TravelerEvent.Completed, traveler.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
-                //                if (traveler.LastStation == Traveler.GetStation("Start"))
-                //                {
-                //                    traveler.PrintLabel();
-                //                    returnMessage = "Printed traveler label: " + traveler.ID + "<br>Please place this label with the pallet that you just submitted";
-                //                }
-                //                m_travelerManager.AdvanceTraveler(traveler);
-                //            } else
-                //            {
-                //                Traveler made = m_travelerManager.CreateCompletedChild(traveler, qtyMade, Convert.ToDouble(obj["time"]));
-                //                //Traveler made = (Traveler)traveler.Clone();
-                //                made.PrintLabel();
-                //                returnMessage = "Printed traveler label: " + made.ID + "<br>Please place this label with the pallet that you just submitted";
-                //                //// relational dependencies to original traveler
-                //                ////made.Parents.Add(traveler.ID);
-                //                ////traveler.Children.Add(made.ID);
-                //                ////---------------------------------------------
-                //                //made.Quantity = qtyMade;
-                //                //traveler.Quantity -= qtyMade;
-                //                //made.Station = Traveler.GetStation(obj["destination"]);
-                //                //made.Advance();
-                //                //// log this event
-                //                //made.History.Add(new Event(TravelerEvent.Completed, made.Quantity, traveler.Station, Convert.ToDouble(obj["time"])));
-                //                //m_travelers.Add(made);
-                //            }
-                //        } 
-                //    }
-                    //if (returnMessage != "")
-                    //{
-                    //    SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
-                    //}
-                    //TravelersChanged();
-                //} else if (obj.ContainsKey("print") && obj.ContainsKey("qty"))
-                //{
-                //    // Print label
-                //    m_travelers.Find(x => x.ID == Convert.ToInt32(obj["print"])).PrintLabel(Convert.ToInt32(obj["qty"]));
-                //}
             } catch (Exception ex)
             {
                 // something went wrong, it is best to just listen for a new message
@@ -148,7 +69,7 @@ namespace Efficient_Automatic_Traveler_System
             bool mirror = (stationSpecific.Count < travelers.Count);
             if (mirror)
             {
-                stationSpecific = m_travelerManager.GetTravelers.Where(x => x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0).ToList();
+                stationSpecific = TravelerManager.GetTravelers.Where(x => x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0).ToList();
             }
             string message = @"{""travelers"":[";
             string travelerJSON = "";
@@ -188,6 +109,13 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_station = value;
+            }
+        }
+        public IOperator TravelerManager
+        {
+            get
+            {
+                return m_travelerManager;
             }
         }
         //----------

@@ -33,12 +33,15 @@ namespace Efficient_Automatic_Traveler_System
         {
             // starting state
             OrderManager orderManagerA = new OrderManager(pathA);
-            orderManagerA.Impo
+            orderManagerA.ImportStoredOrders();
             TravelerManager travelerManagerA = new TravelerManager(orderManagerA as IOrderManager, pathA);
+            travelerManagerA.ImportStoredTravelers();
             Summary summaryA = new Summary(travelerManagerA as ITravelerManager, sortType);
             // ending state
             OrderManager orderManagerB = new OrderManager(pathB);
+            orderManagerB.ImportStoredOrders();
             TravelerManager travelerManagerB = new TravelerManager(orderManagerB as IOrderManager, pathB);
+            travelerManagerB.ImportStoredTravelers();
             Summary summaryB = new Summary(travelerManagerB as ITravelerManager, sortType);
 
             // Delta state (A's state - B's state)

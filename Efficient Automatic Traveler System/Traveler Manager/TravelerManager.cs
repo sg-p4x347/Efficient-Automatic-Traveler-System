@@ -372,8 +372,10 @@ namespace Efficient_Automatic_Traveler_System
             ClientMessage returnMessage;
             try
             {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 //Summary summary = new Summary(this as ITravelerManager);
-                Summary summary = new Summary("C:\\Gage Omega\\Programming\\Efficient Automatic Traveler System\\Efficient Automatic Traveler System\\bin\\Debug\\backup\\03-24-2017", m_workingDirectory);
+                string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                Summary summary = new Summary(Path.Combine(exeDir,"backup\\03-24-2017"), m_workingDirectory, (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
                 returnMessage = new ClientMessage("CreateSummary", summary.ToString());
             }
             catch (Exception ex)
@@ -483,7 +485,7 @@ namespace Efficient_Automatic_Traveler_System
 
         
         // Imports travelers that have been stored
-        private void ImportStoredTravelers()
+        public void ImportStoredTravelers()
         {
             //--------------------------------------------------------------
             // get the list of travelers and orders that have been created

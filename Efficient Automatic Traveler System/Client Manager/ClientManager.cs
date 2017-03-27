@@ -107,7 +107,7 @@ namespace Efficient_Automatic_Traveler_System
                         Console.WriteLine("An operator connected (" + m_clients.Count + " total clients)");
                         break;
                     case "SupervisorClient":
-                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient,m_travelerManager);
+                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient,m_travelerManager as ISupervisor);
                         supervisorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         supervisorClient.ListenAsync();
                         m_clients.Add(supervisorClient);
