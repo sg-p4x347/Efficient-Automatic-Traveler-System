@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
+using System.Reflection;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -55,6 +56,8 @@ namespace Efficient_Automatic_Traveler_System
             m_stream = m_TcpClient.GetStream();
             m_cts = new CancellationTokenSource();
             m_connected = true;
+
+
         }
 
         public void SendMessage(string message)
@@ -107,7 +110,43 @@ namespace Efficient_Automatic_Traveler_System
                 return "connection aborted";
             }
         }
+        public async void ListenAsync()
+        {
+            try
+            {
+                string message = await RecieveMessageAsync();
+                if (!Connected) return;
+                if (message.Length == 0) {
+                    throw new Exception("bad message");
+                }
+                message = message.Trim('"');
+                Dictionary<string, string> obj = (new StringStream(message)).ParseJSON();
 
+                //if (obj.ContainsKey("station"))
+                //{
+                //    m_station = Convert.ToInt32(obj["station"]);
+                //    HandleTravelersChanged(m_travelerManager.GetTravelers);
+                //}
+                if (obj.ContainsKey("interfaceMethod"))
+                {
+                    PropertyInfo pi = this.GetType().GetProperty(obj["interfaceTarget"]);
+                    if (pi != null)
+                    {
+                        MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
+                        if (mi != null)
+                        {
+                            string returnMessage = (string)mi.Invoke(pi.GetValue(this), new object[] { obj["parameters"] });
+                            if (returnMessage != null && returnMessage != "") SendMessage(returnMessage);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // something went wrong, it is best to just listen for a new message
+            }
+            ListenAsync();
+        }
         protected void LostConnection()
         {
             m_cts.Cancel();
@@ -235,6 +274,13 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_connected;
+            }
+        }
+        public Client This
+        {
+            get
+            {
+                return this;
             }
         }
         

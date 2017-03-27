@@ -29,36 +29,6 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage(@"{""stationList"":" + StationClass.Stations.Stringify() + "}");
             HandleTravelersChanged(m_travelerManager.GetTravelers);
         }
-        public virtual async void ListenAsync()
-        {
-            try
-            {
-                string message = await RecieveMessageAsync();
-                if (!Connected) return;
-                message = message.Trim('"');
-                if (message.Length == 0) throw new Exception("bad message");
-                StringStream ss = new StringStream(message);
-                Dictionary<string, string> obj = ss.ParseJSON();
-                if (obj.ContainsKey("interfaceMethod"))
-                {
-                    PropertyInfo pi = this.GetType().GetProperty(obj["interfaceTarget"]);
-                    if (pi != null)
-                    {
-                        MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
-                        if (mi != null)
-                        {
-                            string returnMessage = (string)mi.Invoke(pi.GetValue(this), new object[] { obj["parameters"] });
-                            if (returnMessage != null && returnMessage != "") SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // something went wrong, it is best to just listen for a new message
-            }
-            ListenAsync();
-        }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
             bool mirror = travelers.Count == m_travelerManager.GetTravelers.Count;
@@ -81,7 +51,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         protected ISupervisor m_travelerManager;
         protected List<Traveler> m_travelers;
-
+        // JS client interface (these are the properties visible to the js interface calling system)
         public ISupervisor TravelerManager
         {
             get

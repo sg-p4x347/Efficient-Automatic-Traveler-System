@@ -28,39 +28,20 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage(@"{""stationList"":" + StationClass.Stations.Stringify() + "}");
             HandleTravelersChanged(m_travelerManager.GetTravelers);
         }
-        public virtual async void ListenAsync()
+
+        public string SetStation(string json)
         {
             try
             {
-                string message = await RecieveMessageAsync();
-                if (!Connected) return;
-                if (message.Length == 0) throw new Exception("bad message");
-                message = message.Trim('"');
-                StringStream ss = new StringStream(message);
-                Dictionary<string, string> obj = ss.ParseJSON();
-
-                if (obj.ContainsKey("station"))
-                {
-                    m_station = Convert.ToInt32(obj["station"]);
-                    HandleTravelersChanged(m_travelerManager.GetTravelers);
-                } else if (obj.ContainsKey("interfaceMethod"))
-                {
-                    PropertyInfo pi = this.GetType().GetProperty(obj["interfaceTarget"]);
-                    if (pi != null)
-                    {
-                        MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
-                        if (mi != null)
-                        {
-                            string returnMessage = (string)mi.Invoke(pi.GetValue(this), new object[] { obj["parameters"] });
-                            if (returnMessage != null && returnMessage != "") SendMessage("{\"confirmation\":\"" + returnMessage + "\"}");
-                        }
-                    }
-                }
-            } catch (Exception ex)
-            {
-                // something went wrong, it is best to just listen for a new message
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                m_station = Convert.ToInt32(obj["station"]);
+                HandleTravelersChanged(m_travelerManager.GetTravelers);
             }
-            ListenAsync();
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+            }
+            return "";
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
@@ -111,6 +92,11 @@ namespace Efficient_Automatic_Traveler_System
                 m_station = value;
             }
         }
+        //----------
+        // Events
+        //----------
+        public event TravelersChangedSubscriber TravelersChanged;
+        // JS client interface (these are the properties visible to the js interface calling system)
         public IOperator TravelerManager
         {
             get
@@ -118,9 +104,5 @@ namespace Efficient_Automatic_Traveler_System
                 return m_travelerManager;
             }
         }
-        //----------
-        // Events
-        //----------
-        public event TravelersChangedSubscriber TravelersChanged;
     }
 }

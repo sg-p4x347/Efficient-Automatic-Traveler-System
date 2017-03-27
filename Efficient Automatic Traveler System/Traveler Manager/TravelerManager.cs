@@ -37,12 +37,12 @@ namespace Efficient_Automatic_Traveler_System
     }
     interface ISupervisor : ITravelerManager
     {
-        ClientMessage MoveTravelerStart(string json);
-        ClientMessage LoadTraveler(string json);
-        ClientMessage LoadTravelerAt(string json);
-        ClientMessage LoadItem(string json);
-        ClientMessage CreateSummary(string json);
-        ClientMessage DisintegrateTraveler(string json);
+        string MoveTravelerStart(string json);
+        string LoadTraveler(string json);
+        string LoadTravelerAt(string json);
+        string LoadItem(string json);
+        string CreateSummary(string json);
+        string DisintegrateTraveler(string json);
         
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
@@ -269,7 +269,7 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //----------------------------------
         #region ISupervisor
-        public ClientMessage MoveTravelerStart(string json)
+        public string MoveTravelerStart(string json)
         {
             ClientMessage returnMessage;
             try
@@ -290,9 +290,9 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info","error");
             }
-            return returnMessage;
+            return returnMessage.ToString();
         }
-        public ClientMessage LoadTraveler(string json)
+        public string LoadTraveler(string json)
         {
             ClientMessage returnMessage;
             try
@@ -312,9 +312,9 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage;
+            return returnMessage.ToString();
         }
-        public ClientMessage LoadTravelerAt(string json)
+        public string LoadTravelerAt(string json)
         {
             ClientMessage returnMessage;
             try
@@ -335,9 +335,9 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage;
+            return returnMessage.ToString();
         }
-        public ClientMessage LoadItem(string json)
+        public string LoadItem(string json)
         {
             ClientMessage returnMessage;
             try
@@ -365,9 +365,9 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage;
+            return returnMessage.ToString();
         }
-        public ClientMessage CreateSummary(string json)
+        public string CreateSummary(string json)
         {
             ClientMessage returnMessage;
             try
@@ -383,9 +383,9 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage;
+            return returnMessage.ToString();
         }
-        public ClientMessage DisintegrateTraveler(string json)
+        public string DisintegrateTraveler(string json)
         {
             ClientMessage returnMessage;
             try
@@ -408,7 +408,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error".Quotate());
             }
-            return returnMessage;
+            return returnMessage.ToString();
         }
         #endregion
         //----------------------------------

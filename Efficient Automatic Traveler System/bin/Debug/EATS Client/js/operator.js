@@ -93,7 +93,14 @@ function Application () {
 		});
 		select.onchange = function () {
 			var stationID = parseInt(this.value);
-			self.websocket.send('{"station":' + stationID + '}');
+			//self.websocket.send('{"station":' + stationID + '}');
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("SetStation",
+			{
+				station: stationID
+			},"This");
+			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
 			self.stationList.some(function (station) {
 				if (station.ID == stationID) {
 					self.station = JSON.parse(JSON.stringify(station));
@@ -205,8 +212,11 @@ function Application () {
 									//self.travelerView.Load(traveler);
 								}
 							});
-						} else if (object.hasOwnProperty("confirmation")) {
-							self.Info(object.confirmation);
+						} else if (object.hasOwnProperty("method")) {
+							if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
+								// The server is invoking a client method
+								self[object.method](object.parameters);
+							}
 						}
 					}
 				} else if (messageEvent.data instanceof Blob) {

@@ -82,7 +82,9 @@ function Application () {
 		// update summary, if open
 		if (self.popupManager.Exists("summaryPopup")) {
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("CreateSummary",{sort:"Active"});
+			var message = new InterfaceCall("CreateSummary",{
+				sort:"Active"
+			});
 			self.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
 		}
@@ -212,7 +214,9 @@ function Application () {
 			var summaryBtn = self.popupManager.CreateButton("View Summary");
 			summaryBtn.onclick = function () {
 				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("CreateSummary",{});
+				var message = new InterfaceCall("CreateSummary",{
+					sort: "Active"
+				});
 				self.websocket.send(JSON.stringify(message));
 				//-----------------------------------------------
 			}
