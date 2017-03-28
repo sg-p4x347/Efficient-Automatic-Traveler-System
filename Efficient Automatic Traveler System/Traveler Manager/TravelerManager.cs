@@ -92,14 +92,17 @@ namespace Efficient_Automatic_Traveler_System
                         {
                             // create a new traveler from the new item
                             Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, item.QtyOrdered) : (Traveler)new Chair(item.ItemCode, item.QtyOrdered));
+                            // TEMP
+                            if (newTraveler is Table)
+                            {
+                                // RELATIONAL =============================================================
+                                item.ChildTraveler = newTraveler.ID;
+                                newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                                //=========================================================================
 
-                            // RELATIONAL =============================================================
-                            item.ChildTraveler = newTraveler.ID;
-                            newTraveler.ParentOrders.Add(order.SalesOrderNo);
-                            //=========================================================================
-
-                            // add the new traveler to the list
-                            m_travelers.Add(newTraveler);
+                                // add the new traveler to the list
+                                m_travelers.Add(newTraveler);
+                            }
                         }
                     }
                 }
@@ -185,7 +188,7 @@ namespace Efficient_Automatic_Traveler_System
         // has to know which station this is being completed from
         public string AddTravelerEvent(string json)
         {
-            string returnMessage = "";
+            ClientMessage returnMessage = new ClientMessage("void", "void");
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
@@ -213,10 +216,10 @@ namespace Efficient_Automatic_Traveler_System
                     ScrapTravelerItem(traveler.ID, item.ID);
                     if (traveler.PrintLabel(item.ID, LabelType.Scrap))
                     {
-                        returnMessage = "Printed scrap label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                        returnMessage = new ClientMessage("Info","Printed scrap label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                     } else
                     {
-                        returnMessage = "Could not print label";
+                        returnMessage = new ClientMessage("Info", "Could not print label");
                     }
                     
                     item.Station = StationClass.GetStation("Scrapped");
@@ -225,11 +228,11 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (traveler.PrintLabel(item.ID, LabelType.Tracking))
                     {
-                        returnMessage = "Printed label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                        returnMessage = new ClientMessage("Info", "Printed label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                     }
                     else
                     {
-                        returnMessage = "Could not print label";
+                        returnMessage = new ClientMessage("Info", "Could not print label");
                     }
                 } else if (itemEvent.type == TravelerEvent.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
                 {
@@ -237,19 +240,20 @@ namespace Efficient_Automatic_Traveler_System
                     AssignOrder(traveler, item);
                     if (traveler.PrintLabel(item.ID, LabelType.Pack, 2) /*&& traveler.PrintLabel(item.ID,LabelType.Table)*/)
                     {
-                        returnMessage = "Printed carton and table labels for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID;
+                        returnMessage = new ClientMessage("Info", "Printed carton and table labels for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                     }
                     else
                     {
-                        returnMessage = "Could not print carton and table labels";
+                        returnMessage = new ClientMessage("Info", "Could not print carton and table labels");
                     }
                 }
                 OnTravelersChanged(new List<Traveler>() { traveler });
             } catch (Exception ex)
             {
                 Server.WriteLine("Problem completing travelerItem: " + ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "Problem completing travelerItem");
             }
-            return returnMessage;
+            return returnMessage.ToString();
         }
         // has to know which station this is being submitted from
         public void SubmitTraveler(string json)
@@ -397,16 +401,16 @@ namespace Efficient_Automatic_Traveler_System
                     m_travelers.Remove(traveler);
                     m_orderManager.ReleaseTraveler(traveler);
                     OnTravelersChanged(m_travelers);
-                    returnMessage = new ClientMessage("Info", "Successfully disintegrated the traveler".Quotate());
+                    returnMessage = new ClientMessage("Info", "Successfully disintegrated the traveler");
                 } else
                 {
-                    returnMessage = new ClientMessage("Info", "Cannot disintegrate this traveler, it still has items. :(".Quotate());
+                    returnMessage = new ClientMessage("Info", "Cannot disintegrate this traveler, it still has items. :(");
                 }
             }
             catch (Exception ex)
             {
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("Info", "error".Quotate());
+                returnMessage = new ClientMessage("Info", "error");
             }
             return returnMessage.ToString();
         }

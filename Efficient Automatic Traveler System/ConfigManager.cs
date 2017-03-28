@@ -14,6 +14,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             m_configObj = (new StringStream(System.IO.File.ReadAllText(System.IO.Path.Combine(exeDir, file)))).ParseJSON();
+            Server.WriteLine("Configuration settings loaded");
         }
         // writes the stored config string back to the config file
         static public void Backup(string file = "config.json")

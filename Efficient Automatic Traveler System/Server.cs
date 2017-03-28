@@ -25,19 +25,7 @@ namespace Efficient_Automatic_Traveler_System
             m_MAS = new OdbcConnection();
             m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            ConfigManager.Open("config.json");
-            m_port = Convert.ToInt32(ConfigManager.Get("port"));
-
-            // set up the station list
-            List<string> stations = (new StringStream(ConfigManager.Get("stations"))).ParseJSONarray();
-            foreach (string json in stations)
-            {
-                new StationClass(json);
-            }
-
-            m_ip = GetLocalIPAddress();
-
-            CreateClientConfig();
+            Configure();
 
             m_orderManager = new OrderManager(m_rootDirectory);
             m_travelerManager = new TravelerManager(m_orderManager as IOrderManager,m_rootDirectory);
@@ -107,6 +95,9 @@ namespace Efficient_Automatic_Traveler_System
                     //m_travelerManager.HandleTravelersChanged();
                     //m_travelerManager.CreateTravelers();
                     break;
+                case "configure":
+                    Configure();
+                    break;
                 default:
                     Console.WriteLine("Invalid; commands are [update, reset]");
                     break;
@@ -164,6 +155,23 @@ namespace Efficient_Automatic_Traveler_System
                 Update();
                 UpdateTimer();
             }, null, timeToGo, Timeout.InfiniteTimeSpan);
+        }
+        private void Configure()
+        {
+            ConfigManager.Open("config.json");
+            m_port = Convert.ToInt32(ConfigManager.Get("port"));
+
+            // set up the station list
+            StationClass.Stations.Clear();
+            List<string> stations = (new StringStream(ConfigManager.Get("stations"))).ParseJSONarray();
+            foreach (string json in stations)
+            {
+                new StationClass(json);
+            }
+
+            m_ip = GetLocalIPAddress();
+
+            CreateClientConfig();
         }
         private void Update()
         {

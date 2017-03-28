@@ -1,5 +1,5 @@
 ﻿
-    #define Labels
+#define Labels
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -400,8 +400,14 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"qty\":" + qty;
                     json += '}';
 #if Labels
-                    result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
-                    return result == "Label Printed";
+                    Dictionary < string, string> labelConfigs = (new StringStream(ConfigManager.Get("print"))).ParseJSON();
+                    // only print if the config says so
+                    if (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()]))
+                    {
+                        result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+                        return result == "Label Printed";
+                    }
+                    
 #endif
                 }
             }

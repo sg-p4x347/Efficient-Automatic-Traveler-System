@@ -13,14 +13,18 @@ namespace Efficient_Automatic_Traveler_System
     class Chair : Traveler
     {
         #region Public Methods
-        public Chair() : base() { }
+        public Chair() : base() {
+            Station = StationClass.GetStation("Chair-Start");
+        }
         // create Chair by parsing json string
         public Chair(string json) : base(json)
         {
-
+            Station = StationClass.GetStation("Chair-Start");
         }
         // create a Chair from partNo, quantity, and a MAS connection
-        public Chair(string partNo, int quantity) : base(partNo, quantity) { }
+        public Chair(string partNo, int quantity) : base(partNo, quantity) {
+            Station = StationClass.GetStation("Chair-Start");
+        }
         // returns a JSON formatted string to be sent to a client
         public override string ExportTableRows(string clientType, int station)
         {

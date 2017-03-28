@@ -19,7 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         public ClientMessage(string type, string message)
         {
             Method = type;
-            Parameters = message;
+            Parameters = (type == "Info" ? message.Quotate() : message);
         }
         public override string ToString()
         {

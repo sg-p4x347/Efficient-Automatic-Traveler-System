@@ -349,11 +349,26 @@ function TravelerQueue(station) {
 			var DOMqueueItem = document.createElement("DIV");
 			DOMqueueItem.className = "button queue__item blueBack twoEM";
 			DOMqueueItem.innerHTML = pad(traveler.ID,6) + "<br>";
+			//-------------------------------------------
+			var checkBox = document.createElement("INPUT");
+			checkBox.type = "checkbox";
+			checkBox.onchange = function () {
+				traveler.selected = this.checked;
+				DOMqueueItem.className = (this.checked ? "button queue__item blueBack twoEM selected"
+				: "button queue__item blueBack twoEM");
+			}
+			DOMqueueItem.appendChild(checkBox);
+			//-------------------------------------------
 			var itemCode = document.createElement("SPAN");
 			itemCode.className = "queue__item__desc beige";
 			itemCode.innerHTML = traveler.itemCode;
 			DOMqueueItem.appendChild(itemCode);
-			DOMqueueItem.onmousedown = function () {
+			
+			checkBox.onclick = function(event) {
+				event.stopPropagation();
+			}
+			
+			DOMqueueItem.onclick = function () {
 				//----------INTERFACE CALL-----------------------
 				var message = new InterfaceCall("LoadTravelerAt",
 				{
@@ -405,13 +420,18 @@ function TravelerQueue(station) {
 		var promptMoveBtn = document.getElementById("promptMoveBtn");
 		promptMoveBtn.onclick = function () {
 			self.lastSelectedStation = promptSelect.value;
-			/* this is just for responsiveness, 
-			the server will soon confirm traveler positions in an update*/
-			var movedTraveler = self.ShiftTraveler(traveler); 
+			
+			
+			// perform move on all selected travelers
+			self.travelers.forEach(function (extraTraveler) {
+				if (extraTraveler.ID == traveler.ID || extraTraveler.selected) {
+					
+				}
+			});
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("MoveTravelerStart",
 			{
-				travelerID: movedTraveler.ID,
+				travelerID: extraTraveler.ID,
 				station: promptSelect.value
 			});
 			application.websocket.send(JSON.stringify(message));
@@ -469,6 +489,9 @@ function TravelerQueue(station) {
 		
 		self.DOMcontainer = document.createElement("DIV");
 		self.DOMcontainer.className = "queueContainer";
+		if (station.name == "Start") {
+			self.DOMcontainer.style.height = "100%";
+		}
 		self.DOMcontainer.innerHTML = self.station.name;
 		
 		self.DOMelement = document.createElement("DIV");
