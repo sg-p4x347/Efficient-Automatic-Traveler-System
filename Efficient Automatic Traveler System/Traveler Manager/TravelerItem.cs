@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    enum ItemState
+    {
+        PreProcess,
+        InProcess,
+        PostProcess
+    }
     class TravelerItem
     {
         public TravelerItem(UInt16 ID)
@@ -16,6 +22,7 @@ namespace Efficient_Automatic_Traveler_System
             m_lastStation = -1;
             m_history = new List<Event>();
             m_order = "";
+            m_state = ItemState.PreProcess;
         }
         public TravelerItem(string json)
         {
@@ -31,6 +38,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     m_history.Add(new Event(eventString));
                 }
+                m_state = (ItemState)Enum.Parse(typeof(ItemState),obj["state"]);
             }
             catch (Exception ex)
             {
@@ -39,15 +47,17 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            string json = "{";
-            json += "\"ID\":" + m_ID;
-            json += ",\"scrapped\":" + m_scrapped.ToString().ToLower();
-            json += ",\"station\":" + m_station;
-            json += ",\"lastStation\":" + m_lastStation;
-            json += ",\"history\":" + m_history.Stringify<Event>();
-            json += ",\"order\":" + m_order.Quotate();
-            json += '}';
-            return json;
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"ID",m_ID.ToString()},
+                {"scrapped", m_scrapped.ToString().ToLower()},
+                {"station",Station.ToString() },
+                {"lastStation",m_lastStation.ToString() },
+                {"history",m_history.Stringify<Event>() },
+                {"order",m_order.Quotate() },
+                {"state",m_state.ToString().Quotate() }
+            };
+            return obj.Stringify();
         }
         // Properties
         private UInt16 m_ID;
@@ -56,6 +66,7 @@ namespace Efficient_Automatic_Traveler_System
         private int m_lastStation;
         private List<Event> m_history;
         private string m_order;
+        private ItemState m_state;
 
         public ushort ID
         {
@@ -128,6 +139,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_order = value;
+            }
+        }
+
+        internal ItemState State
+        {
+            get
+            {
+                return m_state;
+            }
+
+            set
+            {
+                m_state = value;
             }
         }
 

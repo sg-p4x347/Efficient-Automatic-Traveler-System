@@ -431,7 +431,7 @@ function TravelerQueue(station) {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("MoveTravelerStart",
 			{
-				travelerID: extraTraveler.ID,
+				travelerID: traveler.ID,
 				station: promptSelect.value
 			});
 			application.websocket.send(JSON.stringify(message));

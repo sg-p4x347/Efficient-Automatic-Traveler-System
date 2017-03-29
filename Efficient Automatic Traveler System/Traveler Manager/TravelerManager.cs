@@ -92,17 +92,14 @@ namespace Efficient_Automatic_Traveler_System
                         {
                             // create a new traveler from the new item
                             Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, item.QtyOrdered) : (Traveler)new Chair(item.ItemCode, item.QtyOrdered));
-                            // TEMP
-                            if (newTraveler is Table)
-                            {
-                                // RELATIONAL =============================================================
-                                item.ChildTraveler = newTraveler.ID;
-                                newTraveler.ParentOrders.Add(order.SalesOrderNo);
-                                //=========================================================================
 
-                                // add the new traveler to the list
-                                m_travelers.Add(newTraveler);
-                            }
+                            // RELATIONAL =============================================================
+                            item.ChildTraveler = newTraveler.ID;
+                            newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                            //=========================================================================
+
+                            // add the new traveler to the list
+                            m_travelers.Add(newTraveler);
                         }
                     }
                 }
@@ -123,16 +120,6 @@ namespace Efficient_Automatic_Traveler_System
             Server.Write("\r{0}", "Gathering Info...Finished\n");
             // travelers have changed
             OnTravelersChanged(m_travelers);
-        }
-        public void BackupTravelers(string file = "travelers.json")
-        {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string contents = "";
-            foreach (Traveler traveler in m_travelers)
-            {
-                contents += traveler.ToString();
-            }
-            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, file), contents);
         }
 
         #endregion
@@ -491,70 +478,39 @@ namespace Efficient_Automatic_Traveler_System
         // Imports travelers that have been stored
         public void ImportStoredTravelers()
         {
+            m_travelers.AddRange(BackupManager.ImportPreviousTravelers());
             //--------------------------------------------------------------
             // get the list of travelers and orders that have been created
             //--------------------------------------------------------------
             // create the file if it doesn't exist
-            StreamWriter w = File.AppendText(Path.Combine(m_workingDirectory,"travelers.json"));
-            w.Close();
-            // open the file
-            string line;
-            System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(m_workingDirectory, "travelers.json"));
-            double travelerCount = File.ReadLines(System.IO.Path.Combine(m_workingDirectory, "travelers.json")).Count();
-            int index = 0;
-            while ((line = file.ReadLine()) != null && line != "")
-            {
-                Server.Write("\r{0}%", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / travelerCount) * 100));
+            //StreamWriter w = File.AppendText(Path.Combine(m_workingDirectory,"travelers.json"));
+            //w.Close();
+            //// open the file
+            //string line;
+            //System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(m_workingDirectory, "travelers.json"));
+            //double travelerCount = File.ReadLines(System.IO.Path.Combine(m_workingDirectory, "travelers.json")).Count();
+            //int index = 0;
+            //while ((line = file.ReadLine()) != null && line != "")
+            //{
+            //    Server.Write("\r{0}%", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / travelerCount) * 100));
 
-                Dictionary<string, string> obj = (new StringStream(line)).ParseJSON();
-                // check to see if these orders have been printed already
-                // cull orders that do not exist anymore
-                Traveler traveler = null;
-                switch ((obj["type"])) {
-                    case "Table": traveler = (Traveler)new Table(line); break;
-                    case "Chair": traveler = (Traveler)new Chair(line); break;
-                }
-                if (traveler != null)
-                {
-                    m_travelers.Add(traveler);
-                }
-                index++;
-                //if (traveler.ParentOrders.Count > 0)
-                //{
-                //    // import type-specific information
-                //    switch (obj["type"])
-                //    {
-                //        case "Table":
-                //            Table table = new Table(traveler,true);
-                //            // Relational -------------------------------
-                //            table.ParentOrders = traveler.ParentOrders;
-                //            //-------------------------------------------
-                //            table.ImportPart(ref m_MAS);
-                //            if (table.Station == Traveler.GetStation("Start")) table.Start();
-                //            table.Advance();
-                //            m_tableManager.FinalizeTable(table);
-                //            m_travelers.Add(table);
-                //            break;
-                //        case "Chair":
-                //            Chair chair = new Chair(traveler,true);
-                //            // Relational -------------------------------
-                //            chair.ParentOrders = chair.ParentOrders;
-                //            chair.Parents = traveler.Parents;
-                //            chair.Children = traveler.Children;
-                //            //-------------------------------------------
-                //            chair.ImportPart(ref m_MAS);
-                //            if (chair.Station == Traveler.GetStation("Start")) chair.Start();
-                //            chair.Advance();
-                //            m_travelers.Add(chair);
-                //            break;
-                //    }
+            //    Dictionary<string, string> obj = (new StringStream(line)).ParseJSON();
+            //    // check to see if these orders have been printed already
+            //    // cull orders that do not exist anymore
+            //    Traveler traveler = null;
+            //    switch ((obj["type"])) {
+            //        case "Table": traveler = (Traveler)new Table(line); break;
+            //        case "Chair": traveler = (Traveler)new Chair(line); break;
+            //    }
+            //    if (traveler != null)
+            //    {
+            //        m_travelers.Add(traveler);
+            //    }
+            //    index++;
+            //}
+            //Server.Write("\r{0}", "Loading travelers from backup...Finished\n");
 
-                //}
-
-            }
-            Server.Write("\r{0}", "Loading travelers from backup...Finished\n");
-
-            file.Close();
+            //file.Close();
         }
         private bool IsBackPanel(string s)
         {
@@ -570,7 +526,7 @@ namespace Efficient_Automatic_Traveler_System
         private void OnTravelersChanged(List<Traveler> travelers)
         {
             // Update the travelers.json file with all the current travelers
-            BackupTravelers();
+            BackupManager.BackupTravelers(m_travelers);
             // fire the event
             TravelersChanged(travelers);
         }

@@ -27,6 +27,7 @@ namespace Efficient_Automatic_Traveler_System
         Table,
         Test
     }
+    
     class Event : IEquatable<Event>
     {
         public Event() { }
@@ -137,6 +138,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
             m_station = StationClass.GetStation(obj["station"]);
+            m_state = (ItemState)Enum.Parse(typeof(ItemState), obj["state"]);
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
         //public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
@@ -158,6 +160,7 @@ namespace Efficient_Automatic_Traveler_System
             Station = StationClass.GetStation("Start");
             Items = new List<TravelerItem>();
             NewID();
+            m_state = ItemState.PreProcess;
         }
         public virtual void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
         {
@@ -351,23 +354,18 @@ namespace Efficient_Automatic_Traveler_System
         // returns a JSON formatted string containing traveler information
         public override string ToString()
         {
-            string json = "";
-            json += "{";
-            // BASIC PROPERTIES
-            json += "\"ID\":" + m_ID + ",";
-            json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
-            json += "\"quantity\":" + m_quantity + ",";
-            // ITEMS [...]
-            json += "\"items\":" + Items.Stringify<TravelerItem>() + ',';
-            // PARENT ORDERS [...]
-            json += "\"parentOrders\":" + m_parentOrders.Stringify<string>() + ',';
-            // UNIFIED STATION
-            json += "\"station\":" + '"' + StationClass.GetStationName(Station) + '"';
-            // packs in members specific to derived classes
-            json += ExportProperties(); 
-
-            json += "}\n";
-            return json;
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"ID",m_ID.ToString() },
+                {"itemCode",m_part.BillNo.Quotate() },
+                {"quantity",m_quantity.ToString() },
+                {"items",Items.Stringify<TravelerItem>() },
+                {"parentOrders",m_parentOrders.Stringify<string>() },
+                {"station",StationClass.GetStationName(Station).Quotate() },
+                {"state",m_state.ToString().Quotate() },
+                {"type",this.GetType().ToString().Quotate()}
+            };
+            return obj.Stringify();
         }
         // print a label for this traveler
         public bool PrintLabel(ushort itemID, LabelType type, int qty = 1)
@@ -599,7 +597,7 @@ namespace Efficient_Automatic_Traveler_System
         protected abstract string ExportProperties();
 #endregion
         //--------------------------------------------------------
-#region Properties
+        #region Properties
 
         // general
         protected int m_ID;
@@ -608,92 +606,105 @@ namespace Efficient_Automatic_Traveler_System
         private List<TravelerItem> items;
         protected List<string> m_parentOrders;
         private int m_station;
+        private ItemState m_state;
 
-#endregion
+        #endregion
         //--------------------------------------------------------
-#region Interface
-        internal int ID
-        {
-            get
+        #region Interface
+            internal int ID
             {
-                return m_ID;
+                get
+                {
+                    return m_ID;
+                }
             }
-        }
-        internal Bill Part
-        {
-            get
+            internal Bill Part
             {
-                return m_part;
-            }
-        }
-
-        internal int Quantity
-        {
-            get
-            {
-                return m_quantity;
+                get
+                {
+                    return m_part;
+                }
             }
 
-            set
+            internal int Quantity
             {
-                m_quantity = value;
-                //m_part.TotalQuantity = m_quantity;
-                //FindComponents(m_part);
-            }
-        }
-        internal string ItemCode
-        {
-            get
-            {
-                return m_part.BillNo;
-            }
-        }
-        internal int Station
-        {
-            get
-            {
-                //foreach (TravelerItem item in Items)
-                //{
-                //    m_station = item.Station;
-                //    if (item.Station != Items[0].Station)
-                //    {
-                //        m_station = -1;
-                //        return -1;
-                //    }
-                //}
-                return m_station;
-            }
-            set
-            {
-                m_station = value;
-            }
-        }
+                get
+                {
+                    return m_quantity;
+                }
 
-        internal List<string> ParentOrders
-        {
-            get
-            {
-                return m_parentOrders;
+                set
+                {
+                    m_quantity = value;
+                    //m_part.TotalQuantity = m_quantity;
+                    //FindComponents(m_part);
+                }
             }
-
-            set
+            internal string ItemCode
             {
-                m_parentOrders = value;
+                get
+                {
+                    return m_part.BillNo;
+                }
             }
-        }
-
-        public List<TravelerItem> Items
-        {
-            get
+            internal int Station
             {
-                return items;
+                get
+                {
+                    //foreach (TravelerItem item in Items)
+                    //{
+                    //    m_station = item.Station;
+                    //    if (item.Station != Items[0].Station)
+                    //    {
+                    //        m_station = -1;
+                    //        return -1;
+                    //    }
+                    //}
+                    return m_station;
+                }
+                set
+                {
+                    m_station = value;
+                }
             }
 
-            set
+            internal List<string> ParentOrders
             {
-                items = value;
+                get
+                {
+                    return m_parentOrders;
+                }
+
+                set
+                {
+                    m_parentOrders = value;
+                }
             }
-        }
-#endregion
+
+            public List<TravelerItem> Items
+            {
+                get
+                {
+                    return items;
+                }
+
+                set
+                {
+                    items = value;
+                }
+            }
+
+            internal ItemState State
+            {
+                get
+                {
+                    return m_state;
+                }
+                set
+                {
+                    m_state = value;
+                }
+            }
+            #endregion
     }
 }

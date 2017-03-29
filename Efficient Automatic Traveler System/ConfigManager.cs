@@ -12,15 +12,13 @@ namespace Efficient_Automatic_Traveler_System
         // initializes the config manager from a json file
         static public void Open(string file)
         {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            m_configObj = (new StringStream(System.IO.File.ReadAllText(System.IO.Path.Combine(exeDir, file)))).ParseJSON();
+            m_configObj = (new StringStream(System.IO.File.ReadAllText(System.IO.Path.Combine(Server.RootDir, file)))).ParseJSON();
             Server.WriteLine("Configuration settings loaded");
         }
         // writes the stored config string back to the config file
         static public void Backup(string file = "config.json")
         {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, file), m_configObj.Stringify(true));
+            System.IO.File.WriteAllText(System.IO.Path.Combine(Server.RootDir, file), m_configObj.Stringify(true));
         }
         // returns the json string stored under the specified key
         static public string Get(string key)

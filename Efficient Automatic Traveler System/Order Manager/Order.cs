@@ -6,51 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class OrderItem
-    {
-        public OrderItem() {
-            ItemCode = "";
-            QtyOrdered = 0;
-            QtyOnHand = 0;
-            ChildTraveler = -1;
-        }
-        public OrderItem(string json)
-        {
-            try
-            {
-                StringStream ss = new StringStream(json);
-                Dictionary<string, string> obj = ss.ParseJSON();
-                ItemCode = obj["itemCode"];
-                QtyOrdered = Convert.ToInt32(obj["qtyOrdered"]);
-                QtyOnHand = Convert.ToInt32(obj["qtyOnHand"]);
-                ChildTraveler = Convert.ToInt32(obj["childTraveler"]);
-            } catch (Exception ex)
-            {
-                Server.WriteLine("Error while reading OrderItem from file: " + ex.Message);
-            }
-        }
-        public OrderItem(string i,int ordered,int onHand,int c)
-        {
-            ItemCode = i;
-            QtyOrdered = ordered;
-            QtyOnHand = onHand;
-            ChildTraveler = c;
-        }
-        public string Export()
-        {
-            var json = "{";
-            json += "\"itemCode\":" + '"' + ItemCode + '"' + ',';
-            json += "\"qtyOrdered\":" + QtyOrdered + ',';
-            json += "\"qtyOnHand\":" + QtyOnHand + ',';
-            json += "\"childTraveler\":" + ChildTraveler;
-            json += "}";
-            return json;
-        }
-        public string ItemCode;
-        public int QtyOrdered;
-        public int QtyOnHand;
-        public int ChildTraveler;
-    }
+    
     class Order
     {
         //-----------------------
@@ -88,20 +44,14 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_items.Where(x => x.ChildTraveler == travelerID).ToList();
         }
-        public string Export()
+        public override string ToString()
         {
-            string json = "{";
-            json += "\"salesOrderNo\":" + '"' + m_salesOrderNo + '"' + ',';
-            json += "\"items\":";
-            json += "[";
-            foreach (OrderItem item in m_items)
+            Dictionary<string, string> obj = new Dictionary<string, string>()
             {
-                if (item != m_items[0]) json += ',';
-                json += item.Export();
-            }
-            json += "]";
-            json += "}\n";
-            return json;
+                {"salesOrderNo",m_salesOrderNo.Quotate() },
+                {"items",m_items.Stringify<OrderItem>() }
+            };
+            return obj.Stringify();
         }
         //-----------------------
         // Private members

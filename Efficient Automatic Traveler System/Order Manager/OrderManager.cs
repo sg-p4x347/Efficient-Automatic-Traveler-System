@@ -1,4 +1,4 @@
-﻿//#define LessOrders
+﻿//#define NewOrders
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -57,9 +57,6 @@ namespace Efficient_Automatic_Traveler_System
                 // read info
                 while (reader.Read())
                 {
-#if LessOrders
-                    if (m_orders.Count > 20 || newOrders.Count > 20) break;
-#endif
                     string salesOrderNo = reader.GetString(0);
                     currentOrderNumbers.Add(salesOrderNo);
                     int index = m_orders.FindIndex(x => x.SalesOrderNo == salesOrderNo);
@@ -94,7 +91,9 @@ namespace Efficient_Automatic_Traveler_System
                             }
                         }
                         detailReader.Close();
+#if NewOrders
                         m_orders.Add(order);
+#endif
                     }
                     // Update information for existing order
                     else
@@ -178,18 +177,6 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Problem checking order items against inventory: " + ex.Message + " Stack Trace: " + ex.StackTrace);
             }
         }
-        // Writes the orders to the json database
-        public void BackupOrders(string file = "orders.json")
-        {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string contents = "";
-            foreach (Order order in m_orders)
-            {
-                contents += order.Export();
-
-            }
-            System.IO.File.WriteAllText(System.IO.Path.Combine(exeDir, file), contents);
-        }
 #endregion
         //--------------------------------------------
 #region Interface
@@ -223,7 +210,7 @@ namespace Efficient_Automatic_Traveler_System
         }
 #endregion
         //--------------------------------------------
-        #region Private Methods
+#region Private Methods
         // Imports orders that have been stored
         public void ImportStoredOrders()
         {
@@ -245,7 +232,7 @@ namespace Efficient_Automatic_Traveler_System
 #region Properties
         private List<Order> m_orders;
         private string m_workingDirectory;
-        #endregion
+#endregion
         //--------------------------------------------
     }
 }

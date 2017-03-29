@@ -176,9 +176,8 @@ namespace Efficient_Automatic_Traveler_System
         private void Update()
         {
             Server.WriteLine("\n<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>" + DateTime.Now.ToString("\tMM/dd/yyy @ hh:mm") + "\n");
-            
-            // Store current state of data into backup folder
-            Backup();
+            // Refresh the backup manager
+            BackupManager.Initialize();
 
             // open the MAS connection
             ConnectToData();
@@ -189,10 +188,6 @@ namespace Efficient_Automatic_Traveler_System
             // Load, Create, and combine all travelers
             m_travelerManager.CompileTravelers();
 
-            // backup everything
-            m_orderManager.BackupOrders();
-            m_travelerManager.BackupTravelers();
-
             // compensate order items for inventory balances
             m_orderManager.CheckInventory(m_travelerManager as ITravelerManager, ref m_MAS);
 
@@ -202,30 +197,17 @@ namespace Efficient_Automatic_Traveler_System
             // No more data is needed at this time
             CloseMAS();
 
-            
+            // Store current state of data into backup folder
+            Backup();
             Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
         }
         // copies memory into a new backup version as insurance
         private void Backup()
         {
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            // remove backups older than set time frame
-            int maxAge = -10; // in days
-            string[] backupFolders = System.IO.Directory.GetDirectories(System.IO.Path.Combine(exeDir, "backup\\"));
-            foreach (string folder in backupFolders)
-            {
-                if (DateTime.Parse(new DirectoryInfo(folder).Name) < DateTime.Today.AddDays(maxAge))
-                {
-                    System.IO.Directory.Delete(folder, true);
-                }
-            }
-            // backup folder for today
-            string folderName = DateTime.Today.ToString("MM-dd-yyyy");
-            System.IO.Directory.CreateDirectory(System.IO.Path.Combine(exeDir, "backup\\" + folderName));
             // backup files
-            m_travelerManager.BackupTravelers("backup\\" + folderName + "\\travelers.json");
-            m_orderManager.BackupOrders("backup\\" + folderName + "\\orders.json");
-            ConfigManager.Backup("backup\\" + folderName + "\\config.json");
+            BackupManager.BackupTravelers(m_travelerManager.GetTravelers);
+            BackupManager.BackupOrders(m_orderManager.GetOrders);
+            BackupManager.BackupConfig();
         }
         // Opens a connection to the MAS database
         private void ConnectToData()
@@ -348,7 +330,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Properties
         //------------------------------
-        private string m_rootDirectory;
+        private static string m_rootDirectory;
         private string m_ip;
         private int m_port;
         private ClientManager m_clientManager;
@@ -435,6 +417,13 @@ namespace Efficient_Automatic_Traveler_System
             {".zip", "application/zip"},
             #endregion
         };
+        public static string RootDir
+        {
+            get
+            {
+                return m_rootDirectory;
+            }
+        }
     }
     
 }
