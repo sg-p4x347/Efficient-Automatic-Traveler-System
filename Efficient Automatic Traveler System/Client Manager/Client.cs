@@ -23,12 +23,18 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>()
+            if (Method != "")
             {
-                {"method", Method.Quotate() },
-                {"parameters", Parameters }
-            };
-            return obj.Stringify();
+                Dictionary<string, string> obj = new Dictionary<string, string>()
+                {
+                    {"method", Method.Quotate() },
+                    {"parameters", (Parameters != "" ? Parameters : "".Quotate())}
+                };
+                return obj.Stringify();
+            } else
+            {
+                return "";
+            }
         }
         public string Method;
         public string Parameters;

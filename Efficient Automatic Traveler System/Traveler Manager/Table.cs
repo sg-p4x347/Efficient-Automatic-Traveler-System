@@ -10,7 +10,7 @@ using Marshal = System.Runtime.InteropServices.Marshal;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class Table : Traveler
+    internal class Table : Traveler
     {
         #region Public Methods
         //--------------------------
@@ -76,8 +76,8 @@ namespace Efficient_Automatic_Traveler_System
             m_part.BillDesc = m_part.BillDesc.Replace("TableTopAsm,", ""); // tabletopasm is pretty obvious and therefore extraneous
             m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
             // Table info in the table csv
-            GetBlankInfo();
             GetColorInfo();
+            GetBlankInfo();
             GetPackInfo(orderManager);
         }
         public override void AdvanceItem(ushort ID)
@@ -164,6 +164,27 @@ namespace Efficient_Automatic_Traveler_System
             }
             return -1;
         }
+
+        public new static string ExportCSVheader()
+        {
+            List<string> header = new List<string>();
+            header.Add("Color");
+            header.Add("Banding Color");
+            header.Add("Blank");
+            header.Add("Blank Size");
+            header.Add("Blank Qty");
+            return Traveler.ExportCSVheader() + ',' + header.Stringify<string>(false).Trim('[').Trim(']');
+        }
+        public override string ExportCSVdetail()
+        {
+            List<string> detail = new List<string>();
+            detail.Add(m_color);
+            detail.Add(m_bandingColor);
+            detail.Add(m_blankNo);
+            detail.Add(m_blankSize);
+            detail.Add(m_blankQuantity.ToString());
+            return base.ExportCSVdetail() + ',' + detail.Stringify<string>(false).Trim('[').Trim(']');
+        }
         #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -192,7 +213,8 @@ namespace Efficient_Automatic_Traveler_System
                 if (Convert.ToInt32(row[0]) == ColorNo)
                 {
                     m_color = row[1];
-                    BlankColor = row[2];
+                    m_bandingColor = row[2];
+                    BlankColor = row[3];
                     break;
                 }
                 line = colorRef.ReadLine();
@@ -339,6 +361,7 @@ namespace Efficient_Automatic_Traveler_System
         // Table
         private int m_colorNo = 0;
         private string m_color = "";
+        private string m_bandingColor = "";
         private string m_shape = "";
         // Labor
         private Item m_cnc = null; // labor item
@@ -562,6 +585,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_supPackQty = value;
+            }
+        }
+
+        internal string BandingColor
+        {
+            get
+            {
+                return m_bandingColor;
+            }
+
+            set
+            {
+                m_bandingColor = value;
             }
         }
         #endregion

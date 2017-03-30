@@ -21,20 +21,22 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_travelerManager = travelerCore;
             m_travelers = m_travelerManager.GetTravelers;
+            m_viewState = ItemState.PreProcess;
             string stationList = "";
             foreach (StationClass station in StationClass.Stations)
             {
                 stationList += (stationList.Length != 0 ? "," : "") + '"' + station.Name + '"';
             }
             SendMessage(@"{""stationList"":" + StationClass.Stations.Stringify() + "}");
-            HandleTravelersChanged(m_travelerManager.GetTravelers);
+            SendMessage((new ClientMessage("InterfaceOpen", "")).ToString());
+            //HandleTravelersChanged(m_travelerManager.GetTravelers);
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
             bool mirror = travelers.Count == m_travelerManager.GetTravelers.Count;
             string message = @"{""travelers"":[";
             string travelerJSON = "";
-            foreach (Traveler traveler in travelers)
+            foreach (Traveler traveler in travelers.Where(x => x.State == m_viewState))
             {
                 travelerJSON += (travelerJSON.Length > 0 ? "," : "") + traveler.Export(this.GetType().Name, -1);
             }
@@ -59,7 +61,25 @@ namespace Efficient_Automatic_Traveler_System
                 return m_travelerManager;
             }
         }
-
+        public string SetViewFilter(string json)
+        {
+            string returnMessage = "";
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                m_viewState = (ItemState)Enum.Parse(typeof(ItemState), obj["viewState"]);
+                HandleTravelersChanged(m_travelerManager.GetTravelers);
+            }
+            catch (Exception ex)
+            {
+                returnMessage = "Error configuring view settings";
+            }
+            return returnMessage;
+        }
+        //-----------------------------------
+        #region Properties
+        private ItemState m_viewState;
+        #endregion
         //----------
         // Events
         //----------

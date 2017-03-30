@@ -54,7 +54,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             return DateTime.Parse(date);
         }
-        static internal List<Traveler> ImportPreviousTravelers()
+        static internal List<Traveler> ImportStoredTravelers()
         {
             List<Traveler> filteredTravelers = new List<Traveler>();
             // if there is a backup from a previous day
@@ -100,19 +100,20 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         foreach (Traveler traveler in travelers)
                         {
-                            List<TravelerItem> items = new List<TravelerItem>();
-                            // find all the items that are not finished
-                            foreach (TravelerItem item in traveler.Items)
-                            {
-                                if (item.State != ItemState.PostProcess)
-                                {
-                                    items.Add(item);
-                                }
-                            }
-                            // set the items to only those that are not finished
-                            traveler.Items = items;
-                            // add this traveler to the master list (if it has items or is in PreProcess)
-                            if (traveler.Items.Count > 0 || traveler.State != ItemState.PostProcess)
+                            //List<TravelerItem> items = new List<TravelerItem>();
+                            //// find all the items that are not finished
+                            //foreach (TravelerItem item in traveler.Items)
+                            //{
+                            //    if (item.State != ItemState.PostProcess)
+                            //    {
+                            //        items.Add(item);
+                            //    }
+                            //}
+                            //// set the items to only those that are not finished
+                            //traveler.Items = items;
+
+                            // add this traveler to the master list if it is not complete
+                            if (traveler.State != ItemState.PostProcess)
                             {
                                 filteredTravelers.Add(traveler);
                             }
@@ -125,6 +126,48 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
             return filteredTravelers;
+        }
+        static internal List<Order> ImportStoredOrders()
+        {
+            List<Order> filteredOrders = new List<Order>();
+            // if there is a backup from a previous day
+            if (m_backupDates.Exists(x => x.Date <= DateTime.Today.Date))
+            {
+                DateTime date = m_backupDates.First(x => x.Date <= DateTime.Today.Date);
+                // if the file exists
+                if (File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(date), "orders.json")))
+                {
+                    List<Order> orders = new List<Order>();
+                    // open the file
+                    List<string> lines = File.ReadLines(Path.Combine(Server.RootDir, "backup", DateToString(date), "orders.json")).ToList();
+                    int index = 0;
+                    foreach (string line in lines)
+                    {
+                        Server.Write("\r{0}%", "Loading orders from backup..." + Convert.ToInt32((Convert.ToDouble(index) / lines.Count) * 100));
+                        orders.Add(new Order(line));
+                    }
+                    Server.Write("\r{0}", "Loading orders from backup...Finished\n");
+
+                    // if travelers are imported from previous day, filter out completed items
+                    if (!m_backupDates.Exists(x => x.Date == DateTime.Today.Date))
+                    {
+                        foreach (Order order in orders)
+                        {
+                            // add this order to the master list if it is not closed
+                            if (order.State != OrderState.Closed)
+                            {
+                                filteredOrders.Add(order);
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        filteredOrders = orders;
+                    }
+                }
+            }
+            return filteredOrders;
         }
         static internal void BackupTravelers(List<Traveler> travelers)
         {

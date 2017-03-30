@@ -1,4 +1,4 @@
-﻿//#define NewOrders
+﻿#define NewOrders
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -177,6 +177,10 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Problem checking order items against inventory: " + ex.Message + " Stack Trace: " + ex.StackTrace);
             }
         }
+        public void ImportStoredOrders()
+        {
+            m_orders.AddRange(BackupManager.ImportStoredOrders());
+        }
 #endregion
         //--------------------------------------------
 #region Interface
@@ -211,21 +215,6 @@ namespace Efficient_Automatic_Traveler_System
 #endregion
         //--------------------------------------------
 #region Private Methods
-        // Imports orders that have been stored
-        public void ImportStoredOrders()
-        {
-            // create the file if it doesn't exist
-            StreamWriter w = File.AppendText(Path.Combine(m_workingDirectory,"orders.json"));
-            w.Close();
-            // open the file
-            string line;
-            System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(m_workingDirectory, "orders.json"));
-            while ((line = file.ReadLine()) != null && line != "")
-            {
-                m_orders.Add(new Order(line));
-            }
-            file.Close();
-        }
         
 #endregion
         //--------------------------------------------

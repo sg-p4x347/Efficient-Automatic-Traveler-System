@@ -3,21 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Efficient_Automatic_Traveler_System
 {
     enum SummarySort
     {
-        Active
+        Active,
+        Available,
+        Sorted
     }
     class Summary
     {
         #region Public methods
-        public Summary(ITravelerManager travelerManager, SummarySort sortType = SummarySort.Active)
+        public Summary(ITravelerManager travelerManager,string travelerType, SummarySort sortType = SummarySort.Active)
         {
             m_sort = sortType;
+            m_travelerType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + travelerType);
             switch (m_sort) {
-                case SummarySort.Active: m_travelers = travelerManager.GetTravelers.Where(x => x.Station != StationClass.GetStation("Start")).ToList(); break;
+                case SummarySort.Active: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.InProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
+                case SummarySort.Available: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Station == StationClass.GetStation("Start")).ToList(); break;
+                case SummarySort.Sorted: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
                 default:
                     m_travelers = new List<Traveler>();
                     break;
@@ -29,20 +35,20 @@ namespace Efficient_Automatic_Traveler_System
          These two summaries are then compared to yield the final summary which includes
          Delta totals between the time frames.
         */
-        public Summary(string pathA, string pathB, SummarySort sortType = SummarySort.Active)
+        public Summary(string pathA, string pathB, string travelerType, SummarySort sortType = SummarySort.Active)
         {
             // starting state
             OrderManager orderManagerA = new OrderManager(pathA);
             orderManagerA.ImportStoredOrders();
             TravelerManager travelerManagerA = new TravelerManager(orderManagerA as IOrderManager, pathA);
             travelerManagerA.ImportStoredTravelers();
-            Summary summaryA = new Summary(travelerManagerA as ITravelerManager, sortType);
+            Summary summaryA = new Summary(travelerManagerA as ITravelerManager, travelerType, sortType);
             // ending state
             OrderManager orderManagerB = new OrderManager(pathB);
             orderManagerB.ImportStoredOrders();
             TravelerManager travelerManagerB = new TravelerManager(orderManagerB as IOrderManager, pathB);
             travelerManagerB.ImportStoredTravelers();
-            Summary summaryB = new Summary(travelerManagerB as ITravelerManager, sortType);
+            Summary summaryB = new Summary(travelerManagerB as ITravelerManager, travelerType, sortType);
 
             // Delta state (A's state - B's state)
             m_travelers = (summaryB - summaryA).Travelers;
@@ -82,12 +88,30 @@ namespace Efficient_Automatic_Traveler_System
             }
             return B;
         }
+
+        public string MakeCSV()
+        {
+            string webLocation = "./summary.csv";
+            List<string> contents = new List<string>();
+            // add the header
+            contents.Add((string)m_travelerType.GetMethod("ExportCSVheader").Invoke(null,null));
+            // add each detail for each traveler
+            foreach (Traveler traveler in m_travelers)
+            {
+                contents.Add(traveler.ExportCSVdetail());
+            }
+
+            File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "summary.csv"), contents.ToArray<string>());
+
+            return webLocation;
+        }
         #endregion
         #region Private methods
 
         #endregion
         #region Properties
         private SummarySort m_sort;
+        private Type m_travelerType;
         private List<Traveler> m_travelers;
         #endregion
         #region Interface

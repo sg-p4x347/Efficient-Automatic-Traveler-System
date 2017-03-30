@@ -13,7 +13,7 @@ namespace Efficient_Automatic_Traveler_System
         Serial
     }
 
-    class StationClass
+    internal class StationClass
     {
         #region Public Methods
         public StationClass(string json)

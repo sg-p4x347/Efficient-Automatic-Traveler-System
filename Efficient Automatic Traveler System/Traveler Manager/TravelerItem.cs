@@ -22,7 +22,7 @@ namespace Efficient_Automatic_Traveler_System
             m_lastStation = -1;
             m_history = new List<Event>();
             m_order = "";
-            m_state = ItemState.PreProcess;
+            m_state = ItemState.InProcess; // an Item can never be in pre-process; existance implies that it has begun processing
         }
         public TravelerItem(string json)
         {

@@ -10,7 +10,7 @@ using Marshal = System.Runtime.InteropServices.Marshal;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class Chair : Traveler
+    internal class Chair : Traveler
     {
         #region Public Methods
         public Chair() : base() {

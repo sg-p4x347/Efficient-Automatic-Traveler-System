@@ -43,7 +43,8 @@ namespace Efficient_Automatic_Traveler_System
         string LoadItem(string json);
         string CreateSummary(string json);
         string DisintegrateTraveler(string json);
-        
+        string EnterProduction(string json);
+        string DownloadSummary(string json);
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
     class TravelerManager : ITravelerManager, IOperator, ISupervisor
@@ -199,40 +200,29 @@ namespace Efficient_Automatic_Traveler_System
                 // print labels
                 if (itemEvent.type == TravelerEvent.Scrapped)
                 {
-                    
-                    ScrapTravelerItem(traveler.ID, item.ID);
-                    if (traveler.PrintLabel(item.ID, LabelType.Scrap))
-                    {
-                        returnMessage = new ClientMessage("Info","Printed scrap label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                    } else
-                    {
-                        returnMessage = new ClientMessage("Info", "Could not print label");
-                    }
-                    
-                    item.Station = StationClass.GetStation("Scrapped");
+                    //=================
+                    // SCRAPPED
+                    //=================
+                    traveler.ScrapItem(item.ID);
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
 
                 } else if (newItem)
                 {
-                    if (traveler.PrintLabel(item.ID, LabelType.Tracking))
-                    {
-                        returnMessage = new ClientMessage("Info", "Printed label for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                    }
-                    else
-                    {
-                        returnMessage = new ClientMessage("Info", "Could not print label");
-                    }
+                    //=================
+                    // NEW
+                    //=================
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Tracking) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                 } else if (itemEvent.type == TravelerEvent.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
                 {
-                    // Finished, and pack tracking label must be printed
+                    //=================
+                    // FINISHED
+                    //=================
+                    traveler.FinishItem(item.ID);
+                    // assign this item to the order that ships soonest
                     AssignOrder(traveler, item);
-                    if (traveler.PrintLabel(item.ID, LabelType.Pack, 2) /*&& traveler.PrintLabel(item.ID,LabelType.Table)*/)
-                    {
-                        returnMessage = new ClientMessage("Info", "Printed carton and table labels for traveler item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                    }
-                    else
-                    {
-                        returnMessage = new ClientMessage("Info", "Could not print carton and table labels");
-                    }
+                    // Pack tracking label must be printed
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + "for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                 }
                 OnTravelersChanged(new List<Traveler>() { traveler });
             } catch (Exception ex)
@@ -262,20 +252,20 @@ namespace Efficient_Automatic_Traveler_System
         #region ISupervisor
         public string MoveTravelerStart(string json)
         {
-            ClientMessage returnMessage;
+            ClientMessage returnMessage = new ClientMessage();
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                if (traveler != null)
+                List<string> travelerIDs = (new StringStream(obj["travelerIDs"])).ParseJSONarray();
+                foreach (string ID in travelerIDs)
                 {
-                    traveler.Station = Convert.ToInt32(obj["station"]);
-                    OnTravelersChanged(new List<Traveler>() { traveler });
-                    returnMessage = new ClientMessage();
-                } else
-                {
-                    returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
+                    Traveler traveler = FindTraveler(Convert.ToInt32(ID));
+                    if (traveler != null)
+                    {
+                        traveler.Station = Convert.ToInt32(obj["station"]);
+                    }
                 }
+                OnTravelersChanged(GetTravelers);
             } catch (Exception ex)
             {
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
@@ -366,8 +356,9 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 //Summary summary = new Summary(this as ITravelerManager);
                 string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                Summary summary = new Summary(Path.Combine(exeDir,"backup\\03-24-2017"), m_workingDirectory, (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-                returnMessage = new ClientMessage("CreateSummary", summary.ToString());
+                //Summary summary = new Summary(Path.Combine(exeDir,"backup\\03-24-2017"), m_workingDirectory, (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                //returnMessage = new ClientMessage("CreateSummary", summary.ToString());
+                returnMessage = new ClientMessage("Info", "error");
             }
             catch (Exception ex)
             {
@@ -393,6 +384,47 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     returnMessage = new ClientMessage("Info", "Cannot disintegrate this traveler, it still has items. :(");
                 }
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage.ToString();
+        }
+        public string EnterProduction(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                List<string> travelerIDs = (new StringStream(obj["travelerIDs"])).ParseJSONarray();
+                foreach (string ID in travelerIDs)
+                {
+                    Traveler traveler = FindTraveler(Convert.ToInt32(ID));
+                    if (traveler != null)
+                    {
+                        traveler.State = ItemState.InProcess;
+                    }
+                }
+                OnTravelersChanged(GetTravelers);
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage.ToString();
+        }
+        public string DownloadSummary(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Summary summary = new Summary(this as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                string downloadLocation = summary.MakeCSV();
+                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
             }
             catch (Exception ex)
             {
@@ -478,7 +510,7 @@ namespace Efficient_Automatic_Traveler_System
         // Imports travelers that have been stored
         public void ImportStoredTravelers()
         {
-            m_travelers.AddRange(BackupManager.ImportPreviousTravelers());
+            m_travelers.AddRange(BackupManager.ImportStoredTravelers());
             //--------------------------------------------------------------
             // get the list of travelers and orders that have been created
             //--------------------------------------------------------------

@@ -16,9 +16,17 @@
 			<span style = "color: #001a66;">Supervisor</span>
 		</div>
 		<div class = "list--horizontal">
+			<!-- SEARCH FORM -->
 			<form id = "searchForm" class = "list--horizontal">
 				<p>Search</p>
 				<input id = "searchBox" class = "dark inset twoEM" type = "search" pattern = "\d*|(\d*-\d*)">
+			</form>
+			<!-- VIEW FORM -->
+			<form id = "viewForm" style = "white-space: nowrap;" onchange = "application.ViewChanged(this)">
+				<p>View</p><br>
+				<input 	id = "viewPreProcess"	 type = "radio" name = "viewState" value = "PreProcess" checked>Pre-Process<br>
+				<input 	id = "viewInProcess" 	type = "radio" name = "viewState" value = "InProcess">In-Process<br>
+				<input 	id = "viewPostProcess" 	type = "radio" name = "viewState" value = "PostProcess">Post-Process
 			</form>
 			<!-- OPTIONS BUTTON -->
 			<img id = "superOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>

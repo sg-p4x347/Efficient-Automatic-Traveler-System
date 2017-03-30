@@ -23,6 +23,9 @@ function Application () {
 	this.stationList = [];
 	this.travelers = [];
 	this.queues = {};
+	this.view = {
+		viewState:undefined
+	}
 	// MISC
 	this.lastSelectedStation;
 	// Websocket
@@ -115,7 +118,7 @@ function Application () {
 		document.getElementById("searchBox").focus();
 	}
 	//----------------
-	// supervisor Options
+	// supervisor Options (called from the server)
 	//----------------
 	this.CreateSummary = function (summaryObj) {
 		var self = this;
@@ -148,7 +151,48 @@ function Application () {
 			self.popupManager.Info("There are no items to display");
 		}
 	}
-	
+	// Utility
+	this.GetSelectedIDs = function () {
+		var self = this;
+		var selectedIDs = [];
+		for (var queueName in self.queues) {
+			self.queues[queueName].travelers.forEach(function (traveler) {
+				if (traveler.selected) {
+					selectedIDs.push(traveler.ID);
+				}
+			});
+		}
+		return selectedIDs;
+	}
+	//----------------
+	// DOM events
+	//----------------
+	this.ViewChanged = function (viewForm) {
+		var self = this;
+		
+		var viewStateRadios = document.getElementsByName("viewState");
+		for (var i = 0; i < viewStateRadios.length; i++) {
+			if (viewStateRadios[i].checked) {
+				self.view.viewState = viewStateRadios[i].value;
+				break;
+			}
+		}
+		
+		//----------INTERFACE CALL-----------------------
+		var message = new InterfaceCall("SetViewFilter",
+		{
+			viewState: self.view.viewState
+		},"This");
+		self.websocket.send(JSON.stringify(message));
+		//-----------------------------------------------
+	}
+	this.Redirect = function(location) {
+		window.location = location;
+	}
+	this.InterfaceOpen = function () {
+		// configure the default view settings with the server
+		document.getElementById("viewForm").onchange();
+	}
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
@@ -221,6 +265,33 @@ function Application () {
 				//-----------------------------------------------
 			}
 			popup.appendChild(summaryBtn);
+			
+			// DOWNLOAD SUMMARY (AVAILABLE TRAVELERS)--------------
+			var downloadSummaryBtn = self.popupManager.CreateButton("Download Table Summary<br>(Available in Start)");
+			downloadSummaryBtn.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("DownloadSummary",{
+					sort: "Available",
+					type: "Table"
+				});
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			popup.appendChild(downloadSummaryBtn);
+			
+			// DOWNLOAD SUMMARY (SORTED TRAVELERS)--------------
+			var sortedSummary = self.popupManager.CreateButton("Download Table Summary<br>(By Station)");
+			sortedSummary.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("DownloadSummary",{
+					sort: "Sorted",
+					type: "Table"
+				});
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			popup.appendChild(sortedSummary);
+			
 			self.popupManager.AddCustom(popup);
 		}
 		
@@ -285,7 +356,11 @@ function Application () {
 							if (object.hasOwnProperty("method")) {
 								if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
 									// The server is invoking a client method
-									self[object.method](object.parameters);
+									if (object.parameters != "") {
+										self[object.method](object.parameters);
+									} else {
+										self[object.method]();
+									}
 								}
 							}
 						}
@@ -347,15 +422,25 @@ function TravelerQueue(station) {
 		// create and add the new DOM objects
 		self.travelers.forEach(function (traveler) {
 			var DOMqueueItem = document.createElement("DIV");
-			DOMqueueItem.className = "button queue__item blueBack twoEM";
+			var colorClass = "blueBack";
+			switch (application.view.viewState) {
+				case "PreProcess": colorClass = "blueBack"; break;
+				case "InProcess": colorClass = "redBack"; break;
+				case "PostProcess": colorClass = "greenBack"; break;
+			}
+			DOMqueueItem.className = "button queue__item twoEM " + colorClass;
+			if (traveler.selected) {
+				DOMqueueItem.className += " selected";
+			}
 			DOMqueueItem.innerHTML = pad(traveler.ID,6) + "<br>";
 			//-------------------------------------------
 			var checkBox = document.createElement("INPUT");
 			checkBox.type = "checkbox";
+			checkBox.checked = traveler.selected;
 			checkBox.onchange = function () {
 				traveler.selected = this.checked;
-				DOMqueueItem.className = (this.checked ? "button queue__item blueBack twoEM selected"
-				: "button queue__item blueBack twoEM");
+				DOMqueueItem.className = (this.checked ? "button queue__item twoEM selected " + colorClass
+				: "button queue__item twoEM " + colorClass);
 			}
 			DOMqueueItem.appendChild(checkBox);
 			//-------------------------------------------
@@ -431,7 +516,7 @@ function TravelerQueue(station) {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("MoveTravelerStart",
 			{
-				travelerID: traveler.ID,
+				travelerIDs: application.GetSelectedIDs().concat(traveler.ID),
 				station: promptSelect.value
 			});
 			application.websocket.send(JSON.stringify(message));
@@ -480,6 +565,24 @@ function TravelerQueue(station) {
 			}
 			popup.appendChild(disintegrateBtn);
 			//-------------------------
+			
+			// Enter Production ----------
+			var enterProductionBtn = application.popupManager.CreateButton("Enter Production");
+			enterProductionBtn.onclick = function () {
+				application.popupManager.Close(popup);
+				
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("EnterProduction",
+				{
+					travelerIDs: application.GetSelectedIDs().concat(traveler.ID)
+				});
+				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				
+				closeFunction();
+			}
+			popup.appendChild(enterProductionBtn);
+			//----------------------------
 			application.popupManager.AddCustom(popup);
 		}
 	}

@@ -1,5 +1,4 @@
 ﻿
-#define Labels
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -119,7 +118,7 @@ namespace Efficient_Automatic_Traveler_System
         public qtyType Qty;
     }
     
-    abstract class Traveler
+    abstract internal class Traveler
     {
         #region Public Methods
         public Traveler() { }
@@ -368,11 +367,12 @@ namespace Efficient_Automatic_Traveler_System
             return obj.Stringify();
         }
         // print a label for this traveler
-        public bool PrintLabel(ushort itemID, LabelType type, int qty = 1)
+        public string PrintLabel(ushort itemID, LabelType type, int qty = 1)
         {
+            string result = "";
             try
             {
-                string result = "";
+                
                 using (var client = new WebClient())
                 {
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
@@ -397,23 +397,23 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"template\":\"" + template + "\"";
                     json += ",\"qty\":" + qty;
                     json += '}';
-#if Labels
                     Dictionary < string, string> labelConfigs = (new StringStream(ConfigManager.Get("print"))).ParseJSON();
                     // only print if the config says so
                     if (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()]))
                     {
                         result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
-                        return result == "Label Printed";
+                    } else
+                    {
+                        result = "Labels disabled";
                     }
-                    
-#endif
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Traveler [" + ID + "] could not print a label: " + ex.Message); 
+                result = "Error when printing label";
+                Console.WriteLine(result + " " + ex.Message); 
             }
-            return false;
+            return result;
         }
         // print a traveler pack label
         public abstract string GetLabelFields(ushort itemID, LabelType type);
@@ -452,9 +452,22 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void ScrapItem(ushort ID)
         {
-            FindItem(ID).Scrapped = true;
+            TravelerItem item = FindItem(ID);
+            item.Scrapped = true;
+            item.State = ItemState.PostProcess;
+            item.Station = StationClass.GetStation("Scrapped");
         }
-        
+        public void FinishItem(ushort ID)
+        {
+            TravelerItem item = FindItem(ID);
+            // now in post process
+            item.State = ItemState.PostProcess;
+            // check to see if this concludes the traveler
+            if (Items.All(x => x.State == ItemState.PostProcess))
+            {
+                State = ItemState.PostProcess;
+            }
+        }
         // advances all completed items at the specified station
         public void Advance(int station)
         {
@@ -580,6 +593,28 @@ namespace Efficient_Automatic_Traveler_System
                 {"Orders",m_parentOrders.Stringify() }
             };
             return obj.Stringify();
+        }
+        // export for csv header
+        public static string ExportCSVheader()
+        {
+            List<string> header = new List<string>();
+            header.Add("Traveler");
+            header.Add("Part");
+            header.Add("Description");
+            header.Add("Quantity");
+            header.Add("Station");
+            return header.Stringify<string>(false).Trim('[').Trim(']');
+        }
+        // export for csv detail
+        public virtual string ExportCSVdetail()
+        {
+            List<string> detail = new List<string>();
+            detail.Add(m_ID.ToString());
+            detail.Add(m_part.BillNo.Quotate());
+            detail.Add(m_part.BillDesc.Quotate());
+            detail.Add(m_quantity.ToString());
+            detail.Add(StationClass.GetStationName(m_station));
+            return detail.Stringify<string>(false).Trim('[').Trim(']');
         }
         #endregion
         //--------------------------------------------------------

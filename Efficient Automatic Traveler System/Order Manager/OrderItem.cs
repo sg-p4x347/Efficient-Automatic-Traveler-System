@@ -42,7 +42,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
-                {"itemCode", ItemCode.ToString() },
+                {"itemCode", ItemCode.ToString().Quotate() },
                 {"qtyOrdered", QtyOrdered.ToString() },
                 {"qtyOnHand",QtyOnHand.ToString() },
                 {"childTraveler",ChildTraveler.ToString() }
