@@ -13,75 +13,87 @@ namespace Efficient_Automatic_Traveler_System
         Serial
     }
 
-    internal class StationClass
+    internal class StationClass : IEquatable<StationClass>
     {
         #region Public Methods
-        public StationClass(string json)
+        public static void ImportStations(string json)
         {
-            var obj = (new StringStream(json)).ParseJSON();
-            m_ID = StationClass.Stations.Count;
-            m_name = obj["name"];
-            m_canCreateItems = Convert.ToBoolean(obj["canCreateItems"]);
-            Enum.TryParse<StationMode>(obj["mode"], out m_mode);
-            
-            Stations.Add(this);
+            m_stations.Clear();
+            List<string> stations = (new StringStream(json)).ParseJSONarray();
+            foreach (string stationJSON in stations)
+            {
+                m_stations.Add(new StationClass(stationJSON));
+            }
+            m_stations.Sort((x, y) => string.Compare(x.Name, y.Name));
+            ConfigManager.Set("stations", m_stations.Stringify(true, true));
         }
-        public static StationClass FindStation(int ID)
-        {
-            return Stations.Find(x => x.ID == ID);
-        }
+        
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {
                 { "name", m_name.Quotate()},
-                { "ID", m_ID.ToString()},
-                { "canCreateItems", m_canCreateItems.ToString().ToLower()},
+                { "creates", m_creates.Stringify<string>()},
                 { "mode", m_mode.ToString().Quotate()},
             };
-            return obj.Stringify();
+            return obj.Stringify(true);
         }
-        public static int GetStation(string key)
+        public static StationClass GetStation(string name)
         {
-            try
-            {
-                StationClass station = Stations.Find(x => x.Name == key);
-                if (station != null) return station.ID;
-                // otherwise
-                return -1;
-            }
-            catch (Exception ex)
-            {
-                return -1;
-            }
+            return m_stations.Find(x => x.Name == name);
         }
-        public static string GetStationName(int value)
+
+        // Equality
+        public override int GetHashCode()
         {
-            try
+            return base.GetHashCode();
+        }
+
+        public bool Equals(StationClass other)
+        {
+            return base.Equals(other);
+        }
+        public static bool operator ==(StationClass A, StationClass B)
+        {
+            return !object.ReferenceEquals(A,null) && !object.ReferenceEquals(B, null) 
+                && A.ID == B.ID;
+        }
+        public static bool operator !=(StationClass A, StationClass B)
+        {
+            return !(!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null)
+                && A.ID == B.ID);
+        }
+        public bool Is(string name)
+        {
+            return Name == name;
+        }
+        public static List<string> StationNames()
+        {
+            List<string> names = new List<string>();
+            foreach (StationClass station in m_stations)
             {
-                foreach (StationClass station in Stations)
-                {
-                    if (station.ID == value)
-                    {
-                        return station.Name;
-                    }
-                }
-                return "undefined";
+                names.Add(station.Name);
             }
-            catch (Exception ex)
-            {
-                return "error";
-            }
+            names.Sort((x, y) => x.CompareTo(y));
+            return names;
         }
         #endregion
         #region Private Methods
+        private StationClass(string json)
+        {
+            var obj = (new StringStream(json)).ParseJSON();
+            m_ID = StationClass.m_stations.Count;
+            m_name = obj["name"];
+            m_creates = (new StringStream(obj["creates"])).ParseJSONarray();
+            Enum.TryParse<StationMode>(obj["mode"], out m_mode);
+        }
         #endregion
         #region Properties
         private int m_ID;
         private string m_name;
-        private bool m_canCreateItems;
+        private List<string> m_creates; // list of traveler types that this station can create
         private StationMode m_mode;
 
-        public static List<StationClass> Stations = new List<StationClass>();
+        private static List<StationClass> m_stations = new List<StationClass>();
 
         #endregion
         #region Interface
@@ -91,11 +103,6 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return m_ID;
             }
-
-            set
-            {
-                m_ID = value;
-            }
         }
 
         public string Name
@@ -104,23 +111,13 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return m_name;
             }
-
-            set
-            {
-                m_name = value;
-            }
         }
 
-        public bool CanCreateItems
+        public List<string> Creates
         {
             get
             {
-                return m_canCreateItems;
-            }
-
-            set
-            {
-                m_canCreateItems = value;
+                return m_creates;
             }
         }
 
@@ -129,11 +126,6 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_mode;
-            }
-
-            set
-            {
-                m_mode = value;
             }
         }
         #endregion

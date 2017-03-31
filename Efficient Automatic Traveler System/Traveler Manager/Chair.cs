@@ -26,7 +26,7 @@ namespace Efficient_Automatic_Traveler_System
             Station = StationClass.GetStation("Chair-Start");
         }
         // returns a JSON formatted string to be sent to a client
-        public override string ExportTableRows(string clientType, int station)
+        public override string ExportTableRows(string clientType, StationClass station)
         {
             string json = "";
             return json;
@@ -64,9 +64,9 @@ namespace Efficient_Automatic_Traveler_System
             return json;
         }
         // returns the next station for this chair
-        public override int GetNextStation(UInt16 itemID)
+        public override StationClass GetNextStation(UInt16 itemID)
         {
-            int station = Items.Find(x => x.ID == itemID).Station;
+            StationClass station = Items.Find(x => x.ID == itemID).Station;
             if (station == StationClass.GetStation("Start"))
             {
                 return StationClass.GetStation("Start");
@@ -79,8 +79,10 @@ namespace Efficient_Automatic_Traveler_System
             else if (station == StationClass.GetStation("Finished"))
             {
                 return StationClass.GetStation("Finished");
+            } else
+            {
+                return station;
             }
-            return -1;
         }
         #endregion
             //--------------------------------------------------------

@@ -22,13 +22,8 @@ namespace Efficient_Automatic_Traveler_System
             m_travelerManager = travelerCore;
             m_travelers = m_travelerManager.GetTravelers;
             m_viewState = ItemState.PreProcess;
-            string stationList = "";
-            foreach (StationClass station in StationClass.Stations)
-            {
-                stationList += (stationList.Length != 0 ? "," : "") + '"' + station.Name + '"';
-            }
-            SendMessage(@"{""stationList"":" + StationClass.Stations.Stringify() + "}");
-            SendMessage((new ClientMessage("InterfaceOpen", "")).ToString());
+            SendMessage((new ClientMessage("InitStations", ConfigManager.Get("stations"))).ToString());
+            SendMessage((new ClientMessage("InterfaceOpen")).ToString());
             //HandleTravelersChanged(m_travelerManager.GetTravelers);
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
@@ -36,9 +31,9 @@ namespace Efficient_Automatic_Traveler_System
             bool mirror = travelers.Count == m_travelerManager.GetTravelers.Count;
             string message = @"{""travelers"":[";
             string travelerJSON = "";
-            foreach (Traveler traveler in travelers.Where(x => x.State == m_viewState))
+            foreach (Traveler traveler in travelers.Where(x => x.State == m_viewState || x.Items.Exists(y => y.State == m_viewState)))
             {
-                travelerJSON += (travelerJSON.Length > 0 ? "," : "") + traveler.Export(this.GetType().Name, -1);
+                travelerJSON += (travelerJSON.Length > 0 ? "," : "") + traveler.Export(this.GetType().Name, null);
             }
             message += travelerJSON + "],";
             message += "\"mirror\":" + mirror.ToString().ToLower();

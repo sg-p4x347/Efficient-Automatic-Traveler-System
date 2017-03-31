@@ -27,25 +27,27 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // turns a list into a json string: [obj.ToString(),obj.ToString(),...]
-        public static string Stringify<itemType>(this List<itemType> list, bool quotate = true)
+        public static string Stringify<itemType>(this List<itemType> list, bool quotate = true, bool pretty = false)
         {
             string json = "[";
             if (list != null)
             {
+                bool first = true;
                 foreach (itemType s in list)
                 {
-                    if (json.Length > 1) json += ',';
+                    json += (first ? "" : ",") + (pretty ? Environment.NewLine + '\t' : "");
                     if (quotate && typeof(itemType) == typeof(string))
                     {
-                        json += '"' + s.ToString() + '"';
+                        json += s.ToString().Quotate();
                     }
                     else
                     {
                         json += s.ToString();
                     }
-
+                    first = false;
                 }
             }
+            if (pretty) json += Environment.NewLine;
             json += "]";
             return json;
         }

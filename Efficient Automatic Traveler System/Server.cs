@@ -167,12 +167,7 @@ namespace Efficient_Automatic_Traveler_System
             m_port = Convert.ToInt32(ConfigManager.Get("port"));
 
             // set up the station list
-            StationClass.Stations.Clear();
-            List<string> stations = (new StringStream(ConfigManager.Get("stations"))).ParseJSONarray();
-            foreach (string json in stations)
-            {
-                new StationClass(json);
-            }
+            StationClass.ImportStations(ConfigManager.Get("stations"));
 
             m_ip = GetLocalIPAddress();
 

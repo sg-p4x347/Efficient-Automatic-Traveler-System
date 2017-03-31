@@ -21,6 +21,11 @@ namespace Efficient_Automatic_Traveler_System
             Method = type;
             Parameters = (type == "Info" ? message.Quotate() : message);
         }
+        public ClientMessage(string type)
+        {
+            Method = type;
+            Parameters = "";
+        }
         public override string ToString()
         {
             if (Method != "")

@@ -38,30 +38,30 @@ namespace Efficient_Automatic_Traveler_System
                 type = (TravelerEvent)Enum.Parse(typeof(TravelerEvent), obj["type"]);
                 date = obj["date"];
                 time = Convert.ToDouble(obj["time"]);
-                station = Convert.ToInt32(obj["station"]);
+                station = StationClass.GetStation(obj["station"]);
             }
             catch (Exception ex)
             {
                 Server.WriteLine("Problem when reading event from file: " + ex.Message + "; StackTrace: " + ex.StackTrace);
             }
         }
-        public Event (TravelerEvent e, double t, int s)
+        public Event (TravelerEvent e, double t, StationClass s)
         {
             type = e;
-            time = t;
+            time = Math.Round(t,2);
             station = s;
             date = DateTime.Now.ToString("MM/dd/yy @ hh:mm");
         }
         public override string ToString()
         {
-            string json = "";
-            json += "{";
-            json += "\"type\":" + type.ToString("d") + ",";
-            json += "\"date\":" + '"' + date + '"' + ",";
-            json += "\"time\":" + time + ",";
-            json += "\"station\":" + station;
-            json += "}";
-            return json;
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"type",type.ToString().Quotate() },
+                {"date",date.Quotate() },
+                {"time",time.ToString() },
+                {"station",station.Name.Quotate() }
+            };
+            return obj.Stringify();
         }
         public static bool operator ==(Event A, Event B)
         {
@@ -92,7 +92,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public TravelerEvent type;
         public double time;
-        public int station;
+        public StationClass station;
         public string date;
     }
     struct NameValueQty<valueType,qtyType>
@@ -156,7 +156,7 @@ namespace Efficient_Automatic_Traveler_System
             m_part = new Bill(billNo, quantity);
             m_quantity = quantity;
             m_parentOrders = new List<string>();
-            Station = StationClass.GetStation("Start");
+            m_station = StationClass.GetStation("Start");
             Items = new List<TravelerItem>();
             NewID();
             m_state = ItemState.PreProcess;
@@ -360,7 +360,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"quantity",m_quantity.ToString() },
                 {"items",Items.Stringify<TravelerItem>() },
                 {"parentOrders",m_parentOrders.Stringify<string>() },
-                {"station",StationClass.GetStationName(Station).Quotate() },
+                {"station",m_station.Name.Quotate() },
                 {"state",m_state.ToString().Quotate() },
                 {"type",this.GetType().ToString().Quotate()}
             };
@@ -463,13 +463,13 @@ namespace Efficient_Automatic_Traveler_System
             // now in post process
             item.State = ItemState.PostProcess;
             // check to see if this concludes the traveler
-            if (Items.All(x => x.State == ItemState.PostProcess))
+            if (Items.Where(x => x.State == ItemState.PostProcess && !x.Scrapped).Count() >= m_quantity && Items.All(x => x.State == ItemState.PostProcess))
             {
                 State = ItemState.PostProcess;
             }
         }
         // advances all completed items at the specified station
-        public void Advance(int station)
+        public void Advance(StationClass station)
         {
             foreach (TravelerItem item in Items)
             {
@@ -480,7 +480,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public TravelerItem AddItem(int station)
+        public TravelerItem AddItem(StationClass station)
         {
             // find the highest id
             ushort highestID = 0;
@@ -494,34 +494,42 @@ namespace Efficient_Automatic_Traveler_System
             Items.Add(newItem);
             return newItem;
         }
-        public int QuantityPendingAt(int station)
+        public int QuantityPendingAt(StationClass station)
         {
             int quantityPending = 0;
-            quantityPending += Items.Where(x => x.Station == station && !x.History.Exists(e => e.station == station && e.type == TravelerEvent.Completed)).Count();
-            // these stations can create items
-            if (StationClass.FindStation(station).CanCreateItems && m_station == station)
+            if (station != null)
             {
-                quantityPending = m_quantity - Items.Where(x => !x.Scrapped).Count(); // calculates the total item deficit for this traveler
+                quantityPending += Items.Where(x => x.Station == station && !x.History.Exists(e => e.station == station && e.type == TravelerEvent.Completed)).Count();
+                // these stations can create items
+                if (station.Creates.Count > 0 && m_station == station)
+                {
+                    quantityPending = m_quantity - Items.Where(x => !x.Scrapped).Count(); // calculates the total item deficit for this traveler
+                }
             }
             return quantityPending;
         }
-        public int QuantityAt(int station)
+        public int QuantityAt(StationClass station)
         {
-            return Items.Where(x => x.Station == station).Count();
+            if (station != null)
+            {
+                return Items.Where(x => x.Station == station).Count();
+            }
+            return 0;
         }
         public int QuantityScrapped()
         {
             return Items.Where(x => x.Scrapped).Count();
         }
-        public int QuantityCompleteAt(int station)
+        public int QuantityCompleteAt(StationClass station)
         {
             return Items.Where(x => x.Station == station && x.History.Exists(e => e.station == station && e.type == TravelerEvent.Completed)).Count();
         }
         // export for clients to display
-        public string Export(string clientType, int station)
+        public string Export(string clientType, StationClass station)
         {
             string json = "";
             json += "{";
+            json += "\"type\":" + this.GetType().Name.Quotate() + ',';
             json += "\"ID\":" + m_ID + ",";
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + m_quantity + ",";
@@ -529,7 +537,7 @@ namespace Efficient_Automatic_Traveler_System
 
             if (clientType == "OperatorClient")
             {
-                json += "\"station\":" + station.ToString() + ",";
+                json += "\"station\":" + station.Name.Quotate() + ",";
                 json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
                 json += "\"qtyScrapped\":" + QuantityScrapped() + ",";
                 json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
@@ -541,13 +549,13 @@ namespace Efficient_Automatic_Traveler_System
             else if (clientType == "SupervisorClient")
             {
                 json += "\"stations\":";
-                List<int> stations = new List<int>();
-                if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station);
+                List<string> stations = new List<string>();
+                if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station.Name);
                 foreach (TravelerItem item in Items)
                 {
-                    if (!stations.Exists(x => x == item.Station))
+                    if (!stations.Exists(x => item.Station.Is(x)))
                     {
-                        stations.Add(item.Station);
+                        stations.Add(item.Station.Name);
                     }
                 }
                 json += stations.Stringify();
@@ -571,7 +579,8 @@ namespace Efficient_Automatic_Traveler_System
                 {"Description",m_part.BillDesc.Quotate() },
                 {"Qty on traveler",m_quantity.ToString() },
                 {"Orders",m_parentOrders.Stringify() },
-                {"Items",Items.Stringify() }
+                {"Items",Items.Stringify() },
+                {"Starting station",m_station.Name.Quotate() }
             };
             return obj.Stringify();
         }
@@ -613,18 +622,18 @@ namespace Efficient_Automatic_Traveler_System
             detail.Add(m_part.BillNo.Quotate());
             detail.Add(m_part.BillDesc.Quotate());
             detail.Add(m_quantity.ToString());
-            detail.Add(StationClass.GetStationName(m_station));
+            detail.Add(m_station.Name.Quotate());
             return detail.Stringify<string>(false).Trim('[').Trim(']');
         }
         #endregion
         //--------------------------------------------------------
         #region Abstract Methods
 
-        public abstract string ExportTableRows(string clientType, int station);
+        public abstract string ExportTableRows(string clientType, StationClass station);
         // advances the item to the next station
         public abstract void AdvanceItem(ushort ID);
         // gets the next station for the given item
-        public abstract int GetNextStation(UInt16 itemID);
+        public abstract StationClass GetNextStation(UInt16 itemID);
 #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -640,7 +649,7 @@ namespace Efficient_Automatic_Traveler_System
         protected int m_quantity;
         private List<TravelerItem> items;
         protected List<string> m_parentOrders;
-        private int m_station;
+        private StationClass m_station;
         private ItemState m_state;
 
         #endregion
@@ -682,19 +691,10 @@ namespace Efficient_Automatic_Traveler_System
                     return m_part.BillNo;
                 }
             }
-            internal int Station
+            internal StationClass Station
             {
                 get
                 {
-                    //foreach (TravelerItem item in Items)
-                    //{
-                    //    m_station = item.Station;
-                    //    if (item.Station != Items[0].Station)
-                    //    {
-                    //        m_station = -1;
-                    //        return -1;
-                    //    }
-                    //}
                     return m_station;
                 }
                 set

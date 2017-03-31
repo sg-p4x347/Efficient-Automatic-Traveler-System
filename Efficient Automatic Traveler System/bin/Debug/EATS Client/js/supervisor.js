@@ -58,14 +58,22 @@ function Application () {
 	//----------------
 	// station list
 	//----------------
-	this.PopulateQueues = function () {
+	this.InitStations = function (stationList) {
 		var self = this;
+		self.stationList = stationList;
+		var start;
 		self.stationList.forEach(function (station) {
 			var queue = new TravelerQueue(station);
-			self.queueArray.appendChild(queue.DOMcontainer);
-			
-			self.queues[station.ID] = queue;
+			if (station.name == "Start") {
+				start = queue;
+			} else {
+				self.queueArray.appendChild(queue.DOMcontainer);
+			}
+			self.queues[station.name] = queue;
 		});
+		// put the start queue at the beginning
+		self.queueArray.insertBefore(start.DOMcontainer, self.queueArray.childNodes[0]);
+		self.SetWindow();
 	}
 	// updates the queues with the current travelers
 	this.HandleTravelersChanged = function () {
@@ -330,11 +338,6 @@ function Application () {
 					if (object) {					
 						// valid json object recieved, time to hande the message
 						if (!object.hasOwnProperty("ping")) {
-							if (object.hasOwnProperty("stationList")) {
-								self.stationList = object.stationList;
-								self.PopulateQueues();
-								self.SetWindow();
-							}
 							if (object.hasOwnProperty("travelers") && object.hasOwnProperty("mirror")) {
 								if (object.mirror) {
 									self.travelers = [];
@@ -458,7 +461,7 @@ function TravelerQueue(station) {
 				var message = new InterfaceCall("LoadTravelerAt",
 				{
 					travelerID: traveler.ID,
-					station: self.station.ID
+					station: self.station.name
 				});
 				application.websocket.send(JSON.stringify(message));
 				//-----------------------------------------------
@@ -493,10 +496,12 @@ function TravelerQueue(station) {
 		var promptSelect = document.getElementById("promptSelect");
 		// add the station options
 		application.stationList.forEach(function (station) {
-			var option = document.createElement("OPTION");
-			option.innerHTML = station.name;
-			option.value = station.ID;
-			promptSelect.appendChild(option);
+			if (station.creates.indexOf(traveler.type) != -1 || station.name === "Start") {
+				var option = document.createElement("OPTION");
+				option.innerHTML = station.name;
+				option.value = station.name;
+				promptSelect.appendChild(option);
+			}
 		});
 		promptSelect.value = self.lastSelectedStation;
 		//-----------------
@@ -593,7 +598,7 @@ function TravelerQueue(station) {
 		self.DOMcontainer = document.createElement("DIV");
 		self.DOMcontainer.className = "queueContainer";
 		if (station.name == "Start") {
-			self.DOMcontainer.style.height = "100%";
+			self.DOMcontainer.className = "queueContainer--tall";
 		}
 		self.DOMcontainer.innerHTML = self.station.name;
 		

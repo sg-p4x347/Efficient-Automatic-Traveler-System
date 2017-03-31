@@ -55,10 +55,10 @@ namespace Efficient_Automatic_Traveler_System
         // create a Table from partNo, quantity, and a MAS connection
         public Table(string partNo, int quantity) : base(partNo, quantity) { }
         // returns a JSON formatted string to be sent to a client
-        public override string ExportTableRows(string clientType, int station)
+        public override string ExportTableRows(string clientType, StationClass station)
         {
             string json = "";
-            if (clientType == "OperatorClient" && station == StationClass.GetStation("Heian")) {
+            if (clientType == "OperatorClient" && station == StationClass.GetStation("Heian1") || station == StationClass.GetStation("Heian2")) {
                 json += ',' + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
                 json += ',' + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
@@ -129,14 +129,14 @@ namespace Efficient_Automatic_Traveler_System
             }
             return json;
         }
-        public override int GetNextStation(UInt16 itemID)
+        public override StationClass GetNextStation(UInt16 itemID)
         {
-            int station = Items.Find(x => x.ID == itemID).Station;
+            StationClass station = Items.Find(x => x.ID == itemID).Station;
             if (station == StationClass.GetStation("Start"))
             {
                 return StationClass.GetStation("Start");
             }
-            else if (station == StationClass.GetStation("Heian") || station == StationClass.GetStation("Weeke"))
+            else if (station.Name.Contains("Heian") || station.Name.Contains("Weeke"))
             {
                 // switch between vector and straightline edgebander based on what was in the bill
                 if (m_ebander != null)
@@ -161,8 +161,10 @@ namespace Efficient_Automatic_Traveler_System
             else if (station == StationClass.GetStation("Finished"))
             {
                 return StationClass.GetStation("Finished");
+            } else
+            {
+                return station;
             }
-            return -1;
         }
 
         public new static string ExportCSVheader()
@@ -178,10 +180,10 @@ namespace Efficient_Automatic_Traveler_System
         public override string ExportCSVdetail()
         {
             List<string> detail = new List<string>();
-            detail.Add(m_color);
-            detail.Add(m_bandingColor);
-            detail.Add(m_blankNo);
-            detail.Add(m_blankSize);
+            detail.Add(m_color.Quotate());
+            detail.Add(m_bandingColor.Quotate());
+            detail.Add(m_blankNo.Quotate());
+            detail.Add(m_blankSize.Quotate());
             detail.Add(m_blankQuantity.ToString());
             return base.ExportCSVdetail() + ',' + detail.Stringify<string>(false).Trim('[').Trim(']');
         }

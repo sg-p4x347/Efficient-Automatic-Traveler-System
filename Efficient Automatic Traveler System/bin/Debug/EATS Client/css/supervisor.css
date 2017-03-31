@@ -110,6 +110,13 @@ div.queueContainer {
 	width: 20%;
 	height: 200px;
 }
+div.queueContainer--tall {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	width: 20%;
+	height: 100%;
+}
 div.queue {
 	font-size: 0.5em;
 	display: flex;

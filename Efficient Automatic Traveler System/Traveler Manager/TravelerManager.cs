@@ -182,14 +182,14 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 TravelerEvent eventType = (TravelerEvent)Enum.Parse(typeof(TravelerEvent), obj["eventType"]);
-                Event itemEvent = new Event(eventType, Convert.ToDouble(obj["time"]), Convert.ToInt32(obj["station"]));
+                Event itemEvent = new Event(eventType, Convert.ToDouble(obj["time"]), StationClass.GetStation(obj["station"]));
                 TravelerItem item;
                 bool newItem = false;
                 if (obj["itemID"] == "undefined")
                 {
                     newItem = true;
                     // create a new item
-                    item = traveler.AddItem(Convert.ToInt32(obj["station"]));
+                    item = traveler.AddItem(StationClass.GetStation(obj["station"]));
                 } else
                 {
                     // change existing item
@@ -222,7 +222,7 @@ namespace Efficient_Automatic_Traveler_System
                     AssignOrder(traveler, item);
                     // Pack tracking label must be printed
                     returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + "for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                 }
                 OnTravelersChanged(new List<Traveler>() { traveler });
             } catch (Exception ex)
@@ -239,7 +239,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                traveler.Advance(Convert.ToInt32(obj["station"]));
+                traveler.Advance(StationClass.GetStation(obj["station"]));
                 OnTravelersChanged(new List<Traveler>() { traveler });
             }
             catch (Exception ex)
@@ -262,7 +262,7 @@ namespace Efficient_Automatic_Traveler_System
                     Traveler traveler = FindTraveler(Convert.ToInt32(ID));
                     if (traveler != null)
                     {
-                        traveler.Station = Convert.ToInt32(obj["station"]);
+                        traveler.Station = StationClass.GetStation(obj["station"]);
                     }
                 }
                 OnTravelersChanged(GetTravelers);
@@ -304,7 +304,7 @@ namespace Efficient_Automatic_Traveler_System
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 if (traveler != null)
                 {
-                    returnMessage = new ClientMessage("LoadTravelerAt", traveler.Export("OperatorClient",Convert.ToInt32(obj["station"])));
+                    returnMessage = new ClientMessage("LoadTravelerAt", traveler.Export("OperatorClient", StationClass.GetStation(obj["station"])));
                 }
                 else
                 {

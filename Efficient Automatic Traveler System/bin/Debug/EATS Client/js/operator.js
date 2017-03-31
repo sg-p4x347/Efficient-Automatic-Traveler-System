@@ -78,8 +78,9 @@ function Application () {
 	//----------------
 	// station list
 	//----------------
-	this.PopulateStations = function () {
+	this.InitStations = function (stationList) {
 		var self = this;
+		self.stationList = stationList
 		// remove old
 		var select = document.getElementById("stationList")
 		while (select.firstChild) {
@@ -88,21 +89,21 @@ function Application () {
 		self.stationList.forEach(function (station) {
 			var option = document.createElement("OPTION");
 			option.innerHTML = station.name;
-			option.value = station.ID;
+			option.value = station.name;
 			select.appendChild(option);
 		});
 		select.onchange = function () {
-			var stationID = parseInt(this.value);
+			var stationName = this.value;
 			//self.websocket.send('{"station":' + stationID + '}');
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("SetStation",
 			{
-				station: stationID
+				station: stationName
 			},"This");
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
 			self.stationList.some(function (station) {
-				if (station.ID == stationID) {
+				if (station.name == stationName) {
 					self.station = JSON.parse(JSON.stringify(station));
 					return true;
 				}
@@ -178,10 +179,7 @@ function Application () {
 					}
 					if (object) {					
 					// valid json object recieved, time to hande the message
-						if (object.hasOwnProperty("stationList")) {
-							self.stationList = object.stationList;
-							self.PopulateStations();
-						} else if (object.hasOwnProperty("travelers") && object.hasOwnProperty("mirror")) {
+						if (object.hasOwnProperty("travelers") && object.hasOwnProperty("mirror")) {
 							if (object.mirror) {
 								// The only travelers in the queue are explicitly the ones in the message
 								self.travelerQueue.Clear();
@@ -533,7 +531,7 @@ function TravelerView() {
 		}
 		
 		
-		if (application.station.canCreateItems) {
+		if (application.station.creates.length > 0) {
 			//=================================
 			// CLIENTS THAT CAN CREATE ITEMS
 			//=================================
@@ -567,7 +565,7 @@ function TravelerView() {
 			select.className = "dark twoEM";
 			self.traveler.items.forEach(function (item) {
 				// only add item if it is at this station and uncomplete
-				if (item.station == application.station.ID && !Contains(item.history,[{prop:"type",value:0},{prop:"station",value:item.station}])) {
+				if (item.station == application.station.name && !Contains(item.history,[{prop:"type",value:0},{prop:"station",value:item.station}])) {
 					var option = document.createElement("OPTION");
 					option.value = item.ID;
 					option.innerHTML = item.ID;
@@ -713,6 +711,7 @@ function TravelerView() {
 	}
 	this.SubmitSearch = function() {
 		var self = this;
+		try {
 		application.popupManager.CloseAll();
 		var search = document.getElementById("travelerSearchBox").value;
 		// try to parse the search string
@@ -729,14 +728,14 @@ function TravelerView() {
 				self.AutomaticReload(self.traveler,traveler);
 				application.travelerQueue.SelectTraveler(traveler);
 				var item = traveler.FindItem(itemID);
-				if (item && item.station == application.station.ID) {
+				if (item && item.station == application.station.name) {
 					if (Contains(item.history,[{prop:"station",value:item.station},{prop:"type",value:0}])) {
 						application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] has already been completed at this station :)");
 					} else {
 						self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
 					}
 				} else if (!isNaN(itemID)) {
-					application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] is not at your station;<br>It is at: " + application.stationList[item.station].name);
+					application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] is not at your station;<br>It is at: " + item.station);
 				}
 			} else {
 				application.Info("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");
@@ -745,6 +744,9 @@ function TravelerView() {
 			application.Info("Invalid traveler ID :(");
 		}
 		document.getElementById("travelerSearchBox").value = "";
+		} catch (exception) {
+			application.Info(exception.message);
+		}
 	}
 }
 

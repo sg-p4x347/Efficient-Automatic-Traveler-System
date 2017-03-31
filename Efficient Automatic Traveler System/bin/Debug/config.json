@@ -1,6 +1,102 @@
 {
-	"print":{		"Tracking": false,		"Scrap": false,		"Pack": false,		"Table": false	},
+	"print":{		"Tracking": true,		"Scrap": false,		"Pack": false,		"Table": false	},
 	"port":81,
-	"nextTravelerID":1850,
-	"stations":[		{			"name": "Start",			"canCreateItems": false,			"mode":"Batch"		},		{			"name": "Saw",			"canCreateItems": true,			"mode":"Batch"		},		{			"name": "Heian1",			"canCreateItems": true,			"mode":"Batch"		},		{			"name": "Heian2",			"canCreateItems": true,			"mode":"Batch"		},		{			"name": "Vector",			"canCreateItems": false,			"mode":"Serial"		},		{			"name": "Edgebander",			"canCreateItems": false,			"mode":"Batch"		},		{			"name": "Weeke1",			"canCreateItems": true,			"mode":"Batch"		},		{			"name": "Weeke2",			"canCreateItems": true,			"mode":"Batch"		},		{			"name": "Drill",			"canCreateItems": false,			"mode":"Batch"		},		{			"name": "T-nut",			"canCreateItems": false,			"mode":"Batch"		},		{			"name": "Paint",			"canCreateItems": false,			"mode":"Batch"		},		{			"name": "Chairs",			"canCreateItems": true,			"mode":"Batch"		},		{			"name": "Table-Pack",			"canCreateItems": false,			"mode":"Serial"		},		{			"name": "Packline",			"canCreateItems": false,			"mode":"Batch"		},		{			"name": "Assembly",			"canCreateItems": false,			"mode":"Batch"		},		{			"name": "Box",			"canCreateItems": true,			"mode":"Batch"		},		{			"name": "Finished",			"canCreateItems": false,			"mode":"Batch"		},		{			"name": "Scrapped",			"canCreateItems": false,			"mode":"Batch"		},		{			"name": "Chair-Start",			"canCreateItems": false,			"mode":"Batch"		}	]
+	"nextTravelerID":2250,
+	"stations":[
+	{
+	"name":"Assembly",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Box",
+	"creates":["Box"],
+	"mode":"Batch"
+},
+	{
+	"name":"Chairs",
+	"creates":["Chair"],
+	"mode":"Batch"
+},
+	{
+	"name":"Chair-Start",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Drill",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Edgebander",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Finished",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Heian1",
+	"creates":["Table"],
+	"mode":"Batch"
+},
+	{
+	"name":"Heian2",
+	"creates":["Table"],
+	"mode":"Batch"
+},
+	{
+	"name":"Packline",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Paint",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Saw",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Scrapped",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Start",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Table-Pack",
+	"creates":[],
+	"mode":"Serial"
+},
+	{
+	"name":"T-nut",
+	"creates":[],
+	"mode":"Batch"
+},
+	{
+	"name":"Vector",
+	"creates":[],
+	"mode":"Serial"
+},
+	{
+	"name":"Weeke1",
+	"creates":["Table"],
+	"mode":"Batch"
+},
+	{
+	"name":"Weeke2",
+	"creates":["Table"],
+	"mode":"Batch"
+}
+]
 }

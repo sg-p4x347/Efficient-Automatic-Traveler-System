@@ -18,8 +18,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_ID = ID;
             m_scrapped = false;
-            m_station = -1;
-            m_lastStation = -1;
+            m_station = StationClass.GetStation("Start");
+            m_lastStation = StationClass.GetStation("Start");
             m_history = new List<Event>();
             m_order = "";
             m_state = ItemState.InProcess; // an Item can never be in pre-process; existance implies that it has begun processing
@@ -31,7 +31,8 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 m_ID = Convert.ToUInt16(obj["ID"]);
                 m_scrapped = Convert.ToBoolean(obj["scrapped"]);
-                m_station = Convert.ToInt32(obj["station"]);
+                m_station = StationClass.GetStation(obj["station"]);
+                m_lastStation = StationClass.GetStation(obj["lastStation"]);
                 m_history = new List<Event>();
                 m_order = obj["order"];
                 foreach (string eventString in (new StringStream(obj["history"])).ParseJSONarray())
@@ -51,8 +52,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 {"ID",m_ID.ToString()},
                 {"scrapped", m_scrapped.ToString().ToLower()},
-                {"station",Station.ToString() },
-                {"lastStation",m_lastStation.ToString() },
+                {"station",Station.Name.Quotate() },
+                {"lastStation",m_lastStation.Name.Quotate() },
                 {"history",m_history.Stringify<Event>() },
                 {"order",m_order.Quotate() },
                 {"state",m_state.ToString().Quotate() }
@@ -62,8 +63,8 @@ namespace Efficient_Automatic_Traveler_System
         // Properties
         private UInt16 m_ID;
         private bool m_scrapped;
-        private int m_station;
-        private int m_lastStation;
+        private StationClass m_station;
+        private StationClass m_lastStation;
         private List<Event> m_history;
         private string m_order;
         private ItemState m_state;
@@ -76,7 +77,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal int Station
+        internal StationClass Station
         {
             get
             {
@@ -90,7 +91,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public int LastStation
+        public StationClass LastStation
         {
             get
             {

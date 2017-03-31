@@ -20,13 +20,7 @@ namespace Efficient_Automatic_Traveler_System
         public OperatorClient (TcpClient client, IOperator travelerManager) : base(client)
         {
             m_travelerManager = travelerManager;
-            string stationList = "";
-            foreach(StationClass station in StationClass.Stations)
-            {
-                stationList += (stationList.Length != 0 ? "," : "") + '"' + station.Name + '"';
-            }
-            SendMessage(@"{""stationList"":" + StationClass.Stations.Stringify() + "}");
-            HandleTravelersChanged(m_travelerManager.GetTravelers);
+            SendMessage((new ClientMessage("InitStations",ConfigManager.Get("stations"))).ToString());
         }
 
         public string SetStation(string json)
@@ -34,7 +28,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                m_station = Convert.ToInt32(obj["station"]);
+                m_station = StationClass.GetStation(obj["station"]);
                 HandleTravelersChanged(m_travelerManager.GetTravelers);
             }
             catch (Exception ex)
@@ -50,7 +44,7 @@ namespace Efficient_Automatic_Traveler_System
             bool mirror = (stationSpecific.Count < travelers.Count);
             if (mirror)
             {
-                stationSpecific = TravelerManager.GetTravelers.Where(x => x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0).ToList();
+                stationSpecific = TravelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList();
             }
             string message = @"{""travelers"":[";
             string travelerJSON = "";
@@ -78,9 +72,9 @@ namespace Efficient_Automatic_Traveler_System
         // Properties
         //------------------------------
         protected IOperator m_travelerManager;
-        protected int m_station;
+        protected StationClass m_station;
         
-        internal int Station
+        internal StationClass Station
         {
             get
             {
