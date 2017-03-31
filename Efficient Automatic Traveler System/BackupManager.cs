@@ -82,11 +82,6 @@ namespace Efficient_Automatic_Traveler_System
                             traveler = (Traveler)Activator.CreateInstance(type,line);
                         }
 
-                        //switch ((obj["type"]))
-                        //{
-                        //    case "Table": traveler = (Traveler)new Table(line); break;
-                        //    case "Chair": traveler = (Traveler)new Chair(line); break;
-                        //}
                         if (traveler != null)
                         {
                             travelers.Add(traveler);
@@ -100,21 +95,15 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         foreach (Traveler traveler in travelers)
                         {
-                            //List<TravelerItem> items = new List<TravelerItem>();
-                            //// find all the items that are not finished
-                            //foreach (TravelerItem item in traveler.Items)
-                            //{
-                            //    if (item.State != ItemState.PostProcess)
-                            //    {
-                            //        items.Add(item);
-                            //    }
-                            //}
-                            //// set the items to only those that are not finished
-                            //traveler.Items = items;
-
                             // add this traveler to the master list if it is not complete
                             if (traveler.State != ItemState.PostProcess)
                             {
+                                // push this traveler into production
+                                if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
+                                {
+                                    traveler.State = ItemState.InProcess;
+                                }
+                                // add this traveler to the filtered list
                                 filteredTravelers.Add(traveler);
                             }
 

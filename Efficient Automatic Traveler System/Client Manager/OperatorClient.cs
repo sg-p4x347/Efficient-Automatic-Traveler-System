@@ -46,7 +46,7 @@ namespace Efficient_Automatic_Traveler_System
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
             // get the list of travelers that have items at this station
-            List<Traveler> stationSpecific = travelers.Where(x => x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0).ToList();
+            List<Traveler> stationSpecific = travelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList();
             bool mirror = (stationSpecific.Count < travelers.Count);
             if (mirror)
             {

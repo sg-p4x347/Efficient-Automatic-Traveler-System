@@ -22,22 +22,27 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         public Server()
         {
-            m_MAS = new OdbcConnection();
-            m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            try
+            {
+                m_MAS = new OdbcConnection();
+                m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            Configure();
+                Configure();
 
-            m_orderManager = new OrderManager(m_rootDirectory);
-            m_travelerManager = new TravelerManager(m_orderManager as IOrderManager,m_rootDirectory);
-            m_clientManager = new ClientManager(m_ip, m_port, m_travelerManager as ITravelerManager);
-            // Subscribe events
-            m_travelerManager.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
+                m_orderManager = new OrderManager(m_rootDirectory);
+                m_travelerManager = new TravelerManager(m_orderManager as IOrderManager, m_rootDirectory);
+                m_clientManager = new ClientManager(m_ip, m_port, m_travelerManager as ITravelerManager);
+                // Subscribe events
+                m_travelerManager.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
 
-            m_clientManagerThread = new Thread(m_clientManager.Start);
-            m_clientManagerThread.Name = "Client Manager";
-            m_updateInterval = new TimeSpan(24, 0, 0);
-            // HTTP file serving
-            
+                m_clientManagerThread = new Thread(m_clientManager.Start);
+                m_clientManagerThread.Name = "Client Manager";
+                m_updateInterval = new TimeSpan(24, 0, 0);
+                // HTTP file serving
+            } catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + " : " + ex.StackTrace);
+            }
         }
         public void Start()
         {

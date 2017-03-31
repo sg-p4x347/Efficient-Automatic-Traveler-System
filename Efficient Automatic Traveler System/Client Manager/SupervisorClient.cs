@@ -63,7 +63,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string SetViewFilter(string json)
         {
-            string returnMessage = "";
+            ClientMessage returnMessage = new ClientMessage();
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
@@ -72,9 +72,9 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                returnMessage = "Error configuring view settings";
+                returnMessage = new ClientMessage("Info","Error configuring view settings");
             }
-            return returnMessage;
+            return returnMessage.ToString();
         }
         //-----------------------------------
         #region Properties

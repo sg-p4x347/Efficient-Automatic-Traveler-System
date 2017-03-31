@@ -23,7 +23,13 @@ namespace Efficient_Automatic_Traveler_System
         // returns the json string stored under the specified key
         static public string Get(string key)
         {
-            return m_configObj.ContainsKey(key) ? m_configObj[key] : "";
+            if (m_configObj.ContainsKey(key))
+            {
+                return m_configObj.ContainsKey(key) ? m_configObj[key] : "";
+            } else
+            {
+                return "";
+            }
         }
         // sets the json string stored under the specified key
         static public void Set(string key, string value)

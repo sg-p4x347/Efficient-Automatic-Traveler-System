@@ -19,7 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         public StationClass(string json)
         {
             var obj = (new StringStream(json)).ParseJSON();
-            m_ID = Convert.ToInt32(obj["ID"]);
+            m_ID = StationClass.Stations.Count;
             m_name = obj["name"];
             m_canCreateItems = Convert.ToBoolean(obj["canCreateItems"]);
             Enum.TryParse<StationMode>(obj["mode"], out m_mode);

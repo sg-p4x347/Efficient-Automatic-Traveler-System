@@ -56,11 +56,10 @@ namespace Efficient_Automatic_Traveler_System
             bool first = true;
             foreach (KeyValuePair<string,string> pair in obj)
             {
-                if (pretty) json += "\n\t";
-                json += (first ? "" : ",") + pair.Key.Quotate() + ':' + pair.Value;
+                json += (first ? "" : ",") + (pretty ? Environment.NewLine + '\t' : "") + pair.Key.Quotate() + ':' + pair.Value;
                 first = false;
             }
-            if (pretty) json += '\n';
+            if (pretty) json += Environment.NewLine;
             json += '}';
             return json;
         }
