@@ -138,6 +138,7 @@ namespace Efficient_Automatic_Traveler_System
             m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
             m_station = StationClass.GetStation(obj["station"]);
             m_state = (ItemState)Enum.Parse(typeof(ItemState), obj["state"]);
+            m_dateStarted = obj["dateStarted"];
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
         //public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
@@ -362,7 +363,8 @@ namespace Efficient_Automatic_Traveler_System
                 {"parentOrders",m_parentOrders.Stringify<string>() },
                 {"station",m_station.Name.Quotate() },
                 {"state",m_state.ToString().Quotate() },
-                {"type",this.GetType().ToString().Quotate()}
+                {"type",this.GetType().ToString().Quotate()},
+                {"dateStarted",m_dateStarted.Quotate() }
             };
             return obj.Stringify();
         }
@@ -467,6 +469,11 @@ namespace Efficient_Automatic_Traveler_System
             {
                 State = ItemState.PostProcess;
             }
+        }
+        public void EnterProduction()
+        {
+            m_state = ItemState.InProcess;
+            m_dateStarted = DateTime.Today.ToString("MM/dd/yyyy");
         }
         // advances all completed items at the specified station
         public void Advance(StationClass station)
@@ -574,6 +581,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
+                {"Date started", m_dateStarted.Quotate() },
                 {"ID",m_ID.ToString() },
                 {"Model",m_part.BillNo.Quotate() },
                 {"Description",m_part.BillDesc.Quotate() },
@@ -651,6 +659,7 @@ namespace Efficient_Automatic_Traveler_System
         protected List<string> m_parentOrders;
         private StationClass m_station;
         private ItemState m_state;
+        private string m_dateStarted;
 
         #endregion
         //--------------------------------------------------------
@@ -740,6 +749,19 @@ namespace Efficient_Automatic_Traveler_System
                     m_state = value;
                 }
             }
-            #endregion
+
+        public string DateStarted
+        {
+            get
+            {
+                return m_dateStarted;
+            }
+
+            set
+            {
+                m_dateStarted = value;
+            }
+        }
+        #endregion
     }
 }

@@ -96,6 +96,7 @@
     <Compile Include="Traveler Manager\Traveler.cs" />
     <Compile Include="Traveler Manager\TravelerItem.cs" />
     <Compile Include="Traveler Manager\TravelerManager.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

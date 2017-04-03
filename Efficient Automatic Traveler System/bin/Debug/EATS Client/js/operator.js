@@ -18,14 +18,18 @@ function Application () {
 	// client information
 	this.lastStation;
 	this.station;
+	this.userID;
 	// key information
-	this.stationList;
+	this.stationList = [];
 	// Websocket
 	this.websocket;
 	// timeouts
 	this.IOScheckTimeout;
 	// barcode scanner
 	this.IDbuffer = "";
+	// timers
+	this.partTimer
+	this.stationTimer
 	// update and render
 	this.Render = function () {
 		
@@ -114,6 +118,97 @@ function Application () {
 	this.Info = function (message) {
 		this.popupManager.Info(message);
 	}
+	this.LoginPopup = function (info) {
+		var self = this;
+		// station list
+		if (self.stationList.length > 0) self.InitStations(self.stationList);
+		// logout button text
+		document.getElementById("logoutBtn").innerHTML = "Logout";
+		// popup stuff
+		self.popupManager.CloseAll();
+		self.StopAutofocus();
+		var loginPopup = document.getElementById("loginPopup").cloneNode(true);
+		
+		self.popupManager.AddCustom(loginPopup,true);
+		self.popupManager.Lock(loginPopup);
+		// Extra info
+		document.getElementById("loginInfo").innerHTML = (info ? info : "");
+		// login submit
+		document.getElementById("loginBtn").onclick = function (evt) {
+			evt.preventDefault();
+			if (document.getElementById("uidBox").value != "") {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("Login",
+				{
+					UID: document.getElementById("uidBox").value
+				},"This");
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				self.popupManager.Close(loginPopup);
+			}
+			return false;
+		}
+	}
+	this.LoginSuccess = function (userName) {
+		var self = this;
+		self.popupManager.Unlock();
+		self.popupManager.CloseAll();
+		self.StartAutofocus();
+		
+		// LOG OUT BUTTON
+		var logoutBtn = document.getElementById("logoutBtn");
+		logoutBtn.onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("Logout",
+			{
+				UID: document.getElementById("uidBox").value
+			},"This");
+			self.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			self.LoginPopup();
+			
+		}
+		self.userID = document.getElementById("uidBox").value;
+		logoutBtn.innerHTML = "Logout " + userName;
+		// start the station timer
+		self.stationTimer.Start();
+		
+	}
+	/* this.AddUID = function (question) {
+		var self = this;
+		self.popupManager.Confirm(question,function () {
+			if (document.getElementById("uidBox").value != "") {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("AddUID",
+				{
+					UID: document.getElementById("uidBox").value
+				},"This");
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			self.LoginPopup();
+		},function () {
+			self.LoginPopup();
+		});
+	} */
+	this.StartAutofocus = function () {
+		window.addEventListener("keydown",this.Autofocus);
+	}
+	this.Autofocus = function (evt) {
+		if (document.getElementById("travelerSearchBox") != document.activeElement)  {
+			application.FocusOnSearch();
+		}
+		clearTimeout(application.IOScheckTimeout);
+		application.IOScheckTimeout = setTimeout(function () {
+			if (document.getElementById("travelerSearchBox").value.length >= 11) {
+				document.getElementById("travelerSearch").onsubmit();
+			}
+		},500);
+	}
+		
+	this.StopAutofocus = function () {
+		window.removeEventListener("keydown",this.Autofocus);
+	}
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
@@ -121,20 +216,15 @@ function Application () {
 		self.SetWindow();
 		window.addEventListener("resize",self.SetWindow,false);
 		
-		window.addEventListener("keydown",function (evt) {
-			if (document.getElementById("travelerSearchBox") != document.activeElement)  {application.FocusOnSearch();}
-			clearTimeout(self.IOScheckTimeout)
-			self.IOScheckTimeout = setTimeout(function () {
-				if (document.getElementById("travelerSearchBox").value.length >= 11) {
-					document.getElementById("travelerSearch").onsubmit();
-				}
-			},500);
-		});
+		
 		/* window.addEventListener("keyup",function () {
 			if (document.getElementById("travelerSearchBox").value.length == 11) {
 				document.getElementById("travelerSearch").onsubmit();
 			}
 		}); */
+		// timers
+		self.partTimer = new Timer(document.getElementById("partTime"));
+		self.stationTimer = new Timer(document.getElementById("stationTime"));
 		//----------------
 		// traveler view
 		//----------------
@@ -164,6 +254,7 @@ function Application () {
 				// Web Socket is connected, send data using send()
 				// send the client type identification
 				self.websocket.send("OperatorClient");
+				self.LoginPopup();
 			};
 			
 			self.websocket.onmessage = function(messageEvent) {
@@ -376,35 +467,8 @@ function TravelerView() {
 	// DOM
 	this.DOMcontainer;
 	this.btnComplete;
-	// Timer
-	this.timerStart;
-	this.timerStop;
-	this.timerTime;
-	this.timerInterval;
-	
-	this.StartTimer = function () {
-		var self = this;
-		self.StopTimer();
-		self.timerTime = new moment.duration("00:00");
-		document.getElementById("timerTime").innerHTML = pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
-		self.timerInterval = setInterval(function () {
-			self.timerTime.add(1,'s');
-			document.getElementById("timerTime").innerHTML = pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
-		},1000);
-	}
-	this.StopTimer = function () {
-		var self = this;
-		clearInterval(self.timerInterval);
-	}
-	this.ResumeTimer = function () {
-		var self = this;
-		//---------------------
-		document.getElementById("timerTime").innerHTML = pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
-		self.timerInterval = setInterval(function () {
-			self.timerTime.add(1,'s');
-			document.getElementById("timerTime").innerHTML = pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
-		},1000);
-	}
+	// Part timer
+	this.timer;
 	this.Clear = function () {
 		var self = this;
 		delete self.traveler;
@@ -492,7 +556,8 @@ function TravelerView() {
 		// add the table
 		self.DOMcontainer.appendChild(DOMtable);
 		// start the timer
-		self.StartTimer();
+		
+		application.partTimer.CountDown(2.5);
 	}
 	this.AutomaticReload = function (oldT,newT) {
 		if ((oldT && newT) && oldT.ID != newT.ID) {
@@ -541,6 +606,8 @@ function TravelerView() {
 			self.EnableUI();
 			// hide the item area
 			document.getElementById("itemQueue").style.display = "none";
+			
+			
 			
 		} else {
 			//=================================
@@ -690,13 +757,6 @@ function TravelerView() {
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
 			self.UpdateSubmitBtn();
-		}
-		//----------------
-		// timer ui
-		//----------------
-		self.timerStart = document.getElementById("startTimer");
-		self.timerStart.onmousedown = function () {
-			self.StartTimer();
 		}
 		/* self.timerStop = document.getElementById("stopTimer");
 		

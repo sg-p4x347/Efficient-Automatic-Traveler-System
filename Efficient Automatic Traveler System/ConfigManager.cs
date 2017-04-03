@@ -36,8 +36,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_configObj[key] = value;
             Backup();
-        }
 
+        }
         #endregion
         #region Private Methods
         #endregion

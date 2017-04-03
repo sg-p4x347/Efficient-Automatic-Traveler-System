@@ -287,6 +287,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_connected;
             }
         }
+        // JS client interface
         public Client This
         {
             get
@@ -294,6 +295,48 @@ namespace Efficient_Automatic_Traveler_System
                 return this;
             }
         }
-        
+        public string Login(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                // check to see if user exists
+                List<string> users = (new StringStream(ConfigManager.Get("users"))).ParseJSONarray();
+                foreach (string userString in users)
+                {
+                    User user = new User(userString);
+                    if (obj["UID"] == user.UID)
+                    {
+                        return (new ClientMessage("LoginSuccess",user.Name.Quotate())).ToString();
+                    }
+                }
+                returnMessage = new ClientMessage("LoginPopup", ("Invalid user ID").Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("LoginPopup", ("System error! oops...").Quotate());
+            }
+            return returnMessage.ToString();
+        }
+        public string AddUID(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                // check to see if user exists
+                List<string> users = (new StringStream(ConfigManager.Get("users"))).ParseJSONarray();
+                users.Add("{\"UID\":" + obj["UID"].Quotate() + "}");
+                ConfigManager.Set("users", users.Stringify<string>(false, true));
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage.ToString();
+        }
     }
 }

@@ -373,17 +373,25 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                if (traveler != null && traveler.Items.Count == 0)
+                List<string> travelerIDs = (new StringStream(obj["travelerIDs"])).ParseJSONarray();
+                List<string> success = new List<string>();
+                List<string> failure = new List<string>();
+                foreach (string ID in travelerIDs)
                 {
-                    m_travelers.Remove(traveler);
-                    m_orderManager.ReleaseTraveler(traveler);
-                    OnTravelersChanged(m_travelers);
-                    returnMessage = new ClientMessage("Info", "Successfully disintegrated the traveler");
-                } else
-                {
-                    returnMessage = new ClientMessage("Info", "Cannot disintegrate this traveler, it still has items. :(");
+                    Traveler traveler = FindTraveler(Convert.ToInt32(ID));
+                    if (traveler != null && traveler.Items.Count == 0)
+                    {
+                        m_travelers.Remove(traveler);
+                        m_orderManager.ReleaseTraveler(traveler);
+                        OnTravelersChanged(m_travelers);
+                        success.Add(ID);
+                    }
+                    else
+                    {
+                        failure.Add(ID);
+                    }
                 }
+                returnMessage = new ClientMessage("Info", (success.Count > 0 ? "Disintegrated: " + success.Stringify<string>(false) : "") + (failure.Count > 0 ? "<br>Failed to disintegrate: " + failure.Stringify<string>(false) : ""));
             }
             catch (Exception ex)
             {
@@ -404,7 +412,7 @@ namespace Efficient_Automatic_Traveler_System
                     Traveler traveler = FindTraveler(Convert.ToInt32(ID));
                     if (traveler != null)
                     {
-                        traveler.State = ItemState.InProcess;
+                        traveler.EnterProduction();
                     }
                 }
                 OnTravelersChanged(GetTravelers);

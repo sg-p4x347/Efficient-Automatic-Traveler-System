@@ -101,9 +101,10 @@ namespace Efficient_Automatic_Traveler_System
                                 // push this traveler into production
                                 if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
                                 {
-                                    traveler.State = ItemState.InProcess;
+                                    traveler.EnterProduction();
                                 }
                                 // add this traveler to the filtered list
+                                
                                 filteredTravelers.Add(traveler);
                             }
 

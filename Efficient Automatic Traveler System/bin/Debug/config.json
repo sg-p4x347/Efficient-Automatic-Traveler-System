@@ -1,7 +1,8 @@
 {
 	"print":{		"Tracking": true,		"Scrap": false,		"Pack": false,		"Table": false	},
 	"port":81,
-	"nextTravelerID":2250,
+	"nextTravelerID":2480,
+	"users":[	{"UID":"gage", "name":"Gage Coates"},],
 	"stations":[
 	{
 	"name":"Assembly",

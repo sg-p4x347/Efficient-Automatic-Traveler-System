@@ -168,18 +168,21 @@ function JSONviewer(object,name,quit) {
 }
 function PopupManager(blackout) {
 	this.blackout;
+	this.locked;
 	// adds a custom popup, where the close function is returned for the popup creator to call
-	this.AddCustom = function (popup) {
+	this.AddCustom = function (popup,noClose) {
 		var self = this;
 		self.Open(popup);
 		// Close button
-		var close = self.CreateButton("Close");
-		close.classList.remove("dark");
-		close.className += " yellowBack";
-		close.removeClass
-		close.onclick = function () {self.Close(popup);}
-		popup.insertBefore(close,popup.firstChild);
-		return close.onclick;
+		if (!noClose) {
+			var close = self.CreateButton("Close");
+			close.classList.remove("dark");
+			close.className += " yellowBack";
+			close.removeClass
+			close.onclick = function () {self.Close(popup);}
+			popup.insertBefore(close,popup.firstChild);
+			return close.onclick;
+		}
 	}
 	// displays a message with an "OK" button
 	this.Info = function (message) {
@@ -195,6 +198,38 @@ function PopupManager(blackout) {
 		button.onclick = function () {self.Close(popup);}
 		popup.appendChild(button);
 		
+		self.Open(popup);
+	}
+	// displays a yes or no question and calls a callback for the YES option
+	this.Confirm = function (question, YEScallback,NOcallback) {
+		var self = this;
+
+		var popup = self.CreatePopup();
+		// the message
+		var infoP = self.CreateP(question);
+		popup.appendChild(infoP);
+		var list = document.createElement("DIV");
+		list.className = "list--horizontal";
+		// NO button
+		var no = self.CreateButton("NO");
+		no.className += " twoEM";
+		no.onclick = function () {
+			self.Close(popup);
+			NOcallback();
+		}
+		list.appendChild(no);
+		
+		// NO button
+		var yes = self.CreateButton("YES");
+		yes.className += " twoEM";
+		yes.onclick = function () {
+			self.Close(popup);
+			YEScallback();
+		}
+		list.appendChild(yes);
+		popup.appendChild(list);
+		
+		self.Lock(popup);
 		self.Open(popup);
 	}
 	// displays a json viewer from the given object
@@ -217,6 +252,7 @@ function PopupManager(blackout) {
 		var infoP = self.CreateP(message);
 		popup.appendChild(infoP);
 		
+		self.Lock(popup);
 		self.Open(popup);
 	}
 	// test if a specific popup is open
@@ -268,15 +304,24 @@ function PopupManager(blackout) {
 	}
 	this.CloseAll = function () {
 		var self = this;
-		while (self.blackout.lastChild) {
-			if (self.blackout.lastChild.title == "error") break;
-			self.Close(self.blackout.lastChild);
+		for (var i = 0; i < self.blackout.childNodes.length; i++) {
+			if (!self.locked || self.blackout.childNodes[i] != self.locked) {
+				self.Close(self.blackout.childNodes[i]);
+			}
 		}
 	}
 	this.Open = function (popup) {
 		var self = this;
 		self.blackout.appendChild(popup);
 		self.blackout.className = "blackout";
+	}
+	this.Lock = function (popup) {
+		var self = this;
+		self.locked = popup;
+	}
+	this.Unlock = function () {
+		var self = this;
+		self.locked = undefined;
 	}
 	// initializes the blackout container
 	this.Initialize = function(blackout) {
@@ -292,4 +337,47 @@ function PopupManager(blackout) {
 }
 function AddTooltip(element,tip) {
 	element.title = tip;
+}
+
+function Timer(DOMelement) {
+		// Timer
+	this.timerStart;
+	this.timerStop;
+	this.timerTime;
+	this.timerInterval;
+	this.DOMelement = DOMelement;
+	
+	this.Start = function () {
+		var self = this;
+		self.Stop();
+		self.timerTime = new moment.duration("00:00:00");
+		self.DOMelement.innerHTML = pad(self.timerTime.hours(),2) + ":" + pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
+		self.timerInterval = setInterval(function () {
+			self.timerTime.add(1,'s');
+			self.DOMelement.innerHTML = pad(self.timerTime.hours(),2) + ":" + pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
+		},1000);
+	}
+	this.CountDown = function (minutes) {
+		var self = this;
+		self.Stop();
+		var duration = moment.duration(minutes*60*1000, 'milliseconds');
+		//self.DOMelement.innerHTML = pad(duration.hours(),2) + ":" + pad(duration.minutes(),2) + ":" + pad(duration.seconds(),2);
+		self.timerInterval = setInterval(function () {
+			duration = moment.duration(duration - 1000, 'milliseconds');
+			self.DOMelement.innerHTML = pad(duration.hours(),2) + ":" + pad(duration.minutes(),2) + ":" + pad(duration.seconds(),2);
+		},1000);
+	}
+	this.Stop = function () {
+		var self = this;
+		clearInterval(self.timerInterval);
+	}
+	this.Resume = function () {
+		var self = this;
+		//---------------------
+		self.DOMelement.innerHTML = pad(self.timerTime.hours(),2) + ":" + pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
+		self.timerInterval = setInterval(function () {
+			self.timerTime.add(1,'s');
+			self.DOMelement.innerHTML = pad(self.timerTime.hours(),2) + ":" + pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
+		},1000);
+	}
 }

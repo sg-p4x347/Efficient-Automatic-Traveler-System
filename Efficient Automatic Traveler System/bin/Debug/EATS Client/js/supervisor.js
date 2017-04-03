@@ -561,7 +561,7 @@ function TravelerQueue(station) {
 				//----------INTERFACE CALL-----------------------
 				var message = new InterfaceCall("DisintegrateTraveler",
 				{
-					travelerID: traveler.ID
+					travelerIDs: application.GetSelectedIDs().concat(traveler.ID)
 				});
 				application.websocket.send(JSON.stringify(message));
 				//-----------------------------------------------

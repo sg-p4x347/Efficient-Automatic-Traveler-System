@@ -12,10 +12,25 @@
     </head>
 	<body onload = "Initialize()">
 		
-		<div id = "blackout" class = "blackout hidden"></div>
+		<div id = "blackout" class = "blackout"></div>
 		<!-- HEADER -->
 		<div class = "header">
-
+			<div class = "list--horizontal justify-space-between">
+				
+				<!-- STATION TIMER -->
+				
+				<div class = "timer">
+					<p class = "twoEM">Time @ station &nbsp</p>
+					<p id = "stationTime" class = "twoEM">00:00:00</p>
+				</div>
+				<div class = "timer">
+					<p class = "twoEM">This part &nbsp</p>
+					<p id = "partTime" class = "twoEM">00:00:00</p>
+				</div>
+				<div id = "logoutBtn" class = "dark button twoEM">Logout</div>
+				<!-- OPTIONS BUTTON -->
+				<img id = "optionsBtn" src = "./img/options.png"></img>
+			</div>
 		</div>
 		<!-- BODY -->
 		<div class = "body">
@@ -37,22 +52,8 @@
 				</div>
 			</div>
 			<div id = "interfaceContainer" class = "interfaceContainer twoEM">
-				
-				<div class = "list--horizontal justify-space-between">
-					<!-- STATION SELECTION -->
-					<select id = "stationList" class = "dark twoEM"></select>
-					<!-- TIMER -->
-					<div class = "timer">
-						<div id = "startTimer" class = "button greenBack">Start</div>
-						<div id = "timerTime">00:00</div>
-					</div>
-					<!-- OPTIONS BUTTON -->
-					<img id = "optionsBtn" src = "./img/options.png"></img>
-				</div>
-				
-				
 				<!-- QTY LEFT -->
-				<div class = "list--horizontal">
+				<div class = "list--horizontal justify-space-between">
 					<p>Quantity left:</p>
 					<p id = "qtyPending" class = "blue shadow stdMargin whiteBack twoEM"></p>
 					<!--<div class = "percentContainer"><div id = "qtyPendingPercent" class = "percentBar"></div></div> -->
@@ -62,7 +63,7 @@
 				
 				
 				<!-- QTY SCRAPPED -->
-				<div class = "list--horizontal">
+				<div class = "list--horizontal justify-space-between">
 					<p>Total qty scrapped (for this traveler):</p>
 					<p id = "qtyScrapped" class = "red shadow stdMargin whiteBack twoEM"></p>
 					<!--<div class = "percentContainer"><div id = "qtyScrappedPercent" class = "percentBar redBack"></div></div>-->
@@ -72,7 +73,7 @@
 				
 				
 				<!-- QTY COMPLETED -->
-				<div class = "list--horizontal">
+				<div class = "list--horizontal justify-space-between">
 					<p>Quantity to be submitted:</p>
 					<p id = "qtyCompleted" class = "green shadow stdMargin whiteBack twoEM"></p>
 					<!--<div class = "percentContainer"><div id = "qtyMadePercent" class = "percentBar"></div></div>-->
@@ -83,8 +84,19 @@
 				
 			</div>
 		</div>
-		<!-- FOOTER -->
-		<div class = "footer">
+		<!-- FORMATTED HTML BLOCKS -->
+		<div class = "hidden">
+			<!-- LOGIN POPUP -->
+			<div id = "loginPopup" class = "blackout__popup">
+				<p id = "loginInfo" class = "red"></p>
+				Login as:
+				<form id = "loginForm">
+					User ID:<input type = "text" id = "uidBox">
+					<input type = "submit" id = "loginBtn" class = "dark button">
+				</form>
+				<!-- STATION SELECTION -->
+				<select id = "stationList" class = "dark twoEM"></select>
+			</div>
 		</div>
 	</body>
 </html>
