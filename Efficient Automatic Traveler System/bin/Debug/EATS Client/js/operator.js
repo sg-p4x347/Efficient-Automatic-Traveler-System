@@ -96,24 +96,6 @@ function Application () {
 			option.value = station.name;
 			select.appendChild(option);
 		});
-		select.onchange = function () {
-			var stationName = this.value;
-			//self.websocket.send('{"station":' + stationID + '}');
-			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("SetStation",
-			{
-				station: stationName
-			},"This");
-			application.websocket.send(JSON.stringify(message));
-			//-----------------------------------------------
-			self.stationList.some(function (station) {
-				if (station.name == stationName) {
-					self.station = JSON.parse(JSON.stringify(station));
-					return true;
-				}
-			});
-		}
-		select.onchange();
 	}
 	this.Info = function (message) {
 		this.popupManager.Info(message);
@@ -137,10 +119,12 @@ function Application () {
 		document.getElementById("loginBtn").onclick = function (evt) {
 			evt.preventDefault();
 			if (document.getElementById("uidBox").value != "") {
+				self.SetStation(document.getElementById("stationList").value);
 				//----------INTERFACE CALL-----------------------
 				var message = new InterfaceCall("Login",
 				{
-					UID: document.getElementById("uidBox").value
+					UID: document.getElementById("uidBox").value,
+					station: document.getElementById("stationList").value
 				},"This");
 				self.websocket.send(JSON.stringify(message));
 				//-----------------------------------------------
@@ -149,7 +133,7 @@ function Application () {
 			return false;
 		}
 	}
-	this.LoginSuccess = function (userName) {
+	this.LoginSuccess = function (data) {
 		var self = this;
 		self.popupManager.Unlock();
 		self.popupManager.CloseAll();
@@ -169,7 +153,12 @@ function Application () {
 			
 		}
 		self.userID = document.getElementById("uidBox").value;
-		logoutBtn.innerHTML = "Logout " + userName;
+		logoutBtn.innerHTML = "Logout " + data.user.name;
+		
+		// set the station
+		self.SetStation(data.station);
+		// window title
+		document.getElementById("windowTitle").innerHTML = self.station.name;
 		// start the station timer
 		self.stationTimer.Start();
 		
@@ -191,6 +180,22 @@ function Application () {
 			self.LoginPopup();
 		});
 	} */
+	this.SetStation = function (stationName) {
+		var self = this;
+		/* //----------INTERFACE CALL-----------------------
+		var message = new InterfaceCall("SetStation",
+		{
+			station: stationName
+		},"This");
+		application.websocket.send(JSON.stringify(message));
+		//----------------------------------------------- */
+		self.stationList.some(function (station) {
+			if (station.name == stationName) {
+				self.station = JSON.parse(JSON.stringify(station));
+				return true;
+			}
+		});
+	}
 	this.StartAutofocus = function () {
 		window.addEventListener("keydown",this.Autofocus);
 	}
@@ -487,6 +492,10 @@ function TravelerView() {
 		document.getElementById("completeItemBtn").innerHTML = "Complete item";
 		document.getElementById("scrapItemBtn").innerHTML = "Scrap item";
 		self.ResetSliders();
+		// clear the timer
+		application.partTimer.Clear();
+		// stop the station timer
+		application.stationTimer.Stop();
 	}
 	this.DisableUI = function () {
 		document.getElementById("completeItemBtn").className = "dark button twoEM disabled";
@@ -556,8 +565,8 @@ function TravelerView() {
 		// add the table
 		self.DOMcontainer.appendChild(DOMtable);
 		// start the timer
-		
-		application.partTimer.CountDown(2.5);
+		application.partTimer.CountDown(self.traveler.laborRate);
+		application.stationTimer.Resume();
 	}
 	this.AutomaticReload = function (oldT,newT) {
 		if ((oldT && newT) && oldT.ID != newT.ID) {
@@ -713,14 +722,16 @@ function TravelerView() {
 			{
 				travelerID: self.traveler.ID,
 				eventType: "Completed",
-				time: self.timerTime.asMinutes(),
-				station: document.getElementById("stationList").value,
+				time: application.partTimer.timerTime.asMinutes(),
+				station: application.station.name,
 				itemID: (self.item ? self.item.ID : "undefined")
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
 			if (application.station.mode == "Serial") document.getElementById("submitTravelerBtn").onclick();
 			self.UpdateSubmitBtn();
+			// Restart part timer 
+			application.partTimer.CountDown(self.traveler.laborRate);
 		}
 		// scrapping a traveler item
 		document.getElementById("scrapItemBtn").onclick = function () {
@@ -729,8 +740,8 @@ function TravelerView() {
 			{
 				travelerID: self.traveler.ID,
 				eventType: "Scrapped",
-				time: self.timerTime.asMinutes(),
-				station: document.getElementById("stationList").value,
+				time: application.partTimer.timerTime.asMinutes(),
+				station: application.station.name,
 				itemID: (self.item ? self.item.ID : "undefined")
 			});
 			application.websocket.send(JSON.stringify(message));
@@ -752,7 +763,7 @@ function TravelerView() {
 			var message = new InterfaceCall("SubmitTraveler",
 			{
 				travelerID: completedTraveler.ID,
-				station: document.getElementById("stationList").value
+				station: application.station.name
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------

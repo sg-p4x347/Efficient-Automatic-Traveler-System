@@ -129,7 +129,7 @@ namespace Efficient_Automatic_Traveler_System
             m_ID = Convert.ToInt32(obj["ID"]);
             
             m_quantity = Convert.ToInt32(obj["quantity"]);
-            m_part = new Bill(obj["itemCode"], m_quantity);
+            m_part = new Bill(obj["itemCode"], 1, m_quantity);
             Items = new List<TravelerItem>();
             foreach (string item in (new StringStream(obj["items"])).ParseJSONarray())
             {
@@ -154,7 +154,7 @@ namespace Efficient_Automatic_Traveler_System
         public Traveler(string billNo, int quantity)
         {
             // set META information
-            m_part = new Bill(billNo, quantity);
+            m_part = new Bill(billNo,1,quantity);
             m_quantity = quantity;
             m_parentOrders = new List<string>();
             m_station = StationClass.GetStation("Start");
@@ -164,7 +164,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public virtual void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
         {
-            m_part = new Bill(m_part.BillNo, m_quantity, ref MAS);
+            m_part = new Bill(m_part.BillNo,1, m_quantity, ref MAS);
         }
         public void NewID()
         {
@@ -178,149 +178,7 @@ namespace Efficient_Automatic_Traveler_System
             // increment the current ID
             //File.WriteAllText(System.IO.Path.Combine(exeDir, "currentID.txt"), (m_ID + 1).ToString() + '\n');
         }
-        // Finds all the components in the top level bill, setting key components along the way
-        //public void FindComponents(Bill bill)
-        //{
-        //    // find work and or material
-        //    foreach (Item componentItem in bill.ComponentItems)
-        //    {
-        //        // update the component's total quantity
-        //        componentItem.TotalQuantity = bill.TotalQuantity * componentItem.QuantityPerBill;
-        //        // sort out key components
-        //        string itemCode = componentItem.ItemCode;
-        //        if (itemCode == "/LWKE1" || itemCode == "/LWKE2" || itemCode == "/LCNC1" || itemCode == "/LCNC2")
-        //        {
-        //            // CNC labor
-        //            if (m_cnc == null)
-        //            {
-        //                m_cnc = componentItem;
-        //            } else
-        //            {
-        //                m_cnc.TotalQuantity += componentItem.TotalQuantity;
-        //            }
-        //        }
-        //        else if (itemCode == "/LBND2" || itemCode == "/LBND3")
-        //        {
-        //            // Straight Edgebander labor
-        //            if (m_ebander == null)
-        //            {
-        //                m_ebander = componentItem;
-        //            } else
-        //            {
-        //                m_ebander.TotalQuantity += componentItem.TotalQuantity;
-        //            }
-        //        }
-        //        else if (itemCode == "/LPNL1" || itemCode == "/LPNL2")
-        //        {
-        //            // Panel Saw labor
-        //            if (m_saw == null)
-        //            {
-        //                m_saw = componentItem;
-        //            } else
-        //            {
-        //                m_saw.TotalQuantity += componentItem.TotalQuantity;
-        //            }
-        //        }
-        //        else if (itemCode == "/LCEB1" | itemCode == "/LCEB2")
-        //        {
-        //            // Contour Edge Bander labor (vector)
-        //            if (m_vector == null)
-        //            {
-        //                m_vector = componentItem;
-        //            } else
-        //            {
-        //                m_vector.TotalQuantity += componentItem.TotalQuantity;
-        //            }
-        //        }
-        //        else if ( itemCode == "/LATB1" || itemCode == "/LATB2" || itemCode == "/LATB3" || itemCode == "/LACH1" || itemCode == "/LACH2" || itemCode == "/LACH3")
-        //        {
-        //            // Assembly labor
-        //            if (m_assm == null)
-        //            {
-        //                m_assm = componentItem;
-        //            } else
-        //            {
-        //                m_assm.TotalQuantity += componentItem.TotalQuantity;
-        //            }
-        //        }
-        //        else if (itemCode == "/LBOX1")
-        //        {
-        //            // Box construction labor
-        //            if (m_box == null)
-        //            {
-        //                m_box = componentItem;
-        //            } else
-        //            {
-        //                m_box.TotalQuantity += componentItem.TotalQuantity;
-        //            }
-        //        }
-        //        else if (itemCode.Substring(0, 3) == "006")
-        //        {
-        //            // Material
-        //            if (m_material == null)
-        //            {
-        //                m_material = componentItem;
-        //            } else
-        //            {
-        //                m_material.TotalQuantity += componentItem.TotalQuantity;
-        //            }
-        //        }
-        //        else if (itemCode.Substring(0, 2) == "87")
-        //        {
-        //            // Edgeband
-        //            if (m_eband == null)
-        //            {
-        //                m_eband = componentItem;
-        //            } else
-        //            {
-        //                m_eband.TotalQuantity += componentItem.TotalQuantity;
-        //            }
-        //        }
-        //        else if (m_box == null && itemCode.Substring(0, 2) == "90")
-        //        {
-        //            // Paid for box
-        //            m_boxItemCode = itemCode;
-        //        }
-        //        else
-        //        {
-        //            // anything else
-        //            // check the blacklist
-        //            bool blacklisted = false;
-        //            foreach (BlacklistItem blItem in m_blacklist )
-        //            {
-        //                if (blItem.StartsWith(itemCode))
-        //                {
-        //                    blacklisted = true;
-        //                    break;
-        //                }
-        //            }
-        //            if (!blacklisted)
-        //            {
-        //                // check for existing item first
-        //                bool foundItem = false;
-        //                foreach (Item component in m_components)
-        //                {
-        //                    if (component.ItemCode == itemCode)
-        //                    {
-        //                        foundItem = true;
-        //                        component.TotalQuantity += componentItem.TotalQuantity;
-        //                        break;
-        //                    }
-        //                }
-        //                if (!foundItem)
-        //                {
-        //                    m_components.Add(componentItem);
-        //                }
-        //            }
-        //        }
-        //    }
-        //    // Go deeper into each component bill
-        //    foreach (Bill componentBill in bill.ComponentBills)
-        //    {
-        //        componentBill.TotalQuantity = bill.TotalQuantity * componentBill.QuantityPerBill;
-        //        FindComponents(componentBill);
-        //    }
-        //}
+        
         //check inventory to see how many actually need to be produced.
         //public void CheckInventory(ref OdbcConnection MAS)
         //{
@@ -544,6 +402,7 @@ namespace Efficient_Automatic_Traveler_System
 
             if (clientType == "OperatorClient")
             {
+                json += "\"laborRate\":" + GetCurrentRate() + ",";
                 json += "\"station\":" + station.Name.Quotate() + ",";
                 json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
                 json += "\"qtyScrapped\":" + QuantityScrapped() + ",";
@@ -642,12 +501,31 @@ namespace Efficient_Automatic_Traveler_System
         public abstract void AdvanceItem(ushort ID);
         // gets the next station for the given item
         public abstract StationClass GetNextStation(UInt16 itemID);
-#endregion
-        //--------------------------------------------------------
-        #region Private Methods
+        // gets the work rate for the current station
+        public abstract double GetCurrentRate();
         // overridden in derived classes, packs properties into the Export() json string
         protected abstract string ExportProperties();
-#endregion
+        #endregion
+        //--------------------------------------------------------
+        #region Private Methods
+        protected double GetRate(Bill bill, StationClass station)
+        {
+            try
+            {
+                foreach (Item componentItem in bill.ComponentItems)
+                {
+                    if (station.LaborCodes.Exists(laborCode => laborCode == componentItem.ItemCode))
+                    {
+                        return componentItem.QuantityPerBill;
+                    }
+                }
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+            }
+            return 0.0;
+        }
+        #endregion
         //--------------------------------------------------------
         #region Properties
 

@@ -79,6 +79,8 @@ namespace Efficient_Automatic_Traveler_System
             GetColorInfo();
             GetBlankInfo();
             GetPackInfo(orderManager);
+            // for work rates
+            //FindComponents(m_part);
         }
         public override void AdvanceItem(ushort ID)
         {
@@ -186,6 +188,12 @@ namespace Efficient_Automatic_Traveler_System
             detail.Add(m_blankSize.Quotate());
             detail.Add(m_blankQuantity.ToString());
             return base.ExportCSVdetail() + ',' + detail.Stringify<string>(false).Trim('[').Trim(']');
+        }
+        // Gets the work rate for the current station
+        public override double GetCurrentRate()
+        {
+            // gets the rate from the first (and only) bill; this is the common bill that all tables share
+            return GetRate(Part.ComponentBills[0], Station);
         }
         #endregion
         //--------------------------------------------------------
@@ -355,6 +363,158 @@ namespace Efficient_Automatic_Traveler_System
                 line = labelRef.ReadLine();
             }
             return json;
+        }
+        // Finds all the components in the top level bill, setting key components along the way
+        public void FindComponents(Bill bill)
+        {
+            // find work and or material
+            foreach (Item componentItem in bill.ComponentItems)
+            {
+                // update the component's total quantity
+                componentItem.TotalQuantity = bill.TotalQuantity * componentItem.QuantityPerBill;
+                // sort out key components
+                string itemCode = componentItem.ItemCode;
+                if (itemCode == "/LWKE1" || itemCode == "/LWKE2" || itemCode == "/LCNC1" || itemCode == "/LCNC2")
+                {
+                    // CNC labor
+                    if (m_cnc == null)
+                    {
+                        m_cnc = componentItem;
+                    }
+                    else
+                    {
+                        m_cnc.TotalQuantity += componentItem.TotalQuantity;
+                    }
+                }
+                else if (itemCode == "/LBND2" || itemCode == "/LBND3")
+                {
+                    // Straight Edgebander labor
+                    if (m_ebander == null)
+                    {
+                        m_ebander = componentItem;
+                    }
+                    else
+                    {
+                        m_ebander.TotalQuantity += componentItem.TotalQuantity;
+                    }
+                }
+                else if (itemCode == "/LPNL1" || itemCode == "/LPNL2")
+                {
+                    // Panel Saw labor
+                    if (m_saw == null)
+                    {
+                        m_saw = componentItem;
+                    }
+                    else
+                    {
+                        m_saw.TotalQuantity += componentItem.TotalQuantity;
+                    }
+                }
+                else if (itemCode == "/LCEB1" | itemCode == "/LCEB2")
+                {
+                    // Contour Edge Bander labor (vector)
+                    if (m_vector == null)
+                    {
+                        m_vector = componentItem;
+                    }
+                    else
+                    {
+                        m_vector.TotalQuantity += componentItem.TotalQuantity;
+                    }
+                }
+                else if (itemCode == "/LATB1" || itemCode == "/LATB2" || itemCode == "/LATB3" || itemCode == "/LACH1" || itemCode == "/LACH2" || itemCode == "/LACH3")
+                {
+                    // Assembly labor
+                    if (m_assm == null)
+                    {
+                        m_assm = componentItem;
+                    }
+                    else
+                    {
+                        m_assm.TotalQuantity += componentItem.TotalQuantity;
+                    }
+                }
+                else if (itemCode == "/LBOX1")
+                {
+                    // Box construction labor
+                    if (m_box == null)
+                    {
+                        m_box = componentItem;
+                    }
+                    else
+                    {
+                        m_box.TotalQuantity += componentItem.TotalQuantity;
+                    }
+                }
+                else if (itemCode.Substring(0, 3) == "006")
+                {
+                    // Material
+                    if (m_material == null)
+                    {
+                        m_material = componentItem;
+                    }
+                    else
+                    {
+                        m_material.TotalQuantity += componentItem.TotalQuantity;
+                    }
+                }
+                else if (itemCode.Substring(0, 2) == "87")
+                {
+                    // Edgeband
+                    if (m_eband == null)
+                    {
+                        m_eband = componentItem;
+                    }
+                    else
+                    {
+                        m_eband.TotalQuantity += componentItem.TotalQuantity;
+                    }
+                }
+                else if (m_box == null && itemCode.Substring(0, 2) == "90")
+                {
+                    // Paid for box
+                    m_boxItemCode = itemCode;
+                }
+                else
+                {
+                    // anything else
+                    // check the blacklist
+                    bool blacklisted = false;
+                    // TEMP
+                    //foreach (BlacklistItem blItem in m_blacklist)
+                    //{
+                    //    if (blItem.StartsWith(itemCode))
+                    //    {
+                    //        blacklisted = true;
+                    //        break;
+                    //    }
+                    //}
+                    if (!blacklisted)
+                    {
+                        // check for existing item first
+                        bool foundItem = false;
+                        foreach (Item component in m_components)
+                        {
+                            if (component.ItemCode == itemCode)
+                            {
+                                foundItem = true;
+                                component.TotalQuantity += componentItem.TotalQuantity;
+                                break;
+                            }
+                        }
+                        if (!foundItem)
+                        {
+                            m_components.Add(componentItem);
+                        }
+                    }
+                }
+            }
+            // Go deeper into each component bill
+            foreach (Bill componentBill in bill.ComponentBills)
+            {
+                //componentBill.TotalQuantity = bill.TotalQuantity * componentBill.QuantityPerBill;
+                FindComponents(componentBill);
+            }
         }
         #endregion
         //--------------------------------------------------------

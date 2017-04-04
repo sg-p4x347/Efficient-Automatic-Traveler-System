@@ -22,15 +22,17 @@ namespace Efficient_Automatic_Traveler_System
             m_componentBills = bill.ComponentBills;
             m_componentItems = bill.ComponentItems;
         }
-        public Bill(string billNo, double quantityPerBill)
+        public Bill(string billNo, double quantityPerBill, double parentQuantity)
         {
             m_billNo = billNo;
             m_quantityPerBill = quantityPerBill;
+            m_totalQuantity = parentQuantity * m_quantityPerBill;
         }
-        public Bill(string billNo, double quantityPerBill, ref OdbcConnection MAS)
+        public Bill(string billNo, double quantityPerBill, double parentQuantity,ref OdbcConnection MAS)
         {
             m_billNo = billNo;
             m_quantityPerBill = quantityPerBill;
+            m_totalQuantity = parentQuantity * m_quantityPerBill;
             Import(ref MAS);
         }
         public void Import(ref OdbcConnection MAS)
@@ -81,12 +83,12 @@ namespace Efficient_Automatic_Traveler_System
                                 if (!reader.IsDBNull(1))
                                 {
                                     // Component has a bill
-                                    m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), ref MAS));
+                                    m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, ref MAS));
                                 }
                                 else
                                 {
                                     // Component is an item
-                                    m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), ref MAS));
+                                    m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, ref MAS));
                                 }
                             }
                         }

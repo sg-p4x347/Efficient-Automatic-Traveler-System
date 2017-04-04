@@ -113,6 +113,11 @@ namespace Efficient_Automatic_Traveler_System
             //}
             //tableRef.Close();
         }
+
+        public override double GetCurrentRate()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
         //--------------------------------------------------------
         #region Properties

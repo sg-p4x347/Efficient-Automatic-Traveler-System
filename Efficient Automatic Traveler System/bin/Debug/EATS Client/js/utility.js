@@ -347,10 +347,15 @@ function Timer(DOMelement) {
 	this.timerInterval;
 	this.DOMelement = DOMelement;
 	
-	this.Start = function () {
+	this.Clear = function () {
+		this.Stop();
+		this.DOMelement.className = "silver";
+		this.DOMelement.innerHTML = "--:--:--";
+	}
+	this.Start = function (time) {
 		var self = this;
 		self.Stop();
-		self.timerTime = new moment.duration("00:00:00");
+		self.timerTime = (time ? time : new moment.duration("00:00:00"));
 		self.DOMelement.innerHTML = pad(self.timerTime.hours(),2) + ":" + pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
 		self.timerInterval = setInterval(function () {
 			self.timerTime.add(1,'s');
@@ -360,11 +365,22 @@ function Timer(DOMelement) {
 	this.CountDown = function (minutes) {
 		var self = this;
 		self.Stop();
-		var duration = moment.duration(minutes*60*1000, 'milliseconds');
+		self.timerTime = moment.duration(minutes*60*1000, 'milliseconds');
 		//self.DOMelement.innerHTML = pad(duration.hours(),2) + ":" + pad(duration.minutes(),2) + ":" + pad(duration.seconds(),2);
 		self.timerInterval = setInterval(function () {
-			duration = moment.duration(duration - 1000, 'milliseconds');
-			self.DOMelement.innerHTML = pad(duration.hours(),2) + ":" + pad(duration.minutes(),2) + ":" + pad(duration.seconds(),2);
+			self.timerTime = moment.duration(self.timerTime - 1000, 'milliseconds');
+			if (self.timerTime.hours() < 0 || self.timerTime.minutes() < 0 || self.timerTime.seconds() < 0 ? "-" : "") {
+				self.DOMelement.innerHTML = "-";
+				self.DOMelement.className = "red shadow";
+			} else {
+				self.DOMelement.innerHTML = "";
+				if (self.timerTime.hours() == 0 && self.timerTime.minutes() == 0 && self.timerTime.seconds() < 30) {
+					self.DOMelement.className = "yellow";
+				} else {
+					self.DOMelement.className = "white";
+				}
+			}
+			self.DOMelement.innerHTML += pad(Math.abs(self.timerTime.hours()),2) + ":" + pad(Math.abs(self.timerTime.minutes()),2) + ":" + pad(Math.abs(self.timerTime.seconds()),2);
 		},1000);
 	}
 	this.Stop = function () {
@@ -372,12 +388,7 @@ function Timer(DOMelement) {
 		clearInterval(self.timerInterval);
 	}
 	this.Resume = function () {
-		var self = this;
-		//---------------------
-		self.DOMelement.innerHTML = pad(self.timerTime.hours(),2) + ":" + pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
-		self.timerInterval = setInterval(function () {
-			self.timerTime.add(1,'s');
-			self.DOMelement.innerHTML = pad(self.timerTime.hours(),2) + ":" + pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
-		},1000);
+		this.Start(this.timerTime);
 	}
+	this.Clear();
 }

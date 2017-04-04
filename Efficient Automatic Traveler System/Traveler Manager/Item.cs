@@ -10,12 +10,13 @@ namespace Efficient_Automatic_Traveler_System
     class Item
     {
         // Interface
-        public Item(string itemCode, double quantityPerBill, ref OdbcConnection MAS)
+        public Item(string itemCode, double quantityPerBill, double parentQuantity, ref OdbcConnection MAS)
         {
             try
             {
                 m_itemCode = itemCode;
                 m_quantityPerBill = quantityPerBill;
+                m_totalQuantity = m_quantityPerBill * parentQuantity;
                 // get item info from MAS
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                 OdbcCommand command = MAS.CreateCommand();

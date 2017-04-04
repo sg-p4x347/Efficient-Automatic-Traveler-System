@@ -62,7 +62,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
-                Server.WriteLine(new string('!', 100) + Environment.NewLine + "Exception: " + ex.Message + Environment.NewLine + " Stack Trace: " + ex.StackTrace + Environment.NewLine + new string('!', 100) + Environment.NewLine);
+                LogException(ex);
             }
         }
         public static void WriteLine(string message)
@@ -82,6 +82,10 @@ namespace Efficient_Automatic_Traveler_System
             m_outputLog.Flush();
             Console.SetOut(std);
             Console.Write(regex,message);
+        }
+        public static void LogException(Exception ex)
+        {
+            Server.WriteLine(new string('!', 100) + Environment.NewLine + "Exception: " + ex.Message + Environment.NewLine + " Stack Trace: " + ex.StackTrace + Environment.NewLine + new string('!', 100) + Environment.NewLine);
         }
         //------------------------------
         // Private members

@@ -146,7 +146,7 @@ namespace Efficient_Automatic_Traveler_System
                         MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
                         if (mi != null)
                         {
-                            string returnMessage = (string)mi.Invoke(pi.GetValue(this), new object[] { obj["parameters"] });
+                            string returnMessage = (mi.Invoke(pi.GetValue(this), new object[] { obj["parameters"] })).ToString();
                             if (returnMessage != null && returnMessage != "") SendMessage(returnMessage);
                         }
                     }
@@ -295,7 +295,7 @@ namespace Efficient_Automatic_Traveler_System
                 return this;
             }
         }
-        public string Login(string json)
+        public virtual ClientMessage Login(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
             try
@@ -306,9 +306,10 @@ namespace Efficient_Automatic_Traveler_System
                 foreach (string userString in users)
                 {
                     User user = new User(userString);
-                    if (obj["UID"] == user.UID)
+                    if (obj["UID"] == user.UID && obj.ContainsKey("station"))
                     {
-                        return (new ClientMessage("LoginSuccess",user.Name.Quotate())).ToString();
+
+                        return new ClientMessage("LoginSuccess", user.ToString());
                     }
                 }
                 returnMessage = new ClientMessage("LoginPopup", ("Invalid user ID").Quotate());
@@ -318,7 +319,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("LoginPopup", ("System error! oops...").Quotate());
             }
-            return returnMessage.ToString();
+            return returnMessage;
         }
         public string AddUID(string json)
         {

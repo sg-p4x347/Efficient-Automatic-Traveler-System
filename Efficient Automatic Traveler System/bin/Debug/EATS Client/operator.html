@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>EATS Operator</title>
+        <title id = "windowTitle">EATS Operator</title>
 		<script type="text/javascript" src="./js/config.js?<%=DateTime.Now.Ticks %>"></script>
 		<script type="text/javascript" src="./js/moment.js?<%=DateTime.Now.Ticks %>"></script>		
         <script type="text/javascript" src="./js/operator.js?<%=DateTime.Now.Ticks %>"></script>
@@ -19,13 +19,13 @@
 				
 				<!-- STATION TIMER -->
 				
-				<div class = "timer">
-					<p class = "twoEM">Time @ station &nbsp</p>
-					<p id = "stationTime" class = "twoEM">00:00:00</p>
+				<div class = "timer twoEM">
+					<p>Time @ station &nbsp</p>
+					<p id = "stationTime">00:00:00</p>
 				</div>
-				<div class = "timer">
-					<p class = "twoEM">This part &nbsp</p>
-					<p id = "partTime" class = "twoEM">00:00:00</p>
+				<div class = "timer twoEM">
+					<p>This part &nbsp</p>
+					<p id = "partTime">00:00:00</p>
 				</div>
 				<div id = "logoutBtn" class = "dark button twoEM">Logout</div>
 				<!-- OPTIONS BUTTON -->

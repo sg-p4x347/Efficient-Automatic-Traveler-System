@@ -34,6 +34,7 @@ namespace Efficient_Automatic_Traveler_System
                 { "name", m_name.Quotate()},
                 { "creates", m_creates.Stringify<string>()},
                 { "mode", m_mode.ToString().Quotate()},
+                {"laborCodes",m_laborCodes.Stringify<string>()}
             };
             return obj.Stringify(true);
         }
@@ -84,6 +85,7 @@ namespace Efficient_Automatic_Traveler_System
             m_ID = StationClass.m_stations.Count;
             m_name = obj["name"];
             m_creates = (new StringStream(obj["creates"])).ParseJSONarray();
+            m_laborCodes = (new StringStream(obj["laborCodes"])).ParseJSONarray();
             Enum.TryParse<StationMode>(obj["mode"], out m_mode);
         }
         #endregion
@@ -91,6 +93,7 @@ namespace Efficient_Automatic_Traveler_System
         private int m_ID;
         private string m_name;
         private List<string> m_creates; // list of traveler types that this station can create
+        private List<string> m_laborCodes; // list of labor codes that are associated with this station
         private StationMode m_mode;
 
         private static List<StationClass> m_stations = new List<StationClass>();
@@ -126,6 +129,19 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_mode;
+            }
+        }
+
+        internal List<string> LaborCodes
+        {
+            get
+            {
+                return m_laborCodes;
+            }
+
+            set
+            {
+                m_laborCodes = value;
             }
         }
         #endregion
