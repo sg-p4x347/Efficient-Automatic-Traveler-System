@@ -160,7 +160,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             foreach (Event evt in History)
             {
-                if (evt.station == Station && evt.type == TravelerEvent.Completed)
+                if (evt.station == Station && evt.type == EventType.Completed)
                 {
                     return true;
                 }

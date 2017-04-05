@@ -28,6 +28,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
                 Configure();
+                UserManager.Open("users.json");
 
                 m_orderManager = new OrderManager(m_rootDirectory);
                 m_travelerManager = new TravelerManager(m_orderManager as IOrderManager, m_rootDirectory);
@@ -212,6 +213,9 @@ namespace Efficient_Automatic_Traveler_System
             BackupManager.BackupTravelers(m_travelerManager.GetTravelers);
             BackupManager.BackupOrders(m_orderManager.GetOrders);
             BackupManager.BackupConfig();
+            ConfigManager.Backup();
+            BackupManager.BackupUsers();
+            UserManager.Backup();
         }
         // Opens a connection to the MAS database
         private void ConnectToData()

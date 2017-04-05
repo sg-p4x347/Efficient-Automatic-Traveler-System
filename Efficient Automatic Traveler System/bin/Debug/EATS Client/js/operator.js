@@ -124,7 +124,7 @@ function Application () {
 				var message = new InterfaceCall("Login",
 				{
 					UID: document.getElementById("uidBox").value,
-					station: document.getElementById("stationList").value
+					station: document.getElementById("stationList").value,
 				},"This");
 				self.websocket.send(JSON.stringify(message));
 				//-----------------------------------------------
@@ -143,10 +143,7 @@ function Application () {
 		var logoutBtn = document.getElementById("logoutBtn");
 		logoutBtn.onclick = function () {
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("Logout",
-			{
-				UID: document.getElementById("uidBox").value
-			},"This");
+			var message = new InterfaceCall("Logout",{},"This");
 			self.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
 			self.LoginPopup();

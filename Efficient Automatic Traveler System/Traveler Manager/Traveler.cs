@@ -11,12 +11,13 @@ using System.Net.Http;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum TravelerEvent
+    enum EventType
     {
         Completed,
         Scrapped,
         Reworked,
-        Moved
+        Moved,
+        Login
     }
     enum LabelType
     {
@@ -35,8 +36,8 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                type = (TravelerEvent)Enum.Parse(typeof(TravelerEvent), obj["type"]);
-                date = obj["date"];
+                type = (EventType)Enum.Parse(typeof(EventType), obj["type"]);
+                date = DateTime.Parse(obj["date"]);
                 time = Convert.ToDouble(obj["time"]);
                 station = StationClass.GetStation(obj["station"]);
             }
@@ -45,19 +46,19 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Problem when reading event from file: " + ex.Message + "; StackTrace: " + ex.StackTrace);
             }
         }
-        public Event (TravelerEvent e, double t, StationClass s)
+        public Event (EventType e, double t, StationClass s)
         {
             type = e;
             time = Math.Round(t,2);
             station = s;
-            date = DateTime.Now.ToString("MM/dd/yy @ hh:mm");
+            date = DateTime.Now;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"type",type.ToString().Quotate() },
-                {"date",date.Quotate() },
+                {"date",date.ToString("MM-dd-yyyyTHH:mm:ss").Quotate() },
                 {"time",time.ToString() },
                 {"station",station.Name.Quotate() }
             };
@@ -90,10 +91,10 @@ namespace Efficient_Automatic_Traveler_System
                 return hashCode;
             }
         }
-        public TravelerEvent type;
+        public EventType type;
         public double time;
         public StationClass station;
-        public string date;
+        public DateTime date;
     }
     struct NameValueQty<valueType,qtyType>
     {
@@ -364,7 +365,7 @@ namespace Efficient_Automatic_Traveler_System
             int quantityPending = 0;
             if (station != null)
             {
-                quantityPending += Items.Where(x => x.Station == station && !x.History.Exists(e => e.station == station && e.type == TravelerEvent.Completed)).Count();
+                quantityPending += Items.Where(x => x.Station == station && !x.History.Exists(e => e.station == station && e.type == EventType.Completed)).Count();
                 // these stations can create items
                 if (station.Creates.Count > 0 && m_station == station)
                 {
@@ -387,7 +388,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public int QuantityCompleteAt(StationClass station)
         {
-            return Items.Where(x => x.Station == station && x.History.Exists(e => e.station == station && e.type == TravelerEvent.Completed)).Count();
+            return Items.Where(x => x.Station == station && x.History.Exists(e => e.station == station && e.type == EventType.Completed)).Count();
         }
         // export for clients to display
         public string Export(string clientType, StationClass station)

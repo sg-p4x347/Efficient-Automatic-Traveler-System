@@ -279,6 +279,7 @@ namespace Efficient_Automatic_Traveler_System
         protected NetworkStream m_stream;
         protected CancellationTokenSource m_cts;
         protected bool m_connected;
+        protected User m_user;
 
         public bool Connected
         {
@@ -302,15 +303,11 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 // check to see if user exists
-                List<string> users = (new StringStream(ConfigManager.Get("users"))).ParseJSONarray();
-                foreach (string userString in users)
+                User user = UserManager.Find(obj["UID"]);
+                if (user != null)
                 {
-                    User user = new User(userString);
-                    if (obj["UID"] == user.UID && obj.ContainsKey("station"))
-                    {
-
-                        return new ClientMessage("LoginSuccess", user.ToString());
-                    }
+                    m_user = user;
+                    return new ClientMessage("LoginSuccess", user.ToString());
                 }
                 returnMessage = new ClientMessage("LoginPopup", ("Invalid user ID").Quotate());
             }
@@ -321,23 +318,31 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        public string AddUID(string json)
+        public void Logout(string json)
         {
-            ClientMessage returnMessage = new ClientMessage();
-            try
+            if (m_user != null)
             {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                // check to see if user exists
-                List<string> users = (new StringStream(ConfigManager.Get("users"))).ParseJSONarray();
-                users.Add("{\"UID\":" + obj["UID"].Quotate() + "}");
-                ConfigManager.Set("users", users.Stringify<string>(false, true));
+                m_user.Logout();
+                m_user = null;
             }
-            catch (Exception ex)
-            {
-                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("Info", "error");
-            }
-            return returnMessage.ToString();
         }
+        //public string AddUID(string json)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        // check to see if user exists
+        //        List<string> users = (new StringStream(ConfigManager.Get("users"))).ParseJSONarray();
+        //        users.Add("{\"UID\":" + obj["UID"].Quotate() + "}");
+        //        ConfigManager.Set("users", users.Stringify<string>(false, true));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage.ToString();
+        //}
     }
 }

@@ -77,6 +77,7 @@
     <Compile Include="Client Manager\SupervisorClient.cs" />
     <Compile Include="ConfigManager.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="IManager.cs" />
     <Compile Include="Order Manager\OrderItem.cs" />
     <Compile Include="Order Manager\OrderManager.cs" />
     <Compile Include="StringStream.cs" />
@@ -96,7 +97,8 @@
     <Compile Include="Traveler Manager\Traveler.cs" />
     <Compile Include="Traveler Manager\TravelerItem.cs" />
     <Compile Include="Traveler Manager\TravelerManager.cs" />
-    <Compile Include="User.cs" />
+    <Compile Include="User Manager\User.cs" />
+    <Compile Include="User Manager\UserManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

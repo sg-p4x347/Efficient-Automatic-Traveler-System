@@ -181,7 +181,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                TravelerEvent eventType = (TravelerEvent)Enum.Parse(typeof(TravelerEvent), obj["eventType"]);
+                EventType eventType = (EventType)Enum.Parse(typeof(EventType), obj["eventType"]);
                 Event itemEvent = new Event(eventType, Convert.ToDouble(obj["time"]), StationClass.GetStation(obj["station"]));
                 TravelerItem item;
                 bool newItem = false;
@@ -198,7 +198,7 @@ namespace Efficient_Automatic_Traveler_System
                 
                 item.History.Add(itemEvent);
                 // print labels
-                if (itemEvent.type == TravelerEvent.Scrapped)
+                if (itemEvent.type == EventType.Scrapped)
                 {
                     //=================
                     // SCRAPPED
@@ -212,7 +212,7 @@ namespace Efficient_Automatic_Traveler_System
                     // NEW
                     //=================
                     returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Tracking) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                } else if (itemEvent.type == TravelerEvent.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
+                } else if (itemEvent.type == EventType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
                 {
                     //=================
                     // FINISHED
