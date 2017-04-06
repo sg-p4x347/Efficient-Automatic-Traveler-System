@@ -10,19 +10,56 @@ namespace Efficient_Automatic_Traveler_System
     {
         #region Public Methods
         // initializes the user manager from a json file
-        static public void Open(string file)
+        static public void Import(DateTime? date = null)
         {
             try
             {
-                List<string> list = (new StringStream(System.IO.File.ReadAllText(System.IO.Path.Combine(Server.RootDir, file)))).ParseJSONarray();
-                foreach (string item in list)
+                m_users.Clear();
+                if (BackupManager.CurrentBackupExists() || date != null)
                 {
-                    m_users.Add(new User(item));
+                    List<string> userArray = (new StringStream(BackupManager.Import("users.json", date))).ParseJSONarray();
+                    foreach (string userJSON in userArray)
+                    {
+                        m_users.Add(new User(userJSON));
+                    }
+                    Server.WriteLine("Users loaded from backup");
+                } else
+                {
+                    ImportPast();
                 }
-                Server.WriteLine("Users loaded");
             } catch (Exception ex)
             {
-                Server.WriteLine("Could not load users");
+                Server.WriteLine("Could not load users from backup");
+                Server.LogException(ex);
+            }
+        }
+        static public void ImportPast()
+        {
+            try
+            {
+                List<string> userArray = (new StringStream(BackupManager.ImportPast("users.json"))).ParseJSONarray();
+                foreach (string userJSON in userArray)
+                {
+                    User user = new User(userJSON);
+                    user.History.RemoveAll(x => x.date < DateTime.Today.Date);
+                }
+                Server.WriteLine("Users loaded from backup");
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine("Could not load users from backup");
+                Server.LogException(ex);
+            }
+        }
+        // writes the stored config string back to the config file
+        static public void Backup()
+        {
+            try
+            {
+                BackupManager.Backup("users.json", m_users.Stringify<User>());
+            }
+            catch (Exception ex)
+            {
                 Server.LogException(ex);
             }
         }
@@ -31,17 +68,7 @@ namespace Efficient_Automatic_Traveler_System
             m_users.Add(user);
             Backup();
         }
-        // writes the stored config string back to the config file
-        static public void Backup(string file = "users.json")
-        {
-            try
-            {
-                System.IO.File.WriteAllText(System.IO.Path.Combine(Server.RootDir, file), m_users.Stringify());
-            } catch (Exception ex)
-            {
-                Server.LogException(ex);
-            }
-        }
+        
         // returns the user that is requested
         static public User Find(string searchPhrase)
         {

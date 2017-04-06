@@ -35,7 +35,7 @@ namespace Efficient_Automatic_Traveler_System
                 bool first = true;
                 foreach (itemType s in list)
                 {
-                    json += (first ? "" : ",") + (pretty ? Environment.NewLine + '\t' : "");
+                    json += (first ? "" : "," + Environment.NewLine) + (pretty ? Environment.NewLine + '\t' : "");
                     if (quotate && typeof(itemType) == typeof(string))
                     {
                         json += s.ToString().Quotate();

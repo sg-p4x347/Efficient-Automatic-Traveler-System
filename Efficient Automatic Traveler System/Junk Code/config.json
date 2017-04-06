@@ -1,8 +1,7 @@
 {
 	"print":{		"Tracking": true,		"Scrap": false,		"Pack": false,		"Table": false	},
 	"port":81,
-	"labelServer":ttp://192.168.2.6/printLabe,
-	"nextTravelerID":2755,
+	"nextTravelerID":2671,
 	"stations":[
 	{
 	"name":"Assembly",

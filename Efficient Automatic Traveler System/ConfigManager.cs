@@ -3,22 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.IO;
 namespace Efficient_Automatic_Traveler_System
 {
     static class ConfigManager
     {
         #region Public Methods
         // initializes the config manager from a json file
-        static public void Open(string file)
+        static public void Import(DateTime? date = null)
         {
-            m_configObj = (new StringStream(System.IO.File.ReadAllText(System.IO.Path.Combine(Server.RootDir, file)))).ParseJSON();
-            Server.WriteLine("Configuration settings loaded");
+            try
+            {
+                if (date == null)
+                {
+                    string path = Path.Combine(Server.RootDir, "config.json");
+                    m_configObj = (new StringStream(File.ReadAllText(path))).ParseJSON();
+                    Server.WriteLine("Configuration settings loaded from current");
+                } else
+                {
+                    m_configObj = (new StringStream(BackupManager.Import("config.json",date))).ParseJSON();
+                    Server.WriteLine("Configuration settings loaded from " + BackupManager.DateToString(date.Value));
+                }
+                
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                Server.WriteLine("Failed to load configuration settings");
+            }
         }
         // writes the stored config string back to the config file
-        static public void Backup(string file = "config.json")
+        static public void Backup()
         {
-            System.IO.File.WriteAllText(System.IO.Path.Combine(Server.RootDir, file), m_configObj.Stringify(true));
+            string path = Path.Combine(Server.RootDir, "config.json");
+            File.WriteAllText(path, m_configObj.Stringify(true));
+            BackupManager.Backup(path);
         }
         // returns the json string stored under the specified key
         static public string Get(string key)

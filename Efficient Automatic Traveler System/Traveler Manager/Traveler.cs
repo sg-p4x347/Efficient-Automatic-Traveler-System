@@ -8,6 +8,7 @@ using System.IO;
 using System.Data.Odbc;
 using System.Net;
 using System.Net.Http;
+using System.Globalization;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -37,30 +38,33 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 type = (EventType)Enum.Parse(typeof(EventType), obj["type"]);
-                date = DateTime.Parse(obj["date"]);
+                date = DateTime.ParseExact(obj["date"],"O", CultureInfo.InvariantCulture);
                 time = Convert.ToDouble(obj["time"]);
                 station = StationClass.GetStation(obj["station"]);
+                userID = obj["userID"];
             }
             catch (Exception ex)
             {
                 Server.WriteLine("Problem when reading event from file: " + ex.Message + "; StackTrace: " + ex.StackTrace);
             }
         }
-        public Event (EventType e, double t, StationClass s)
+        public Event (EventType e, double t, StationClass s,string id = "")
         {
             type = e;
             time = Math.Round(t,2);
             station = s;
             date = DateTime.Now;
+            userID = id;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"type",type.ToString().Quotate() },
-                {"date",date.ToString("MM-dd-yyyyTHH:mm:ss").Quotate() },
+                {"date",date.ToString("O").Quotate() },
                 {"time",time.ToString() },
-                {"station",station.Name.Quotate() }
+                {"station",station.Name.Quotate() },
+                {"userID",userID.Quotate() }
             };
             return obj.Stringify();
         }
@@ -95,6 +99,7 @@ namespace Efficient_Automatic_Traveler_System
         public double time;
         public StationClass station;
         public DateTime date;
+        public string userID;
     }
     struct NameValueQty<valueType,qtyType>
     {
@@ -262,7 +267,7 @@ namespace Efficient_Automatic_Traveler_System
                     // only print if the config says so
                     if (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()]))
                     {
-                        result = client.UploadString(@"http://192.168.2.6:8080/printLabel", "POST", json);
+                        result = client.UploadString(ConfigManager.Get("labelServer"), "POST", json);
                     } else
                     {
                         result = "Labels disabled";

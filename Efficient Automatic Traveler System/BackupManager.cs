@@ -7,13 +7,15 @@ using System.IO;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    public static class BackupManager
+    public class BackupManager
     {
         #region Public Methods
         static internal void Initialize()
         {
-            string exeDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string[] backupPaths = System.IO.Directory.GetDirectories(System.IO.Path.Combine(exeDir, "backup\\"));
+            
+            CreateBackupDir();
+
+            string[] backupPaths = System.IO.Directory.GetDirectories(System.IO.Path.Combine(Server.RootDir, "backup\\"));
             m_backupDates = new List<DateTime>();
             foreach (string path in backupPaths)
             {
@@ -54,214 +56,65 @@ namespace Efficient_Automatic_Traveler_System
         {
             return DateTime.Parse(date);
         }
-        static internal List<Traveler> ImportStoredTravelers()
-        {
-            List<Traveler> filteredTravelers = new List<Traveler>();
-            // if there is a backup from a previous day
-            if (m_backupDates.Exists(x => x.Date <= DateTime.Today.Date))
-            {
-                DateTime date = m_backupDates.First(x => x.Date <= DateTime.Today.Date);
-                // if the file exists
-                if (File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(date), "travelers.json")))
-                {
-                    List<Traveler> travelers = new List<Traveler>();
-                    // open the file
-                    List<string> lines = File.ReadLines(Path.Combine(Server.RootDir, "backup", DateToString(date), "travelers.json")).ToList();
-                    int index = 0;
-                    foreach (string line in lines)
-                    {
-                        Server.Write("\r{0}%", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / lines.Count) * 100));
-
-                        Dictionary<string, string> obj = (new StringStream(line)).ParseJSON();
-                        // check to see if these orders have been printed already
-                        // cull orders that do not exist anymore
-                        Traveler traveler = null;
-                        if (obj["type"] != "")
-                        {
-                            Type type = Type.GetType(obj["type"]);
-                            traveler = (Traveler)Activator.CreateInstance(type,line);
-                        }
-
-                        if (traveler != null)
-                        {
-                            travelers.Add(traveler);
-                        }
-                        index++;
-                    }
-                    Server.Write("\r{0}", "Loading travelers from backup...Finished\n");
-
-                    // if travelers are imported from previous day, filter out completed items
-                    if (!m_backupDates.Exists(x => x.Date == DateTime.Today.Date))
-                    {
-                        foreach (Traveler traveler in travelers)
-                        {
-                            // add this traveler to the master list if it is not complete
-                            if (traveler.State != ItemState.PostProcess)
-                            {
-                                // push this traveler into production
-                                if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
-                                {
-                                    traveler.EnterProduction();
-                                }
-                                // add this traveler to the filtered list
-                                
-                                filteredTravelers.Add(traveler);
-                            }
-
-                        }
-                    } else
-                    {
-                        filteredTravelers = travelers;
-                    }
-                }
-            }
-            return filteredTravelers;
-        }
-        static internal List<Order> ImportStoredOrders()
-        {
-            List<Order> filteredOrders = new List<Order>();
-            // if there is a backup from a previous day
-            if (m_backupDates.Exists(x => x.Date <= DateTime.Today.Date))
-            {
-                DateTime date = m_backupDates.First(x => x.Date <= DateTime.Today.Date);
-                // if the file exists
-                if (File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(date), "orders.json")))
-                {
-                    List<Order> orders = new List<Order>();
-                    // open the file
-                    List<string> lines = File.ReadLines(Path.Combine(Server.RootDir, "backup", DateToString(date), "orders.json")).ToList();
-                    int index = 0;
-                    foreach (string line in lines)
-                    {
-                        Server.Write("\r{0}%", "Loading orders from backup..." + Convert.ToInt32((Convert.ToDouble(index) / lines.Count) * 100));
-                        orders.Add(new Order(line));
-                    }
-                    Server.Write("\r{0}", "Loading orders from backup...Finished\n");
-
-                    // if travelers are imported from previous day, filter out completed items
-                    if (!m_backupDates.Exists(x => x.Date == DateTime.Today.Date))
-                    {
-                        foreach (Order order in orders)
-                        {
-                            // add this order to the master list if it is not closed
-                            if (order.State != OrderState.Closed)
-                            {
-                                filteredOrders.Add(order);
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        filteredOrders = orders;
-                    }
-                }
-            }
-            return filteredOrders;
-        }
-        static internal void BackupTravelers(List<Traveler> travelers)
-        {
-            CreateBackupDir();
-            string contents = "";
-            foreach (Traveler traveler in travelers)
-            {
-                contents += traveler.ToString();
-                contents += '\n';
-            }
-
-            System.IO.File.WriteAllText(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today), "travelers.json"), contents);
-        }
-        static internal void BackupOrders(List<Order> orders)
-        {
-            CreateBackupDir();
-            string contents = "";
-            foreach (Order order in orders)
-            {
-                contents += order.ToString();
-                contents += '\n';
-
-            }
-            System.IO.File.WriteAllText(Path.Combine(Server.RootDir,"backup", DateToString(DateTime.Today), "orders.json"), contents);
-        }
-        static internal void BackupConfig()
-        {
-            CreateBackupDir();
-            System.IO.File.Copy(Path.Combine(Server.RootDir, "config.json"),
-                Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today), "config.json"),true);
-        }
-        static internal List<User> ImportUsers()
-        {
-            List<User> users = new List<User>();
-            // if there is a backup from a previous day
-            if (m_backupDates.Exists(x => x.Date <= DateTime.Today.Date))
-            {
-                DateTime date = m_backupDates.First(x => x.Date <= DateTime.Today.Date);
-                // if the file exists
-                if (File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(date), "travelers.json")))
-                {
-                    // open the file
-                    List<string> lines = File.ReadLines(Path.Combine(Server.RootDir, "backup", DateToString(date), "travelers.json")).ToList();
-                    int index = 0;
-                    foreach (string line in lines)
-                    {
-                        Server.Write("\r{0}%", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / lines.Count) * 100));
-
-                        Dictionary<string, string> obj = (new StringStream(line)).ParseJSON();
-                        // check to see if these orders have been printed already
-                        // cull orders that do not exist anymore
-                        Traveler traveler = null;
-                        if (obj["type"] != "")
-                        {
-                            Type type = Type.GetType(obj["type"]);
-                            traveler = (Traveler)Activator.CreateInstance(type, line);
-                        }
-
-                        if (traveler != null)
-                        {
-                            travelers.Add(traveler);
-                        }
-                        index++;
-                    }
-                    Server.Write("\r{0}", "Loading travelers from backup...Finished\n");
-
-                    // if travelers are imported from previous day, filter out completed items
-                    if (!m_backupDates.Exists(x => x.Date == DateTime.Today.Date))
-                    {
-                        foreach (Traveler traveler in travelers)
-                        {
-                            // add this traveler to the master list if it is not complete
-                            if (traveler.State != ItemState.PostProcess)
-                            {
-                                // push this traveler into production
-                                if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
-                                {
-                                    traveler.EnterProduction();
-                                }
-                                // add this traveler to the filtered list
-
-                                filteredUsers.Add(traveler);
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        filteredUsers = travelers;
-                    }
-                }
-            }
-            return filteredUsers;
-        }
-        static internal void BackupUsers()
-        {
-            CreateBackupDir();
-            System.IO.File.Copy(Path.Combine(Server.RootDir, "users.json"),
-                Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today), "users.json"), true);
-        }
+        // makes a backup folder for today's date
         static internal void CreateBackupDir()
         {
             Directory.CreateDirectory(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today)));
         }
+        // returns true if a current backup for today exists
+        static internal bool CurrentBackupExists()
+        {
+            return m_backupDates.Exists(x => x == DateTime.Today.Date);
+        }
+        // returns the requested file from current day backup
+        static internal string Import(string filename,DateTime? d = null)
+        {
+            DateTime date = (d == null ? DateTime.Today.Date : d.Value);
+            // if there is a backup for today
+            if (m_backupDates.Exists(x => x.Date == date))
+            {
+                // if the file exists
+                if (File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(date), filename)))
+                {
+                    List<Traveler> travelers = new List<Traveler>();
+                    // return the file text
+                    return File.ReadAllText(Path.Combine(Server.RootDir, "backup", DateToString(date), filename));
+                }
+            }
+            return "";
+        }
+        // returns the requested file from most recent backup that is not the current day
+        static internal string ImportPast(string filename)
+        {
+            // if there is a backup from a previous day
+            if (m_backupDates.Exists(x => x.Date < DateTime.Today.Date))
+            {
+                DateTime date = m_backupDates.First(x => x.Date < DateTime.Today.Date);
+                // if the file exists
+                if (File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(date), filename)))
+                {
+                    List<Traveler> travelers = new List<Traveler>();
+                    // open the file
+                    return File.ReadAllText(Path.Combine(Server.RootDir, "backup", DateToString(date), filename));
+                }
+            }
+            return "";
+        }
+        static internal void Backup(string filename, string contents)
+        {
+            CreateBackupDir();
+            File.WriteAllText(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date), filename),contents);
+        }
+        static internal void Backup(string path)
+        {
+            CreateBackupDir();
+            string filename = Path.GetFileName(path);
+            System.IO.File.Copy(
+                path,
+                Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date), filename), true
+            );
+        }
+        
         #endregion
         #region Static Properties
         private static List<DateTime> m_backupDates;

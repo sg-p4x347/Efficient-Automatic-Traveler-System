@@ -318,13 +318,15 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        public void Logout(string json)
+        public string Logout(string json)
         {
             if (m_user != null)
             {
                 m_user.Logout();
+                UserManager.Backup();
                 m_user = null;
             }
+            return "";
         }
         //public string AddUID(string json)
         //{

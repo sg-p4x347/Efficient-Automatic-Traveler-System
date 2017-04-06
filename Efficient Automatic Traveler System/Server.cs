@@ -27,8 +27,8 @@ namespace Efficient_Automatic_Traveler_System
                 m_MAS = new OdbcConnection();
                 m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
+                BackupManager.Initialize();
                 Configure();
-                UserManager.Open("users.json");
 
                 m_orderManager = new OrderManager(m_rootDirectory);
                 m_travelerManager = new TravelerManager(m_orderManager as IOrderManager, m_rootDirectory);
@@ -168,7 +168,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void Configure()
         {
-            ConfigManager.Open("config.json");
+            ConfigManager.Import();
             m_port = Convert.ToInt32(ConfigManager.Get("port"));
 
             // set up the station list
@@ -181,9 +181,13 @@ namespace Efficient_Automatic_Traveler_System
         private void Update()
         {
             Server.WriteLine("\n<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>" + DateTime.Now.ToString("\tMM/dd/yyy @ hh:mm") + "\n");
-            // Refresh the backup manager
+            
             BackupManager.Initialize();
 
+            // Refresh the static managers
+            Configure();
+            UserManager.Import();
+            
             // open the MAS connection
             ConnectToData();
 
@@ -209,12 +213,10 @@ namespace Efficient_Automatic_Traveler_System
         // copies memory into a new backup version as insurance
         private void Backup()
         {
-            // backup files
-            BackupManager.BackupTravelers(m_travelerManager.GetTravelers);
-            BackupManager.BackupOrders(m_orderManager.GetOrders);
-            BackupManager.BackupConfig();
+            // backup managers' data
+            m_travelerManager.Backup();
+            m_orderManager.Backup();
             ConfigManager.Backup();
-            BackupManager.BackupUsers();
             UserManager.Backup();
         }
         // Opens a connection to the MAS database

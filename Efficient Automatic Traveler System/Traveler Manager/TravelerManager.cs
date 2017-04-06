@@ -33,7 +33,7 @@ namespace Efficient_Automatic_Traveler_System
     interface IOperator : ITravelerManager
     {
         string AddTravelerEvent(string json);
-        void SubmitTraveler(string json);
+        string SubmitTraveler(string json);
     }
     interface ISupervisor : ITravelerManager
     {
@@ -47,7 +47,7 @@ namespace Efficient_Automatic_Traveler_System
         string DownloadSummary(string json);
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
-    class TravelerManager : ITravelerManager, IOperator, ISupervisor
+    class TravelerManager : IManager, ITravelerManager, IOperator, ISupervisor
     {
         #region Public methods
         public TravelerManager(IOrderManager orderManager, string workingDirectory)
@@ -61,10 +61,8 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void CompileTravelers()
         {
-            // first clear what is already stored
-            m_travelers.Clear();
-            // second, import stored travelers
-            ImportStoredTravelers();
+            // import stored travelers
+            Import();
 
             int index = 0;
             foreach (Order order in m_orderManager.GetOrders)
@@ -122,7 +120,57 @@ namespace Efficient_Automatic_Traveler_System
             // travelers have changed
             OnTravelersChanged(m_travelers);
         }
+        #endregion
+        //----------------------------------
+        #region IManager
+        public void Import(DateTime? date = null)
+        {
 
+            m_travelers.Clear();
+            if (BackupManager.CurrentBackupExists() || date != null)
+            {
+                List<string> travelerArray = (new StringStream(BackupManager.Import("travelers.json", date))).ParseJSONarray();
+                Server.Write("\r{0}", "Loading travelers from backup...");
+                foreach (string travelerJSON in travelerArray)
+                {
+                    Traveler traveler = ImportTraveler(travelerJSON);
+                    if (traveler != null)
+                    {
+                        m_travelers.Add(traveler);
+                    }
+                }
+                Server.Write("\r{0}", "Loading travelers from backup...Finished" + Environment.NewLine);
+            } else
+            {
+                ImportPast();
+            }
+        }
+        public void ImportPast()
+        {
+            m_travelers.Clear();
+            List<string> travelerArray = (new StringStream(BackupManager.Import("travelers.json"))).ParseJSONarray();
+            Server.Write("\r{0}", "Loading travelers from backup...");
+            foreach (string travelerJSON in travelerArray)
+            {
+                Traveler traveler = ImportTraveler(travelerJSON);
+                // add this traveler to the master list if it is not complete
+                if (traveler != null && traveler.State != ItemState.PostProcess)
+                {
+                    // push this traveler into production
+                    if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
+                    {
+                        traveler.EnterProduction();
+                    }
+                    // add this traveler to the list
+                    m_travelers.Add(traveler);
+                }
+            }
+            Server.Write("\r{0}", "Loading travelers from backup...Finished" + Environment.NewLine);
+        }
+        public void Backup()
+        {
+            BackupManager.Backup("travelers.json", m_travelers.Stringify<Traveler>());
+        }
         #endregion
         //----------------------------------
         #region ITravelerManager
@@ -233,7 +281,7 @@ namespace Efficient_Automatic_Traveler_System
             return returnMessage.ToString();
         }
         // has to know which station this is being submitted from
-        public void SubmitTraveler(string json)
+        public string SubmitTraveler(string json)
         {
             try
             {
@@ -246,6 +294,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.WriteLine("Problem submitting traveler: " + ex.Message + "stack trace: " + ex.StackTrace);
             }
+            return "";
         }
         #endregion
         //----------------------------------
@@ -514,44 +563,9 @@ namespace Efficient_Automatic_Traveler_System
         //    }
         //}
 
-        
+
         // Imports travelers that have been stored
-        public void ImportStoredTravelers()
-        {
-            m_travelers.AddRange(BackupManager.ImportStoredTravelers());
-            //--------------------------------------------------------------
-            // get the list of travelers and orders that have been created
-            //--------------------------------------------------------------
-            // create the file if it doesn't exist
-            //StreamWriter w = File.AppendText(Path.Combine(m_workingDirectory,"travelers.json"));
-            //w.Close();
-            //// open the file
-            //string line;
-            //System.IO.StreamReader file = new System.IO.StreamReader(System.IO.Path.Combine(m_workingDirectory, "travelers.json"));
-            //double travelerCount = File.ReadLines(System.IO.Path.Combine(m_workingDirectory, "travelers.json")).Count();
-            //int index = 0;
-            //while ((line = file.ReadLine()) != null && line != "")
-            //{
-            //    Server.Write("\r{0}%", "Loading travelers from backup..." + Convert.ToInt32((Convert.ToDouble(index) / travelerCount) * 100));
-
-            //    Dictionary<string, string> obj = (new StringStream(line)).ParseJSON();
-            //    // check to see if these orders have been printed already
-            //    // cull orders that do not exist anymore
-            //    Traveler traveler = null;
-            //    switch ((obj["type"])) {
-            //        case "Table": traveler = (Traveler)new Table(line); break;
-            //        case "Chair": traveler = (Traveler)new Chair(line); break;
-            //    }
-            //    if (traveler != null)
-            //    {
-            //        m_travelers.Add(traveler);
-            //    }
-            //    index++;
-            //}
-            //Server.Write("\r{0}", "Loading travelers from backup...Finished\n");
-
-            //file.Close();
-        }
+        
         private bool IsBackPanel(string s)
         {
             if (s.Substring(0, 2) == "32")
@@ -566,7 +580,7 @@ namespace Efficient_Automatic_Traveler_System
         private void OnTravelersChanged(List<Traveler> travelers)
         {
             // Update the travelers.json file with all the current travelers
-            BackupManager.BackupTravelers(m_travelers);
+            Backup();
             // fire the event
             TravelersChanged(travelers);
         }
@@ -591,7 +605,17 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
         }
-
+        private Traveler ImportTraveler(string json)
+        {
+            Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+            Traveler traveler = null;
+            if (obj["type"] != "")
+            {
+                Type type = Type.GetType(obj["type"]);
+                traveler = (Traveler)Activator.CreateInstance(type, json);
+            }
+            return traveler;
+        }
         #endregion
         //----------------------------------
         #region Private member variables

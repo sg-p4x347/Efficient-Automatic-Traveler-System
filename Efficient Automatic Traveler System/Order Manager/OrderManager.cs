@@ -27,7 +27,7 @@ namespace Efficient_Automatic_Traveler_System
         // removes all occurences of the specified traveler from order items
         void ReleaseTraveler(Traveler traveler);
     }
-    class OrderManager : IOrderManager
+    class OrderManager : IManager, IOrderManager
     {
         #region Public Methods
         public OrderManager(string workingDirectory)
@@ -40,10 +40,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                // first clear what is in memory
-                m_orders.Clear();
-                // next, load the orders that have travelers from the json file
-                ImportStoredOrders();
+                // load the orders that have travelers from the json file
+                Import();
                 List<string> currentOrderNumbers = new List<string>();
                 foreach (Order order in m_orders) { currentOrderNumbers.Add(order.SalesOrderNo); }
 
@@ -177,18 +175,15 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Problem checking order items against inventory: " + ex.Message + " Stack Trace: " + ex.StackTrace);
             }
         }
-        public void ImportStoredOrders()
-        {
-            m_orders.AddRange(BackupManager.ImportStoredOrders());
-        }
-#endregion
+
+        #endregion
         //--------------------------------------------
-#region Interface
+        #region IOrderManager
 
         public Order FindOrder(string orderNo)
-        {
-            return m_orders.Find(x => x.SalesOrderNo == orderNo);
-        }
+                {
+                    return m_orders.Find(x => x.SalesOrderNo == orderNo);
+                }
         public List<Order> GetOrders
         {
             get
@@ -212,16 +207,56 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
         }
-#endregion
+        #endregion
         //--------------------------------------------
-#region Private Methods
-        
-#endregion
+        #region IManager
+
+        public void Import(DateTime? date = null)
+        {
+            m_orders.Clear();
+            if (BackupManager.CurrentBackupExists() || date != null)
+            {
+                List<string> orderArray = (new StringStream(BackupManager.Import("orders.json", date))).ParseJSONarray();
+                Server.Write("\r{0}", "Loading orders from backup...");
+                foreach (string orderJSON in orderArray)
+                {
+                    m_orders.Add(new Order(orderJSON));
+                }
+                Server.Write("\r{0}", "Loading orders from backup...Finished\n");
+            } else
+            {
+                ImportPast();
+            }
+        }
+        public void ImportPast()
+        {
+            m_orders.Clear();
+            List<string> orderArray = (new StringStream(BackupManager.ImportPast("orders.json"))).ParseJSONarray();
+            foreach (string orderJSON in orderArray)
+            {
+                Order order = new Order(orderJSON);
+                // add this order to the master list if it is not closed
+                if (order.State != OrderState.Closed)
+                {
+                    m_orders.Add(order);
+                }
+            }
+        }
+        public void Backup()
+        {
+            BackupManager.Backup("orders.json", m_orders.Stringify<Order>());
+        }
+
+        #endregion
         //--------------------------------------------
-#region Properties
+        #region Private Methods
+
+        #endregion
+        //--------------------------------------------
+        #region Properties
         private List<Order> m_orders;
         private string m_workingDirectory;
-#endregion
+        #endregion
         //--------------------------------------------
     }
 }
