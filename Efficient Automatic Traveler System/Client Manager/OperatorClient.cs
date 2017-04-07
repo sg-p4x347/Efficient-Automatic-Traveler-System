@@ -12,12 +12,12 @@ using System.Security.Cryptography;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class OperatorClient : Client, ITravelers
+    class OperatorClient : Client, IOperator, ITravelers
     {
         //------------------------------
         // Public members
         //------------------------------
-        public OperatorClient (TcpClient client, IOperator travelerManager) : base(client)
+        public OperatorClient (TcpClient client, ITravelerManager travelerManager) : base(client)
         {
             m_travelerManager = travelerManager;
             SendMessage((new ClientMessage("InitStations",ConfigManager.Get("stations"))).ToString());
@@ -44,7 +44,7 @@ namespace Efficient_Automatic_Traveler_System
             bool mirror = (stationSpecific.Count < travelers.Count);
             if (mirror)
             {
-                stationSpecific = TravelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList();
+                stationSpecific = m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList();
             }
             string message = @"{""travelers"":[";
             string travelerJSON = "";
@@ -71,7 +71,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Properties
         //------------------------------
-        protected IOperator m_travelerManager;
+        protected ITravelerManager m_travelerManager;
         protected StationClass m_station;
         
         internal StationClass Station
@@ -91,13 +91,14 @@ namespace Efficient_Automatic_Traveler_System
         //----------
         public event TravelersChangedSubscriber TravelersChanged;
         // JS client interface (these are the properties visible to the js interface calling system)
-        public IOperator TravelerManager
+        public List<Traveler> GetTravelers
         {
             get
             {
-                return m_travelerManager;
+                throw new NotImplementedException();
             }
         }
+
         public override ClientMessage Login(string json)
         {
             try
@@ -123,6 +124,45 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 return new ClientMessage("LoginPopup", ("System error! oops...").Quotate());
+            }
+        }
+
+        public ClientMessage AddTravelerEvent(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                return m_travelerManager.AddTravelerEvent(
+                    Convert.ToInt32(obj["travelerID"]),
+                    (EventType)Enum.Parse(typeof(EventType),obj["eventType"]),
+                    traveler.GetCurrentLabor() - Convert.ToDouble(obj["time"]),
+                    m_station,
+                    m_user,
+                    (obj["itemID"] != "undefined" ? (ushort?)Convert.ToUInt16(obj["itemID"]) : null)
+                );
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error occured");
+            }
+        }
+
+        public ClientMessage SubmitTraveler(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+
+                return m_travelerManager.SubmitTraveler(
+                    m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"])),
+                    m_station
+                );
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info","Error occured");
             }
         }
     }

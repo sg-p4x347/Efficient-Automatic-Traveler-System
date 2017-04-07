@@ -720,7 +720,6 @@ function TravelerView() {
 				travelerID: self.traveler.ID,
 				eventType: "Completed",
 				time: application.partTimer.timerTime.asMinutes(),
-				station: application.station.name,
 				itemID: (self.item ? self.item.ID : "undefined")
 			});
 			application.websocket.send(JSON.stringify(message));
@@ -738,7 +737,6 @@ function TravelerView() {
 				travelerID: self.traveler.ID,
 				eventType: "Scrapped",
 				time: application.partTimer.timerTime.asMinutes(),
-				station: application.station.name,
 				itemID: (self.item ? self.item.ID : "undefined")
 			});
 			application.websocket.send(JSON.stringify(message));

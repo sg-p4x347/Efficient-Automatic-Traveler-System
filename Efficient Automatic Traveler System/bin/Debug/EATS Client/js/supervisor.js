@@ -20,6 +20,7 @@ function Application () {
 	this.popupManager;
 	this.IOScheckTimeout;
 	// DATA
+	this.labelTypes = [];
 	this.stationList = [];
 	this.travelers = [];
 	this.queues = {};
@@ -102,6 +103,9 @@ function Application () {
 	}
 	this.Info = function (message) {
 		this.popupManager.Info(message);
+	}
+	this.InitLabelTypes = function (labelTypes) {
+		this.labelTypes = labelTypes;
 	}
 	// Loads the traveler GUI
 	this.LoadTraveler = function (traveler) {
@@ -262,12 +266,15 @@ function Application () {
 		
 		document.getElementById("superOptionsBtn").onclick = function () {
 			var popup = self.popupManager.CreatePopup();
-			// OPEN SUMMARY --------------
+			// OPEN SUMMARY CURRENT SUMMARY VIEW--------------
 			var summaryBtn = self.popupManager.CreateButton("View Summary");
 			summaryBtn.onclick = function () {
 				//----------INTERFACE CALL-----------------------
 				var message = new InterfaceCall("CreateSummary",{
-					sort: "Active"
+					sort: "Active",
+					type: "Table",
+					from: "",
+					to: ""
 				});
 				self.websocket.send(JSON.stringify(message));
 				//-----------------------------------------------

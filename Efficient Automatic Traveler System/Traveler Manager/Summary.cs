@@ -35,22 +35,22 @@ namespace Efficient_Automatic_Traveler_System
          These two summaries are then compared to yield the final summary which includes
          Delta totals between the time frames.
         */
-        public Summary(string pathA, string pathB, string travelerType, SummarySort sortType = SummarySort.Active)
+        public Summary(DateTime A, DateTime B, string travelerType, SummarySort sortType = SummarySort.Active)
         {
             // starting state
-            OrderManager orderManagerA = new OrderManager(pathA);
-            orderManagerA.Import();
-            TravelerManager travelerManagerA = new TravelerManager(orderManagerA as IOrderManager, pathA);
-            travelerManagerA.Import();
+            OrderManager orderManagerA = new OrderManager();
+            orderManagerA.Import(A);
+            TravelerManager travelerManagerA = new TravelerManager(orderManagerA as IOrderManager);
+            travelerManagerA.Import(A);
             Summary summaryA = new Summary(travelerManagerA as ITravelerManager, travelerType, sortType);
             // ending state
-            OrderManager orderManagerB = new OrderManager(pathB);
-            orderManagerB.Import();
-            TravelerManager travelerManagerB = new TravelerManager(orderManagerB as IOrderManager, pathB);
-            travelerManagerB.Import();
+            OrderManager orderManagerB = new OrderManager();
+            orderManagerB.Import(B);
+            TravelerManager travelerManagerB = new TravelerManager(orderManagerB as IOrderManager);
+            travelerManagerB.Import(B);
             Summary summaryB = new Summary(travelerManagerB as ITravelerManager, travelerType, sortType);
 
-            // Delta state (A's state - B's state)
+            // Delta state (B's state - A's state)
             m_travelers = (summaryB - summaryA).Travelers;
         }
         public override string ToString()

@@ -30,8 +30,8 @@ namespace Efficient_Automatic_Traveler_System
                 BackupManager.Initialize();
                 Configure();
 
-                m_orderManager = new OrderManager(m_rootDirectory);
-                m_travelerManager = new TravelerManager(m_orderManager as IOrderManager, m_rootDirectory);
+                m_orderManager = new OrderManager();
+                m_travelerManager = new TravelerManager(m_orderManager as IOrderManager);
                 m_clientManager = new ClientManager(m_ip, m_port, m_travelerManager as ITravelerManager);
                 // Subscribe events
                 m_travelerManager.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
@@ -368,6 +368,7 @@ namespace Efficient_Automatic_Traveler_System
             {".cco", "application/x-cocoa"},
             {".crt", "application/x-x509-ca-cert"},
             {".css", "text/css"},
+            {".csv", "text/csv" },
             {".deb", "application/octet-stream"},
             {".der", "application/x-x509-ca-cert"},
             {".dll", "application/octet-stream"},

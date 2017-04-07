@@ -41,20 +41,20 @@ namespace Efficient_Automatic_Traveler_System
                 date = DateTime.ParseExact(obj["date"],"O", CultureInfo.InvariantCulture);
                 time = Convert.ToDouble(obj["time"]);
                 station = StationClass.GetStation(obj["station"]);
-                userID = obj["userID"];
+                user = UserManager.Find( obj["userID"]);
             }
             catch (Exception ex)
             {
                 Server.WriteLine("Problem when reading event from file: " + ex.Message + "; StackTrace: " + ex.StackTrace);
             }
         }
-        public Event (EventType e, double t, StationClass s,string id = "")
+        public Event (EventType e, double t, StationClass s, User u = null)
         {
             type = e;
             time = Math.Round(t,2);
             station = s;
             date = DateTime.Now;
-            userID = id;
+            user = u;
         }
         public override string ToString()
         {
@@ -64,7 +64,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"date",date.ToString("O").Quotate() },
                 {"time",time.ToString() },
                 {"station",station.Name.Quotate() },
-                {"userID",userID.Quotate() }
+                {"userID",(user != null ? user.UID.Quotate(): "".Quotate())}
             };
             return obj.Stringify();
         }
@@ -99,7 +99,7 @@ namespace Efficient_Automatic_Traveler_System
         public double time;
         public StationClass station;
         public DateTime date;
-        public string userID;
+        public User user;
     }
     struct NameValueQty<valueType,qtyType>
     {
@@ -267,7 +267,7 @@ namespace Efficient_Automatic_Traveler_System
                     // only print if the config says so
                     if (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()]))
                     {
-                        result = client.UploadString(ConfigManager.Get("labelServer"), "POST", json);
+                        result = client.UploadString(new StringStream(ConfigManager.Get("labelServer")).ParseJSON()["address"], "POST", json);
                     } else
                     {
                         result = "Labels disabled";
@@ -408,7 +408,7 @@ namespace Efficient_Automatic_Traveler_System
 
             if (clientType == "OperatorClient")
             {
-                json += "\"laborRate\":" + GetCurrentRate() + ",";
+                json += "\"laborRate\":" + GetCurrentLabor() + ",";
                 json += "\"station\":" + station.Name.Quotate() + ",";
                 json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
                 json += "\"qtyScrapped\":" + QuantityScrapped() + ",";
@@ -508,13 +508,15 @@ namespace Efficient_Automatic_Traveler_System
         // gets the next station for the given item
         public abstract StationClass GetNextStation(UInt16 itemID);
         // gets the work rate for the current station
-        public abstract double GetCurrentRate();
+        public abstract double GetCurrentLabor();
+        // gets the total work wrapped up in the given station
+        public abstract double GetTotalLabor(StationClass station);
         // overridden in derived classes, packs properties into the Export() json string
         protected abstract string ExportProperties();
         #endregion
         //--------------------------------------------------------
         #region Private Methods
-        protected double GetRate(Bill bill, StationClass station)
+        protected double GetRate(Bill bill, StationClass station,bool total = false)
         {
             try
             {
@@ -522,7 +524,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (station.LaborCodes.Exists(laborCode => laborCode == componentItem.ItemCode))
                     {
-                        return componentItem.QuantityPerBill;
+                        return (total ? componentItem.TotalQuantity : componentItem.QuantityPerBill);
                     }
                 }
             } catch (Exception ex)

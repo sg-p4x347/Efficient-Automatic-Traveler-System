@@ -15,8 +15,7 @@ namespace Efficient_Automatic_Traveler_System
     // Class: Used to generate and store the digital "travelers" that are used throughout the system
     // Developer: Gage Coates
     // Date started: 1/25/17
-
-    interface ITravelerManager
+    interface ITravelerManager : IOperatorActions, ISupervisorActions
     {
         //void CreateScrapChild(Traveler parent, int qtyScrapped);
         //Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time);
@@ -28,14 +27,13 @@ namespace Efficient_Automatic_Traveler_System
         {
             get;
         }
-        
     }
-    interface IOperator : ITravelerManager
+    interface IOperatorActions
     {
-        string AddTravelerEvent(string json);
-        string SubmitTraveler(string json);
+        ClientMessage AddTravelerEvent(int travelerID, EventType eventType, double time, StationClass station, User user, ushort? itemID = null);
+        ClientMessage SubmitTraveler(Traveler traveler, StationClass station);
     }
-    interface ISupervisor : ITravelerManager
+    interface ISupervisorActions
     {
         string MoveTravelerStart(string json);
         string LoadTraveler(string json);
@@ -47,15 +45,14 @@ namespace Efficient_Automatic_Traveler_System
         string DownloadSummary(string json);
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
-    class TravelerManager : IManager, ITravelerManager, IOperator, ISupervisor
+    class TravelerManager : IManager, ITravelerManager
     {
         #region Public methods
-        public TravelerManager(IOrderManager orderManager, string workingDirectory)
+        public TravelerManager(IOrderManager orderManager)
         {
             TravelersChanged = delegate { };
             m_travelers = new List<Traveler>();
             m_orderManager = orderManager;
-            m_workingDirectory = workingDirectory;
 
 
         }
@@ -222,26 +219,24 @@ namespace Efficient_Automatic_Traveler_System
             FindTraveler(travelerID).ScrapItem(itemID);
         }
         // has to know which station this is being completed from
-        public string AddTravelerEvent(string json)
+        public ClientMessage AddTravelerEvent(int travelerID, EventType eventType, double time, StationClass station, User user, ushort? itemID = null)
         {
-            ClientMessage returnMessage = new ClientMessage("void", "void");
+            ClientMessage returnMessage = new ClientMessage();
             try
             {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                EventType eventType = (EventType)Enum.Parse(typeof(EventType), obj["eventType"]);
-                Event itemEvent = new Event(eventType, Convert.ToDouble(obj["time"]), StationClass.GetStation(obj["station"]));
+                Traveler traveler = FindTraveler(travelerID);
+                Event itemEvent = new Event(eventType, time, station, user);
                 TravelerItem item;
                 bool newItem = false;
-                if (obj["itemID"] == "undefined")
+                if (itemID == null)
                 {
                     newItem = true;
                     // create a new item
-                    item = traveler.AddItem(StationClass.GetStation(obj["station"]));
+                    item = traveler.AddItem(station);
                 } else
                 {
                     // change existing item
-                    item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+                    item = traveler.FindItem(itemID.Value);
                 }
                 
                 item.History.Add(itemEvent);
@@ -278,23 +273,14 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Problem completing travelerItem: " + ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "Problem completing travelerItem");
             }
-            return returnMessage.ToString();
+            return returnMessage;
         }
         // has to know which station this is being submitted from
-        public string SubmitTraveler(string json)
+        public ClientMessage SubmitTraveler(Traveler traveler, StationClass station)
         {
-            try
-            {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                traveler.Advance(StationClass.GetStation(obj["station"]));
-                OnTravelersChanged(new List<Traveler>() { traveler });
-            }
-            catch (Exception ex)
-            {
-                Server.WriteLine("Problem submitting traveler: " + ex.Message + "stack trace: " + ex.StackTrace);
-            }
-            return "";
+            traveler.Advance(station);
+            OnTravelersChanged(new List<Traveler>() { traveler });
+            return new ClientMessage();
         }
         #endregion
         //----------------------------------
@@ -405,9 +391,10 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 //Summary summary = new Summary(this as ITravelerManager);
                 string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                //Summary summary = new Summary(Path.Combine(exeDir,"backup\\03-24-2017"), m_workingDirectory, (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-                //returnMessage = new ClientMessage("CreateSummary", summary.ToString());
-                returnMessage = new ClientMessage("Info", "error");
+                DateTime from = (obj["from"] != "" ? DateTime.Parse(obj["from"]) : BackupManager.GetMostRecent());
+                DateTime to = (obj["to"] != "" ? DateTime.Parse(obj["to"]) : DateTime.Today.Date);
+                Summary summary = new Summary(from,to,obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                returnMessage = new ClientMessage("CreateSummary", summary.ToString());
             }
             catch (Exception ex)
             {
@@ -621,7 +608,6 @@ namespace Efficient_Automatic_Traveler_System
         #region Private member variables
         private List<Traveler> m_travelers;
         private IOrderManager m_orderManager;
-        private string m_workingDirectory;
 
         public event TravelersChangedSubscriber TravelersChanged; // plural
         //public event TravelerChangedSubscriber TravelerChanged; // singular

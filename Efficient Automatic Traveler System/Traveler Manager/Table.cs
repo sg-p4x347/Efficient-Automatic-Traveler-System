@@ -177,6 +177,7 @@ namespace Efficient_Automatic_Traveler_System
             header.Add("Blank");
             header.Add("Blank Size");
             header.Add("Blank Qty");
+            header.Add("Labor");
             return Traveler.ExportCSVheader() + ',' + header.Stringify<string>(false).Trim('[').Trim(']');
         }
         public override string ExportCSVdetail()
@@ -187,13 +188,27 @@ namespace Efficient_Automatic_Traveler_System
             detail.Add(m_blankNo.Quotate());
             detail.Add(m_blankSize.Quotate());
             detail.Add(m_blankQuantity.ToString());
+            detail.Add(GetTotalLabor().ToString());
             return base.ExportCSVdetail() + ',' + detail.Stringify<string>(false).Trim('[').Trim(']');
         }
         // Gets the work rate for the current station
-        public override double GetCurrentRate()
+        public override double GetCurrentLabor()
         {
             // gets the rate from the first (and only) bill; this is the common bill that all tables share
             return GetRate(Part.ComponentBills[0], Station);
+        }
+        public override double GetTotalLabor(StationClass station)
+        {
+            return GetRate(Part.ComponentBills[0], station, true);
+        }
+        public double GetTotalLabor()
+        {
+            double total = 0.0;
+            foreach (string stationName in StationClass.StationNames())
+            {
+                total += GetTotalLabor(StationClass.GetStation(stationName));
+            }
+            return total;
         }
         #endregion
         //--------------------------------------------------------

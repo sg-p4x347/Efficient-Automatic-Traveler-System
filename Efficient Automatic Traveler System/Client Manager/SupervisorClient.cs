@@ -12,17 +12,16 @@ using System.Security.Cryptography;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class SupervisorClient : Client, ITravelers
+    class SupervisorClient : Client, ISupervisorClient, ITravelers
     {
-        //------------------------------
-        // Public members
-        //------------------------------
-        public SupervisorClient(TcpClient client, ISupervisor travelerCore) : base(client)
+        #region Public Methods
+        public SupervisorClient(TcpClient client, ITravelerManager travelerManager) : base(client)
         {
-            m_travelerManager = travelerCore;
+            m_travelerManager = travelerManager;
             m_travelers = m_travelerManager.GetTravelers;
             m_viewState = ItemState.PreProcess;
             SendMessage((new ClientMessage("InitStations", ConfigManager.Get("stations"))).ToString());
+            SendMessage((new ClientMessage("InitLabelTypes", ExtensionMethods.Stringify<LabelType>())).ToString());
             SendMessage((new ClientMessage("InterfaceOpen")).ToString());
             //HandleTravelersChanged(m_travelerManager.GetTravelers);
         }
@@ -40,22 +39,14 @@ namespace Efficient_Automatic_Traveler_System
             message += "}";
             SendMessage(message);
         }
-        //------------------------------
-        // Private members
-        //------------------------------
-        //------------------------------
-        // Properties
-        //------------------------------
-        protected ISupervisor m_travelerManager;
+        #endregion
+        //----------------------------------
+        #region Properties
+        protected ITravelerManager m_travelerManager;
         protected List<Traveler> m_travelers;
+        #endregion
+        //----------------------------------
         // JS client interface (these are the properties visible to the js interface calling system)
-        public ISupervisor TravelerManager
-        {
-            get
-            {
-                return m_travelerManager;
-            }
-        }
         public string SetViewFilter(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
@@ -67,10 +58,67 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
+                Server.LogException(ex);
                 returnMessage = new ClientMessage("Info","Error configuring view settings");
             }
             return returnMessage.ToString();
         }
+        #region ISupervisor
+        public string MoveTravelerStart(string json)
+        {
+            return m_travelerManager.MoveTravelerStart(json);
+        }
+
+        public string LoadTraveler(string json)
+        {
+            return m_travelerManager.LoadTraveler(json);
+        }
+
+        public string LoadTravelerAt(string json)
+        {
+            return m_travelerManager.LoadTravelerAt(json);
+        }
+
+        public string LoadItem(string json)
+        {
+            return m_travelerManager.LoadItem(json);
+        }
+
+        public string CreateSummary(string json)
+        {
+            return m_travelerManager.CreateSummary(json);
+        }
+
+        public string DisintegrateTraveler(string json)
+        {
+            return m_travelerManager.DisintegrateTraveler(json);
+        }
+
+        public string EnterProduction(string json)
+        {
+            return m_travelerManager.EnterProduction(json);
+        }
+
+        public string DownloadSummary(string json)
+        {
+            return m_travelerManager.DownloadSummary(json);
+        }
+        public ClientMessage PrintLabel(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                int qty = Convert.ToInt32(obj["quantity"]);
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                return new ClientMessage("Info",traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), obj["labelType"]),qty > 0 ? qty : 1));
+                
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Could not print label(s) due to a pesky error :(");
+            }
+        }
+        #endregion
         //-----------------------------------
         #region Properties
         private ItemState m_viewState;

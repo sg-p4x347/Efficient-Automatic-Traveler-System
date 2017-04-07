@@ -30,10 +30,9 @@ namespace Efficient_Automatic_Traveler_System
     class OrderManager : IManager, IOrderManager
     {
         #region Public Methods
-        public OrderManager(string workingDirectory)
+        public OrderManager()
         {
             m_orders = new List<Order>();
-            m_workingDirectory = workingDirectory;
         }
         // Imports and stores all open orders that have not already been stored
         public void ImportOrders(ref OdbcConnection MAS)
@@ -255,7 +254,6 @@ namespace Efficient_Automatic_Traveler_System
         //--------------------------------------------
         #region Properties
         private List<Order> m_orders;
-        private string m_workingDirectory;
         #endregion
         //--------------------------------------------
     }

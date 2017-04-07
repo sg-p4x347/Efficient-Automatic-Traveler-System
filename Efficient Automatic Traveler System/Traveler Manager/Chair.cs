@@ -114,7 +114,12 @@ namespace Efficient_Automatic_Traveler_System
             //tableRef.Close();
         }
 
-        public override double GetCurrentRate()
+        public override double GetCurrentLabor()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override double GetTotalLabor(StationClass station)
         {
             throw new NotImplementedException();
         }

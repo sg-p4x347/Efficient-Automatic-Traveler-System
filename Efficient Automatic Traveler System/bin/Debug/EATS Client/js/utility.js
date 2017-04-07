@@ -1,7 +1,7 @@
 function InterfaceCall(methodName, parameters, target) {
 	this.interfaceMethod = methodName;
 	this.parameters = parameters;
-	this.interfaceTarget = (target === undefined ? "TravelerManager" : target);
+	this.interfaceTarget = (target === undefined ? "This" : target);
 }
 function Traveler(obj) {
 	obj.selected = false;
@@ -143,9 +143,7 @@ function JSONviewer(object,name,quit) {
 			valueDiv.innerHTML = "Open";
 		} else {
 			valueDiv.className = "beige";
-			if (property.toLowerCase().includes("station")) {
-				valueDiv.innerHTML = application.stationList[value].name;
-			} else if (property.toLowerCase().includes("time")) {
+			if (property.toLowerCase().includes("time")) {
 				valueDiv.innerHTML = value + " min";
 			} else {
 				valueDiv.innerHTML = value;

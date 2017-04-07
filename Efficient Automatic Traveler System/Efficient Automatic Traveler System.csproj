@@ -77,7 +77,12 @@
     <Compile Include="Client Manager\SupervisorClient.cs" />
     <Compile Include="ConfigManager.cs" />
     <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="IManager.cs" />
+    <Compile Include="Interfaces\IClient.cs" />
+    <Compile Include="Interfaces\IManager.cs" />
+    <Compile Include="Interfaces\IOperator.cs" />
+    <Compile Include="Interfaces\IOperatorClient.cs" />
+    <Compile Include="Interfaces\ISupervisor.cs" />
+    <Compile Include="Interfaces\ISupervisorClient.cs" />
     <Compile Include="Order Manager\OrderItem.cs" />
     <Compile Include="Order Manager\OrderManager.cs" />
     <Compile Include="StringStream.cs" />

@@ -35,7 +35,7 @@ namespace Efficient_Automatic_Traveler_System
                 bool first = true;
                 foreach (itemType s in list)
                 {
-                    json += (first ? "" : "," + Environment.NewLine) + (pretty ? Environment.NewLine + '\t' : "");
+                    json += (first ? "" : ",") + (pretty ? Environment.NewLine + '\t' : "");
                     if (quotate && typeof(itemType) == typeof(string))
                     {
                         json += s.ToString().Quotate();
@@ -69,6 +69,25 @@ namespace Efficient_Automatic_Traveler_System
         public static string Quotate(this string s)
         {
             return '"' + s + '"';
+        }
+        // returns a JSON string representing the collection of enumeration values
+        public static string Stringify<T>()
+        {
+            Type enumType = typeof(T);
+
+            // Can't use type constraints on value types, so have to do check like this
+            if (enumType.BaseType != typeof(Enum))
+                throw new ArgumentException("T must be of type System.Enum");
+
+            Array enumValArray = Enum.GetValues(enumType);
+
+            List<string> names = new List<string>();
+
+            foreach (T val in enumValArray)
+            {
+                names.Add( val.ToString());
+            }
+            return names.Stringify<string>();
         }
     }
 }

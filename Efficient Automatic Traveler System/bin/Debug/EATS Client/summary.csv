@@ -1,59 +1,37 @@
-Traveler,Part,Description,Quantity,Station,Color,Banding Color,Blank,Blank Size,Blank Qty
-2150,"41-2437-22","Desktop,Apex,SD 30x60",4,"Start","Marker Board","Black","","1549 X 1532",2
-2151,"MG2248-55","36x72 Rect,GG/Blk",1,"Start","Gray Glace","Black","MAGR4","925 X 1838",1
-2186,"MG2207-60","60 Round,WChr/Blk",1,"Start","Wild Cherry","Black","CHOK8","1549 X 1532",1
-2187,"MG2270-51","60x66Hshoe,GG/Blu",13,"Start","Gray Glace","Blue","MAGR7","1549 X 1838",13
-2188,"MG2236-52","30x48 Rect,GG/Grn",3,"Start","Gray Glace","Green","","1549 X 1224",2
-2189,"38-2272-60","Apex,30x41Triangle",1,"Start","Wild Cherry","Black","CHOK FULL","1244 X 2460",1
-2190,"MG2236-49","30x48 Rect,Oak/Blk",11,"Start","Solar Oak","Black","","1549 X 1224",6
-2191,"MG2268-49","48x72 Kdny,Oak/Blk",3,"Start","Solar Oak","Black","CHOK3","1244 X 1838",3
-2192,"MG2237-49","30x60 Rect,Oak/Blk",2,"Start","Solar Oak","Black","CHOK8","1549 X 1532",1
-2193,"38-2284-22","Apex,36x23x19 Trpz",5,"Start","Marker Board","Black","","1244 X 2460",1
-2194,"38-2272-61","Apex,30x41Triangle",8,"Start","Fusion Maple","Grey","MAGR FULL","1244 X 2460",2
-2196,"38-2222-78","Apex,20x60 Rect",20,"Start","Grey Nebula","Grey","","1549 X 1532",7
-2199,"MG2236-53","30x48 Rect,GG/Red",3,"Start","Gray Glace","Red","","1549 X 1224",2
-2200,"38-2272-49","Apex,30x41Triangle",7,"Start","Solar Oak","Black","CHOK FULL","1244 X 2460",2
-2201,"38-2251-23","Apex,60 Delta",6,"Start","Marker Board","Grey","","1549 X 1532",6
-2202,"MG2212-51","36 Square,GG/Blu",3,"Start","Gray Glace","Blue","MAGR4","925 X 1838",2
-2203,"MG2224-50","24x36 Rect,Map/Blk",1,"Start","Fusion Maple","Black","MAGR1","1244 X 917",1
-2204,"MG2224-49","24x36 Rect,Oak/Blk",1,"Start","Solar Oak","Black","","1244 X 917",1
-2205,"MG2224-60","24x36 Rec,WChy/Blk",2,"Start","Wild Cherry","Black","","1244 X 917",1
-2206,"38-2284-78","Apex,36x23x19 Trpz",4,"Start","Grey Nebula","Grey","","1244 X 2460",1
-2207,"MG2276-55","24x48 Trpz,GG/Blk",1,"Start","Gray Glace","Black","MAGR FULL","1244 X 1229",1
-2208,"MG2226-53","24x48 Rect,GG/Red",1,"Start","Gray Glace","Red","MAGR FULL","1244 X 2460",1
-2209,"MG2237-53","30x60 Rect,GG/Red",1,"Start","Gray Glace","Red","MAGR8","1549 X 1532",1
-2210,"38-2284-80","Apex,36x23x19 Trpz",50,"Start","Sand Shoal","Grey","","1244 X 2460",9
-2212,"MG2276-52","24x48 Trpz,GG/Grn",8,"Start","Gray Glace","Green","MAGR FULL","1244 X 1229",2
-2213,"MG2265-52","48 Clover,GG/Grn",7,"Start","Gray Glace","Green","MAGR FULL","1244 X 2460",4
-2214,"MG2227-52","48x72Hshoe,GG/Grn",7,"Start","Gray Glace","Green","MAGR3","1244 X 1838",7
-2216,"MG2245-55","42 Round,GG/Blk",4,"Start","Gray Glace","Black","MAGR FULL","1244 X 2460",2
-2217,"38-2310-77","Apex,24x28 Bone",1,"Start","Grey Nebula","Black","","1244 X 2460",1
-2218,"38-2220-49","Apex,20x36 Rect",2,"Start","Solar Oak","Black","CHOK7","1549 X 1838",1
-2219,"MG2245-52","42 Round,GG/Grn",2,"Start","Gray Glace","Green","MAGR FULL","1244 X 2460",1
-2220,"MG2270-53","60x66Hshoe,GG/Red",1,"Start","Gray Glace","Red","MAGR7","1549 X 1838",1
-2221,"MG2245-53","42 Round,GG/Red",1,"Start","Gray Glace","Red","MAGR FULL","1244 X 2460",1
-2222,"MG2224-52","24x36 Rect,GG/Grn",2,"Start","Gray Glace","Green","MAGR1","1244 X 917",1
-2223,"MG2270-52","60x66Hshoe,GG/Grn",1,"Start","Gray Glace","Green","MAGR7","1549 X 1838",1
-2224,"MG2226-55","24x48 Rect,GG/Blk",1,"Start","Gray Glace","Black","MAGR FULL","1244 X 2460",1
-2225,"MG2247-49","36x60 Rect,Oak/Blk",1,"Start","Solar Oak","Black","CHOK5","1837 X 1532",1
-2226,"MG2236-51","30x48 Rect,GG/Blu",1,"Start","Gray Glace","Blue","","1549 X 1224",1
-2227,"MG2248-52","36x72 Rect,GG/Grn",1,"Start","Gray Glace","Green","MAGR4","925 X 1838",1
-2228,"MG2248-51","36x72 Rect,GG/Blu",1,"Start","Gray Glace","Blue","MAGR4","925 X 1838",1
-2229,"38-2222-77","Apex,20x60 Rect",3,"Start","Grey Nebula","Black","","1549 X 1532",1
-2230,"38-2220-60","Apex,20x36 Rect",1,"Start","Wild Cherry","Black","CHOK7","1549 X 1838",1
-2231,"MG2287-51","30x60 Trpz,GG/Blu",1,"Start","Gray Glace","Blue","MAGR8","1549 X 1532",1
-2232,"MG2287-52","30x60 Trpz,GG/Grn",1,"Start","Gray Glace","Green","MAGR8","1549 X 1532",1
-2233,"MG2287-54","30x60 Trpz,GG/Yel",1,"Start","Gray Glace","Yellow","MAGR8","1549 X 1532",1
-2234,"MG2248-82","36x72 Rect,GG/Nav",4,"Start","Gray Glace","Navy","MAGR4","925 X 1838",4
-2235,"MG2512-77","TableTop,Cafe,36Sq GryNeb/Blk",6,"Start","Grey Nebula","Black","","925 X 1838",6
-2236,"MG2543-77","TableTop,Cafe,30Rnd GryNeb/Blk",4,"Start","Grey Nebula","Black","","",4
-2237,"38-2227-22","Tabletop,Apex,48x72Hshoe",1,"Start","Marker Board","Black","","1244 X 1838",1
-2238,"MG2266-49","48 Round,Oak/Blk",9,"Start","Solar Oak","Black","CHOK FULL","1244 X 2460",5
-2239,"MG2237-50","30x60 Rect,Map/Blk",1,"Start","Fusion Maple","Black","MAGR8","1549 X 1532",1
-2241,"MG2277-55","48HalfRnd,GG/Blk",1,"Start","Gray Glace","Black","MAGR FULL","1244 X 2460",1
-2243,"MG2224-53","24x36 Rect,GG/Red",1,"Start","Gray Glace","Red","MAGR1","1244 X 917",1
-2244,"MG2237-52","30x60 Rect,GG/Grn",1,"Start","Gray Glace","Green","MAGR8","1549 X 1532",1
-2245,"38-2268-49","Apex,48x72 Kdny",2,"Start","Solar Oak","Black","CHOK3","1244 X 1838",2
-2246,"MG2266-51","48 Round,GG/Blu",1,"Start","Gray Glace","Blue","MAGR FULL","1244 X 2460",1
-2247,"MG2266-54","48 Round,GG/Yel",1,"Start","Gray Glace","Yellow","MAGR FULL","1244 X 2460",1
-2249,"MG2214-50","42 Square,Map/Blk",1,"Start","Fusion Maple","Black","MAGR FULL","1244 X 2460",1
+Traveler,Part,Description,Quantity,Station,Color,Banding Color,Blank,Blank Size,Blank Qty,Labor
+2775,"MG2247-49","36x60 Rect,Oak/Blk",1,"Start","Solar Oak","Black","CHOK5","1837 X 1532",1,12.4951
+2782,"MG2512-77","TableTop,Cafe,36Sq GryNeb/Blk",6,"Start","Grey Nebula","Black","","925 X 1838",6,68.0658
+2783,"MG2543-77","TableTop,Cafe,30Rnd GryNeb/Blk",4,"Start","Grey Nebula","Black","","",4,41.4668
+2795,"MG2224-54","24x36 Rect,GG/Yel",3,"Start","Gray Glace","Yellow","MAGR1","1244 X 917",2,26.5479
+2796,"MG2224-53","24x36 Rect,GG/Red",1,"Start","Gray Glace","Red","MAGR1","1244 X 917",1,8.8493
+2797,"MG2236-55","30x48 Rect,GG/Blk",1,"Start","Gray Glace","Black","","1549 X 1224",1,9.6685
+2798,"MG2207-54","60 Round,GG/Yel",2,"Start","Gray Glace","Yellow","MAGR8","1549 X 1532",2,38.8206
+2799,"MG2207-52","60 Round,GG/Grn",2,"Start","Gray Glace","Green","MAGR8","1549 X 1532",2,38.8206
+2800,"MG2207-53","60 Round,GG/Red",2,"Start","Gray Glace","Red","MAGR8","1549 X 1532",2,38.8206
+2801,"41-2429-77","Desktop,Apex,SD 24x30",15,"Start","Grey Nebula","Black","","",15,132.432
+2803,"38-2220-77","Apex,20x36 Rect",8,"Start","Grey Nebula","Black","","1549 X 1838",2,75.4512
+2804,"MG2236-50","30x48 Rect,Map/Blk",2,"Start","Fusion Maple","Black","","1549 X 1224",1,19.337
+2807,"41-2429-49","Desktop,Apex,SD 24x30",1,"Start","Solar Oak","Black","","",1,8.8288
+2808,"MG2227-55","48x72Hshoe,GG/Blk",1,"Start","Gray Glace","Black","MAGR3","1244 X 1838",1,21.5592
+2811,"MG2226-51","24x48 Rect,GG/Blu",1,"Start","Gray Glace","Blue","MAGR FULL","1244 X 2460",1,10.2817
+2812,"MG2228-55","24x60 Rect,GG/Blk",1,"Start","Gray Glace","Black","","1244 X 1532",1,9.6357
+2813,"MG2216-55","48 Square,GG/Blk",1,"Start","Gray Glace","Black","MAGR FULL","1244 X 2460",1,10.3137
+2814,"MG2226-55","24x48 Rect,GG/Blk",4,"Start","Gray Glace","Black","MAGR FULL","1244 X 2460",1,41.1268
+2815,"MG2245-53","42 Round,GG/Red",1,"Start","Gray Glace","Red","MAGR FULL","1244 X 2460",1,10.494
+2816,"MG2226-52","24x48 Rect,GG/Grn",1,"Start","Gray Glace","Green","MAGR FULL","1244 X 2460",1,10.2817
+2817,"MG2226-49","24x48 Rect,Oak/Blk",2,"Start","Solar Oak","Black","CHOK FULL","1244 X 2460",1,20.5634
+2818,"MG2237-53","30x60 Rect,GG/Red",1,"Start","Gray Glace","Red","MAGR8","1549 X 1532",1,9.537
+2819,"38-2220-50","Apex,20x36 Rect",1,"Start","Fusion Maple","Black","MAGR7","1549 X 1838",1,9.4314
+2820,"38-2222-50","Apex,20x60 Rect",1,"Start","Fusion Maple","Black","MAGR8","1549 X 1532",1,9.4722
+2821,"MG2268-51","48x72 Kdny,GG/Blu",1,"Start","Gray Glace","Blue","MAGR3","1244 X 1838",1,18.941
+2822,"38-2284-78","Apex,36x23x19 Trpz",8,"Start","Grey Nebula","Grey","","1244 X 2460",2,88.3448
+2823,"41-2420-49","Desktop,Apex,SD 20x36",1,"Start","Solar Oak","Black","","1549 X 1838",1,9.4363
+2824,"MG2228-77","24x60 Rect,",450,"Start","Grey Nebula","Black","","1244 X 1532",225,4336.065
+2829,"MG2226-62","24x48 Rect,Map/Blu",4,"Start","Fusion Maple","Blue","MAGR FULL","1244 X 2460",1,41.1268
+2830,"MG2236-62","30x48 Rect,Map/Blu",4,"Start","Fusion Maple","Blue","","1549 X 1224",2,38.674
+2831,"38-2252-77","Apex,54 HalfRndWav",2,"Start","Grey Nebula","Black","","",2,23.5506
+2832,"38-2257-77","Apex,24x60 Wave",1,"Start","Grey Nebula","Black","","1549 X 1532",1,9.3477
+2833,"MG2236-51","30x48 Rect,GG/Blu",1,"Start","Gray Glace","Blue","","1549 X 1224",1,9.6685
+2834,"38-2266-78","Apex,48 Round",4,"Start","Grey Nebula","Grey","","1244 X 2460",2,49.842
+2835,"38-2270-22","Tabletop,Apex,60x66Hshoe",1,"Start","Marker Board","Black","","1549 X 1838",1,22.6723
+2836,"MG2238-51","30x72 Rect,GG/Blu",2,"Start","Gray Glace","Blue","MAGR7","1549 X 1838",1,30.1408

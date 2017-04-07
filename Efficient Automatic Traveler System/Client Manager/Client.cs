@@ -28,7 +28,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            if (Method != "")
+            if (Method != null && Method != "")
             {
                 Dictionary<string, string> obj = new Dictionary<string, string>()
                 {
@@ -52,7 +52,7 @@ namespace Efficient_Automatic_Traveler_System
         void HandleTravelersChanged(List<Traveler> travelers);
     }
     // The base class for a TcpClient that connects to the EATS server
-    abstract class Client
+    abstract class Client : IClient
     {
         //------------------------------
         // Public members
@@ -160,6 +160,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         protected void LostConnection()
         {
+            if (m_user != null) m_user.Logout();
             m_cts.Cancel();
             m_connected = false;
         }
@@ -318,7 +319,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        public string Logout(string json)
+        public ClientMessage Logout(string json)
         {
             if (m_user != null)
             {
@@ -326,7 +327,7 @@ namespace Efficient_Automatic_Traveler_System
                 UserManager.Backup();
                 m_user = null;
             }
-            return "";
+            return new ClientMessage();
         }
         //public string AddUID(string json)
         //{

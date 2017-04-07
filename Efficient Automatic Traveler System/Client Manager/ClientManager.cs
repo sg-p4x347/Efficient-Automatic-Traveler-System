@@ -100,14 +100,14 @@ namespace Efficient_Automatic_Traveler_System
                 switch (await Client.RecieveMessageAsync(tcpClient.GetStream()))
                 {
                     case "OperatorClient":
-                        OperatorClient operatorClient = new OperatorClient(tcpClient,m_travelerManager as IOperator);
+                        OperatorClient operatorClient = new OperatorClient(tcpClient,m_travelerManager as ITravelerManager);
                         operatorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         operatorClient.ListenAsync();
                         m_clients.Add(operatorClient);
                         Console.WriteLine("An operator connected (" + m_clients.Count + " total clients)");
                         break;
                     case "SupervisorClient":
-                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient,m_travelerManager as ISupervisor);
+                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient,m_travelerManager as ITravelerManager);
                         supervisorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         supervisorClient.ListenAsync();
                         m_clients.Add(supervisorClient);

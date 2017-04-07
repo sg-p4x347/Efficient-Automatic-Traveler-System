@@ -56,6 +56,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             return DateTime.Parse(date);
         }
+        // gets the most recent past backup
+        static internal DateTime GetMostRecent()
+        {
+            return m_backupDates.First(x => x.Date < DateTime.Today.Date);
+        }
         // makes a backup folder for today's date
         static internal void CreateBackupDir()
         {
@@ -115,6 +120,7 @@ namespace Efficient_Automatic_Traveler_System
             );
         }
         
+
         #endregion
         #region Static Properties
         private static List<DateTime> m_backupDates;

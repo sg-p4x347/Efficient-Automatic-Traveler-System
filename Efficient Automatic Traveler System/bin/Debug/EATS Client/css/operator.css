@@ -80,7 +80,7 @@ div.timer__btn {
 /*UI items*/
 #stationList {
 	box-sizing: border-box;
-	width: 40%;
+	width: 100%;
 }
 
 #travelerSearchBox {
