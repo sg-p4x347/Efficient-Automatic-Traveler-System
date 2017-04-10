@@ -135,7 +135,7 @@ function Application () {
 	this.CreateSummary = function (summaryObj) {
 		var self = this;
 		self.popupManager.CloseAll();
-		self.popupManager.AddCustom(document.getElementById("summaryPopup").cloneNode(true));
+		var closeFunction = self.popupManager.AddSpecific("summaryPopup");//.cloneNode(true));
 		
 		var summaryTable = document.getElementById("summary"); // TABLE
 		if (summaryObj.items.length > 0) {
@@ -204,6 +204,38 @@ function Application () {
 	this.InterfaceOpen = function () {
 		// configure the default view settings with the server
 		document.getElementById("viewForm").onchange();
+	}
+	this.PrintLabelPopup = function (traveler) {
+		var self = this;
+		var labelSelect = document.getElementById("labelSelect");
+		ClearChildren(labelSelect);
+		self.labelTypes.forEach(function (type) {
+			var option = document.createElement("OPTION");
+			option.value = type;
+			option.innerHTML = type;
+			labelSelect.appendChild(option);
+		});
+		
+		var itemSelect = document.getElementById("itemSelect");
+		ClearChildren(itemSelect);
+		traveler.items.forEach(function (item) {
+			var option = document.createElement("OPTION");
+			option.value = item.ID;
+			option.innerHTML = item.ID;
+			itemSelect.appendChild(option);
+		});
+		
+		document.getElementById("printLabelBtn").onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("PrintLabel",{
+				travelerID: traveler.ID,
+				itemID: document.getElementById("itemSelect").value,
+				labelType: document.getElementById("labelSelect").value,
+				quantity: 1
+			});
+			self.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+		}
 	}
 	// initialize html and application components
 	this.Initialize = function () {
@@ -280,6 +312,8 @@ function Application () {
 				//-----------------------------------------------
 			}
 			popup.appendChild(summaryBtn);
+			
+			
 			
 			// DOWNLOAD SUMMARY (AVAILABLE TRAVELERS)--------------
 			var downloadSummaryBtn = self.popupManager.CreateButton("Download Table Summary<br>(Available in Start)");
@@ -483,8 +517,8 @@ function TravelerQueue(station) {
 	}
 	this.PromptAction = function (traveler) {
 		var self = this;
-		var promptBox = document.getElementById("travelerPopup").cloneNode(true);
-		var closeFunction = application.popupManager.AddCustom(promptBox);
+		var promptBox = document.getElementById("travelerPopup");//.cloneNode(true);
+		var closeFunction = application.popupManager.AddSpecific("travelerPopup");
 		/* // clear the promptBox
 		while (promptBox.hasChildNodes()) {
 			promptBox.removeChild(promptBox.lastChild);
@@ -501,6 +535,7 @@ function TravelerQueue(station) {
 		// Move starting station to...
 		//-----------------
 		var promptSelect = document.getElementById("promptSelect");
+		ClearChildren(promptSelect);
 		// add the station options
 		application.stationList.forEach(function (station) {
 			if (station.creates.indexOf(traveler.type) != -1 || station.name === "Start") {
@@ -596,6 +631,24 @@ function TravelerQueue(station) {
 			popup.appendChild(enterProductionBtn);
 			//----------------------------
 			application.popupManager.AddCustom(popup);
+			
+			// PRINT LABLES--------------
+			var printBtn = application.popupManager.CreateButton("Print Labels");
+			printBtn.onclick = function () {
+				application.popupManager.Close(popup);
+				application.popupManager.AddSpecific("labelPopup");
+				application.PrintLabelPopup(traveler);
+				/* //----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("CreateSummary",{
+					sort: "Active",
+					type: "Table",
+					from: "",
+					to: ""
+				});
+				self.websocket.send(JSON.stringify(message));
+				//----------------------------------------------- */
+			}
+			popup.appendChild(printBtn);
 		}
 	}
 	this.Initialize = function (station) {

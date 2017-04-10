@@ -109,9 +109,9 @@ function Application () {
 		// popup stuff
 		self.popupManager.CloseAll();
 		self.StopAutofocus();
-		var loginPopup = document.getElementById("loginPopup").cloneNode(true);
+		var loginPopup = document.getElementById("loginPopup");//.cloneNode(true);
 		
-		self.popupManager.AddCustom(loginPopup,true);
+		self.popupManager.AddSpecific("loginPopup");
 		self.popupManager.Lock(loginPopup);
 		// Extra info
 		document.getElementById("loginInfo").innerHTML = (info ? info : "");

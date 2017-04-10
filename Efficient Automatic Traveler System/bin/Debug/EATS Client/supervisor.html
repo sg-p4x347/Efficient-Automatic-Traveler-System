@@ -11,6 +11,46 @@
     </head>
 	<body onload = "Initialize()">
 		<div id = "blackout" class = "blackout hidden">
+			<!-- LABEL POPUP -->
+			<div id = "labelPopup" class = "blackout__popup" style = "display: none;">
+				<p>Print Labels</p>
+				Label Type:<select id = "labelSelect" class = "dark"></select>
+				Item:<select id = "itemSelect" class = "dark"></select>
+				<div id = "printLabelBtn" class = "dark button">Print</div>
+			</div>
+			<!-- TRAVELER POPUP -->
+			<div id = "travelerPopup" class = "blackout__popup" style = "display: none;">
+				<div class = "yellowBack button" onclick = "application.popupManager.Close(document.getElementById('travelerPopup'));">Close</div>
+				<div class = "list--horizontal">
+					<p id = "promptInfo">
+						Station:<span id = "promptInfoStation"></span><br>
+						<span id = "promptInfoTravelerID" class = "white three-d"></span><br>
+						<span id = "promptInfoItemCode" class = "white three-d"></span><br>
+						Qty on traveler:<span id = "promptInfoQuantity" class = "white blackBack"></span><br>
+						Pending:<span id = "promptInfoPending" class = "blue whiteBack"></span><br>
+						Completed:<span id = "promptInfoCompleted" class = "green whiteBack"></span><br>
+						<span id = "promptInfoAction"></span>
+					</p>
+				</div>
+				<select id = "promptSelect" class = "dark oneEM"></select>
+				<div class = "list--horizontal justify-space-between">
+					<div id = "promptMoveBtn" class = "dark button">Move</div>
+					<div id = "promptInfoBtn" class = "dark button">More info</div>
+					<!-- TRAVELER OPTIONS BUTTON -->
+					<img id = "travelerOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
+				</div>
+			</div>
+			<!-- SUMMARY POPUP -->
+			<div id = "summaryPopup" class = "summaryPopup" style = "display: none;">
+				<div class = "yellowBack button" onclick = "application.popupManager.Close(document.getElementById('summaryPopup'));">Close</div>
+				<div class = "list--horizontal" >
+					<h1 id = "summaryTitle"></h1> &nbsp
+					From &nbsp <select id = "summaryFromSelect" class = "whiteBack twoEm"></select> &nbsp
+					To &nbsp <select id = "summaryToSelect" class = "whiteBack twoEm"></select> &nbsp
+				</div>
+				
+				<table id = "summary"></table>
+			</div>
 		</div>
 		<div class = "header twoEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
 			<span style = "color: #001a66;">Supervisor</span>
@@ -36,39 +76,5 @@
 		</div>
 		
 		<div class = "footer"></div>
-		<!-- FORMATTED HTML BLOCKS -->
-		<div class = "hidden">
-			<!-- TRAVELER POPUP -->
-			<div id = "travelerPopup" class = "blackout__popup">
-				<div class = "list--horizontal">
-					<p id = "promptInfo">
-						Station:<span id = "promptInfoStation"></span><br>
-						<span id = "promptInfoTravelerID" class = "white three-d"></span><br>
-						<span id = "promptInfoItemCode" class = "white three-d"></span><br>
-						Qty on traveler:<span id = "promptInfoQuantity" class = "white blackBack"></span><br>
-						Pending:<span id = "promptInfoPending" class = "blue whiteBack"></span><br>
-						Completed:<span id = "promptInfoCompleted" class = "green whiteBack"></span><br>
-						<span id = "promptInfoAction"></span>
-					</p>
-				</div>
-				<select id = "promptSelect" class = "dark oneEM"></select>
-				<div class = "list--horizontal justify-space-between">
-					<div id = "promptMoveBtn" class = "dark button">Move</div>
-					<div id = "promptInfoBtn" class = "dark button">More info</div>
-					<!-- TRAVELER OPTIONS BUTTON -->
-					<img id = "travelerOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
-				</div>
-			</div>
-			<!-- SUMMARY POPUP -->
-			<div id = "summaryPopup" class = "summaryPopup">
-				<div class = "list--horizontal" >
-					<h1 id = "summaryTitle"></h1> &nbsp
-					From &nbsp <select id = "summaryFromSelect" class = "whiteBack twoEm"></select> &nbsp
-					To &nbsp <select id = "summaryToSelect" class = "whiteBack twoEm"></select> &nbsp
-				</div>
-				
-				<table id = "summary"></table>
-			</div>
-		</div>
 	</body>
 </html>

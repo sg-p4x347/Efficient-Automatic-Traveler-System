@@ -167,6 +167,7 @@ function JSONviewer(object,name,quit) {
 function PopupManager(blackout) {
 	this.blackout;
 	this.locked;
+	this.popupCount = 0;
 	// adds a custom popup, where the close function is returned for the popup creator to call
 	this.AddCustom = function (popup,noClose) {
 		var self = this;
@@ -181,6 +182,14 @@ function PopupManager(blackout) {
 			popup.insertBefore(close,popup.firstChild);
 			return close.onclick;
 		}
+	}
+	// opens a pre-formatted popup from an id
+	this.AddSpecific = function (id) {
+		var self = this;
+		var popup = document.getElementById(id);
+		popup.style.display = "inherit";
+		self.Open(popup);
+		return function() {self.Close(popup);} // return the close function
 	}
 	// displays a message with an "OK" button
 	this.Info = function (message) {
@@ -257,7 +266,7 @@ function PopupManager(blackout) {
 	this.Exists = function(DOMid) {
 		var self = this;
 		for (i = 0; i < self.blackout.childNodes.length; i++) {
-			if (self.blackout.childNodes[i].id == DOMid) {
+			if (self.blackout.childNodes[i].id == DOMid && self.blackout.childNodes[i].style.display != "none") {
 				return true;
 			}
 		}
@@ -290,26 +299,34 @@ function PopupManager(blackout) {
 	// clears everything and closes the blackout
 	this.Close = function (popup) {
 		var self = this;
-		// close the specified popup, if it exists
-		if (self.blackout.contains(popup)) {
-			self.blackout.removeChild(popup);
+		if (self.popupCount > 0) {
+			// close the specified popup, if it exists
+			if (self.blackout.contains(popup) && popup.style.display != "none") {
+				// only close unonomouse popups
+				if (!popup.hasAttribute("id")) {
+					self.blackout.removeChild(popup);
+				} else {
+					popup.style.display = "none";
+				}
+				self.popupCount--;
+			}
+			// there are no open popups
+			if (self.popupCount <= 0) {
+				self.blackout.className = "blackout hidden";
+			}
 		}
-		// there are no open popups
-		if (self.blackout.children.length <= 0) {
-			self.blackout.className = "blackout hidden";
-		}
-		
 	}
 	this.CloseAll = function () {
 		var self = this;
-		for (var i = 0; i < self.blackout.childNodes.length; i++) {
-			if (!self.locked || self.blackout.childNodes[i] != self.locked) {
-				self.Close(self.blackout.childNodes[i]);
+		for (var i = 0; i < self.blackout.children.length; i++) {
+			if (!self.locked || self.blackout.children[i] != self.locked) {
+				self.Close(self.blackout.children[i]);
 			}
 		}
 	}
 	this.Open = function (popup) {
 		var self = this;
+		self.popupCount++;
 		self.blackout.appendChild(popup);
 		self.blackout.className = "blackout";
 	}
@@ -389,4 +406,9 @@ function Timer(DOMelement) {
 		this.Start(this.timerTime);
 	}
 	this.Clear();
+}
+function ClearChildren(domElement) {
+	while (domElement.lastChild) {
+		domElement.remove(domElement.lastChild);
+	}
 }

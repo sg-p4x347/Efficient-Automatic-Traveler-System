@@ -11,14 +11,23 @@
 		<link rel="shortcut icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>">
     </head>
 	<body onload = "Initialize()">
-		
-		<div id = "blackout" class = "blackout"></div>
+		<div id = "blackout" class = "blackout">
+			<!-- LOGIN POPUP -->
+			<div id = "loginPopup" class = "blackout__popup">
+				<p id = "loginInfo" class = "red"></p>
+				Login as:
+				<form id = "loginForm">
+					User ID:<input type = "text" id = "uidBox">
+					<input type = "submit" id = "loginBtn" class = "dark button">
+				</form>
+				<!-- STATION SELECTION -->
+				<select id = "stationList" class = "dark twoEM"></select>
+			</div>
+		</div>
 		<!-- HEADER -->
 		<div class = "header">
 			<div class = "list--horizontal justify-space-between">
-				
 				<!-- STATION TIMER -->
-				
 				<div class = "timer twoEM">
 					<p>Time @ station &nbsp</p>
 					<p id = "stationTime">00:00:00</p>
@@ -82,20 +91,6 @@
 				<div id = "submitTravelerBtn" class = "dark button twoEM">Submit completed items</div>
 				
 				
-			</div>
-		</div>
-		<!-- FORMATTED HTML BLOCKS -->
-		<div class = "hidden">
-			<!-- LOGIN POPUP -->
-			<div id = "loginPopup" class = "blackout__popup">
-				<p id = "loginInfo" class = "red"></p>
-				Login as:
-				<form id = "loginForm">
-					User ID:<input type = "text" id = "uidBox">
-					<input type = "submit" id = "loginBtn" class = "dark button">
-				</form>
-				<!-- STATION SELECTION -->
-				<select id = "stationList" class = "dark twoEM"></select>
 			</div>
 		</div>
 	</body>
