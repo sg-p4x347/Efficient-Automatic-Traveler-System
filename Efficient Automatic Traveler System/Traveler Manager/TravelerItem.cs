@@ -60,6 +60,10 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
+        public double TimeAt(StationClass station)
+        {
+            return m_history.Where(evt => evt.station == station).Sum(e => e.time);
+        }
         // Properties
         private UInt16 m_ID;
         private bool m_scrapped;

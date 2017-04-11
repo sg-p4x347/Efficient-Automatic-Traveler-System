@@ -67,9 +67,10 @@ namespace Efficient_Automatic_Traveler_System
             Directory.CreateDirectory(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today)));
         }
         // returns true if a current backup for today exists
-        static internal bool CurrentBackupExists()
+        static internal bool CurrentBackupExists(string file)
         {
-            return m_backupDates.Exists(x => x == DateTime.Today.Date);
+            return  (m_backupDates.Exists(x => x == DateTime.Today.Date)
+                && File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date),file)));
         }
         // returns the requested file from current day backup
         static internal string Import(string filename,DateTime? d = null)

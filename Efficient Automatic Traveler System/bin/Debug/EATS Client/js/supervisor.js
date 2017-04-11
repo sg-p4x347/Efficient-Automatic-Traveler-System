@@ -341,6 +341,32 @@ function Application () {
 			}
 			popup.appendChild(sortedSummary);
 			
+			// DOWNLOAD SUMMARY (Production)--------------
+			var productionBtn = self.popupManager.CreateButton("Download Table Production");
+			productionBtn.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("ExportProduction",{
+					sort: "All",
+					type: "Table"
+				});
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			popup.appendChild(productionBtn);
+			
+			// DOWNLOAD SUMMARY (SORTED TRAVELERS)--------------
+			var scrapBtn = self.popupManager.CreateButton("Download Table Scrap");
+			scrapBtn.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("ExportScrap",{
+					sort: "All",
+					type: "Table"
+				});
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			popup.appendChild(scrapBtn);
+			
 			self.popupManager.AddCustom(popup);
 		}
 		

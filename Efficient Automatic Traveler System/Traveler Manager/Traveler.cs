@@ -18,7 +18,8 @@ namespace Efficient_Automatic_Traveler_System
         Scrapped,
         Reworked,
         Moved,
-        Login
+        Login,
+        Finished
     }
     enum LabelType
     {
@@ -233,7 +234,7 @@ namespace Efficient_Automatic_Traveler_System
             return obj.Stringify();
         }
         // print a label for this traveler
-        public string PrintLabel(ushort itemID, LabelType type, int qty = 1)
+        public string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false)
         {
             string result = "";
             try
@@ -265,7 +266,7 @@ namespace Efficient_Automatic_Traveler_System
                     json += '}';
                     Dictionary < string, string> labelConfigs = (new StringStream(ConfigManager.Get("print"))).ParseJSON();
                     // only print if the config says so
-                    if (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()]))
+                    if (forcePrint || (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()])))
                     {
                         result = client.UploadString(new StringStream(ConfigManager.Get("labelServer")).ParseJSON()["address"], "POST", json);
                     } else
@@ -328,6 +329,7 @@ namespace Efficient_Automatic_Traveler_System
             TravelerItem item = FindItem(ID);
             // now in post process
             item.State = ItemState.PostProcess;
+            item.History.Add(new Event(EventType.Finished, 0.0, item.Station));
             // check to see if this concludes the traveler
             if (Items.Where(x => x.State == ItemState.PostProcess && !x.Scrapped).Count() >= m_quantity && Items.All(x => x.State == ItemState.PostProcess))
             {

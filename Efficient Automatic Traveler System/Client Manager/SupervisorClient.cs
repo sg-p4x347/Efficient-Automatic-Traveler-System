@@ -110,13 +110,47 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 int qty = Convert.ToInt32(obj["quantity"]);
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                return new ClientMessage("Info",traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), obj["labelType"]),qty > 0 ? qty : 1));
+                return new ClientMessage("Info",traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), obj["labelType"]),qty > 0 ? qty : 1,true));
                 
             } catch (Exception ex)
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Could not print label(s) due to a pesky error :(");
             }
+        }
+        public ClientMessage ExportProduction(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                string downloadLocation = summary.ProductionCSV();
+                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+        public ClientMessage ExportScrap(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                string downloadLocation = summary.ScrapCSV();
+                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
         }
         #endregion
         //-----------------------------------

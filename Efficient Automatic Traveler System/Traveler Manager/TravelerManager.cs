@@ -124,7 +124,7 @@ namespace Efficient_Automatic_Traveler_System
         {
 
             m_travelers.Clear();
-            if (BackupManager.CurrentBackupExists() || date != null)
+            if (BackupManager.CurrentBackupExists("travelers.json") || date != null)
             {
                 List<string> travelerArray = (new StringStream(BackupManager.Import("travelers.json", date))).ParseJSONarray();
                 Server.Write("\r{0}", "Loading travelers from backup...");
@@ -145,7 +145,7 @@ namespace Efficient_Automatic_Traveler_System
         public void ImportPast()
         {
             m_travelers.Clear();
-            List<string> travelerArray = (new StringStream(BackupManager.Import("travelers.json"))).ParseJSONarray();
+            List<string> travelerArray = (new StringStream(BackupManager.ImportPast("travelers.json"))).ParseJSONarray();
             Server.Write("\r{0}", "Loading travelers from backup...");
             foreach (string travelerJSON in travelerArray)
             {
@@ -166,7 +166,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Backup()
         {
-            BackupManager.Backup("travelers.json", m_travelers.Stringify<Traveler>());
+            BackupManager.Backup("travelers.json", m_travelers.Stringify<Traveler>(false,true));
         }
         #endregion
         //----------------------------------

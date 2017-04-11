@@ -318,11 +318,20 @@ function PopupManager(blackout) {
 	}
 	this.CloseAll = function () {
 		var self = this;
+		var children = [];
 		for (var i = 0; i < self.blackout.children.length; i++) {
 			if (!self.locked || self.blackout.children[i] != self.locked) {
-				self.Close(self.blackout.children[i]);
+				children.push(self.blackout.children[i]);
 			}
 		}
+		children.forEach(function (elem) {
+			self.Close(elem);
+		});
+		/* for (var i = 0; i < children.length; i++) {
+			if (!self.locked || children[i] != self.locked) {
+				self.Close(children[i]);
+			}
+		} */
 	}
 	this.Open = function (popup) {
 		var self = this;

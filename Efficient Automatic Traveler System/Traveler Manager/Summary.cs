@@ -11,7 +11,10 @@ namespace Efficient_Automatic_Traveler_System
     {
         Active,
         Available,
-        Sorted
+        Sorted,
+        Finished, // travelers that have finished items
+        Scrap,
+        All
     }
     class Summary
     {
@@ -24,6 +27,7 @@ namespace Efficient_Automatic_Traveler_System
                 case SummarySort.Active: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.InProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
                 case SummarySort.Available: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Station == StationClass.GetStation("Start")).ToList(); break;
                 case SummarySort.Sorted: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
+                case SummarySort.All: m_travelers = travelerManager.GetTravelers; break;
                 default:
                     m_travelers = new List<Traveler>();
                     break;
@@ -107,7 +111,122 @@ namespace Efficient_Automatic_Traveler_System
         }
         #endregion
         #region Private methods
+        public string ProductionCSV()
+        {
+            string webLocation = "./production.csv";
+            List<string> contents = new List<string>();
+            // add the header
+            //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
+            // add each detail for each traveler
+            List<string> fields = new List<string>() { "Part", "Quantity", "Date" };
+            List<Dictionary<string,string>> finished = new List<Dictionary<string,string>>();
+            foreach (Traveler traveler in m_travelers)
+            {
+                Dictionary<string, string> item = finished.Find(x => x["Part"] == traveler.ItemCode);
+                int quantity = traveler.Items.Where(x => x.State == ItemState.PostProcess && x.History.Exists(y => y.type == EventType.Finished && y.date >= DateTime.Today.Date)).Count();
+                if (quantity > 0)
+                {
+                    if (item != null)
+                    {
+                        item["Quantity"] = (Convert.ToInt32(item["Quantity"]) + quantity).ToString();
+                    }
+                    else
+                    {
+                        item = new Dictionary<string, string>();
+                        item.Add("Part", traveler.ItemCode);
+                        item.Add("Quantity", quantity.ToString());
+                        foreach (string stationName in StationClass.StationNames())
+                        {
+                            double sum = traveler.Items.Sum(i => i.TimeAt(StationClass.GetStation(stationName)));
+                            if (sum > 0)
+                            {
+                                string field = stationName + " (min)";
+                                if (!fields.Exists(x => x == field)) fields.Add(field);
+                                item.Add(field, sum.ToString());
+                            }
+                        }
+                        item.Add("Date", DateTime.Today.Date.ToString("MM/dd/yyyy"));
+                    }
+                    finished.Add(item);
+                }
+            }
+            // add the header
+            contents.Add(fields.Stringify<string>().Trim('[').Trim(']'));
 
+            foreach (Dictionary<string,string> detail in finished)
+            {
+                List<string> row = new List<string>();
+                foreach (string field in fields)
+                {
+                    if (detail.ContainsKey(field))
+                    {
+                        row.Add(detail[field]);
+                    } else
+                    {
+                        row.Add("");
+                    }
+                }
+                contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
+            }
+
+            File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "production.csv"), contents.ToArray<string>());
+
+            return webLocation;
+        }
+        public string ScrapCSV()
+        {
+            string webLocation = "./scrap.csv";
+            List<string> contents = new List<string>();
+            // add the header
+            //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
+            // add each detail for each traveler
+            List<string> fields = new List<string>() { "Item","Part", "User","Station","Date","Time" };
+            List<Dictionary<string, string>> scrapped = new List<Dictionary<string, string>>();
+            foreach (Traveler traveler in m_travelers)
+            {
+                foreach (TravelerItem scrap in traveler.Items) {
+                    if (scrap.Scrapped)
+                    {
+                        Event scrapEvent = scrap.History.Find(x => x.type == EventType.Scrapped);
+                        if (scrapEvent.date >= DateTime.Today)
+                        {
+                            Dictionary<string, string> item = new Dictionary<string, string>();
+                            item.Add("Item", traveler.ID.ToString("D6") + '-' + scrap.ID.ToString());
+                            item.Add("Part", traveler.ItemCode);
+
+                            item.Add("User", scrapEvent.user.Name);
+                            item.Add("Station", scrapEvent.station.Name);
+                            item.Add("Date", scrapEvent.date.ToString("MM/dd/yyyy @ hh:mm"));
+                            item.Add("Time", scrapEvent.time.ToString());
+                            scrapped.Add(item);
+                        }
+                    }
+                }
+            }
+            // add the header
+            contents.Add(fields.Stringify<string>().Trim('[').Trim(']'));
+
+            foreach (Dictionary<string, string> detail in scrapped)
+            {
+                List<string> row = new List<string>();
+                foreach (string field in fields)
+                {
+                    if (detail.ContainsKey(field))
+                    {
+                        row.Add(detail[field]);
+                    }
+                    else
+                    {
+                        row.Add("");
+                    }
+                }
+                contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
+            }
+
+            File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "scrap.csv"), contents.ToArray<string>());
+
+            return webLocation;
+        }
         #endregion
         #region Properties
         private SummarySort m_sort;

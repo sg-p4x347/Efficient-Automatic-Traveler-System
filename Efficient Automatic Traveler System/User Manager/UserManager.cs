@@ -15,7 +15,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 m_users.Clear();
-                if (BackupManager.CurrentBackupExists() || date != null)
+                if (BackupManager.CurrentBackupExists("users.json") || date != null)
                 {
                     List<string> userArray = (new StringStream(BackupManager.Import("users.json", date))).ParseJSONarray();
                     foreach (string userJSON in userArray)
@@ -42,6 +42,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     User user = new User(userJSON);
                     user.History.RemoveAll(x => x.date < DateTime.Today.Date);
+                    m_users.Add(user);
                 }
                 Server.WriteLine("Users loaded from backup");
             }

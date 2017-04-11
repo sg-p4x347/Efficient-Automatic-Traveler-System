@@ -213,7 +213,7 @@ namespace Efficient_Automatic_Traveler_System
         public void Import(DateTime? date = null)
         {
             m_orders.Clear();
-            if (BackupManager.CurrentBackupExists() || date != null)
+            if (BackupManager.CurrentBackupExists("orders.json") || date != null)
             {
                 List<string> orderArray = (new StringStream(BackupManager.Import("orders.json", date))).ParseJSONarray();
                 Server.Write("\r{0}", "Loading orders from backup...");
@@ -243,7 +243,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Backup()
         {
-            BackupManager.Backup("orders.json", m_orders.Stringify<Order>());
+            BackupManager.Backup("orders.json", m_orders.Stringify<Order>(false,true));
         }
 
         #endregion
