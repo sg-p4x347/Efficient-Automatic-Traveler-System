@@ -14,6 +14,7 @@ namespace Efficient_Automatic_Traveler_System
             QtyOrdered = 0;
             QtyOnHand = 0;
             ChildTraveler = -1;
+            LineNo = -1;
         }
         public OrderItem(string json)
         {
@@ -25,18 +26,20 @@ namespace Efficient_Automatic_Traveler_System
                 QtyOrdered = Convert.ToInt32(obj["qtyOrdered"]);
                 QtyOnHand = Convert.ToInt32(obj["qtyOnHand"]);
                 ChildTraveler = Convert.ToInt32(obj["childTraveler"]);
+                LineNo = Convert.ToInt32(obj["lineNo"]);
             }
             catch (Exception ex)
             {
                 Server.WriteLine("Error while reading OrderItem from file: " + ex.Message);
             }
         }
-        public OrderItem(string i, int ordered, int onHand, int c)
+        public OrderItem(string i, int ordered, int onHand, int c, int l)
         {
             ItemCode = i;
             QtyOrdered = ordered;
             QtyOnHand = onHand;
             ChildTraveler = c;
+            LineNo = l;
         }
         public override string ToString()
         {
@@ -45,7 +48,8 @@ namespace Efficient_Automatic_Traveler_System
                 {"itemCode", ItemCode.ToString().Quotate() },
                 {"qtyOrdered", QtyOrdered.ToString() },
                 {"qtyOnHand",QtyOnHand.ToString() },
-                {"childTraveler",ChildTraveler.ToString() }
+                {"childTraveler",ChildTraveler.ToString() },
+                {"lineNo",LineNo.ToString() }
             };
             return obj.Stringify();
         }
@@ -53,5 +57,6 @@ namespace Efficient_Automatic_Traveler_System
         public int QtyOrdered;
         public int QtyOnHand;
         public int ChildTraveler;
+        public int LineNo;
     }
 }

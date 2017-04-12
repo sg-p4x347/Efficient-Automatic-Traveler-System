@@ -26,6 +26,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         // removes all occurences of the specified traveler from order items
         void ReleaseTraveler(Traveler traveler);
+
     }
     class OrderManager : IManager, IOrderManager
     {
@@ -56,38 +57,20 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     string salesOrderNo = reader.GetString(0);
                     currentOrderNumbers.Add(salesOrderNo);
-                    int index = m_orders.FindIndex(x => x.SalesOrderNo == salesOrderNo);
+                    Order order = m_orders.Find(x => x.SalesOrderNo == salesOrderNo);
 
                     // does not match any stored records
-                    if (index == -1)
+                    if (order == null)
                     {
                         // create a new order
-                        Order order = new Order();
+                        order = new Order();
                         if (!reader.IsDBNull(0)) order.SalesOrderNo = reader.GetString(0);
                         if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
                         if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
                         if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
                         if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
                         if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
-                        // get information from detail
-                        if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-                        OdbcCommand detailCommand = MAS.CreateCommand();
-                        detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
-                        OdbcDataReader detailReader = detailCommand.ExecuteReader();
-
-                        // Read each line of the Sales Order, looking for the base Table, Chair, ect items, ignoring kits
-                        while (detailReader.Read())
-                        {
-                            string billCode = detailReader.GetString(0);
-                            if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
-                            {
-                                OrderItem item = new OrderItem();
-                                if (!detailReader.IsDBNull(0)) item.ItemCode = detailReader.GetString(0);  // itemCode
-                                if (!detailReader.IsDBNull(1)) item.QtyOrdered = Convert.ToInt32(detailReader.GetValue(1)); // Quantity
-                                order.Items.Add(item);
-                            }
-                        }
-                        detailReader.Close();
+                        
 #if NewOrders
                         m_orders.Add(order);
 #endif
@@ -95,12 +78,41 @@ namespace Efficient_Automatic_Traveler_System
                     // Update information for existing order
                     else
                     {
-                        if (!reader.IsDBNull(1)) m_orders[index].CustomerNo = reader.GetString(1);
-                        if (!reader.IsDBNull(2)) m_orders[index].ShipVia = reader.GetString(2);
-                        if (m_orders[index].ShipVia == null) m_orders[index].ShipVia = ""; // havent found a shipper yet, will be LTL regardless
-                        if (!reader.IsDBNull(3)) m_orders[index].OrderDate = reader.GetDateTime(3);
-                        if (!reader.IsDBNull(4)) m_orders[index].ShipDate = reader.GetDateTime(4);
+                        if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
+                        if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
+                        if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
+                        if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
+                        if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
                     }
+
+                    // get information from detail
+                    if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                    OdbcCommand detailCommand = MAS.CreateCommand();
+                    detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure, LineKey FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
+                    OdbcDataReader detailReader = detailCommand.ExecuteReader();
+
+                    // Read each line of the Sales Order, looking for the base Table, Chair, ect items, ignoring kits
+                    while (detailReader.Read())
+                    {
+                        string billCode = detailReader.GetString(0);
+                        if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
+                        {
+                            OrderItem item = order.Items.Find(x => x.LineNo == Convert.ToInt32(detailReader.GetInt32(3)));
+                            if (item == null)
+                            {
+                                item = new OrderItem();
+                                // a new item, a new traveler
+                                if (!detailReader.IsDBNull(0)) item.ItemCode = detailReader.GetString(0);  // itemCode
+                                if (!detailReader.IsDBNull(1)) item.QtyOrdered = Convert.ToInt32(detailReader.GetValue(1)); // Quantity
+                                item.LineNo = Convert.ToInt32(detailReader.GetInt32(3));
+                                // allocate inventory items to this order item
+                                AllocateOrderItem(item, ref MAS);
+
+                                order.Items.Add(item);
+                            }
+                        }
+                    }
+                    detailReader.Close();
                 }
                 reader.Close();
                 // cull orders that do not exist anymore
@@ -123,6 +135,62 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.Write("\r{0}", "Importing orders...Failed\n");
                 Server.WriteLine("Problem importing new orders: " + ex.Message + " Stack Trace: " + ex.StackTrace);
+            }
+        }
+        // reserve inventory items under order items by item type (by traveler)
+        public void AllocateOrderItem(OrderItem orderItem, ref OdbcConnection MAS)
+        {
+            try
+            {
+                /* get total that is allocated for orders (items leave allocation when orders are invoiced,
+                 which is also when orders move to a "Closed" state and aren't brought back into memory*/
+
+                int totalAllocated = m_orders.Sum(order => order.Items.Where(item => item.ItemCode == orderItem.ItemCode).Sum(item => item.QtyOnHand));
+                
+                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                OdbcCommand command = MAS.CreateCommand();
+                command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + orderItem.ItemCode + "'";
+                OdbcDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    int onHand = Convert.ToInt32(reader.GetValue(1));
+                    orderItem.QtyOnHand = Math.Min(orderItem.QtyOrdered, Math.Max(onHand - totalAllocated,0));
+                    //parentOrder.Items.Remove(orderItem);
+                    //// adjust the quantity on hand for orders
+                    //List<Order> parentOrders = new List<Order>();
+                    //foreach (string orderNo in traveler.ParentOrders)
+                    //{
+                    //    Order parentOrder = FindOrder(orderNo);
+                    //    if (parentOrder != null)
+                    //    {
+                    //        parentOrders.Add(parentOrder);
+                    //    }
+                    //}
+                    //// remove orders that no longer exisst
+                    //traveler.ParentOrders.RemoveAll(x => !parentOrders.Exists(y => y.SalesOrderNo == x));
+                    //parentOrders.Sort((a, b) => a.ShipDate.CompareTo(b.ShipDate)); // sort in ascending order (soonest first)
+
+                    //// get total that is allocated for orders
+                    //int allocated = parentOrders.Sum(x => x.Items.Where(y => y.ItemCode == traveler.ItemCode).Sum(z => z.QtyOnHand));
+ 
+                    //for (int i = 0; i < parentOrders.Count && onHand > 0; i++)
+                    //    {
+                    //        Order order = parentOrders[i];
+                    //        foreach (OrderItem item in order.Items)
+                    //        {
+                    //            if (item.ChildTraveler == traveler.ID)
+                    //            {
+                    //                item.QtyOnHand = Math.Min(onHand, item.QtyOrdered);
+                    //                onHand -= item.QtyOnHand;
+                    //            }
+                    //        }
+                    //    }
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine("Problem checking order items against inventory on order: " + ex.Message + " Stack Trace: " + ex.StackTrace);
             }
         }
         // reserve inventory items under order items by item type (by traveler)
@@ -151,7 +219,8 @@ namespace Efficient_Automatic_Traveler_System
                         }
                         // remove orders that no longer exisst
                         traveler.ParentOrders.RemoveAll(x => !parentOrders.Exists(y => y.SalesOrderNo == x));
-                        parentOrders.Sort((a, b) => b.OrderDate.CompareTo(a.OrderDate)); // sort in descending order (oldest first)
+                        parentOrders.Sort((a, b) => a.ShipDate.CompareTo(b.ShipDate)); // sort in ascending order (soonest first)
+
                         for (int i = 0; i < parentOrders.Count && onHand > 0; i++)
                         {
                             Order order = parentOrders[i];
@@ -174,6 +243,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Problem checking order items against inventory: " + ex.Message + " Stack Trace: " + ex.StackTrace);
             }
         }
+        
 
         #endregion
         //--------------------------------------------
@@ -237,6 +307,16 @@ namespace Efficient_Automatic_Traveler_System
                 // add this order to the master list if it is not closed
                 if (order.State != OrderState.Closed)
                 {
+                    List<OrderItem> items = new List<OrderItem>();
+                    foreach(OrderItem item in order.Items)
+                    {
+                        // only import items that need production
+                        if (item.QtyOnHand < item.QtyOrdered)
+                        {
+                            items.Add(item);
+                        }
+                    }
+                    order.Items = items;
                     m_orders.Add(order);
                 }
             }

@@ -165,5 +165,24 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info","Error occured");
             }
         }
+
+        public ClientMessage OpenDrawing(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                return new ClientMessage("Redirect", ("../drawings/" + traveler.Part.DrawingNo.Split('-')[0] + ".pdf").Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error occured");
+            }
+        }
+        public string LoadTraveler(string json)
+        {
+            return m_travelerManager.LoadTraveler(json);
+        }
     }
 }

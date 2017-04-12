@@ -287,21 +287,25 @@ namespace Efficient_Automatic_Traveler_System
             filename = filename.Replace("%20", " ");
             //Console.WriteLine(filename);
             filename = filename.Substring(1);
-
-            if (string.IsNullOrEmpty(filename))
+            if (filename.Contains("drawings"))
             {
-                foreach (string indexFile in m_indexFiles)
+                filename = Path.Combine(@"\\MGFS01\Company\SHARE\common\Drawings\Marco\PDF", Path.GetFileName(filename));
+            } else
+            {
+                if (string.IsNullOrEmpty(filename))
                 {
-                    if (File.Exists(Path.Combine(m_rootDirectory, indexFile)))
+                    foreach (string indexFile in m_indexFiles)
                     {
-                        filename = indexFile;
-                        break;
+                        if (File.Exists(Path.Combine(m_rootDirectory, indexFile)))
+                        {
+                            filename = indexFile;
+                            break;
+                        }
                     }
                 }
+
+                filename = Path.Combine(m_rootDirectory, filename);
             }
-
-            filename = Path.Combine(m_rootDirectory, filename);
-
             if (File.Exists(filename))
             {
                 try
@@ -356,9 +360,12 @@ namespace Efficient_Automatic_Traveler_System
         private HttpListener m_listener;
         private readonly string[] m_indexFiles = {
             "EATS Client/operator.html",
-            "EATS Client/supervisor.html",
+            "EATS Client/supervisor.html"
         };
-
+        private readonly string[] m_directories =
+        {
+            @"\\MGFS01\Company\SHARE\common\Drawings\Marco\PDF"
+        };
         private static IDictionary<string, string> m_mimeTypeMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
             #region extension to MIME type list
             {".asf", "video/x-ms-asf"},

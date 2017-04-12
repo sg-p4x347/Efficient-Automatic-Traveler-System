@@ -207,7 +207,16 @@ function Application () {
 			}
 		},500);
 	}
-		
+	this.Redirect = function(location) {
+		//window.location = location;
+		var win = window.open(location,'_blank');
+		win.focus();
+	}
+	// Loads the traveler GUI
+	this.LoadTraveler = function (traveler) {
+		this.popupManager.AddJSONviewer(traveler,"Traveler");
+		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
+	}
 	this.StopAutofocus = function () {
 		window.removeEventListener("keydown",this.Autofocus);
 	}
@@ -242,6 +251,40 @@ function Application () {
 		//----------------
 		self.completedList = new TravelerQueue();
 		self.completedList.Initialize("completedList");
+		//----------------
+		// Options button
+		//----------------
+		document.getElementById("optionsBtn").onclick = function () {
+			var popup = self.popupManager.CreatePopup();
+			// OPEN DRAWING PDF--------------
+			var drawingBtn = self.popupManager.CreateButton("View Drawing");
+			drawingBtn.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("OpenDrawing",{
+					travelerID: self.travelerView.traveler.ID
+				});
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				self.popupManager.Close(popup);
+			}
+			popup.appendChild(drawingBtn);
+			
+			// MORE INFO--------------
+			var infoBtn = self.popupManager.CreateButton("More Info");
+			infoBtn.onclick = function () {
+				self.popupManager.Close(popup);
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("LoadTraveler",
+				{
+					travelerID: self.travelerView.traveler.ID
+				});
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			popup.appendChild(infoBtn);
+			
+			self.popupManager.AddCustom(popup);
+		}
 		//----------------
 		// Websocket
 		//----------------

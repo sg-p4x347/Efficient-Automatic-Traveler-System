@@ -11,7 +11,7 @@
 		<link rel="shortcut icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>">
     </head>
 	<body onload = "Initialize()">
-		<div id = "blackout" class = "blackout">
+		<div id = "blackout" class = "blackout twoEM">
 			<!-- LOGIN POPUP -->
 			<div id = "loginPopup" class = "blackout__popup">
 				<p id = "loginInfo" class = "red"></p>
@@ -21,7 +21,7 @@
 					<input type = "submit" id = "loginBtn" class = "dark button">
 				</form>
 				<!-- STATION SELECTION -->
-				<select id = "stationList" class = "dark twoEM"></select>
+				<select id = "stationList" class = "dark"></select>
 			</div>
 		</div>
 		<!-- HEADER -->
@@ -38,7 +38,7 @@
 				</div>
 				<div id = "logoutBtn" class = "dark button twoEM">Logout</div>
 				<!-- OPTIONS BUTTON -->
-				<img id = "optionsBtn" src = "./img/options.png"></img>
+				<img id = "optionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
 			</div>
 		</div>
 		<!-- BODY -->

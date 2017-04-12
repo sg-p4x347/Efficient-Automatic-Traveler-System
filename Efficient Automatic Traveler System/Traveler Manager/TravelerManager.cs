@@ -74,10 +74,11 @@ namespace Efficient_Automatic_Traveler_System
                         // search for existing traveler
                         // can only combine if same itemCode, hasn't started, and has no parents
                         Traveler traveler = m_travelers.Find(x => x.ItemCode == item.ItemCode);
+                        int quantity = item.QtyOrdered - item.QtyOnHand;
                         if (traveler != null)
                         {
                             // add to existing traveler
-                            traveler.Quantity += item.QtyOrdered;
+                            traveler.Quantity += quantity;
 
                             // RELATIONAL =============================================================
                             item.ChildTraveler = traveler.ID;
@@ -87,7 +88,7 @@ namespace Efficient_Automatic_Traveler_System
                         else
                         {
                             // create a new traveler from the new item
-                            Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, item.QtyOrdered) : (Traveler)new Chair(item.ItemCode, item.QtyOrdered));
+                            Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, quantity) : (Traveler)new Chair(item.ItemCode, quantity));
 
                             // RELATIONAL =============================================================
                             item.ChildTraveler = newTraveler.ID;
@@ -151,7 +152,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Traveler traveler = ImportTraveler(travelerJSON);
                 // add this traveler to the master list if it is not complete
-                if (traveler != null && traveler.State != ItemState.PostProcess)
+                if (traveler != null && traveler.State != ItemState.PostProcess && traveler.Quantity > 0)
                 {
                     // push this traveler into production
                     if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
@@ -261,8 +262,11 @@ namespace Efficient_Automatic_Traveler_System
                     // FINISHED
                     //=================
                     traveler.FinishItem(item.ID);
+                    
                     // assign this item to the order that ships soonest
                     AssignOrder(traveler, item);
+
+                    
                     // Pack tracking label must be printed
                     returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                     returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
@@ -585,11 +589,21 @@ namespace Efficient_Automatic_Traveler_System
                 List<OrderItem> orderItems = order.FindItems(traveler.ID); // the items that apply to this traveler
 
                 // If there are less items assigned to that order than what was ordered (takes into account multiple order items that match the traveler)
-                if (traveler.Items.Where(x => x.Order == order.SalesOrderNo).Count() < orderItems.Sum(x => x.QtyOrdered))
+                foreach (OrderItem orderItem in orderItems)
                 {
-                    // assign this order to the item
-                    item.Order = order.SalesOrderNo;
+                    if (orderItem.QtyOnHand < orderItem.QtyOrdered)
+                    {
+                        // assign this order to the item
+                        item.Order = order.SalesOrderNo;
+
+                        // allocate this item on the order
+                        orderItem.QtyOnHand++;
+                    }
                 }
+                //if (traveler.Items.Where(x => x.Order == order.SalesOrderNo).Count() < orderItems.Sum(x => x.QtyOrdered))
+                //{
+                    
+                //}
             }
         }
         private Traveler ImportTraveler(string json)
