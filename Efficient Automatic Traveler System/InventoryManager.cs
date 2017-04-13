@@ -23,7 +23,27 @@ namespace Efficient_Automatic_Traveler_System
                         m_inventory.Add(inventoryItem.Key, Convert.ToInt16(inventoryItem.Value));
                     }
                     Server.WriteLine("EATS inventory loaded from backup");
+                } else
+                {
+                    ImportPast();
                 }
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine("Could not load EATS inventory from backup");
+                Server.LogException(ex);
+            }
+        }
+        static public void ImportPast()
+        {
+            try
+            {
+                Dictionary<string, string> inventory = (new StringStream(BackupManager.ImportPast("inventory.json"))).ParseJSON();
+                foreach (KeyValuePair<string, string> inventoryItem in inventory)
+                {
+                    m_inventory.Add(inventoryItem.Key, Convert.ToInt16(inventoryItem.Value));
+                }
+                Server.WriteLine("EATS inventory loaded from backup");
             }
             catch (Exception ex)
             {
@@ -70,6 +90,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 m_inventory.Add(itemCode, Convert.ToInt16(qty));
             }
+            Backup();
         }
         static public Dictionary<string, short> Inventory
         {
@@ -79,7 +100,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Private Methods
         #endregion
         #region Properties
-        private static Dictionary<string, short> m_inventory;
+        private static Dictionary<string, short> m_inventory = new Dictionary<string, short>();
         #endregion
 
     }

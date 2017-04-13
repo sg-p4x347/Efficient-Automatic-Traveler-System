@@ -87,16 +87,20 @@ namespace Efficient_Automatic_Traveler_System
                         }
                         else
                         {
-                            // create a new traveler from the new item
-                            Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, quantity) : (Traveler)new Chair(item.ItemCode, quantity));
+                            // TEMP
+                            if (Traveler.IsTable(item.ItemCode))
+                            {
+                                // create a new traveler from the new item
+                                Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, quantity) : (Traveler)new Chair(item.ItemCode, quantity));
 
-                            // RELATIONAL =============================================================
-                            item.ChildTraveler = newTraveler.ID;
-                            newTraveler.ParentOrders.Add(order.SalesOrderNo);
-                            //=========================================================================
+                                // RELATIONAL =============================================================
+                                item.ChildTraveler = newTraveler.ID;
+                                newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                                //=========================================================================
 
-                            // add the new traveler to the list
-                            m_travelers.Add(newTraveler);
+                                // add the new traveler to the list
+                                m_travelers.Add(newTraveler);
+                            }
                         }
                     }
                 }
@@ -600,6 +604,8 @@ namespace Efficient_Automatic_Traveler_System
                         orderItem.QtyOnHand++;
                     }
                 }
+
+
                 //if (traveler.Items.Where(x => x.Order == order.SalesOrderNo).Count() < orderItems.Sum(x => x.QtyOrdered))
                 //{
                     

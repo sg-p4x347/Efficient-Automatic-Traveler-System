@@ -146,47 +146,24 @@ namespace Efficient_Automatic_Traveler_System
                  which is also when orders move to a "Closed" state and aren't brought back into memory*/
 
                 int totalAllocated = m_orders.Sum(order => order.Items.Where(item => item.ItemCode == orderItem.ItemCode).Sum(item => item.QtyOnHand));
-                
-                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-                OdbcCommand command = MAS.CreateCommand();
-                command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + orderItem.ItemCode + "'";
-                OdbcDataReader reader = command.ExecuteReader();
-                if (reader.Read())
+                int onHand = 0;
+                if (Convert.ToBoolean(ConfigManager.Get("useMASinventory")))
                 {
-                    int onHand = Convert.ToInt32(reader.GetValue(1));
-                    orderItem.QtyOnHand = Math.Min(orderItem.QtyOrdered, Math.Max(onHand - totalAllocated,0));
-                    //parentOrder.Items.Remove(orderItem);
-                    //// adjust the quantity on hand for orders
-                    //List<Order> parentOrders = new List<Order>();
-                    //foreach (string orderNo in traveler.ParentOrders)
-                    //{
-                    //    Order parentOrder = FindOrder(orderNo);
-                    //    if (parentOrder != null)
-                    //    {
-                    //        parentOrders.Add(parentOrder);
-                    //    }
-                    //}
-                    //// remove orders that no longer exisst
-                    //traveler.ParentOrders.RemoveAll(x => !parentOrders.Exists(y => y.SalesOrderNo == x));
-                    //parentOrders.Sort((a, b) => a.ShipDate.CompareTo(b.ShipDate)); // sort in ascending order (soonest first)
-
-                    //// get total that is allocated for orders
-                    //int allocated = parentOrders.Sum(x => x.Items.Where(y => y.ItemCode == traveler.ItemCode).Sum(z => z.QtyOnHand));
- 
-                    //for (int i = 0; i < parentOrders.Count && onHand > 0; i++)
-                    //    {
-                    //        Order order = parentOrders[i];
-                    //        foreach (OrderItem item in order.Items)
-                    //        {
-                    //            if (item.ChildTraveler == traveler.ID)
-                    //            {
-                    //                item.QtyOnHand = Math.Min(onHand, item.QtyOrdered);
-                    //                onHand -= item.QtyOnHand;
-                    //            }
-                    //        }
-                    //    }
+                    if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                    OdbcCommand command = MAS.CreateCommand();
+                    command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + orderItem.ItemCode + "'";
+                    OdbcDataReader reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        onHand = Convert.ToInt32(reader.GetValue(1));
+                    }
+                    reader.Close();
+                } else
+                {
+                    onHand = InventoryManager.Get(orderItem.ItemCode);
                 }
-                reader.Close();
+
+                orderItem.QtyOnHand = Math.Min(orderItem.QtyOrdered, Math.Max(onHand - totalAllocated, 0));
             }
             catch (Exception ex)
             {
@@ -194,55 +171,55 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // reserve inventory items under order items by item type (by traveler)
-        public void CheckInventory(ITravelerManager travelerManager, ref OdbcConnection MAS)
-        {
-            try
-            {
-                foreach (Traveler traveler in travelerManager.GetTravelers)
-                {
-                    if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-                    OdbcCommand command = MAS.CreateCommand();
-                    command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + traveler.ItemCode + "'";
-                    OdbcDataReader reader = command.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        int onHand = Convert.ToInt32(reader.GetValue(1));
-                        // adjust the quantity on hand for orders
-                        List<Order> parentOrders = new List<Order>();
-                        foreach (string orderNo in traveler.ParentOrders)
-                        {
-                            Order parentOrder = FindOrder(orderNo);
-                            if (parentOrder != null)
-                            {
-                                parentOrders.Add(parentOrder);
-                            }
-                        }
-                        // remove orders that no longer exisst
-                        traveler.ParentOrders.RemoveAll(x => !parentOrders.Exists(y => y.SalesOrderNo == x));
-                        parentOrders.Sort((a, b) => a.ShipDate.CompareTo(b.ShipDate)); // sort in ascending order (soonest first)
+        //public void CheckInventory(ITravelerManager travelerManager, ref OdbcConnection MAS)
+        //{
+        //    try
+        //    {
+        //        foreach (Traveler traveler in travelerManager.GetTravelers)
+        //        {
+        //            if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+        //            OdbcCommand command = MAS.CreateCommand();
+        //            command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + traveler.ItemCode + "'";
+        //            OdbcDataReader reader = command.ExecuteReader();
+        //            if (reader.Read())
+        //            {
+        //                int onHand = Convert.ToInt32(reader.GetValue(1));
+        //                // adjust the quantity on hand for orders
+        //                List<Order> parentOrders = new List<Order>();
+        //                foreach (string orderNo in traveler.ParentOrders)
+        //                {
+        //                    Order parentOrder = FindOrder(orderNo);
+        //                    if (parentOrder != null)
+        //                    {
+        //                        parentOrders.Add(parentOrder);
+        //                    }
+        //                }
+        //                // remove orders that no longer exisst
+        //                traveler.ParentOrders.RemoveAll(x => !parentOrders.Exists(y => y.SalesOrderNo == x));
+        //                parentOrders.Sort((a, b) => a.ShipDate.CompareTo(b.ShipDate)); // sort in ascending order (soonest first)
 
-                        for (int i = 0; i < parentOrders.Count && onHand > 0; i++)
-                        {
-                            Order order = parentOrders[i];
-                            foreach (OrderItem item in order.Items)
-                            {
-                                if (item.ChildTraveler == traveler.ID)
-                                {
-                                    item.QtyOnHand = Math.Min(onHand, item.QtyOrdered);
-                                    onHand -= item.QtyOnHand;
-                                }
-                            }
-                        }
-                    }
-                    reader.Close();
-                }
+        //                for (int i = 0; i < parentOrders.Count && onHand > 0; i++)
+        //                {
+        //                    Order order = parentOrders[i];
+        //                    foreach (OrderItem item in order.Items)
+        //                    {
+        //                        if (item.ChildTraveler == traveler.ID)
+        //                        {
+        //                            item.QtyOnHand = Math.Min(onHand, item.QtyOrdered);
+        //                            onHand -= item.QtyOnHand;
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            reader.Close();
+        //        }
                 
-            }
-            catch (Exception ex)
-            {
-                Server.WriteLine("Problem checking order items against inventory: " + ex.Message + " Stack Trace: " + ex.StackTrace);
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine("Problem checking order items against inventory: " + ex.Message + " Stack Trace: " + ex.StackTrace);
+        //    }
+        //}
         
 
         #endregion

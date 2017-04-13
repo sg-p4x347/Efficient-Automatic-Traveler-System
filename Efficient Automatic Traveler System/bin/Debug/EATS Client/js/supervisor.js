@@ -86,9 +86,9 @@ function Application () {
 		// add all the travelers back
 		self.travelers.forEach(function (traveler) {
 			traveler.stations.forEach(function (station) {
-				
-				self.queues[station].AddTraveler(traveler);
-				
+				if (Contains(traveler.items,[{prop:"state",value:self.view.viewState},{prop:"station",value:station}]) || (traveler.items.length == 0 && traveler.state == self.view.viewState)) {
+					self.queues[station].AddTraveler(traveler);
+				}
 			});
 		});
 		// update summary, if open
@@ -494,7 +494,13 @@ function TravelerQueue(station) {
 			var DOMqueueItem = document.createElement("DIV");
 			var colorClass = "blueBack";
 			switch (application.view.viewState) {
-				case "PreProcess": colorClass = "blueBack"; break;
+				case "PreProcess": 
+				if (traveler.quantity > 0) {
+					colorClass = "blueBack";
+				} else {
+					colorClass = "ghostBack";
+				}
+				 break;
 				case "InProcess": colorClass = "redBack"; break;
 				case "PostProcess": colorClass = "greenBack"; break;
 			}

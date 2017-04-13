@@ -220,6 +220,10 @@ div.percentContainer {
 	border-top: 2px solid #202020;
 	border-left: 2px solid #202020;
 }
+.ghostBack {
+	background-color: rgba(128,128,128,0.25);
+	border: 2px outset rgba(128,128,128,0.25);
+}
 .blueBack {
 	background-color: blue;
 	border: 2px outset darkblue;

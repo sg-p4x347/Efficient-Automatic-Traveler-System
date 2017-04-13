@@ -172,7 +172,7 @@ namespace Efficient_Automatic_Traveler_System
             m_port = Convert.ToInt32(ConfigManager.Get("port"));
 
             // set up the station list
-            StationClass.ImportStations(ConfigManager.Get("stations"));
+            StationClass.ImportStations(ConfigManager.Get("stationTypes"),ConfigManager.Get("stations"));
 
             m_ip = GetLocalIPAddress();
 
@@ -183,7 +183,7 @@ namespace Efficient_Automatic_Traveler_System
             Server.WriteLine("\n<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>" + DateTime.Now.ToString("\tMM/dd/yyy @ hh:mm") + "\n");
             
             BackupManager.Initialize();
-
+            InventoryManager.Import();
             // Refresh the static managers
             Configure();
             UserManager.Import();
@@ -196,9 +196,6 @@ namespace Efficient_Automatic_Traveler_System
 
             // Load, Create, and combine all travelers
             m_travelerManager.CompileTravelers();
-
-            // compensate order items for inventory balances
-            m_orderManager.CheckInventory(m_travelerManager as ITravelerManager, ref m_MAS);
 
             // Finalize the travelers by importing external information
             m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);

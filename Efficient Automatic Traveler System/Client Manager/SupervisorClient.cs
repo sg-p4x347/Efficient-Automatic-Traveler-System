@@ -20,7 +20,7 @@ namespace Efficient_Automatic_Traveler_System
             m_travelerManager = travelerManager;
             m_travelers = m_travelerManager.GetTravelers;
             m_viewState = ItemState.PreProcess;
-            SendMessage((new ClientMessage("InitStations", ConfigManager.Get("stations"))).ToString());
+            SendMessage((new ClientMessage("InitStations",StationClass.GetStations().Stringify())).ToString());
             SendMessage((new ClientMessage("InitLabelTypes", ExtensionMethods.Stringify<LabelType>())).ToString());
             SendMessage((new ClientMessage("InterfaceOpen")).ToString());
             //HandleTravelersChanged(m_travelerManager.GetTravelers);

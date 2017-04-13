@@ -168,6 +168,7 @@ namespace Efficient_Automatic_Traveler_System
             Items = new List<TravelerItem>();
             NewID();
             m_state = ItemState.PreProcess;
+            m_dateStarted = "";
         }
         public virtual void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
         {
@@ -229,7 +230,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"station",m_station.Name.Quotate() },
                 {"state",m_state.ToString().Quotate() },
                 {"type",this.GetType().ToString().Quotate()},
-                {"dateStarted",m_dateStarted.Quotate() }
+                {"dateStarted",DateStarted.Quotate() }
             };
             return obj.Stringify();
         }
@@ -335,6 +336,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 State = ItemState.PostProcess;
             }
+            // add this item to inventory
+            InventoryManager.Add(ItemCode);
         }
         public void EnterProduction()
         {
@@ -407,7 +410,7 @@ namespace Efficient_Automatic_Traveler_System
             json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
             json += "\"quantity\":" + m_quantity + ",";
             json += "\"items\":" + Items.Stringify() + ',';
-
+            json += "\"state\":" + m_state.ToString().Quotate() + ',';
             if (clientType == "OperatorClient")
             {
                 json += "\"laborRate\":" + GetCurrentLabor() + ",";
@@ -548,6 +551,7 @@ namespace Efficient_Automatic_Traveler_System
         private StationClass m_station;
         private ItemState m_state;
         private string m_dateStarted;
+        private int m_priority;
 
         #endregion
         //--------------------------------------------------------
@@ -648,6 +652,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_dateStarted = value;
+            }
+        }
+
+        public int Priority
+        {
+            get
+            {
+                return m_priority;
+            }
+
+            set
+            {
+                m_priority = value;
             }
         }
         #endregion
