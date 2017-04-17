@@ -186,6 +186,7 @@ function Application () {
 		},"This");
 		application.websocket.send(JSON.stringify(message));
 		//----------------------------------------------- */
+		document.getElementById("stationName").innerHTML = stationName;
 		self.stationList.some(function (station) {
 			if (station.name == stationName) {
 				self.station = JSON.parse(JSON.stringify(station));
@@ -213,12 +214,95 @@ function Application () {
 		win.focus();
 	}
 	// Loads the traveler GUI
-	this.LoadTraveler = function (traveler) {
+	this.LoadTravelerJSON = function (traveler) {
 		this.popupManager.AddJSONviewer(traveler,"Traveler");
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
 	}
 	this.StopAutofocus = function () {
 		window.removeEventListener("keydown",this.Autofocus);
+	}
+	// displays a station checklist
+	this.DisplayChecklist = function (list) {
+		var self = this;
+		self.popupManager.CloseAll(true);
+		var popup = self.popupManager.CreatePopup();
+		var info = self.popupManager.CreateP("");
+		info.className = "red";
+		popup.appendChild(info);
+		list.forEach(function (item) {
+			var check = self.popupManager.CreateCheckItem(item);
+			popup.appendChild(check);
+		});
+		var submit = self.popupManager.CreateButton("Submit");
+		submit.onclick = function () {
+			var nodes = popup.getElementsByTagName("INPUT");
+			var allSelected = true;
+			for (var i=0; i<nodes.length; i++) {
+				if (!nodes[i].checked) {
+					allSelected = false;
+					break;
+				}
+			}
+			if (allSelected) {
+				self.popupManager.Close(popup);
+			} else {
+				info.innerHTML = "Please verify all items";
+			}
+		}
+		popup.appendChild(submit);
+		self.popupManager.Lock(popup);
+		self.popupManager.AddCustom(popup,true);
+	}
+	this.DisplayScrapReport = function(reportConfig) {
+		var self = this;
+		var closeFunction = self.popupManager.AddSpecific("scrapReport");
+		var scrapReport = document.getElementById("scrapReport");
+		var vendorRadio = document.getElementById("vendorRadio");
+		var scrapReasons = document.getElementById("scrapReasons");
+		vendorRadio.onclick = function () {
+			ClearChildren(scrapReasons);
+			reportConfig.vendor.forEach(function (reason) {
+				var option = document.createElement("OPTION");
+				option.innerHTML = reason;
+				option.value = reason;
+				scrapReasons.appendChild(option);
+			});
+		};
+		
+		vendorRadio.onclick();
+		var productionRadio = document.getElementById("productionRadio");
+		productionRadio.onclick =  function () {
+			ClearChildren(scrapReasons);
+			reportConfig.production.forEach(function (reason) {
+				var option = document.createElement("OPTION");
+				option.innerHTML = reason;
+				option.value = reason;
+				scrapReasons.appendChild(option);
+			});
+		};
+		self.popupManager.Lock(scrapReport);
+		
+		document.getElementById("submitScrap").onclick = function (event) {
+			closeFunction();
+			
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("AddTravelerEvent",
+			{
+				travelerID: self.travelerView.traveler.ID,
+				eventType: "Scrapped",
+				time: application.partTimer.timerTime.asMinutes(),
+				itemID: (self.travelerView.item ? self.travelerView.item.ID : "undefined"),
+				scrapReport: {
+					source: vendorRadio.checked ? "vendor" : "production",
+					reason: scrapReasons.value,
+					startedWork: document.getElementById("startedWork").checked
+				}
+			});
+			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			
+			return false;
+		}
 	}
 	// initialize html and application components
 	this.Initialize = function () {
@@ -274,7 +358,7 @@ function Application () {
 			infoBtn.onclick = function () {
 				self.popupManager.Close(popup);
 				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("LoadTraveler",
+				var message = new InterfaceCall("LoadTravelerJSON",
 				{
 					travelerID: self.travelerView.traveler.ID
 				});
@@ -615,6 +699,14 @@ function TravelerView() {
 	}
 	this.LoadItem = function (traveler, item) {
 		var self = this;
+		//----------INTERFACE CALL-----------------------
+		var message = new InterfaceCall("LoadItem",
+		{
+			travelerID: traveler.ID,
+			itemID: item.ID
+		});
+		application.websocket.send(JSON.stringify(message));
+		//-----------------------------------------------
 		self.traveler = traveler;
 		self.item = item;
 		// enable the buttons
@@ -630,6 +722,13 @@ function TravelerView() {
 	}
 	this.Load = function (traveler) {
 		var self = this;
+		//----------INTERFACE CALL-----------------------
+		var message = new InterfaceCall("LoadTraveler",
+		{
+			travelerID: traveler.ID
+		});
+		application.websocket.send(JSON.stringify(message));
+		//-----------------------------------------------
 		// initialize
 		self.Clear();
 		self.traveler = traveler;
@@ -775,15 +874,14 @@ function TravelerView() {
 		// scrapping a traveler item
 		document.getElementById("scrapItemBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("AddTravelerEvent",
+			var message = new InterfaceCall("DisplayScrapReport",
 			{
 				travelerID: self.traveler.ID,
-				eventType: "Scrapped",
-				time: application.partTimer.timerTime.asMinutes(),
 				itemID: (self.item ? self.item.ID : "undefined")
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
+			
 			self.UpdateSubmitBtn();
 		}
 		// Submitting a finished traveler

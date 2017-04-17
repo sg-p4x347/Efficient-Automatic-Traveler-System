@@ -294,6 +294,27 @@ function PopupManager(blackout) {
 		button.innerHTML = innerHTML;
 		return button;
 	}
+	this.CreateHorizontalList = function () {
+		var list = document.createElement("DIV");
+		list.className = "list--horizontal";
+		return list;
+	}
+	this.CreateCheckItem = function (innerHTML)  {
+		var self = this;
+		var list = self.CreateHorizontalList();
+		var check = document.createElement("INPUT");
+		check.onclick = function (event) {
+			var test = "";
+			event.stopPropagation();
+		}
+		check.name = "checklist";
+		check.type = "checkbox";
+		var text = self.CreateP(innerHTML);
+		text.className = "stdMargin";
+		list.appendChild(check);
+		list.appendChild(text);
+		return list;
+	}
 	//=========================================
 	
 	// clears everything and closes the blackout
@@ -316,11 +337,11 @@ function PopupManager(blackout) {
 			}
 		}
 	}
-	this.CloseAll = function () {
+	this.CloseAll = function (closeLocked = false) {
 		var self = this;
 		var children = [];
 		for (var i = 0; i < self.blackout.children.length; i++) {
-			if (!self.locked || self.blackout.children[i] != self.locked) {
+			if ((!self.locked || closeLocked) || self.blackout.children[i] != self.locked) {
 				children.push(self.blackout.children[i]);
 			}
 		}

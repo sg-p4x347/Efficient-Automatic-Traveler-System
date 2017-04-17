@@ -36,9 +36,9 @@ namespace Efficient_Automatic_Traveler_System
     interface ISupervisorActions
     {
         string MoveTravelerStart(string json);
-        string LoadTraveler(string json);
-        string LoadTravelerAt(string json);
-        string LoadItem(string json);
+        ClientMessage LoadTraveler(string json);
+        ClientMessage LoadTravelerAt(string json);
+        ClientMessage LoadItem(string json);
         string CreateSummary(string json);
         string DisintegrateTraveler(string json);
         string EnterProduction(string json);
@@ -224,6 +224,7 @@ namespace Efficient_Automatic_Traveler_System
             FindTraveler(travelerID).ScrapItem(itemID);
         }
         // has to know which station this is being completed from
+        // TODO: change param list to take event, and construct the even from the client
         public ClientMessage AddTravelerEvent(int travelerID, EventType eventType, double time, StationClass station, User user, ushort? itemID = null)
         {
             ClientMessage returnMessage = new ClientMessage();
@@ -316,9 +317,9 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage.ToString();
         }
-        public string LoadTraveler(string json)
+        public ClientMessage LoadTraveler(string json)
         {
-            ClientMessage returnMessage;
+            ClientMessage returnMessage = new ClientMessage();
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
@@ -336,11 +337,11 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage.ToString();
+            return returnMessage;
         }
-        public string LoadTravelerAt(string json)
+        public ClientMessage LoadTravelerAt(string json)
         {
-            ClientMessage returnMessage;
+            ClientMessage returnMessage = new ClientMessage();
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
@@ -359,11 +360,11 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage.ToString();
+            return returnMessage;
         }
-        public string LoadItem(string json)
+        public ClientMessage LoadItem(string json)
         {
-            ClientMessage returnMessage;
+            ClientMessage returnMessage = new ClientMessage();
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
@@ -389,7 +390,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage.ToString();
+            return returnMessage;
         }
         public string CreateSummary(string json)
         {

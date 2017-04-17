@@ -20,7 +20,7 @@ namespace Efficient_Automatic_Traveler_System
         public OperatorClient (TcpClient client, ITravelerManager travelerManager) : base(client)
         {
             m_travelerManager = travelerManager;
-            SendMessage((new ClientMessage("InitStations",ConfigManager.Get("stations"))).ToString());
+            SendMessage((new ClientMessage("InitStations", StationClass.GetStations().Stringify())).ToString());
         }
 
         public string SetStation(string json)
@@ -68,12 +68,28 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Private members
         //------------------------------
+        private void DisplayChecklist()
+        {
+            try
+            {
+                Dictionary<string, string> stationType = new StringStream(new StringStream(ConfigManager.Get("stationTypes")).ParseJSON()[m_station.Type]).ParseJSON();
+                if (stationType.ContainsKey("checklist"))
+                {
+                    string list = stationType["checklist"];
+                    ClientMessage message = new ClientMessage("DisplayChecklist", list);
+                    SendMessage(message.ToString());
+                }
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+            }
+        }
         //------------------------------
         // Properties
         //------------------------------
         protected ITravelerManager m_travelerManager;
         protected StationClass m_station;
-        
+        protected Traveler m_current;
         internal StationClass Station
         {
             get
@@ -147,7 +163,18 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error occured");
             }
         }
-
+        public ClientMessage DisplayScrapReport(string json)
+        {
+            try
+            {
+                string scrapReport = ConfigManager.Get("scrapReport");
+                return new ClientMessage("DisplayScrapReport", scrapReport);
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error occured");
+            }
+        }
         public ClientMessage SubmitTraveler(string json)
         {
             try
@@ -180,9 +207,31 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error occured");
             }
         }
-        public string LoadTraveler(string json)
+        public ClientMessage LoadTraveler(string json)
         {
+            Traveler freshTraveler = m_travelerManager.FindTraveler(Convert.ToInt32(new StringStream(json).ParseJSON()["travelerID"]));
+            if (freshTraveler != null && ( m_current == null || freshTraveler.ID != m_current.ID))
+            {
+                DisplayChecklist();
+            }
+            m_current = freshTraveler;
             return m_travelerManager.LoadTraveler(json);
+        }
+        public ClientMessage LoadTravelerJSON(string json)
+        {
+            ClientMessage message = LoadTraveler(json);
+            message.Method = "LoadTravelerJSON";
+            return message;
+        }
+        public ClientMessage LoadItem(string json)
+        {
+            Traveler freshTraveler = m_travelerManager.FindTraveler(Convert.ToInt32(new StringStream(json).ParseJSON()["travelerID"]));
+            if (freshTraveler != null && m_current != null && freshTraveler.ID != m_current.ID)
+            {
+                DisplayChecklist();
+            }
+            m_current = freshTraveler;
+            return m_travelerManager.LoadItem(json);
         }
     }
 }

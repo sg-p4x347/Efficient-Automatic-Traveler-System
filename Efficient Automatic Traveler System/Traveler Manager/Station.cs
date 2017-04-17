@@ -35,6 +35,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {
                 { "name", m_name.Quotate()},
+                { "type",m_type.Quotate() },
                 { "creates", m_creates.Stringify<string>()},
                 { "mode", m_mode.ToString().Quotate()},
                 { "laborCodes",m_laborCodes.Stringify<string>()}
@@ -151,6 +152,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_laborCodes = value;
+            }
+        }
+
+        public string Type
+        {
+            get
+            {
+                return m_type;
+            }
+
+            set
+            {
+                m_type = value;
             }
         }
         #endregion

@@ -69,17 +69,17 @@ namespace Efficient_Automatic_Traveler_System
             return m_travelerManager.MoveTravelerStart(json);
         }
 
-        public string LoadTraveler(string json)
+        public ClientMessage LoadTraveler(string json)
         {
             return m_travelerManager.LoadTraveler(json);
         }
 
-        public string LoadTravelerAt(string json)
+        public ClientMessage LoadTravelerAt(string json)
         {
             return m_travelerManager.LoadTravelerAt(json);
         }
 
-        public string LoadItem(string json)
+        public ClientMessage LoadItem(string json)
         {
             return m_travelerManager.LoadItem(json);
         }
