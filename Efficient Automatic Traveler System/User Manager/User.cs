@@ -17,7 +17,7 @@ namespace Efficient_Automatic_Traveler_System
             m_history = new List<Event>();
             foreach (string evt in (new StringStream(obj["history"])).ParseJSONarray())
             {
-                m_history.Add(new Event(evt));
+                m_history.Add(BackupManager.ImportDerived<Event>(evt));
             }
         }
         public override string ToString()
@@ -32,12 +32,12 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Login(StationClass station)
         {
-            m_history.Add(new Event(EventType.Login, 0.0, station));
+            m_history.Add(new LogEvent(this,station,LogType.Login));
         }
         public void Logout()
         {
-            Event login = m_history.Last<Event>();
-            login.time = (DateTime.Now - login.date).TotalMinutes;
+            LogEvent login = m_history.OfType<LogEvent>().ToList().Last(x => x.LogType == LogType.Login);
+            m_history.Add(new LogEvent(this, login.Station, LogType.Logout));
         }
         #endregion
         #region Properties

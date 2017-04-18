@@ -8,19 +8,9 @@ using System.IO;
 using System.Data.Odbc;
 using System.Net;
 using System.Net.Http;
-using System.Globalization;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum EventType
-    {
-        Completed,
-        Scrapped,
-        Reworked,
-        Moved,
-        Login,
-        Finished
-    }
     enum LabelType
     {
         Tracking,
@@ -30,78 +20,7 @@ namespace Efficient_Automatic_Traveler_System
         Test
     }
     
-    class Event : IEquatable<Event>
-    {
-        public Event() { }
-        public Event (string json)
-        {
-            try
-            {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                type = (EventType)Enum.Parse(typeof(EventType), obj["type"]);
-                date = DateTime.ParseExact(obj["date"],"O", CultureInfo.InvariantCulture);
-                time = Convert.ToDouble(obj["time"]);
-                station = StationClass.GetStation(obj["station"]);
-                user = UserManager.Find( obj["userID"]);
-            }
-            catch (Exception ex)
-            {
-                Server.WriteLine("Problem when reading event from file: " + ex.Message + "; StackTrace: " + ex.StackTrace);
-            }
-        }
-        public Event (EventType e, double t, StationClass s, User u = null)
-        {
-            type = e;
-            time = Math.Round(t,2);
-            station = s;
-            date = DateTime.Now;
-            user = u;
-        }
-        public override string ToString()
-        {
-            Dictionary<string, string> obj = new Dictionary<string, string>()
-            {
-                {"type",type.ToString().Quotate() },
-                {"date",date.ToString("O").Quotate() },
-                {"time",time.ToString() },
-                {"station",station.Name.Quotate() },
-                {"userID",(user != null ? user.UID.Quotate(): "".Quotate())}
-            };
-            return obj.Stringify();
-        }
-        public static bool operator ==(Event A, Event B)
-        {
-            return (A.type == B.type && A.time == B.time && A.station == B.station && A.date == B.date);
-        }
-        public bool Equals(Event B)
-        {
-            return (type == B.type && time == B.time && station == B.station && date == B.date);
-        }
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
-        public static bool operator !=(Event A, Event B)
-        {
-            return !(A.type == B.type && A.time == B.time && A.station == B.station && A.date == B.date);
-        }
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = type.GetHashCode();
-                hashCode = (hashCode * 397) ^ time.GetHashCode();
-                hashCode = (hashCode * 397) ^ station.GetHashCode();
-                hashCode = (hashCode * 397) ^ date.GetHashCode();
-                return hashCode;
-            }
-        }
-        public EventType type;
-        public double time;
-        public StationClass station;
-        public DateTime date;
-        public User user;
-    }
+    
     struct NameValueQty<valueType,qtyType>
     {
         public NameValueQty(string name, valueType value, qtyType qty)
@@ -279,7 +198,7 @@ namespace Efficient_Automatic_Traveler_System
             catch (Exception ex)
             {
                 result = "Error when printing label";
-                Console.WriteLine(result + " " + ex.Message); 
+                Server.LogException(ex);
             }
             return result;
         }
@@ -330,7 +249,7 @@ namespace Efficient_Automatic_Traveler_System
             TravelerItem item = FindItem(ID);
             // now in post process
             item.State = ItemState.PostProcess;
-            item.History.Add(new Event(EventType.Finished, 0.0, item.Station));
+            item.History.Add(new LogEvent(null, item.Station, LogType.Finish));
             // check to see if this concludes the traveler
             if (Items.Where(x => x.State == ItemState.PostProcess && !x.Scrapped).Count() >= m_quantity && Items.All(x => x.State == ItemState.PostProcess))
             {
@@ -375,7 +294,7 @@ namespace Efficient_Automatic_Traveler_System
             int quantityPending = 0;
             if (station != null)
             {
-                quantityPending += Items.Where(x => x.Station == station && !x.History.Exists(e => e.station == station && e.type == EventType.Completed)).Count();
+                quantityPending += Items.Where(x => x.Station == station && !x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
                 // these stations can create items
                 if (station.Creates.Count > 0 && m_station == station)
                 {
@@ -398,7 +317,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public int QuantityCompleteAt(StationClass station)
         {
-            return Items.Where(x => x.Station == station && x.History.Exists(e => e.station == station && e.type == EventType.Completed)).Count();
+            return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
         }
         // export for clients to display
         public string Export(string clientType, StationClass station)

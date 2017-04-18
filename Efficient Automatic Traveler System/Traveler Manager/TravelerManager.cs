@@ -30,7 +30,7 @@ namespace Efficient_Automatic_Traveler_System
     }
     interface IOperatorActions
     {
-        ClientMessage AddTravelerEvent(int travelerID, EventType eventType, double time, StationClass station, User user, ushort? itemID = null);
+        ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem travelerItem);
         ClientMessage SubmitTraveler(Traveler traveler, StationClass station);
     }
     interface ISupervisorActions
@@ -225,29 +225,22 @@ namespace Efficient_Automatic_Traveler_System
         }
         // has to know which station this is being completed from
         // TODO: change param list to take event, and construct the even from the client
-        public ClientMessage AddTravelerEvent(int travelerID, EventType eventType, double time, StationClass station, User user, ushort? itemID = null)
+        public ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem item = null)
         {
             ClientMessage returnMessage = new ClientMessage();
             try
             {
-                Traveler traveler = FindTraveler(travelerID);
-                Event itemEvent = new Event(eventType, time, station, user);
-                TravelerItem item;
                 bool newItem = false;
-                if (itemID == null)
+                if (item == null)
                 {
                     newItem = true;
                     // create a new item
-                    item = traveler.AddItem(station);
-                } else
-                {
-                    // change existing item
-                    item = traveler.FindItem(itemID.Value);
+                    item = traveler.AddItem(itemEvent.Station);
                 }
                 
                 item.History.Add(itemEvent);
                 // print labels
-                if (itemEvent.type == EventType.Scrapped)
+                if (itemEvent.Process == ProcessType.Scrapped)
                 {
                     //=================
                     // SCRAPPED
@@ -261,7 +254,7 @@ namespace Efficient_Automatic_Traveler_System
                     // NEW
                     //=================
                     returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Tracking) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                } else if (itemEvent.type == EventType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
+                } else if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
                 {
                     //=================
                     // FINISHED

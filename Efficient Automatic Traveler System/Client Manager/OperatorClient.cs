@@ -149,15 +149,28 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                return m_travelerManager.AddTravelerEvent(
-                    Convert.ToInt32(obj["travelerID"]),
-                    (EventType)Enum.Parse(typeof(EventType),obj["eventType"]),
-                    traveler.GetCurrentLabor() - Convert.ToDouble(obj["time"]),
-                    m_station,
-                    m_user,
-                    (obj["itemID"] != "undefined" ? (ushort?)Convert.ToUInt16(obj["itemID"]) : null)
-                );
+                ProcessEvent evt = new ProcessEvent(m_user, m_station, traveler.GetCurrentLabor() - Convert.ToDouble(obj["time"]), (ProcessType)Enum.Parse(typeof(ProcessType), obj["eventType"]));
+                
+                TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
+                return m_travelerManager.AddTravelerEvent(evt,traveler,item);
             } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error occured");
+            }
+        }
+        public ClientMessage ScrapEvent(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                ScrapEvent evt = new ScrapEvent(m_user, m_station, traveler.GetCurrentLabor() - Convert.ToDouble(obj["time"]), Convert.ToBoolean(obj["startedWork"].ToLower()),obj["reason"]);
+
+                TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
+                return m_travelerManager.AddTravelerEvent(evt, traveler, item);
+            }
+            catch (Exception ex)
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error occured");

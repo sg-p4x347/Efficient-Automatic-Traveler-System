@@ -120,8 +120,18 @@ namespace Efficient_Automatic_Traveler_System
                 Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date), filename), true
             );
         }
-        
 
+        static internal T ImportDerived<T>(string json)
+        {
+            Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+            T derived = default(T);
+            if (obj["type"] != "")
+            {
+                Type type = Type.GetType(obj["type"]);
+                derived = (T)Activator.CreateInstance(type, json);
+            }
+            return derived;
+        }
         #endregion
         #region Static Properties
         private static List<DateTime> m_backupDates;

@@ -2,18 +2,11 @@ Configuration settings loaded from current
 Server started on 192.168.0.26:80
 websocket on 192.168.0.26:81
 
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	04/17/2017 @ 05:21
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	04/18/2017 @ 05:29
 
 EATS inventory loaded from backup
 Configuration settings loaded from current
 Users loaded from backup
 Connecting to MAS...Connecting to MAS...Connected
 Loading orders from backup...Loading orders from backup...Finished
-Importing orders...Importing orders...Finished
-Loading travelers from backup...Loading travelers from backup...Finished
-Compiling Travelers...1%Compiling Travelers...1%Compiling Travelers...3%Compiling Travelers...3%Compiling Travelers...3%Compiling Travelers...5%Compiling Travelers...6%Compiling Travelers...6%Compiling Travelers...6%Compiling Travelers...8%Compiling Travelers...8%Compiling Travelers...8%Compiling Travelers...8%Compiling Travelers...8%Compiling Travelers...8%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...15%Compiling Travelers...15%Compiling Travelers...17%Compiling Travelers...18%Compiling Travelers...18%Compiling Travelers...18%Compiling Travelers...18%Compiling Travelers...19%Compiling Travelers...20%Compiling Travelers...22%Compiling Travelers...22%Compiling Travelers...22%Compiling Travelers...22%Compiling Travelers...22%Compiling Travelers...22%Compiling Travelers...23%Compiling Travelers...23%Compiling Travelers...23%Compiling Travelers...23%Compiling Travelers...23%Compiling Travelers...24%Compiling Travelers...24%Compiling Travelers...24%Compiling Travelers...24%Compiling Travelers...50%Compiling Travelers...67%Compiling Travelers...90%Compiling Travelers...100%Compiling Travelers...Finished
-Gathering Info...10%Gathering Info...20%Gathering Info...30%Gathering Info...40%Gathering Info...50%Gathering Info...60%Gathering Info...70%Gathering Info...80%Gathering Info...90%Gathering Info...100%Gathering Info...Finished
-Disconnected from MAS
-
-<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
-
+Importing orders...

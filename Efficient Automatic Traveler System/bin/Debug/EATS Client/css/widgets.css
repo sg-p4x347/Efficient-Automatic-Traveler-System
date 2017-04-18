@@ -96,7 +96,7 @@ div.percentContainer {
 	width: 100%;
 }
 .JSONviewer {
-	font-size: 3em;
+	font-size: 1em;
 	text-align: center;
 	display: flex;
 	flex-direction: column;

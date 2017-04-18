@@ -76,6 +76,9 @@
     <Compile Include="Client Manager\OperatorClient.cs" />
     <Compile Include="Client Manager\SupervisorClient.cs" />
     <Compile Include="ConfigManager.cs" />
+    <Compile Include="Events\Event.cs" />
+    <Compile Include="Events\LogEvent.cs" />
+    <Compile Include="Events\ProcessEvent.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Interfaces\IClient.cs" />
     <Compile Include="Interfaces\IManager.cs" />
@@ -86,6 +89,7 @@
     <Compile Include="InventoryManager.cs" />
     <Compile Include="Order Manager\OrderItem.cs" />
     <Compile Include="Order Manager\OrderManager.cs" />
+    <Compile Include="Events\ScrapEvent.cs" />
     <Compile Include="StringStream.cs" />
     <Compile Include="Traveler Manager\Bill.cs" />
     <Compile Include="Traveler Manager\BlacklistItem.cs" />

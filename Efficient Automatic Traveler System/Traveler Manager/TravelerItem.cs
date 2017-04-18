@@ -37,7 +37,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_order = obj["order"];
                 foreach (string eventString in (new StringStream(obj["history"])).ParseJSONarray())
                 {
-                    m_history.Add(new Event(eventString));
+                    m_history.Add(BackupManager.ImportDerived<Event>(eventString));
                 }
                 m_state = (ItemState)Enum.Parse(typeof(ItemState),obj["state"]);
             }
@@ -54,7 +54,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"scrapped", m_scrapped.ToString().ToLower()},
                 {"station",Station.Name.Quotate() },
                 {"lastStation",m_lastStation.Name.Quotate() },
-                {"history",m_history.Stringify<Event>() },
+                {"history",m_history.ToList<Event>().Stringify<Event>() },
                 {"order",m_order.Quotate() },
                 {"state",m_state.ToString().Quotate() }
             };
@@ -62,7 +62,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public double TimeAt(StationClass station)
         {
-            return m_history.Where(evt => evt.station == station).Sum(e => e.time);
+            return m_history.OfType<ProcessEvent>().ToList().Where(evt => evt.Station == station).Sum(e => e.Duration);
         }
         // Properties
         private UInt16 m_ID;
@@ -162,9 +162,9 @@ namespace Efficient_Automatic_Traveler_System
 
         public bool IsComplete()
         {
-            foreach (Event evt in History)
+            foreach (ProcessEvent evt in History.OfType<ProcessEvent>().ToList())
             {
-                if (evt.station == Station && evt.type == EventType.Completed)
+                if (evt.Station == Station && evt.Process == ProcessType.Completed)
                 {
                     return true;
                 }

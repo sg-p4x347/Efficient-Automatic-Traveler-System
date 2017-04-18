@@ -41,7 +41,7 @@ namespace Efficient_Automatic_Traveler_System
                 foreach (string userJSON in userArray)
                 {
                     User user = new User(userJSON);
-                    user.History.RemoveAll(x => x.date < DateTime.Today.Date);
+                    user.History.RemoveAll(x => x.Date < DateTime.Today.Date);
                     m_users.Add(user);
                 }
                 Server.WriteLine("Users loaded from backup");

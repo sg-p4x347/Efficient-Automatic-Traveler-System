@@ -11,9 +11,9 @@
 		<link rel="shortcut icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>">
     </head>
 	<body onload = "Initialize()">
-		<div id = "blackout" class = "blackout twoEM">
+		<div id = "blackout" class = "blackout hidden twoEM">
 			<!-- LOGIN POPUP -->
-			<div id = "loginPopup" class = "blackout__popup">
+			<div id = "loginPopup" class = "blackout__popup" style = "display: none;">
 				<p id = "loginInfo" class = "red"></p>
 				Login as:
 				<form id = "loginForm">
@@ -24,7 +24,7 @@
 				<select id = "stationList" class = "dark"></select>
 			</div>
 			<!-- SCRAP REPORT -->
-			<div id = "scrapReport" class = "blackout__popup hidden">
+			<div id = "scrapReport" class = "blackout__popup" style = "display: none;">
 				<form id = "scrapForm" onclick = "(function(event) {event.stopPropagation();})(event)">
 					<input type = "radio" id = "productionRadio" name = "source" value = "production"	checked>Marco Group
 					<input type = "radio" id = "vendorRadio" name = "source" value = "vendor"		checked>Vendor

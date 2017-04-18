@@ -286,17 +286,16 @@ function Application () {
 			closeFunction();
 			
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("AddTravelerEvent",
+			var message = new InterfaceCall("ScrapEvent",
 			{
 				travelerID: self.travelerView.traveler.ID,
 				eventType: "Scrapped",
 				time: application.partTimer.timerTime.asMinutes(),
 				itemID: (self.travelerView.item ? self.travelerView.item.ID : "undefined"),
-				scrapReport: {
-					source: vendorRadio.checked ? "vendor" : "production",
-					reason: scrapReasons.value,
-					startedWork: document.getElementById("startedWork").checked
-				}
+				
+				source: vendorRadio.checked ? "vendor" : "production",
+				reason: scrapReasons.value,
+				startedWork: document.getElementById("startedWork").checked
 			});
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
