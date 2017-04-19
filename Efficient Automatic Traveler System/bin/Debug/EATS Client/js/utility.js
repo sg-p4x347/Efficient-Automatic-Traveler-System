@@ -247,6 +247,7 @@ function PopupManager(blackout) {
 		});
 		
 		self.Open(jsonViewer.DOMcontainer);
+		return jsonViewer;
 	}
 	// displays an error message with no ability to close
 	this.Error = function (message) {
@@ -390,6 +391,7 @@ function Timer(DOMelement) {
 	this.timerStop;
 	this.timerTime;
 	this.timerInterval;
+	this.timerDirection = 1;
 	this.DOMelement = DOMelement;
 	
 	this.Clear = function () {
@@ -399,6 +401,7 @@ function Timer(DOMelement) {
 	}
 	this.Start = function (time) {
 		var self = this;
+		self.timerDirection = 1;
 		self.Stop();
 		self.timerTime = (time ? time : new moment.duration("00:00:00"));
 		self.DOMelement.innerHTML = pad(self.timerTime.hours(),2) + ":" + pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
@@ -409,6 +412,7 @@ function Timer(DOMelement) {
 	}
 	this.CountDown = function (minutes) {
 		var self = this;
+		self.timerDirection = -1;
 		self.Stop();
 		self.timerTime = moment.duration(minutes*60*1000, 'milliseconds');
 		//self.DOMelement.innerHTML = pad(duration.hours(),2) + ":" + pad(duration.minutes(),2) + ":" + pad(duration.seconds(),2);
@@ -433,7 +437,11 @@ function Timer(DOMelement) {
 		clearInterval(self.timerInterval);
 	}
 	this.Resume = function () {
-		this.Start(this.timerTime);
+		if (this.timerDirection === 1) {
+			this.Start(this.timerTime);
+		} else if (this.timerDirection === -1) {
+			this.CountDown(this.timerTime.minutes());
+		}
 	}
 	this.Clear();
 }

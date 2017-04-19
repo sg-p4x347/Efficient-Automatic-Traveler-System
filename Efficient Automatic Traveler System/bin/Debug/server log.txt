@@ -2,11 +2,32 @@ Configuration settings loaded from current
 Server started on 192.168.0.26:80
 websocket on 192.168.0.26:81
 
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	04/18/2017 @ 05:29
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	04/19/2017 @ 04:07
 
 EATS inventory loaded from backup
 Configuration settings loaded from current
 Users loaded from backup
 Connecting to MAS...Connecting to MAS...Connected
 Loading orders from backup...Loading orders from backup...Finished
-Importing orders...
+Importing orders...Importing orders...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Compiling Travelers...1%Compiling Travelers...1%Compiling Travelers...3%Compiling Travelers...4%Compiling Travelers...4%Compiling Travelers...5%Compiling Travelers...7%Compiling Travelers...7%Compiling Travelers...8%Compiling Travelers...8%Compiling Travelers...8%Compiling Travelers...8%Compiling Travelers...8%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...12%Compiling Travelers...12%Compiling Travelers...13%Compiling Travelers...13%Compiling Travelers...14%Compiling Travelers...16%Compiling Travelers...16%Compiling Travelers...16%Compiling Travelers...16%Compiling Travelers...16%Compiling Travelers...17%Compiling Travelers...17%Compiling Travelers...17%Compiling Travelers...17%Compiling Travelers...18%Compiling Travelers...18%Compiling Travelers...19%Compiling Travelers...19%Compiling Travelers...19%Compiling Travelers...27%Compiling Travelers...30%Compiling Travelers...30%Compiling Travelers...30%Compiling Travelers...35%Compiling Travelers...35%Compiling Travelers...35%Compiling Travelers...36%Compiling Travelers...36%Compiling Travelers...37%Compiling Travelers...37%Compiling Travelers...79%Compiling Travelers...80%Compiling Travelers...95%Compiling Travelers...99%Compiling Travelers...99%Compiling Travelers...Finished
+Gathering Info...4%Gathering Info...9%Gathering Info...13%Gathering Info...17%Gathering Info...22%Gathering Info...26%Gathering Info...30%Gathering Info...35%Gathering Info...39%Gathering Info...43%Gathering Info...48%Gathering Info...52%Gathering Info...57%Gathering Info...61%Gathering Info...65%Gathering Info...70%Gathering Info...74%Gathering Info...78%Gathering Info...83%Gathering Info...87%Gathering Info...91%Gathering Info...96%Gathering Info...100%Gathering Info...Finished
+Disconnected from MAS
+
+<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Object reference not set to an instance of an object.stack trace:    at Efficient_Automatic_Traveler_System.Traveler.ToString() in C:\Gage Omega\Programming\Efficient Automatic Traveler System\Efficient Automatic Traveler System\Traveler Manager\Traveler.cs:line 142
+   at Efficient_Automatic_Traveler_System.ExtensionMethods.Stringify[itemType](List`1 list, Boolean quotate, Boolean pretty) in C:\Gage Omega\Programming\Efficient Automatic Traveler System\Efficient Automatic Traveler System\ExtensionMethods.cs:line 45
+   at Efficient_Automatic_Traveler_System.TravelerManager.Backup() in C:\Gage Omega\Programming\Efficient Automatic Traveler System\Efficient Automatic Traveler System\Traveler Manager\TravelerManager.cs:line 174
+   at Efficient_Automatic_Traveler_System.TravelerManager.OnTravelersChanged(List`1 travelers) in C:\Gage Omega\Programming\Efficient Automatic Traveler System\Efficient Automatic Traveler System\Traveler Manager\TravelerManager.cs:line 587
+   at Efficient_Automatic_Traveler_System.TravelerManager.MoveTravelerStart(String json) in C:\Gage Omega\Programming\Efficient Automatic Traveler System\Efficient Automatic Traveler System\Traveler Manager\TravelerManager.cs:line 305
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Traveler.GetRate(Bill bill, StationClass station, Boolean total) in C:\Gage Omega\Programming\Efficient Automatic Traveler System\Efficient Automatic Traveler System\Traveler Manager\Traveler.cs:line 449
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+

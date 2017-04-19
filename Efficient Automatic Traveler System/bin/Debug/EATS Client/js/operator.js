@@ -73,7 +73,8 @@ function Application () {
 			interfaceContainer.style.height = "60%";
 		}
 		// Small screens
-		document.body.style.fontSize = Math.min(10,Math.round(window.innerWidth/72)) + "px";
+		var fontsize = Math.max(8,Math.min(10,Math.round(window.innerWidth/24)));
+		document.body.style.fontSize = fontsize + "px";
 	};
 	this.FocusOnSearch = function () {
 		document.getElementById("travelerSearchBox").value = "";
@@ -215,7 +216,8 @@ function Application () {
 	}
 	// Loads the traveler GUI
 	this.LoadTravelerJSON = function (traveler) {
-		this.popupManager.AddJSONviewer(traveler,"Traveler");
+		var popup = this.popupManager.AddJSONviewer(traveler,"Traveler")
+		popup.DOMcontainer.className += " threeEM";
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
 	}
 	this.StopAutofocus = function () {
@@ -224,6 +226,7 @@ function Application () {
 	// displays a station checklist
 	this.DisplayChecklist = function (list) {
 		var self = this;
+		self.partTimer.Stop();
 		self.popupManager.CloseAll(true);
 		var popup = self.popupManager.CreatePopup();
 		var info = self.popupManager.CreateP("");
@@ -245,6 +248,7 @@ function Application () {
 			}
 			if (allSelected) {
 				self.popupManager.Close(popup);
+				self.partTimer.Resume();
 			} else {
 				info.innerHTML = "Please verify all items";
 			}

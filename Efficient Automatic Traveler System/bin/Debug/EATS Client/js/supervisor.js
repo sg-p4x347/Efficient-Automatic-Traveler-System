@@ -109,13 +109,164 @@ function Application () {
 	}
 	// Loads the traveler GUI
 	this.LoadTraveler = function (traveler) {
-		this.popupManager.AddJSONviewer(traveler,"Traveler");
+		this.TravelerPopup(traveler);
+		
+		
+	}
+	this.LoadTravelerJSON = function (traveler) {
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
+		this.popupManager.AddJSONviewer(traveler,"Traveler");
 	}
 	this.LoadTravelerAt = function (traveler) {
-		this.queues[traveler.station].PromptAction(traveler);
+		this.TravelerPopup(traveler);
 	}
 	this.TravelerPopup = function (traveler) {
+		var self = this;
+		var promptBox = document.getElementById("travelerPopup");//.cloneNode(true);
+		var closeFunction = application.popupManager.AddSpecific("travelerPopup");
+		/* // clear the promptBox
+		while (promptBox.hasChildNodes()) {
+			promptBox.removeChild(promptBox.lastChild);
+		} */
+		var promptInfo = document.getElementById("promptInfo");
+		document.getElementById("promptInfoStation").innerHTML = (traveler.station ? traveler.station : "");
+		document.getElementById("promptInfoTravelerID").innerHTML = pad(traveler.ID,6);
+		document.getElementById("promptInfoItemCode").innerHTML = traveler.itemCode;
+		document.getElementById("promptInfoQuantity").innerHTML = traveler.quantity;
+		document.getElementById("promptInfoPending").innerHTML = (traveler.qtyPending ? traveler.qtyPending : "-");
+		document.getElementById("promptInfoCompleted").innerHTML = (traveler.qtyCompleted ? traveler.qtyCompleted : "-");
+		document.getElementById("promptInfoAction").innerHTML = "Move [" + pad(traveler.ID,6) + "]'s starting location to...";
+		//-----------------
+		// Move starting station to...
+		//-----------------
+		var promptSelect = document.getElementById("promptSelect");
+		ClearChildren(promptSelect);
+		// add the station options
+		application.stationList.forEach(function (station) {
+			if (station.creates.indexOf(traveler.type) != -1 || station.name === "Start") {
+				var option = document.createElement("OPTION");
+				option.innerHTML = station.name;
+				option.value = station.name;
+				promptSelect.appendChild(option);
+			}
+		});
+		promptSelect.value = self.lastSelectedStation;
+		//-----------------
+		// Move button
+		//-----------------
+		var promptMoveBtn = document.getElementById("promptMoveBtn");
+		promptMoveBtn.onclick = function () {
+			self.lastSelectedStation = promptSelect.value;
+			
+			
+			// perform move on all selected travelers
+			self.travelers.forEach(function (extraTraveler) {
+				if (extraTraveler.ID == traveler.ID || extraTraveler.selected) {
+					
+				}
+			});
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("MoveTravelerStart",
+			{
+				travelerIDs: application.GetSelectedIDs().concat(traveler.ID),
+				station: promptSelect.value
+			});
+			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			
+			closeFunction();
+		}
+		//-----------------
+		// Info button
+		//-----------------
+		document.getElementById("promptInfoBtn").onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("LoadTravelerJSON",
+			{
+				travelerID: traveler.ID
+			});
+			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+		}
+		//---------------------
+		// Traveler options 
+		//---------------------
+		document.getElementById("travelerOptionsBtn").onclick = function () {
+			var popup = application.popupManager.CreatePopup();
+			// More Info --------------
+			var infoBtn = application.popupManager.CreateButton("More Info");
+			infoBtn.onclick = function () {
+				application.popupManager.Close(popup);
+				
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("LoadTravelerJSON",
+				{
+					travelerID: traveler.ID
+				});
+				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				//document.getElementById("searchBox").value = traveler.ID;
+				//document.getElementById("searchForm").onsubmit();
+			}
+			popup.appendChild(infoBtn);
+			//-------------------------
+			
+			// Disintegrate ----------
+			var disintegrateBtn = application.popupManager.CreateButton("Disintegrate this traveler");
+			AddTooltip(disintegrateBtn,"Deletes the traveler, and releases the orders to create and combine into new travelers during the next system update");
+			disintegrateBtn.onclick = function () {
+				application.popupManager.Close(popup);
+				
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("DisintegrateTraveler",
+				{
+					travelerIDs: application.GetSelectedIDs().concat(traveler.ID)
+				});
+				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				
+				closeFunction();
+			}
+			popup.appendChild(disintegrateBtn);
+			//-------------------------
+			
+			// Enter Production ----------
+			var enterProductionBtn = application.popupManager.CreateButton("Enter Production");
+			enterProductionBtn.onclick = function () {
+				application.popupManager.Close(popup);
+				
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("EnterProduction",
+				{
+					travelerIDs: application.GetSelectedIDs().concat(traveler.ID)
+				});
+				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				
+				closeFunction();
+			}
+			popup.appendChild(enterProductionBtn);
+			//----------------------------
+			application.popupManager.AddCustom(popup);
+			
+			// PRINT LABLES--------------
+			var printBtn = application.popupManager.CreateButton("Print Labels");
+			printBtn.onclick = function () {
+				application.popupManager.Close(popup);
+				application.popupManager.AddSpecific("labelPopup");
+				application.PrintLabelPopup(traveler);
+				/* //----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("CreateSummary",{
+					sort: "Active",
+					type: "Table",
+					from: "",
+					to: ""
+				});
+				self.websocket.send(JSON.stringify(message));
+				//----------------------------------------------- */
+			}
+			popup.appendChild(printBtn);
+		}
 	}
 	// Loads the item GUI
 	this.LoadItem = function (item) {
@@ -547,14 +698,14 @@ function TravelerQueue(station) {
 		movingBar.style.width = ((parseInt(qtyMoving.value) / traveler.quantity) * 100) + "%";
 		stayingBar.style.width = ((parseInt(qtyStaying.value) / traveler.quantity) * 100) + "%";
 	}
-	this.PromptAction = function (traveler) {
+	/* this.PromptAction = function (traveler) {
 		var self = this;
 		var promptBox = document.getElementById("travelerPopup");//.cloneNode(true);
 		var closeFunction = application.popupManager.AddSpecific("travelerPopup");
-		/* // clear the promptBox
-		while (promptBox.hasChildNodes()) {
-			promptBox.removeChild(promptBox.lastChild);
-		} */
+		//// clear the promptBox
+		//while (promptBox.hasChildNodes()) {
+		//	promptBox.removeChild(promptBox.lastChild);
+		//} 
 		var promptInfo = document.getElementById("promptInfo");
 		document.getElementById("promptInfoStation").innerHTML = self.station.name;
 		document.getElementById("promptInfoTravelerID").innerHTML = pad(traveler.ID,6);
@@ -670,19 +821,19 @@ function TravelerQueue(station) {
 				application.popupManager.Close(popup);
 				application.popupManager.AddSpecific("labelPopup");
 				application.PrintLabelPopup(traveler);
-				/* //----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("CreateSummary",{
-					sort: "Active",
-					type: "Table",
-					from: "",
-					to: ""
-				});
-				self.websocket.send(JSON.stringify(message));
-				//----------------------------------------------- */
+				//----------INTERFACE CALL-----------------------
+				//var message = new InterfaceCall("CreateSummary",{
+				//	sort: "Active",
+				//	type: "Table",
+				//	from: "",
+				//	to: ""
+				//});
+				//self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
 			}
 			popup.appendChild(printBtn);
 		}
-	}
+	} */
 	this.Initialize = function (station) {
 		var self = this;
 		self.station = station;

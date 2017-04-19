@@ -21,17 +21,37 @@
 			<!-- TRAVELER POPUP -->
 			<div id = "travelerPopup" class = "blackout__popup" style = "display: none;">
 				<div class = "yellowBack button" onclick = "application.popupManager.Close(document.getElementById('travelerPopup'));">Close</div>
-				<div class = "list--horizontal">
-					<p id = "promptInfo">
-						Station:<span id = "promptInfoStation"></span><br>
-						<span id = "promptInfoTravelerID" class = "white three-d"></span><br>
-						<span id = "promptInfoItemCode" class = "white three-d"></span><br>
-						Qty on traveler:<span id = "promptInfoQuantity" class = "white blackBack"></span><br>
-						Pending:<span id = "promptInfoPending" class = "blue whiteBack"></span><br>
-						Completed:<span id = "promptInfoCompleted" class = "green whiteBack"></span><br>
-						<span id = "promptInfoAction"></span>
-					</p>
+				<div class = "list--horizontal justify-space-between">
+					
+					
 				</div>
+				<table>
+					<tr>
+						<td>Traveler:</td>
+						<td><p id = "promptInfoTravelerID" class = "white three-d"></p></td>	
+					</tr>
+					<tr>
+						<td>Model:</td>
+						<td><p id = "promptInfoItemCode" class = "white three-d"></p></td>
+					</tr>
+					<tr>
+						<td>Station:</td>
+						<td><span id = "promptInfoStation"></span></td>	
+					</tr>
+					<tr>
+						<td>Qty:</td>
+						<td><span id = "promptInfoQuantity"></span></td>
+					</tr>
+					<tr>
+						<td>Pending:</td>
+						<td><span id = "promptInfoPending"></span></td>
+					</tr>
+					<tr>
+						<td>Completed:</td>
+						<td><span id = "promptInfoCompleted"></span></td>
+					</tr>
+				</table>
+				<span id = "promptInfoAction"></span>
 				<select id = "promptSelect" class = "dark oneEM"></select>
 				<div class = "list--horizontal justify-space-between">
 					<div id = "promptMoveBtn" class = "dark button">Move</div>

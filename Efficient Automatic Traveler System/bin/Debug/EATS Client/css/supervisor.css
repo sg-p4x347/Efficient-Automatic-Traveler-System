@@ -128,7 +128,19 @@ div.queue {
 	height: 90%;
 }
 
-
+#travelerPopup table {
+	width: 100%;
+	border: 2px solid black;
+	border-left: none;
+	border-right: none;
+}
+#travelerPopup tr {
+	display: flex;
+	justify-content: space-between;
+	border: 2px solid black;
+	border-left: none;
+	border-right: none;
+}
 /*Traveler View*/
 div.viewContainer {
 	display: flex;

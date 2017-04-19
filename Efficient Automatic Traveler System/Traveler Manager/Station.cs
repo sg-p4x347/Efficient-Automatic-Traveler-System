@@ -62,13 +62,13 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static bool operator ==(StationClass A, StationClass B)
         {
-            return !object.ReferenceEquals(A,null) && !object.ReferenceEquals(B, null) 
-                && A.ID == B.ID;
+            return (object.ReferenceEquals(A,null) && object.ReferenceEquals(B, null)) 
+                || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.ID == B.ID);
         }
         public static bool operator !=(StationClass A, StationClass B)
         {
-            return !(!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null)
-                && A.ID == B.ID);
+            return !((object.ReferenceEquals(A, null) && object.ReferenceEquals(B, null))
+                || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.ID == B.ID));
         }
         public bool Is(string name)
         {

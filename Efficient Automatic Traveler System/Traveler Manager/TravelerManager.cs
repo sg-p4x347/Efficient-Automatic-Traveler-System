@@ -36,7 +36,7 @@ namespace Efficient_Automatic_Traveler_System
     interface ISupervisorActions
     {
         string MoveTravelerStart(string json);
-        ClientMessage LoadTraveler(string json);
+        ClientMessage LoadTravelerJSON(string json);
         ClientMessage LoadTravelerAt(string json);
         ClientMessage LoadItem(string json);
         string CreateSummary(string json);
@@ -310,28 +310,43 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage.ToString();
         }
-        public ClientMessage LoadTraveler(string json)
+
+        public ClientMessage LoadTravelerJSON(string json)
         {
-            ClientMessage returnMessage = new ClientMessage();
             try
             {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                if (traveler != null)
-                {
-                    returnMessage = new ClientMessage("LoadTraveler", traveler.ExportHuman());
-                } else
-                {
-                    returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
-                }
+                return new ClientMessage("LoadTravelerJSON", traveler.ExportHuman());
             }
             catch (Exception ex)
             {
-                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("Info", "error");
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error");
             }
-            return returnMessage;
         }
+        //public ClientMessage LoadTraveler(string json)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+        //        if (traveler != null)
+        //        {
+        //            returnMessage = new ClientMessage("LoadTraveler", traveler.Export());
+        //        } else
+        //        {
+        //            returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
         public ClientMessage LoadTravelerAt(string json)
         {
             ClientMessage returnMessage = new ClientMessage();

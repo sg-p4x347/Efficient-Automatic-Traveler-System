@@ -69,11 +69,28 @@ namespace Efficient_Automatic_Traveler_System
             return m_travelerManager.MoveTravelerStart(json);
         }
 
+        //public ClientMessage LoadTraveler(string json)
+        //{
+        //    return m_travelerManager.LoadTraveler(json);
+        //}
+        public ClientMessage LoadTravelerJSON(string json)
+        {
+            return m_travelerManager.LoadTravelerJSON(json);
+        }
         public ClientMessage LoadTraveler(string json)
         {
-            return m_travelerManager.LoadTraveler(json);
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                return new ClientMessage("LoadTraveler", traveler.Export("SupervisorClient",null));
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Could not print label(s) due to a pesky error :(");
+            }
         }
-
         public ClientMessage LoadTravelerAt(string json)
         {
             return m_travelerManager.LoadTravelerAt(json);

@@ -228,13 +228,11 @@ namespace Efficient_Automatic_Traveler_System
                 DisplayChecklist();
             }
             m_current = freshTraveler;
-            return m_travelerManager.LoadTraveler(json);
+            return new ClientMessage("LoadTraveler",m_current.Export("OperatorClient",m_station));
         }
         public ClientMessage LoadTravelerJSON(string json)
         {
-            ClientMessage message = LoadTraveler(json);
-            message.Method = "LoadTravelerJSON";
-            return message;
+            return m_travelerManager.LoadTravelerJSON(json);
         }
         public ClientMessage LoadItem(string json)
         {

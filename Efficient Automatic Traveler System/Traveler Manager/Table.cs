@@ -103,8 +103,9 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
                     json += ",\"Desc1\":\"" + Part.BillNo + "\"";
                     json += ",\"Desc2\":\"" + "!!!***SCRAP***!!!" + "\"";
-                    ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Last(x => x.Process == ProcessType.Scrapped);
-                    json += ",\"Reason\":" + (scrapEvent != null ?  scrapEvent.Reason : "").Quotate();
+                    ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
+                    string reason = scrapEvent.Reason;
+                    json += ",\"Reason\":" + reason.Quotate();
                     break;
                 case LabelType.Table:
                     json += GetLabelFields(new List<string>()

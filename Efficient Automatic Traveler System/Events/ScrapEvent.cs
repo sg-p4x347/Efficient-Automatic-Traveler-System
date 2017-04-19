@@ -33,6 +33,9 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new StringStream(base.ToString()).ParseJSON();
             obj["type"] = this.GetType().ToString().Quotate();
             obj["date"] = obj["date"].Quotate();
+            obj["user"] = obj["user"].Quotate();
+            obj["station"] = obj["station"].Quotate();
+            obj["process"] = obj["process"].Quotate();
             obj.Add("startedWork", m_startedWork.ToString().ToLower());
             obj.Add("reason", m_reason.Quotate());
             return obj.Stringify();
