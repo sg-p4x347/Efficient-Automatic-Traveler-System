@@ -25,6 +25,7 @@
 			</div>
 			<!-- SCRAP REPORT -->
 			<div id = "scrapReport" class = "blackout__popup" style = "display: none;">
+				<div class = "yellowBack button" onclick = "application.popupManager.Close(document.getElementById('scrapReport'));">Close</div>
 				<form id = "scrapForm" onclick = "(function(event) {event.stopPropagation();})(event)">
 					<input type = "radio" id = "productionRadio" name = "source" value = "production"	checked>Marco Group
 					<input type = "radio" id = "vendorRadio" name = "source" value = "vendor"		checked>Vendor

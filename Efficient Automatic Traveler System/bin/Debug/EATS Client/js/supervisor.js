@@ -289,6 +289,10 @@ function Application () {
 		var closeFunction = self.popupManager.AddSpecific("summaryPopup");//.cloneNode(true));
 		
 		var summaryTable = document.getElementById("summary"); // TABLE
+		
+		while(summaryTable.rows.length > 0) {
+			summaryTable.deleteRow(0);
+		}	
 		if (summaryObj.items.length > 0) {
 			document.getElementById("summaryTitle").innerHTML = summaryObj.sort + " travelers";
 			
@@ -642,56 +646,7 @@ function TravelerQueue(station) {
 		}
 		// create and add the new DOM objects
 		self.travelers.forEach(function (traveler) {
-			var DOMqueueItem = document.createElement("DIV");
-			var colorClass = "blueBack";
-			switch (application.view.viewState) {
-				case "PreProcess": 
-				if (traveler.quantity > 0) {
-					colorClass = "blueBack";
-				} else {
-					colorClass = "ghostBack";
-				}
-				 break;
-				case "InProcess": colorClass = "redBack"; break;
-				case "PostProcess": colorClass = "greenBack"; break;
-			}
-			DOMqueueItem.className = "button queue__item twoEM " + colorClass;
-			if (traveler.selected) {
-				DOMqueueItem.className += " selected";
-			}
-			DOMqueueItem.innerHTML = pad(traveler.ID,6) + "<br>";
-			//-------------------------------------------
-			var checkBox = document.createElement("INPUT");
-			checkBox.type = "checkbox";
-			checkBox.checked = traveler.selected;
-			checkBox.onchange = function () {
-				traveler.selected = this.checked;
-				DOMqueueItem.className = (this.checked ? "button queue__item twoEM selected " + colorClass
-				: "button queue__item twoEM " + colorClass);
-			}
-			DOMqueueItem.appendChild(checkBox);
-			//-------------------------------------------
-			var itemCode = document.createElement("SPAN");
-			itemCode.className = "queue__item__desc beige";
-			itemCode.innerHTML = traveler.itemCode;
-			DOMqueueItem.appendChild(itemCode);
-			
-			checkBox.onclick = function(event) {
-				event.stopPropagation();
-			}
-			
-			DOMqueueItem.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("LoadTravelerAt",
-				{
-					travelerID: traveler.ID,
-					station: self.station.name
-				});
-				application.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-				//self.PromptAction(traveler);
-			}
-			self.DOMelement.appendChild(DOMqueueItem);
+			self.DOMelement.appendChild(traveler.CreateQueueItem(self.station.name));
 		});
 	}
 	this.BalanceSliders = function(qtyMoving,qtyStaying,movingBar,stayingBar,traveler) {

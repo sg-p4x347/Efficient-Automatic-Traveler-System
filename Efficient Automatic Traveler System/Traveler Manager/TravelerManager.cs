@@ -408,9 +408,16 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 //Summary summary = new Summary(this as ITravelerManager);
                 string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                DateTime from = (obj["from"] != "" ? DateTime.Parse(obj["from"]) : BackupManager.GetMostRecent());
-                DateTime to = (obj["to"] != "" ? DateTime.Parse(obj["to"]) : DateTime.Today.Date);
-                Summary summary = new Summary(from,to,obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                Summary summary = null;
+                if (obj["from"] != "" && obj["to"] != "")
+                {
+                    DateTime from = (obj["from"] != "" ? DateTime.Parse(obj["from"]) : BackupManager.GetMostRecent());
+                    DateTime to = (obj["to"] != "" ? DateTime.Parse(obj["to"]) : DateTime.Today.Date);
+                    summary = new Summary(from, to, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                } else
+                {
+                    summary = new Summary(this as ITravelerManager,obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                }
                 returnMessage = new ClientMessage("CreateSummary", summary.ToString());
             }
             catch (Exception ex)

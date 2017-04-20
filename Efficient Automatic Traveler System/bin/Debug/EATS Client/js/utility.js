@@ -15,6 +15,59 @@ function Traveler(obj) {
 		});
 		return item;
 	}
+	obj.CreateQueueItem = function (station) {
+		var self = this;
+		var DOMqueueItem = document.createElement("DIV");
+		var colorClass = "blueBack";
+		switch (application.view.viewState) {
+			case "PreProcess": 
+			if (self.quantity > 0) {
+				colorClass = "blueBack";
+			} else {
+				colorClass = "ghostBack";
+			}
+			 break;
+			case "InProcess": colorClass = "redBack"; break;
+			case "PostProcess": colorClass = "greenBack"; break;
+		}
+		DOMqueueItem.className = "button queue__item twoEM " + colorClass;
+		if (self.selected) {
+			DOMqueueItem.className += " selected";
+		}
+		DOMqueueItem.innerHTML = pad(self.ID,6) + "<br>";
+		//-------------------------------------------
+		var checkBox = document.createElement("INPUT");
+		checkBox.type = "checkbox";
+		checkBox.checked = self.selected;
+		checkBox.onchange = function () {
+			self.selected = this.checked;
+			DOMqueueItem.className = (this.checked ? "button queue__item twoEM selected " + colorClass
+			: "button queue__item twoEM " + colorClass);
+		}
+		DOMqueueItem.appendChild(checkBox);
+		//-------------------------------------------
+		var itemCode = document.createElement("SPAN");
+		itemCode.className = "queue__item__desc beige";
+		itemCode.innerHTML = self.itemCode;
+		DOMqueueItem.appendChild(itemCode);
+		
+		checkBox.onclick = function(event) {
+			event.stopPropagation();
+		}
+		
+		DOMqueueItem.onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("LoadTravelerAt",
+			{
+				travelerID: self.ID,
+				station: station
+			});
+			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			//self.PromptAction(traveler);
+		}
+		return DOMqueueItem;
+	}
 	return obj;
 }
 function pad(num, size) {

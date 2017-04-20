@@ -457,6 +457,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return 0.0;
         }
+        
         #endregion
         //--------------------------------------------------------
         #region Properties
@@ -466,7 +467,11 @@ namespace Efficient_Automatic_Traveler_System
         protected Bill m_part;
         protected int m_quantity;
         private List<TravelerItem> items;
+        // linking ^^^^^^^^^^^^^^^^^^^^^
         protected List<string> m_parentOrders;
+        protected List<Traveler> m_parentTravelers;
+        protected List<Traveler> m_childTravelers;
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         private StationClass m_station;
         private ItemState m_state;
         private string m_dateStarted;

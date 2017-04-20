@@ -93,6 +93,7 @@
     <Compile Include="StringStream.cs" />
     <Compile Include="Traveler Manager\Bill.cs" />
     <Compile Include="Traveler Manager\BlacklistItem.cs" />
+    <Compile Include="Traveler Manager\Box.cs" />
     <Compile Include="Traveler Manager\Chair.cs" />
     <Compile Include="Client Manager\Client.cs" />
     <Compile Include="Client Manager\ClientManager.cs" />
