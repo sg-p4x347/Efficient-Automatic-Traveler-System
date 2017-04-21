@@ -32,11 +32,17 @@ namespace Efficient_Automatic_Traveler_System
         public override string ToString()
         {
             string json = "";
-            json += '{';
-            json += "\"name\":" + '"' + Name.Replace("\"","\\\"") + '"' + ',';
-            json += "\"value\":" + '"' + Value.ToString().Replace("\"", "\\\"") + '"' + ',';
-            json += "\"qty\":" + '"' + Qty.ToString().Replace("\"", "\\\"") + '"';
-            json += '}';
+            try
+            {
+                json += '{';
+                json += "\"name\":" + '"' + Name.Replace("\"", "\\\"") + '"' + ',';
+                json += "\"value\":" + '"' + (Value != null ? Value.ToString().Replace("\"", "\\\"") : "") + '"' + ',';
+                json += "\"qty\":" + '"' + Qty.ToString().Replace("\"", "\\\"") + '"';
+                json += '}';
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+            }
             return json;
         }
         public string Name;
@@ -47,21 +53,46 @@ namespace Efficient_Automatic_Traveler_System
     abstract internal class Traveler
     {
         #region Public Methods
-        public Traveler() { }
+        public Traveler() {
+            m_ID = 0;
+            m_quantity = 0;
+            m_part = null;
+            items = new List<TravelerItem>();
+            m_parentOrders = new List<string>();
+            m_parentIDs = new List<int>();
+            m_parentTravelers = new List<Traveler>();
+            m_childIDs = new List<int>();
+            m_childTravelers = new List<Traveler>();
+            m_station = null;
+            m_state = 0;
+            m_dateStarted = "";
+        }
         // Gets the base properties and orders of the traveler from a json string
-        public Traveler(string json)
+        public Traveler(string json) : this()
         {
             Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
             m_ID = Convert.ToInt32(obj["ID"]);
             
             m_quantity = Convert.ToInt32(obj["quantity"]);
-            m_part = new Bill(obj["itemCode"], 1, m_quantity);
-            Items = new List<TravelerItem>();
+            if (obj["itemCode"] != "")
+            {
+                m_part = new Bill(obj["itemCode"], 1, m_quantity);
+            }
             foreach (string item in (new StringStream(obj["items"])).ParseJSONarray())
             {
                 Items.Add(new TravelerItem(item));
             }
             m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
+            foreach (string id in (new StringStream(obj["parentTravelers"])).ParseJSONarray())
+            {
+                m_parentIDs.Add(Convert.ToInt32(id));
+            }
+           
+            foreach (string id in (new StringStream(obj["childTravelers"])).ParseJSONarray())
+            {
+                m_childIDs.Add(Convert.ToInt32(id));
+            }
+            
             m_station = StationClass.GetStation(obj["station"]);
             m_state = (ItemState)Enum.Parse(typeof(ItemState), obj["state"]);
             m_dateStarted = obj["dateStarted"];
@@ -77,21 +108,21 @@ namespace Efficient_Automatic_Traveler_System
         //    // Import the part
         //    ImportPart(ref MAS);
         //}
-        public Traveler(string billNo, int quantity)
+        public Traveler(string billNo, int quantity) : this()
         {
             // set META information
             m_part = new Bill(billNo,1,quantity);
             m_quantity = quantity;
-            m_parentOrders = new List<string>();
             m_station = StationClass.GetStation("Start");
-            Items = new List<TravelerItem>();
             NewID();
             m_state = ItemState.PreProcess;
-            m_dateStarted = "";
         }
         public virtual void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
         {
-            m_part = new Bill(m_part.BillNo,1, m_quantity, ref MAS);
+            if (m_part != null)
+            {
+                m_part = new Bill(m_part.BillNo, 1, m_quantity, ref MAS);
+            }
         }
         public void NewID()
         {
@@ -142,10 +173,12 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"ID",m_ID.ToString() },
-                {"itemCode",m_part.BillNo.Quotate() },
+                {"itemCode", (m_part != null ? m_part.BillNo : "").Quotate() },
                 {"quantity",m_quantity.ToString() },
                 {"items",Items.Stringify<TravelerItem>() },
                 {"parentOrders",m_parentOrders.Stringify<string>() },
+                {"parentTravelers",m_parentTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
+                {"childTravelers",m_childTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
                 {"station",m_station.Name.Quotate() },
                 {"state",m_state.ToString().Quotate() },
                 {"type",this.GetType().ToString().Quotate()},
@@ -258,7 +291,7 @@ namespace Efficient_Automatic_Traveler_System
             // add this item to inventory
             InventoryManager.Add(ItemCode);
         }
-        public void EnterProduction()
+        public virtual void EnterProduction(ITravelerManager travelerManager)
         {
             m_state = ItemState.InProcess;
             m_dateStarted = DateTime.Today.ToString("MM/dd/yyyy");
@@ -326,7 +359,7 @@ namespace Efficient_Automatic_Traveler_System
             json += "{";
             json += "\"type\":" + this.GetType().Name.Quotate() + ',';
             json += "\"ID\":" + m_ID + ",";
-            json += "\"itemCode\":" + '"' + m_part.BillNo + '"' + ",";
+            json += "\"itemCode\":" + '"' + (m_part != null ? m_part.BillNo : "") + '"' + ",";
             json += "\"quantity\":" + m_quantity + ",";
             json += "\"items\":" + Items.Stringify() + ',';
             json += "\"state\":" + m_state.ToString().Quotate() + ',';
@@ -338,7 +371,7 @@ namespace Efficient_Automatic_Traveler_System
                 json += "\"qtyScrapped\":" + QuantityScrapped() + ",";
                 json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
                 json += "\"members\":[";
-                json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
+                if (m_part != null) json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
                 json += ExportTableRows(clientType, station);
                 json += "]";
             }
@@ -468,9 +501,11 @@ namespace Efficient_Automatic_Traveler_System
         protected int m_quantity;
         private List<TravelerItem> items;
         // linking ^^^^^^^^^^^^^^^^^^^^^
-        protected List<string> m_parentOrders;
-        protected List<Traveler> m_parentTravelers;
-        protected List<Traveler> m_childTravelers;
+        private List<string> m_parentOrders;
+        private List<int> m_parentIDs;
+        private List<Traveler> m_parentTravelers;
+        private List<int> m_childIDs;
+        private List<Traveler> m_childTravelers;
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         private StationClass m_station;
         private ItemState m_state;
@@ -480,93 +515,96 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Interface
-            internal int ID
+        internal int ID
+        {
+            get
             {
-                get
-                {
-                    return m_ID;
-                }
+                return m_ID;
             }
-            internal Bill Part
-            {
-                get
-                {
-                    return m_part;
-                }
-            }
+        }
 
-            internal int Quantity
+        internal Bill Part
+        {
+            get
             {
-                get
-                {
-                    return m_quantity;
-                }
+                return m_part;
+            }
+        }
 
-                set
-                {
-                    m_quantity = value;
-                    //m_part.TotalQuantity = m_quantity;
-                    //FindComponents(m_part);
-                }
-            }
-            internal string ItemCode
+        internal int Quantity
+        {
+            get
             {
-                get
-                {
-                    return m_part.BillNo;
-                }
-            }
-            internal StationClass Station
-            {
-                get
-                {
-                    return m_station;
-                }
-                set
-                {
-                    m_station = value;
-                }
+                return m_quantity;
             }
 
-            internal List<string> ParentOrders
+            set
             {
-                get
-                {
-                    return m_parentOrders;
-                }
+                m_quantity = value;
+                //m_part.TotalQuantity = m_quantity;
+                //FindComponents(m_part);
+            }
+        }
 
-                set
-                {
-                    m_parentOrders = value;
-                }
+        internal string ItemCode
+        {
+            get
+            {
+                return m_part != null ? m_part.BillNo : "";
+            }
+        }
+
+        internal StationClass Station
+        {
+            get
+            {
+                return m_station;
+            }
+            set
+            {
+                m_station = value;
+            }
+        }
+
+        internal List<string> ParentOrders
+        {
+            get
+            {
+                return m_parentOrders;
             }
 
-            public List<TravelerItem> Items
+            set
             {
-                get
-                {
-                    return items;
-                }
+                m_parentOrders = value;
+            }
+        }
 
-                set
-                {
-                    items = value;
-                }
+        public List<TravelerItem> Items
+        {
+            get
+            {
+                return items;
             }
 
-            internal ItemState State
+            set
             {
-                get
-                {
-                    return m_state;
-                }
-                set
-                {
-                    m_state = value;
-                }
+                items = value;
             }
+        }
 
-        public string DateStarted
+        internal ItemState State
+        {
+            get
+            {
+                return m_state;
+            }
+            set
+            {
+                m_state = value;
+            }
+        }
+
+        internal string DateStarted
         {
             get
             {
@@ -579,7 +617,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public int Priority
+        internal int Priority
         {
             get
             {
@@ -589,6 +627,58 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_priority = value;
+            }
+        }
+
+        internal List<Traveler> ParentTravelers
+        {
+            get
+            {
+                return m_parentTravelers;
+            }
+
+            set
+            {
+                m_parentTravelers = value;
+            }
+        }
+
+        internal List<Traveler> ChildTravelers
+        {
+            get
+            {
+                return m_childTravelers;
+            }
+
+            set
+            {
+                m_childTravelers = value;
+            }
+        }
+
+        public List<int> ParentIDs
+        {
+            get
+            {
+                return m_parentIDs;
+            }
+
+            set
+            {
+                m_parentIDs = value;
+            }
+        }
+
+        public List<int> ChildIDs
+        {
+            get
+            {
+                return m_childIDs;
+            }
+
+            set
+            {
+                m_childIDs = value;
             }
         }
         #endregion

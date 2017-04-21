@@ -16,28 +16,38 @@ namespace Efficient_Automatic_Traveler_System
         public Box() : base()
         {
             Station = StationClass.GetStation("Box");
+            m_boxSize = "";
         }
-        // create Chair by parsing json string
+        // create Box by parsing json string
         public Box(string json) : base(json)
         {
             Station = StationClass.GetStation("Box");
         }
-        // create a Chair from partNo, quantity, and a MAS connection
-        public Box(string partNo, int quantity) : base(partNo, quantity)
+        // create a Box for a table
+        public Box(Table table) : base()
         {
+
             Station = StationClass.GetStation("Box");
+            GetBoxSize("Table Reference.csv",table.ItemCode);
+            foreach (Item componentItem in table.Part.ComponentBills[0].ComponentItems)
+            {
+                if (StationClass.GetStation("Box").LaborCodes.Exists(x => x == componentItem.ItemCode))
+                {
+                    m_box = componentItem;
+                    break;
+                }
+            }
+            m_quantity = table.Quantity;
+            ParentTravelers.Add(table);
         }
         // returns a JSON formatted string to be sent to a client
         public override string ExportTableRows(string clientType, StationClass station)
         {
-            string json = "";
-            return json;
-        }
-        public override void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
-        {
-            base.ImportPart(orderManager, ref MAS);
-            // Chair info in the chair csv
-            GetPackInfo(orderManager);
+            List<string> rows = new List<string>()
+            {
+                new NameValueQty<string, string>("Box Size", m_boxSize,"").ToString()
+            };
+            return rows.Stringify(false).TrimStart('[').TrimEnd(']');
         }
         public override void AdvanceItem(ushort ID)
         {
@@ -51,12 +61,12 @@ namespace Efficient_Automatic_Traveler_System
             {
                 case LabelType.Tracking:
                     json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
-                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + Part.BillDesc + "\"";
+                    json += ",\"Desc1\":\"" + "" + "\"";
+                    json += ",\"Desc2\":\"" + "" + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
-                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
+                    json += ",\"Desc1\":\"" + "" + "\"";
                     json += ",\"Desc2\":\"" + "!!!***SCRAP***!!!" + "\"";
                     break;
                 case LabelType.Pack:
@@ -94,32 +104,33 @@ namespace Efficient_Automatic_Traveler_System
         {
             return ",\"type\":\"Chair\"";
         }
-        private void GetPackInfo(IOrderManager orderManager)
+        private void GetBoxSize(string csvTable, string itemCode)
         {
-            //// open the table ref csv file
-            //string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            //System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, "Table Reference.csv"));
-            //tableRef.ReadLine(); // read past the header
-            //string line = tableRef.ReadLine();
-            //while (line != "" && line != null)
-            //{
-            //    string[] row = line.Split(',');
-            //    if (Part.BillNo.Contains(row[0]))
-            //    {
-            //        //--------------------------------------------
-            //        // PACK & BOX INFO
-            //        //--------------------------------------------
-
-            //        break;
-            //    }
-            //    line = tableRef.ReadLine();
-            //}
-            //tableRef.Close();
+            // open the table ref csv file
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, csvTable));
+            // read past the header
+            List<string> header = tableRef.ReadLine().Split(',').ToList();
+            string line = tableRef.ReadLine();
+            while (line != "" && line != null)
+            {
+                string[] row = line.Split(',');
+                if (itemCode.Contains(row[header.IndexOf("Table")]))
+                {
+                    //--------------------------------------------
+                    // PACK & BOX INFO
+                    //--------------------------------------------
+                    m_boxSize = row[header.IndexOf("Super Pack")];
+                    break;
+                }
+                line = tableRef.ReadLine();
+            }
+            tableRef.Close();
         }
 
         public override double GetCurrentLabor()
         {
-            throw new NotImplementedException();
+            return (m_box != null ? m_box.QuantityPerBill : 0.0);
         }
 
         public override double GetTotalLabor(StationClass station)
@@ -130,15 +141,10 @@ namespace Efficient_Automatic_Traveler_System
         //--------------------------------------------------------
         #region Properties
 
-        // Labor
-        private Item m_box = null; // labor item
-
         // Box
         private string m_boxSize;
-
-
-
-
+        // labor
+        private Item m_box;
         #endregion
         //--------------------------------------------------------
         #region Interface

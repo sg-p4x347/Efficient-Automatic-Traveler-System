@@ -50,14 +50,15 @@ namespace Efficient_Automatic_Traveler_System
             string travelerJSON = "";
             foreach (Traveler traveler in stationSpecific)
             {
-                if (traveler.GetType().Name == "Table")
-                {
-                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Table)traveler).Export(this.GetType().Name,m_station);
-                }
-                else if (traveler.GetType().Name == "Chair")
-                {
-                    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Chair)traveler).Export(this.GetType().Name,m_station);
-                }
+                travelerJSON += (travelerJSON.Length != 0 ? "," : "") + traveler.Export(this.GetType().Name, m_station);
+                //if (traveler.GetType().Name == "Table")
+                //{
+                //    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Table)traveler).Export(this.GetType().Name,m_station);
+                //}
+                //else if (traveler.GetType().Name == "Chair")
+                //{
+                //    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Chair)traveler).Export(this.GetType().Name,m_station);
+                //}
             }
             message += travelerJSON + "],";
             message += "\"mirror\":" + mirror.ToString().ToLower();

@@ -58,7 +58,7 @@ namespace Efficient_Automatic_Traveler_System
         public override string ExportTableRows(string clientType, StationClass station)
         {
             string json = "";
-            if (clientType == "OperatorClient" && station == StationClass.GetStation("Heian1") || station == StationClass.GetStation("Heian2")) {
+            if (clientType == "OperatorClient" && (station.Type == "heian" || station.Type == "weeke")) {
                 json += ',' + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
                 json += ',' + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
@@ -213,6 +213,19 @@ namespace Efficient_Automatic_Traveler_System
             }
             return total;
         }
+        // Create a box traveler
+        public Box CreateBoxTraveler()
+        {
+            Box box = new Box(this);
+            ChildTravelers.Add(box);
+            return box;
+        }
+        public override void EnterProduction(ITravelerManager travelerManager)
+        {
+            base.EnterProduction(travelerManager);
+            travelerManager.GetTravelers.Add(CreateBoxTraveler());
+        }
+
         #endregion
         //--------------------------------------------------------
         #region Private Methods

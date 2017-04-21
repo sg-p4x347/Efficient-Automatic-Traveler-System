@@ -113,7 +113,24 @@ namespace Efficient_Automatic_Traveler_System
             int index = 0;
             foreach (Traveler traveler in m_travelers)
             {
-                
+                // link with other travelers
+                foreach (int id in traveler.ParentIDs)
+                {
+                    Traveler parent = FindTraveler(id);
+                    if (parent != null)
+                    {
+                        traveler.ParentTravelers.Add(parent);
+                    }
+                }
+                foreach (int id in traveler.ChildIDs)
+                {
+                    Traveler child = FindTraveler(id);
+                    if (child != null)
+                    {
+                        traveler.ChildTravelers.Add(child);
+                    }
+                }
+                // import part info
                 traveler.ImportPart(orderManager, ref MAS);
                 index++;
                 Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
@@ -161,7 +178,7 @@ namespace Efficient_Automatic_Traveler_System
                     // push this traveler into production
                     if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
                     {
-                        traveler.EnterProduction();
+                        traveler.EnterProduction(this as ITravelerManager);
                     }
                     // add this traveler to the list
                     m_travelers.Add(traveler);
@@ -472,7 +489,7 @@ namespace Efficient_Automatic_Traveler_System
                     Traveler traveler = FindTraveler(Convert.ToInt32(ID));
                     if (traveler != null)
                     {
-                        traveler.EnterProduction();
+                        traveler.EnterProduction(this as ITravelerManager);
                     }
                 }
                 OnTravelersChanged(GetTravelers);
