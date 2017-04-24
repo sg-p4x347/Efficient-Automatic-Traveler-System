@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Efficient Automatic Traveler System.exe" size="113160">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Efficient Automatic Traveler System.exe" size="114184">
       <assemblyIdentity name="Efficient Automatic Traveler System" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>PousQaMKjUDJS+lEuKlXe7kV+/cb9inWv+VhSzA4AdY=</dsig:DigestValue>
+        <dsig:DigestValue>b39SODdmNoKdGnUbahxmm2SynYkMB8VR8GOuVNyjmrc=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

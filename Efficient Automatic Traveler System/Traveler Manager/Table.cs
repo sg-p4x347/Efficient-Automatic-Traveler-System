@@ -54,6 +54,10 @@ namespace Efficient_Automatic_Traveler_System
         }
         // create a Table from partNo, quantity, and a MAS connection
         public Table(string partNo, int quantity) : base(partNo, quantity) { }
+        public override bool CombinesWith(Traveler other)
+        {
+            return ItemCode == other.ItemCode;
+        }
         // returns a JSON formatted string to be sent to a client
         public override string ExportTableRows(string clientType, StationClass station)
         {
@@ -214,16 +218,18 @@ namespace Efficient_Automatic_Traveler_System
             return total;
         }
         // Create a box traveler
-        public Box CreateBoxTraveler()
+        public TableBox CreateBoxTraveler()
         {
-            Box box = new Box(this);
+            TableBox box = new TableBox(this);
             ChildTravelers.Add(box);
             return box;
         }
         public override void EnterProduction(ITravelerManager travelerManager)
         {
             base.EnterProduction(travelerManager);
-            travelerManager.GetTravelers.Add(CreateBoxTraveler());
+            TableBox box = CreateBoxTraveler();
+            box.EnterProduction(travelerManager);
+            travelerManager.GetTravelers.Add(box);
         }
 
         #endregion
@@ -268,21 +274,25 @@ namespace Efficient_Automatic_Traveler_System
             // open the table ref csv file
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, "Table Reference.csv"));
-            tableRef.ReadLine(); // read past the header
+            // read past the header
+            List<string> header = tableRef.ReadLine().Split(',').ToList();
             string line = tableRef.ReadLine();
             while (line != "" && line != null)
             {
                 string[] row = line.Split(',');
-                if (Part.BillNo.Contains(row[0]))
+                if (Part.BillNo.Contains(row[header.IndexOf("Table")]))
                 {
+                    Size = row[header.IndexOf("Size")];
+                    Shape = row[header.IndexOf("Shape Type")];
+                    PalletSize = row[header.IndexOf("Pallet")];
                     //--------------------------------------------
                     // BLANK INFO
                     //--------------------------------------------
 
-                    BlankSize = row[2];
-                    SheetSize = row[3];
+                    BlankSize = row[header.IndexOf("Blank Size")];
+                    SheetSize = row[header.IndexOf("Sheet Size")];
                     // [column 3 contains # of blanks per sheet]
-                    PartsPerBlank = row[5] != "" ? Convert.ToInt32(row[5]) : 0;
+                    PartsPerBlank = row[header.IndexOf("Tables Per Blank")] != "" ? Convert.ToInt32(row[header.IndexOf("Tables Per Blank")]) : 0;
 
                     // Exception cases -!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
                     List<int> exceptionColors = new List<int> { 60, 50, 49 };
@@ -295,14 +305,14 @@ namespace Efficient_Automatic_Traveler_System
                     //!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
 
                     // check to see if there is a MAGR blank
-                    if (BlankColor == "MAGR" && row[6] != "")
+                    if (BlankColor == "MAGR" && row[header.IndexOf("MAGR blank")] != "")
                     {
-                        BlankNo = row[6];
+                        BlankNo = row[header.IndexOf("MAGR blank")];
                     }
                     // check to see if there is a CHOK blank
-                    else if (BlankColor == "CHOK" && row[7] != "")
+                    else if (BlankColor == "CHOK" && row[header.IndexOf("CHOK blank")] != "")
                     {
-                        BlankNo = row[7];
+                        BlankNo = row[header.IndexOf("CHOK blank")];
                     }
                     // there are is no specific blank size in the kanban
                     else
@@ -556,6 +566,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_color = "";
         private string m_bandingColor = "";
         private string m_shape = "";
+        private string m_size = "";
         // Labor
         private Item m_cnc = null; // labor item
         private Item m_vector = null; // labor item
@@ -791,6 +802,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_bandingColor = value;
+            }
+        }
+
+        public string Size
+        {
+            get
+            {
+                return m_size;
+            }
+
+            set
+            {
+                m_size = value;
             }
         }
         #endregion

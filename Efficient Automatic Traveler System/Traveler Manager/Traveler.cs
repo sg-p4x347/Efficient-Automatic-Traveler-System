@@ -54,7 +54,7 @@ namespace Efficient_Automatic_Traveler_System
     {
         #region Public Methods
         public Traveler() {
-            m_ID = 0;
+            NewID();
             m_quantity = 0;
             m_part = null;
             items = new List<TravelerItem>();
@@ -399,14 +399,14 @@ namespace Efficient_Automatic_Traveler_System
 
         }
         // export for JSON viewer
-        public string ExportHuman()
+        public virtual string ExportHuman()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"Date started", m_dateStarted.Quotate() },
                 {"ID",m_ID.ToString() },
-                {"Model",m_part.BillNo.Quotate() },
-                {"Description",m_part.BillDesc.Quotate() },
+                {"Model",(m_part != null ? m_part.BillNo : "").Quotate() },
+                {"Description",(m_part != null ? m_part.BillDesc : "").Quotate() },
                 {"Qty on traveler",m_quantity.ToString() },
                 {"Orders",m_parentOrders.Stringify() },
                 {"Items",Items.Stringify() },
@@ -459,6 +459,8 @@ namespace Efficient_Automatic_Traveler_System
         //--------------------------------------------------------
         #region Abstract Methods
 
+        // returns true if the specified traveler can combine with this one
+        public abstract bool CombinesWith(Traveler other);
         public abstract string ExportTableRows(string clientType, StationClass station);
         // advances the item to the next station
         public abstract void AdvanceItem(ushort ID);

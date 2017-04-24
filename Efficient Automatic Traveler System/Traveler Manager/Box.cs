@@ -21,15 +21,22 @@ namespace Efficient_Automatic_Traveler_System
         // create Box by parsing json string
         public Box(string json) : base(json)
         {
-            Station = StationClass.GetStation("Box");
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                BoxSize = obj["boxSize"];
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+            }
         }
-        // create a Box for a table
-        public Box(Table table) : base()
+        // create a Box for a traveler
+        public Box(Traveler traveler) : base()
         {
 
             Station = StationClass.GetStation("Box");
-            GetBoxSize("Table Reference.csv",table.ItemCode);
-            foreach (Item componentItem in table.Part.ComponentBills[0].ComponentItems)
+            GetBoxSize("Table Reference.csv",traveler.ItemCode);
+            foreach (Item componentItem in traveler.Part.ComponentBills[0].ComponentItems)
             {
                 if (StationClass.GetStation("Box").LaborCodes.Exists(x => x == componentItem.ItemCode))
                 {
@@ -37,8 +44,26 @@ namespace Efficient_Automatic_Traveler_System
                     break;
                 }
             }
-            m_quantity = table.Quantity;
-            ParentTravelers.Add(table);
+            m_quantity = traveler.Quantity;
+            ParentTravelers.Add(traveler);
+        }
+        public override string ToString()
+        {
+            string inherited = base.ToString();
+            Dictionary<string, string> obj = new StringStream(inherited).ParseJSON(false);
+            obj.Add("boxSize", BoxSize.Quotate());
+            return obj.Stringify();
+        }
+        public override bool CombinesWith(Traveler other)
+        {
+            return false;
+        }
+        public override string ExportHuman()
+        {
+            string inherited = base.ExportHuman();
+            Dictionary<string, string> obj = new StringStream(inherited).ParseJSON(false);
+            obj.Add("Box size", m_boxSize.Quotate());
+            return obj.Stringify();
         }
         // returns a JSON formatted string to be sent to a client
         public override string ExportTableRows(string clientType, StationClass station)
@@ -61,12 +86,12 @@ namespace Efficient_Automatic_Traveler_System
             {
                 case LabelType.Tracking:
                     json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
-                    json += ",\"Desc1\":\"" + "" + "\"";
+                    json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + "" + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
-                    json += ",\"Desc1\":\"" + "" + "\"";
+                    json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + "!!!***SCRAP***!!!" + "\"";
                     break;
                 case LabelType.Pack:
@@ -97,6 +122,16 @@ namespace Efficient_Automatic_Traveler_System
                 return station;
             }
         }
+        public override double GetCurrentLabor()
+        {
+            return (m_box != null ? m_box.QuantityPerBill : 0.0);
+        }
+
+        public override double GetTotalLabor(StationClass station)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -104,7 +139,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             return ",\"type\":\"Chair\"";
         }
-        private void GetBoxSize(string csvTable, string itemCode)
+        protected void GetBoxSize(string csvTable, string itemCode)
         {
             // open the table ref csv file
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -128,21 +163,14 @@ namespace Efficient_Automatic_Traveler_System
             tableRef.Close();
         }
 
-        public override double GetCurrentLabor()
-        {
-            return (m_box != null ? m_box.QuantityPerBill : 0.0);
-        }
-
-        public override double GetTotalLabor(StationClass station)
-        {
-            throw new NotImplementedException();
-        }
+        
         #endregion
         //--------------------------------------------------------
         #region Properties
 
         // Box
         private string m_boxSize;
+        private string m_contents;
         // labor
         private Item m_box;
         #endregion
@@ -158,6 +186,18 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_boxSize = value;
+            }
+        }
+        public string Contents
+        {
+            get
+            {
+                return m_contents;
+            }
+
+            set
+            {
+                m_contents = value;
             }
         }
         #endregion

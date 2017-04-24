@@ -13,7 +13,7 @@ namespace Efficient_Automatic_Traveler_System
             m_string = s;
             m_position = -1;
         }
-        public Dictionary<string,string> ParseJSON()
+        public Dictionary<string,string> ParseJSON(bool dequote = true)
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             // find the start of the key name
@@ -29,7 +29,15 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (!obj.ContainsKey(key))
                     {
-                        obj.Add(key, GetJsonScope().Trim('"')); // adding the key with the value (obtained from getting the next json scope)
+                        // adding the key with the value (obtained from getting the next json scope)
+                        if (dequote)
+                        {
+                            obj.Add(key, GetJsonScope().Trim('"')); 
+                        } else
+                        {
+                            obj.Add(key, GetJsonScope());
+                        }
+                        
                     }
                 }
             }

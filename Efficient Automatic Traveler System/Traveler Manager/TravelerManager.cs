@@ -91,7 +91,7 @@ namespace Efficient_Automatic_Traveler_System
                             if (Traveler.IsTable(item.ItemCode))
                             {
                                 // create a new traveler from the new item
-                                Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, quantity) : (Traveler)new Chair(item.ItemCode, quantity));
+                                Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, quantity) : null /*(Traveler)new Chair(item.ItemCode, quantity)*/);
 
                                 // RELATIONAL =============================================================
                                 item.ChildTraveler = newTraveler.ID;
