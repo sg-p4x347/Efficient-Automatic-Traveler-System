@@ -48,7 +48,13 @@ function Traveler(obj) {
 		//-------------------------------------------
 		var itemCode = document.createElement("SPAN");
 		itemCode.className = "queue__item__desc beige";
-		itemCode.innerHTML = self.itemCode;
+		var itemCodeString = "";
+		if (self.itemCode) {
+			itemCodeString = self.itemCode;
+		} else if (self.type == "TableBox") {
+			itemCodeString = "For: " + self.parentTravelers[0];
+		}
+		itemCode.innerHTML = itemCodeString;
 		DOMqueueItem.appendChild(itemCode);
 		
 		checkBox.onclick = function(event) {

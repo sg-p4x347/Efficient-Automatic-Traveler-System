@@ -56,7 +56,6 @@ namespace Efficient_Automatic_Traveler_System
         public Traveler() {
             NewID();
             m_quantity = 0;
-            m_part = null;
             items = new List<TravelerItem>();
             m_parentOrders = new List<string>();
             m_parentIDs = new List<int>();
@@ -74,10 +73,7 @@ namespace Efficient_Automatic_Traveler_System
             m_ID = Convert.ToInt32(obj["ID"]);
             
             m_quantity = Convert.ToInt32(obj["quantity"]);
-            if (obj["itemCode"] != "")
-            {
-                m_part = new Bill(obj["itemCode"], 1, m_quantity);
-            }
+            
             foreach (string item in (new StringStream(obj["items"])).ParseJSONarray())
             {
                 Items.Add(new TravelerItem(item));
@@ -108,22 +104,16 @@ namespace Efficient_Automatic_Traveler_System
         //    // Import the part
         //    ImportPart(ref MAS);
         //}
-        public Traveler(string billNo, int quantity) : this()
+        public Traveler(int quantity) : this()
         {
             // set META information
-            m_part = new Bill(billNo,1,quantity);
+           
             m_quantity = quantity;
             m_station = StationClass.GetStation("Start");
             NewID();
             m_state = ItemState.PreProcess;
         }
-        public virtual void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
-        {
-            if (m_part != null)
-            {
-                m_part = new Bill(m_part.BillNo, 1, m_quantity, ref MAS);
-            }
-        }
+        
         public void NewID()
         {
             // open the currentID.txt file
@@ -173,7 +163,7 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"ID",m_ID.ToString() },
-                {"itemCode", (m_part != null ? m_part.BillNo : "").Quotate() },
+                
                 {"quantity",m_quantity.ToString() },
                 {"items",Items.Stringify<TravelerItem>() },
                 {"parentOrders",m_parentOrders.Stringify<string>() },
@@ -277,20 +267,7 @@ namespace Efficient_Automatic_Traveler_System
             item.State = ItemState.PostProcess;
             item.Station = StationClass.GetStation("Scrapped");
         }
-        public void FinishItem(ushort ID)
-        {
-            TravelerItem item = FindItem(ID);
-            // now in post process
-            item.State = ItemState.PostProcess;
-            item.History.Add(new LogEvent(null, item.Station, LogType.Finish));
-            // check to see if this concludes the traveler
-            if (Items.Where(x => x.State == ItemState.PostProcess && !x.Scrapped).Count() >= m_quantity && Items.All(x => x.State == ItemState.PostProcess))
-            {
-                State = ItemState.PostProcess;
-            }
-            // add this item to inventory
-            InventoryManager.Add(ItemCode);
-        }
+        
         public virtual void EnterProduction(ITravelerManager travelerManager)
         {
             m_state = ItemState.InProcess;
@@ -353,31 +330,20 @@ namespace Efficient_Automatic_Traveler_System
             return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
         }
         // export for clients to display
-        public string Export(string clientType, StationClass station)
+        public virtual string Export(string clientType, StationClass station)
         {
-            string json = "";
-            json += "{";
-            json += "\"type\":" + this.GetType().Name.Quotate() + ',';
-            json += "\"ID\":" + m_ID + ",";
-            json += "\"itemCode\":" + '"' + (m_part != null ? m_part.BillNo : "") + '"' + ",";
-            json += "\"quantity\":" + m_quantity + ",";
-            json += "\"items\":" + Items.Stringify() + ',';
-            json += "\"state\":" + m_state.ToString().Quotate() + ',';
-            if (clientType == "OperatorClient")
-            {
-                json += "\"laborRate\":" + GetCurrentLabor() + ",";
-                json += "\"station\":" + station.Name.Quotate() + ",";
-                json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
-                json += "\"qtyScrapped\":" + QuantityScrapped() + ",";
-                json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
-                json += "\"members\":[";
-                if (m_part != null) json += (new NameValueQty<string, string>("Description", m_part.BillDesc, "")).ToString();
-                json += ExportTableRows(clientType, station);
-                json += "]";
+            Dictionary<string, string> obj = new StringStream(ToString()).ParseJSON(false);
+            obj["type"] = obj["type"].Replace(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name.Replace(' ','_') + ".", "");
+            obj.Add("laborRates", GetCurrentLabor().ToString());
+            if (station != null) {
+                obj["station"] = station.Name.Quotate();
+                obj.Add("qtyPending", QuantityPendingAt(station).ToString());
+                obj.Add("qtyScrapped", QuantityScrapped().ToString());
+                obj.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
+                obj.Add("members", '[' + ExportTableRows(clientType, station) + ']');
             }
-            else if (clientType == "SupervisorClient")
-            {
-                json += "\"stations\":";
+
+            if (clientType == "SupervisorClient") {
                 List<string> stations = new List<string>();
                 if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station.Name);
                 foreach (TravelerItem item in Items)
@@ -387,15 +353,45 @@ namespace Efficient_Automatic_Traveler_System
                         stations.Add(item.Station.Name);
                     }
                 }
-                json += stations.Stringify();
+                obj.Add("stations", stations.Stringify<string>());
             }
-            else if (clientType == "Raw")
-            {
-                json += "\"description\":" + m_part.BillDesc.Quotate() + ',';
-                json += "\"starting station\":" + m_station;
-            }
-            json += "}";
-            return json;
+            return obj.Stringify();
+            //string json = "";
+            //json += "{";
+            //json += "\"type\":" + this.GetType().Name.Quotate() + ',';
+            //json += "\"ID\":" + m_ID + ",";
+            //json += "\"quantity\":" + m_quantity + ",";
+            //json += "\"items\":" + Items.Stringify() + ',';
+            //json += "\"state\":" + m_state.ToString().Quotate() + ',';
+            //if (clientType == "OperatorClient")
+            //{
+            //    json += "\"laborRate\":" + GetCurrentLabor() + ",";
+            //    json += "\"station\":" + station.Name.Quotate() + ",";
+            //    json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
+            //    json += "\"qtyScrapped\":" + QuantityScrapped() + ",";
+            //    json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
+            //    json += "\"members\":[";
+
+            //    json += ExportTableRows(clientType, station);
+
+            //    json += "]";
+            //}
+            //else if (clientType == "SupervisorClient")
+            //{
+            //    json += "\"stations\":";
+            //    List<string> stations = new List<string>();
+            //    if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station.Name);
+            //    foreach (TravelerItem item in Items)
+            //    {
+            //        if (!stations.Exists(x => item.Station.Is(x)))
+            //        {
+            //            stations.Add(item.Station.Name);
+            //        }
+            //    }
+            //    json += stations.Stringify();
+            //}
+            //json += "}";
+            //return json;
 
         }
         // export for JSON viewer
@@ -405,8 +401,6 @@ namespace Efficient_Automatic_Traveler_System
             {
                 {"Date started", m_dateStarted.Quotate() },
                 {"ID",m_ID.ToString() },
-                {"Model",(m_part != null ? m_part.BillNo : "").Quotate() },
-                {"Description",(m_part != null ? m_part.BillDesc : "").Quotate() },
                 {"Qty on traveler",m_quantity.ToString() },
                 {"Orders",m_parentOrders.Stringify() },
                 {"Items",Items.Stringify() },
@@ -415,7 +409,7 @@ namespace Efficient_Automatic_Traveler_System
             return obj.Stringify();
         }
         // export for summary view
-        public string ExportSummary()
+        public virtual string ExportSummary()
         {
             int qtyPending = m_quantity - Items.Where(x => !x.Scrapped).Count();
             int qtyComplete = QuantityAt(StationClass.GetStation("Finished"));
@@ -424,7 +418,6 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"Traveler",m_ID.ToString() },
-                {"Model",m_part.BillNo.Quotate() },
                 {"Pending",qtyPending.ToString()},
                 {"In process",qtyInProcess.ToString()},
                 {"Scrapped",QuantityScrapped().ToString() },
@@ -438,29 +431,37 @@ namespace Efficient_Automatic_Traveler_System
         {
             List<string> header = new List<string>();
             header.Add("Traveler");
-            header.Add("Part");
-            header.Add("Description");
             header.Add("Quantity");
             header.Add("Station");
-            return header.Stringify<string>(false).Trim('[').Trim(']');
+            return header.Stringify<string>().Trim('[').Trim(']');
         }
         // export for csv detail
         public virtual string ExportCSVdetail()
         {
             List<string> detail = new List<string>();
             detail.Add(m_ID.ToString());
-            detail.Add(m_part.BillNo.Quotate());
-            detail.Add(m_part.BillDesc.Quotate());
             detail.Add(m_quantity.ToString());
-            detail.Add(m_station.Name.Quotate());
-            return detail.Stringify<string>(false).Trim('[').Trim(']');
+            detail.Add(m_station.Name);
+            return detail.Stringify<string>().Trim('[').Trim(']');
         }
         #endregion
         //--------------------------------------------------------
         #region Abstract Methods
-
+        // finishes an item
+        public virtual void FinishItem(ushort ID)
+        {
+            TravelerItem item = FindItem(ID);
+            // now in post process
+            item.State = ItemState.PostProcess;
+            item.History.Add(new LogEvent(null, item.Station, LogType.Finish));
+            // check to see if this concludes the traveler
+            if (Items.Where(x => x.State == ItemState.PostProcess && !x.Scrapped).Count() >= m_quantity && Items.All(x => x.State == ItemState.PostProcess))
+            {
+                State = ItemState.PostProcess;
+            }
+        }
         // returns true if the specified traveler can combine with this one
-        public abstract bool CombinesWith(Traveler other);
+        public abstract bool CombinesWith(object[] args);
         public abstract string ExportTableRows(string clientType, StationClass station);
         // advances the item to the next station
         public abstract void AdvanceItem(ushort ID);
@@ -472,6 +473,8 @@ namespace Efficient_Automatic_Traveler_System
         public abstract double GetTotalLabor(StationClass station);
         // overridden in derived classes, packs properties into the Export() json string
         protected abstract string ExportProperties();
+        // pre
+        public abstract void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS);
         #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -499,7 +502,7 @@ namespace Efficient_Automatic_Traveler_System
 
         // general
         protected int m_ID;
-        protected Bill m_part;
+        
         protected int m_quantity;
         private List<TravelerItem> items;
         // linking ^^^^^^^^^^^^^^^^^^^^^
@@ -525,13 +528,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal Bill Part
-        {
-            get
-            {
-                return m_part;
-            }
-        }
+        
 
         internal int Quantity
         {
@@ -548,13 +545,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal string ItemCode
-        {
-            get
-            {
-                return m_part != null ? m_part.BillNo : "";
-            }
-        }
+        
 
         internal StationClass Station
         {

@@ -10,7 +10,7 @@ using Marshal = System.Runtime.InteropServices.Marshal;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    internal class Table : Traveler
+    internal class Table : Traveler, IPart
     {
         #region Public Methods
         //--------------------------
@@ -48,35 +48,99 @@ namespace Efficient_Automatic_Traveler_System
         //    t.Parents.Add(m_ID);
         //    return t;
         //}
-        public Table() : base() { }
+        public Table() : base() {
+            m_part = null;
+        }
         public Table(string json) : base(json) {
-
+            Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+            if (obj["itemCode"] != "")
+            {
+                m_part = new Bill(obj["itemCode"], 1, m_quantity);
+            }
         }
         // create a Table from partNo, quantity, and a MAS connection
-        public Table(string partNo, int quantity) : base(partNo, quantity) { }
-        public override bool CombinesWith(Traveler other)
+        public Table(string itemCode, int quantity) : base(quantity) {
+            m_part = new Bill(itemCode, 1, quantity);
+        }
+        public override bool CombinesWith(object[] args)
         {
-            return ItemCode == other.ItemCode;
+            return ItemCode == (string)args[0];
+        }
+        public override string ToString()
+        {
+            Dictionary<string, string> obj = new StringStream(base.ToString()).ParseJSON(false);
+            obj.Add("itemCode", (m_part != null ? m_part.BillNo : "").Quotate());
+            return obj.Stringify();
         }
         // returns a JSON formatted string to be sent to a client
+        //public override string Export(string clientType, StationClass station)
+        //{
+        //    Dictionary<string, string> obj = new StringStream(base.Export(clientType, station)).ParseJSON(false);
+        //    obj.Add("itemCode", ItemCode);
+        //    return obj.Stringify();
+        //}
         public override string ExportTableRows(string clientType, StationClass station)
         {
             string json = "";
             if (clientType == "OperatorClient" && (station.Type == "heian" || station.Type == "weeke")) {
+                json += new NameValueQty<string, int>("Part", ItemCode, Quantity).ToString();
+                json += ',' + new NameValueQty<string, string>("Description", m_part.BillDesc, "").ToString();
                 json += ',' + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
                 json += ',' + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
             } else if (clientType == "OperatorClient" && station == StationClass.GetStation("Vector")) {
-                json += ',' + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
+                json += new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
                 json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Edgebanding", m_eband.ItemCode, m_eband.TotalQuantity.ToString() + " " + m_eband.Unit).ToString();
             }
             return json;
         }
-        public override void ImportPart(IOrderManager orderManager, ref OdbcConnection MAS)
+        public override string ExportHuman()
         {
-            base.ImportPart(orderManager, ref MAS);
+            Dictionary<string, string> obj = new StringStream(base.ExportHuman()).ParseJSON(false);
+            obj.Add("Model", (m_part != null ? m_part.BillNo : "").Quotate());
+            obj.Add("Description", (m_part != null ? m_part.BillDesc : "").Quotate());
+            return obj.Stringify();
+        }
+        public new static string ExportCSVheader()
+        {
+            List<string> header = new StringStream('[' + Traveler.ExportCSVheader() + ']').ParseJSONarray(false);
+            header.Add("Part");
+            header.Add("Description");
+            header.Add("Color");
+            header.Add("Banding Color");
+            header.Add("Blank");
+            header.Add("Blank Size");
+            header.Add("Blank Qty");
+            header.Add("Labor");
+            return header.Stringify<string>(false).Trim('[').Trim(']');
+        }
+        public override string ExportCSVdetail()
+        {
+            List<string> detail = new StringStream('[' + base.ExportCSVdetail() + ']').ParseJSONarray(false);
+            detail.Add(ItemCode.Quotate());
+            detail.Add(Part.BillDesc.Quotate());
+            detail.Add(m_color.Quotate());
+            detail.Add(m_bandingColor.Quotate());
+            detail.Add(m_blankNo.Quotate());
+            detail.Add(m_blankSize.Quotate());
+            detail.Add(m_blankQuantity.ToString());
+            detail.Add(GetTotalLabor().ToString());
+            return detail.Stringify<string>(false).Trim('[').Trim(']');
+        }
+
+        // export for summary view
+        public override string ExportSummary()
+        {
+            // Displays properties in order
+            Dictionary<string, string> obj = new StringStream(base.ExportSummary()).ParseJSON(false);
+            obj.Add("Model", m_part.BillNo.Quotate());
+            return obj.Stringify();
+        }
+        public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS)
+        {
+            m_part = new Bill(m_part.BillNo, m_part.QuantityPerBill, Quantity,ref MAS);
             m_part.BillDesc = m_part.BillDesc.Replace("TableTopAsm,", ""); // tabletopasm is pretty obvious and therefore extraneous
             m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
             // Table info in the table csv
@@ -89,6 +153,14 @@ namespace Efficient_Automatic_Traveler_System
         public override void AdvanceItem(ushort ID)
         {
             FindItem(ID).Station = GetNextStation(ID);
+        }
+        public override void FinishItem(ushort ID)
+        {
+            base.FinishItem(ID);
+            TravelerItem item = FindItem(ID);
+
+            // add this item to inventory
+            InventoryManager.Add(ItemCode);
         }
         // labels
         public override string GetLabelFields(ushort itemID, LabelType type)
@@ -176,28 +248,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public new static string ExportCSVheader()
-        {
-            List<string> header = new List<string>();
-            header.Add("Color");
-            header.Add("Banding Color");
-            header.Add("Blank");
-            header.Add("Blank Size");
-            header.Add("Blank Qty");
-            header.Add("Labor");
-            return Traveler.ExportCSVheader() + ',' + header.Stringify<string>(false).Trim('[').Trim(']');
-        }
-        public override string ExportCSVdetail()
-        {
-            List<string> detail = new List<string>();
-            detail.Add(m_color.Quotate());
-            detail.Add(m_bandingColor.Quotate());
-            detail.Add(m_blankNo.Quotate());
-            detail.Add(m_blankSize.Quotate());
-            detail.Add(m_blankQuantity.ToString());
-            detail.Add(GetTotalLabor().ToString());
-            return base.ExportCSVdetail() + ',' + detail.Stringify<string>(false).Trim('[').Trim(']');
-        }
+        
         // Gets the work rate for the current station
         public override double GetCurrentLabor()
         {
@@ -231,7 +282,7 @@ namespace Efficient_Automatic_Traveler_System
             box.EnterProduction(travelerManager);
             travelerManager.GetTravelers.Add(box);
         }
-
+        
         #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -562,6 +613,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Properties
 
         // Table
+        protected Bill m_part;
         private int m_colorNo = 0;
         private string m_color = "";
         private string m_bandingColor = "";
@@ -599,6 +651,20 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Interface
+        public Bill Part
+        {
+            get
+            {
+                return m_part;
+            }
+        }
+        internal string ItemCode
+        {
+            get
+            {
+                return m_part != null ? m_part.BillNo : "";
+            }
+        }
         internal int ColorNo
         {
             get

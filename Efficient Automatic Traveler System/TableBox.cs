@@ -19,6 +19,15 @@ namespace Efficient_Automatic_Traveler_System
         }
         public TableBox(Table table) : base(table) {
             TableSize = table.Size;
+            GetBoxSize("Table Reference.csv", table.ItemCode);
+            foreach (Item componentItem in table.Part.ComponentBills[0].ComponentItems)
+            {
+                if (StationClass.GetStation("Box").LaborCodes.Exists(x => x == componentItem.ItemCode))
+                {
+                    BoxLabor = componentItem;
+                    break;
+                }
+            }
         }
         // create Box by parsing json string
         public TableBox(string json) : base(json)
@@ -44,9 +53,11 @@ namespace Efficient_Automatic_Traveler_System
         public override string ExportTableRows(string clientType, StationClass station)
         {
             string inherited = base.ExportTableRows(clientType, station);
-
+            Table parentTable = ((Table)ParentTravelers[0]);
             List<string> rows = new List<string>()
             {
+                new NameValueQty<string,string>("Table", parentTable.ItemCode,"").ToString(),
+                new NameValueQty<string,string>("Table Shape",parentTable.Shape,"").ToString(),
                 new NameValueQty<string, string>("Table Size", m_tableSize,"").ToString()
             };
             return inherited + (inherited.Length != 0 ? "," : "") + rows.Stringify(false).TrimStart('[').TrimEnd(']');
@@ -60,7 +71,7 @@ namespace Efficient_Automatic_Traveler_System
                 case LabelType.Tracking:
                     json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6") + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
-                    json += ",\"Desc2\":\"" + ParentTravelers[0].ItemCode + "\"";
+                    json += ",\"Desc2\":\"" + ((Table)ParentTravelers[0]).ItemCode + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6")+ "\"";

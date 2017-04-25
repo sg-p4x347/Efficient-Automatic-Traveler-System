@@ -213,7 +213,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                return new ClientMessage("Redirect", ("../drawings/" + traveler.Part.DrawingNo.Split('-')[0] + ".pdf").Quotate());
+                return new ClientMessage("Redirect", ("../drawings/" + (traveler as IPart).Part.DrawingNo.Split('-')[0] + ".pdf").Quotate());
             }
             catch (Exception ex)
             {

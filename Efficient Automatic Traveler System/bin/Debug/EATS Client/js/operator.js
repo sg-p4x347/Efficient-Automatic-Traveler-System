@@ -573,8 +573,14 @@ function TravelerQueue() {
 			
 			DOMqueueItem.innerHTML = pad(traveler.ID,6) + "<br>";
 			var itemCode = document.createElement("SPAN");
-			itemCode.className = "queue_item__desc beige";
-			itemCode.innerHTML = traveler.itemCode;
+			itemCode.className = "queue__item__desc beige";
+			var itemCodeString = "";
+			if (traveler.itemCode) {
+				itemCodeString = traveler.itemCode;
+			} else if (traveler.type == "TableBox") {
+				itemCodeString = "For: " + traveler.parentTravelers[0];
+			}
+			itemCode.innerHTML = itemCodeString;
 			DOMqueueItem.appendChild(itemCode);
 			
 			DOMqueueItem.onmousedown = function () {
@@ -655,7 +661,7 @@ function TravelerView() {
 		DOMtable.className = "view";
 		
 		// add the part row
-		self.traveler.members.unshift({name: "Part", value: self.traveler.itemCode, qty: self.traveler.quantity});
+		//self.traveler.members.unshift({name: "Part", value: self.traveler.itemCode, qty: self.traveler.quantity});
 		// add the column header
 		self.traveler.members.unshift({name: "Property", value: "Value", qty: "Qty.",style:"view__row--header italics"});
 		
@@ -686,7 +692,6 @@ function TravelerView() {
 			DOMtable.appendChild(row);
 		});
 		// remove the column header
-		self.traveler.members.shift();
 		self.traveler.members.shift();
 		
 		// add the table

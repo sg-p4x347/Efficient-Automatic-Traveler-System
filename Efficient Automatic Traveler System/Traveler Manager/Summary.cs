@@ -122,32 +122,36 @@ namespace Efficient_Automatic_Traveler_System
             List<Dictionary<string,string>> finished = new List<Dictionary<string,string>>();
             foreach (Traveler traveler in m_travelers)
             {
-                Dictionary<string, string> item = finished.Find(x => x["Part"] == traveler.ItemCode);
-                int quantity = traveler.Items.Where(x => x.State == ItemState.PostProcess && x.History.OfType<LogEvent>().ToList().Exists(y => y.LogType == LogType.Finish && y.Date >= DateTime.Today.Date)).Count();
-                if (quantity > 0)
+                if (traveler is Table)
                 {
-                    if (item != null)
+                    Table table = (Table)traveler;
+                    Dictionary<string, string> item = finished.Find(x => x["Part"] == table.ItemCode);
+                    int quantity = traveler.Items.Where(x => x.State == ItemState.PostProcess && x.History.OfType<LogEvent>().ToList().Exists(y => y.LogType == LogType.Finish && y.Date >= DateTime.Today.Date)).Count();
+                    if (quantity > 0)
                     {
-                        item["Quantity"] = (Convert.ToInt32(item["Quantity"]) + quantity).ToString();
-                    }
-                    else
-                    {
-                        item = new Dictionary<string, string>();
-                        item.Add("Part", traveler.ItemCode);
-                        item.Add("Quantity", quantity.ToString());
-                        foreach (string stationName in StationClass.StationNames())
+                        if (item != null)
                         {
-                            double sum = traveler.Items.Sum(i => i.TimeAt(StationClass.GetStation(stationName)));
-                            if (sum > 0)
-                            {
-                                string field = stationName + " (min)";
-                                if (!fields.Exists(x => x == field)) fields.Add(field);
-                                item.Add(field, sum.ToString());
-                            }
+                            item["Quantity"] = (Convert.ToInt32(item["Quantity"]) + quantity).ToString();
                         }
-                        item.Add("Date", DateTime.Today.Date.ToString("MM/dd/yyyy"));
+                        else
+                        {
+                            item = new Dictionary<string, string>();
+                            item.Add("Part", table.ItemCode);
+                            item.Add("Quantity", quantity.ToString());
+                            foreach (string stationName in StationClass.StationNames())
+                            {
+                                double sum = traveler.Items.Sum(i => i.TimeAt(StationClass.GetStation(stationName)));
+                                if (sum > 0)
+                                {
+                                    string field = stationName + " (min)";
+                                    if (!fields.Exists(x => x == field)) fields.Add(field);
+                                    item.Add(field, sum.ToString());
+                                }
+                            }
+                            item.Add("Date", DateTime.Today.Date.ToString("MM/dd/yyyy"));
+                        }
+                        finished.Add(item);
                     }
-                    finished.Add(item);
                 }
             }
             // add the header
@@ -184,23 +188,28 @@ namespace Efficient_Automatic_Traveler_System
             List<Dictionary<string, string>> scrapped = new List<Dictionary<string, string>>();
             foreach (Traveler traveler in m_travelers)
             {
-                foreach (TravelerItem scrap in traveler.Items) {
-                    if (scrap.Scrapped)
+                if (traveler is Table)
+                {
+                    Table table = (Table)traveler;
+                    foreach (TravelerItem scrap in table.Items)
                     {
-                        ScrapEvent scrapEvent = scrap.History.OfType<ScrapEvent>().ToList().First();
-                        if (scrapEvent.Date >= DateTime.Today)
+                        if (scrap.Scrapped)
                         {
-                            Dictionary<string, string> item = new Dictionary<string, string>();
-                            item.Add("Item", traveler.ID.ToString("D6") + '-' + scrap.ID.ToString());
-                            item.Add("Part", traveler.ItemCode);
+                            ScrapEvent scrapEvent = scrap.History.OfType<ScrapEvent>().ToList().First();
+                            if (scrapEvent.Date >= DateTime.Today)
+                            {
+                                Dictionary<string, string> item = new Dictionary<string, string>();
+                                item.Add("Item", table.ID.ToString("D6") + '-' + scrap.ID.ToString());
+                                item.Add("Part", table.ItemCode);
 
-                            item.Add("User", scrapEvent.User.Name);
-                            item.Add("Station", scrapEvent.Station.Name);
-                            item.Add("Date", scrapEvent.Date.ToString("MM/dd/yyyy @ hh:mm"));
-                            item.Add("Time", scrapEvent.Duration.ToString());
-                            item.Add("Started Work", scrapEvent.StartedWork.ToString().Quotate());
-                            item.Add("Reason", scrapEvent.Reason.Quotate());
-                            scrapped.Add(item);
+                                item.Add("User", scrapEvent.User.Name);
+                                item.Add("Station", scrapEvent.Station.Name);
+                                item.Add("Date", scrapEvent.Date.ToString("MM/dd/yyyy @ hh:mm"));
+                                item.Add("Time", scrapEvent.Duration.ToString());
+                                item.Add("Started Work", scrapEvent.StartedWork.ToString().Quotate());
+                                item.Add("Reason", scrapEvent.Reason.Quotate());
+                                scrapped.Add(item);
+                            }
                         }
                     }
                 }

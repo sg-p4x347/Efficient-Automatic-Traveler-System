@@ -86,7 +86,9 @@ function Application () {
 		// add all the travelers back
 		self.travelers.forEach(function (traveler) {
 			traveler.stations.forEach(function (station) {
-				if (Contains(traveler.items,[{prop:"state",value:self.view.viewState},{prop:"station",value:station}]) || (traveler.items.length == 0 && traveler.state == self.view.viewState)) {
+				if (Contains(traveler.items,[{prop:"state",value:self.view.viewState},{prop:"station",value:station}]) || (traveler.items.length == 0 && traveler.state == self.view.viewState)
+					|| (traveler.qtyPending > 0)) {
+					// QTY pending is sent based on the starting station for the traveler from the Export function on Traveler.cs
 					self.queues[station].AddTraveler(traveler);
 				}
 			});

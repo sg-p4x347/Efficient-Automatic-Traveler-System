@@ -43,7 +43,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return obj;
         }
-        public List<string> ParseJSONarray()
+        public List<string> ParseJSONarray(bool dequote = true)
         {
             List<string> array = new List<string>();
             // find the start
@@ -64,7 +64,13 @@ namespace Efficient_Automatic_Traveler_System
                 if (next == '[' || next == '{' || next == '"' || Char.IsNumber(next) || next == '-')
                 {
                     PutBack();
-                    array.Add(GetJsonScope().Trim('"'));
+                    if (dequote)
+                    {
+                        array.Add(GetJsonScope().Trim('"'));
+                    } else
+                    {
+                        array.Add(GetJsonScope());
+                    }
                 }
             }
             return array;

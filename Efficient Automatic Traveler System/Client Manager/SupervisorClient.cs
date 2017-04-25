@@ -27,12 +27,12 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
-            bool mirror = travelers.Count == m_travelerManager.GetTravelers.Count;
+            bool mirror = true; // travelers.Count == m_travelerManager.GetTravelers.Count;
             string message = @"{""travelers"":[";
             string travelerJSON = "";
             foreach (Traveler traveler in travelers.Where(x => x.State == m_viewState || x.Items.Exists(y => y.State == m_viewState)))
             {
-                travelerJSON += (travelerJSON.Length > 0 ? "," : "") + traveler.Export(this.GetType().Name, null);
+                travelerJSON += (travelerJSON.Length > 0 ? "," : "") + traveler.Export(this.GetType().Name, traveler.Station);
             }
             message += travelerJSON + "],";
             message += "\"mirror\":" + mirror.ToString().ToLower();

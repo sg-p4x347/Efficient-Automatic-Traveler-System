@@ -73,7 +73,7 @@ namespace Efficient_Automatic_Traveler_System
 
                         // search for existing traveler
                         // can only combine if same itemCode, hasn't started, and has no parents
-                        Traveler traveler = m_travelers.Find(x => x.ItemCode == item.ItemCode);
+                        Traveler traveler = m_travelers.Find(x => x.CombinesWith(new object[] { item.ItemCode}));
                         int quantity = item.QtyOrdered - item.QtyOnHand;
                         if (traveler != null)
                         {
@@ -131,7 +131,7 @@ namespace Efficient_Automatic_Traveler_System
                     }
                 }
                 // import part info
-                traveler.ImportPart(orderManager, ref MAS);
+                traveler.ImportInfo(this as ITravelerManager, orderManager, ref MAS);
                 index++;
                 Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
             }
@@ -271,7 +271,8 @@ namespace Efficient_Automatic_Traveler_System
                     // NEW
                     //=================
                     returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Tracking) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                } else if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
+                }
+                if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
                 {
                     //=================
                     // FINISHED
@@ -281,10 +282,13 @@ namespace Efficient_Automatic_Traveler_System
                     // assign this item to the order that ships soonest
                     AssignOrder(traveler, item);
 
-                    
+
                     // Pack tracking label must be printed
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+                    if (traveler is Table)
+                    {
+                        returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+                        returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+                    }
                 }
                 OnTravelersChanged(new List<Traveler>() { traveler });
             } catch (Exception ex)
@@ -314,7 +318,7 @@ namespace Efficient_Automatic_Traveler_System
                 foreach (string ID in travelerIDs)
                 {
                     Traveler traveler = FindTraveler(Convert.ToInt32(ID));
-                    if (traveler != null)
+                    if (traveler != null && StationClass.GetStation(obj["station"]) != null)
                     {
                         traveler.Station = StationClass.GetStation(obj["station"]);
                     }

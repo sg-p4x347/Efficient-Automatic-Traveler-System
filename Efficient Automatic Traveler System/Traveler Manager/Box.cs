@@ -33,17 +33,7 @@ namespace Efficient_Automatic_Traveler_System
         // create a Box for a traveler
         public Box(Traveler traveler) : base()
         {
-
             Station = StationClass.GetStation("Box");
-            GetBoxSize("Table Reference.csv",traveler.ItemCode);
-            foreach (Item componentItem in traveler.Part.ComponentBills[0].ComponentItems)
-            {
-                if (StationClass.GetStation("Box").LaborCodes.Exists(x => x == componentItem.ItemCode))
-                {
-                    m_box = componentItem;
-                    break;
-                }
-            }
             m_quantity = traveler.Quantity;
             ParentTravelers.Add(traveler);
         }
@@ -54,7 +44,7 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("boxSize", BoxSize.Quotate());
             return obj.Stringify();
         }
-        public override bool CombinesWith(Traveler other)
+        public override bool CombinesWith(object[] args)
         {
             return false;
         }
@@ -70,6 +60,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             List<string> rows = new List<string>()
             {
+                new NameValueQty<string, string>("Parent Traveler", ParentTravelers[0].ID.ToString("D6"),"").ToString(),
                 new NameValueQty<string, string>("Box Size", m_boxSize,"").ToString()
             };
             return rows.Stringify(false).TrimStart('[').TrimEnd(']');
@@ -100,7 +91,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return json;
         }
-        // returns the next station for this chair
+        // returns the next station for this box
         public override StationClass GetNextStation(UInt16 itemID)
         {
             StationClass station = Items.Find(x => x.ID == itemID).Station;
@@ -108,7 +99,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return StationClass.GetStation("Start");
             }
-            else if (station == StationClass.GetStation("Chairs"))
+            else if (station == StationClass.GetStation("Box"))
             {
                 return StationClass.GetStation("Finished");
 
@@ -124,14 +115,16 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override double GetCurrentLabor()
         {
-            return (m_box != null ? m_box.QuantityPerBill : 0.0);
+            return (m_boxLabor != null ? m_boxLabor.QuantityPerBill : 0.0);
         }
 
         public override double GetTotalLabor(StationClass station)
         {
             throw new NotImplementedException();
         }
-
+        public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS)
+        {
+        }
         #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -164,6 +157,8 @@ namespace Efficient_Automatic_Traveler_System
         }
 
         
+
+
         #endregion
         //--------------------------------------------------------
         #region Properties
@@ -172,7 +167,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_boxSize;
         private string m_contents;
         // labor
-        private Item m_box;
+        private Item m_boxLabor;
         #endregion
         //--------------------------------------------------------
         #region Interface
@@ -198,6 +193,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_contents = value;
+            }
+        }
+
+        internal Item BoxLabor
+        {
+            get
+            {
+                return m_boxLabor;
+            }
+
+            set
+            {
+                m_boxLabor = value;
             }
         }
         #endregion
