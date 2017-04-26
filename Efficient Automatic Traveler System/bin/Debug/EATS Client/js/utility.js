@@ -18,33 +18,31 @@ function Traveler(obj) {
 	obj.CreateQueueItem = function (station) {
 		var self = this;
 		var DOMqueueItem = document.createElement("DIV");
-		var colorClass = "blueBack";
+		self.colorClass = "blueBack";
 		switch (application.view.viewState) {
 			case "PreProcess": 
 			if (self.quantity > 0) {
-				colorClass = "blueBack";
+				self.colorClass = "blueBack";
 			} else {
-				colorClass = "ghostBack";
+				self.colorClass = "ghostBack";
 			}
 			 break;
-			case "InProcess": colorClass = "redBack"; break;
-			case "PostProcess": colorClass = "greenBack"; break;
+			case "InProcess": self.colorClass = "redBack"; break;
+			case "PostProcess": self.colorClass = "greenBack"; break;
 		}
-		DOMqueueItem.className = "button queue__item twoEM " + colorClass;
+		DOMqueueItem.className = "button queue__item twoEM " + self.colorClass;
 		if (self.selected) {
 			DOMqueueItem.className += " selected";
 		}
 		DOMqueueItem.innerHTML = pad(self.ID,6) + "<br>";
 		//-------------------------------------------
-		var checkBox = document.createElement("INPUT");
-		checkBox.type = "checkbox";
-		checkBox.checked = self.selected;
-		checkBox.onchange = function () {
-			self.selected = this.checked;
-			DOMqueueItem.className = (this.checked ? "button queue__item twoEM selected " + colorClass
-			: "button queue__item twoEM " + colorClass);
+		self.checkBox = document.createElement("INPUT");
+		self.checkBox.type = "checkbox";
+		self.checkBox.checked = self.selected;
+		self.checkBox.onchange = function () {
+			self.Select(this.checked);
 		}
-		DOMqueueItem.appendChild(checkBox);
+		DOMqueueItem.appendChild(self.checkBox);
 		//-------------------------------------------
 		var itemCode = document.createElement("SPAN");
 		itemCode.className = "queue__item__desc beige";
@@ -57,8 +55,13 @@ function Traveler(obj) {
 		itemCode.innerHTML = itemCodeString;
 		DOMqueueItem.appendChild(itemCode);
 		
-		checkBox.onclick = function(event) {
+		self.checkBox.onclick = function(event) {
 			event.stopPropagation();
+			if (self.checkBox.checked && application.input.shift) {
+				application.SelectRange(application.selection.lastTraveler,self);
+			}
+			application.selection.lastQueue = self.stationQueue;
+			application.selection.lastTraveler = self;
 		}
 		
 		DOMqueueItem.onclick = function () {
@@ -72,7 +75,14 @@ function Traveler(obj) {
 			//-----------------------------------------------
 			//self.PromptAction(traveler);
 		}
+		self.DOMqueueItem = DOMqueueItem;
 		return DOMqueueItem;
+	}
+	obj.Select = function(state) {
+		obj.selected = state;
+		obj.checkBox.checked = state;
+		obj.DOMqueueItem.className = (state ? "button queue__item twoEM selected " + obj.colorClass
+			: "button queue__item twoEM " + obj.colorClass);
 	}
 	return obj;
 }

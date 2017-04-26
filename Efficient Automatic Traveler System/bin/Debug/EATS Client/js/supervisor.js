@@ -29,6 +29,12 @@ function Application () {
 	}
 	// MISC
 	this.lastSelectedStation;
+	// IO
+	this.input = new Input();
+	this.selection = {
+		lastQueue: undefined,
+		lastTraveler: undefined
+	};
 	// Websocket
 	this.websocket;
 	this.SetWindow = function () {
@@ -56,6 +62,19 @@ function Application () {
 		
 	};
 	
+	//----------------
+	// Multi-select
+	//----------------
+	this.SelectRange = function (A,B) {
+		var self = this;
+		// if they are in the same queue
+		if (A && B && A.stationQueue && B.stationQueue && A.stationQueue == B.stationQueue) {
+			for (var i = Math.min(A.queueIndex,B.queueIndex); i < Math.max(A.queueIndex,B.queueIndex); i++) {
+				var traveler = self.queues[A.stationQueue].travelers[i];
+				traveler.Select(true);
+			}
+		}
+	}
 	//----------------
 	// station list
 	//----------------
@@ -89,7 +108,10 @@ function Application () {
 				if (Contains(traveler.items,[{prop:"state",value:self.view.viewState},{prop:"station",value:station}]) || (traveler.items.length == 0 && traveler.state == self.view.viewState)
 					|| (traveler.qtyPending > 0)) {
 					// QTY pending is sent based on the starting station for the traveler from the Export function on Traveler.cs
-					self.queues[station].AddTraveler(traveler);
+					var copy = new Traveler(JSON.parse(JSON.stringify(traveler)));
+					copy.stationQueue = station;
+					copy.queueIndex = self.queues[station].travelers.length;
+					self.queues[station].AddTraveler(copy);
 				}
 			});
 		});
@@ -401,6 +423,10 @@ function Application () {
 		self.popupManager = new PopupManager(document.getElementById("blackout"));
 		self.SetWindow();
 		window.addEventListener("resize",self.SetWindow,false);
+		//----------------
+		// Input
+		//----------------
+		self.input.Initialize();
 		//----------------
 		// search
 		//----------------
@@ -927,5 +953,93 @@ function TravelerView() {
 	this.Initialize = function () {
 		var self = this;
 		self.DOMcontainer = document.getElementById("viewContainer");
+	}
+}
+// handle input events
+function Input () {
+	// input states
+	this.keyMap = [];
+	this.mouse = {
+		x: 0,
+		y: 0,
+		left: false,
+		middle: false,
+		right: false
+	}
+	// application controls
+	this.left = false;
+	this.right = false;
+	this.up = false;
+	this.down = false;
+	this.space = false;
+	this.shift = false;
+	this.escape = false;
+	this.ctrl = false;
+	// key bindings
+	this.binding = {
+		left: [65,37],
+		right: [68,39],
+		up: [87,38],
+		down: [83,40],
+		space: [32],
+		shift: [16],
+		escape: [27],
+		ctrl: [17]
+	}
+	this.UpdateAction = function () {
+		var self = this;
+		for (var action in self.binding) {
+			self.binding[action].some(function (keyCode) {
+				if (self.keyMap[keyCode]) {
+					self[action] = true;
+					return true;
+				} else {
+					self[action] = false;
+				}
+			});
+		}
+	}
+	this.Initialize = function () {
+		var self = this;
+		
+		// set all keys to false
+		for (var i = 0; i < 222; i++) {
+			self.keyMap.push(false);
+		}
+		
+		// add key listeners
+		window.addEventListener('keydown', function (event) {
+			event.preventDefault();
+			self.keyMap[event.keyCode] = true;
+			self.UpdateAction();
+		});
+		window.addEventListener('keyup', function (event) {
+			event.preventDefault();
+			self.keyMap[event.keyCode] = false;
+			self.UpdateAction();
+		});
+		/* // add mouse listeners (only on the canvas)
+		canvas.addEventListener('mousedown', function (event) {
+			event.preventDefault();
+			switch (event.which) {
+				case 1: self.mouse.left = true; break;
+				case 2: self.mouse.middle = true; break;
+				case 3: self.mouse.right = true; break;
+			}
+		});
+		canvas.addEventListener('mouseup', function (event) {
+			event.preventDefault();
+			switch (event.which) {
+				case 1: self.mouse.left = false; break;
+				case 2: self.mouse.middle = false; break;
+				case 3: self.mouse.right = false; break;
+			}
+		});
+		canvas.addEventListener('mousemove', function (event) {
+			event.preventDefault();
+			var rect = canvas.getBoundingClientRect();
+			self.mouse.x = event.clientX - rect.left;
+			self.mouse.y = event.clientY - rect.top;
+		}); */
 	}
 }
