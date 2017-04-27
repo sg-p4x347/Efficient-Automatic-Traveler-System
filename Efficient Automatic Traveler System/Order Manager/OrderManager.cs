@@ -240,7 +240,7 @@ namespace Efficient_Automatic_Traveler_System
         public void ReleaseTraveler(Traveler traveler)
         {
             // iterate over all applicable orders
-            foreach (string orderNo in traveler.ParentOrders)
+            foreach (string orderNo in traveler.ParentOrderNums)
             {
                 Order order = FindOrder(orderNo);
                 // for each item in the order

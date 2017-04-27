@@ -199,7 +199,10 @@ namespace Efficient_Automatic_Traveler_System
 
             // Finalize the travelers by importing external information
             m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
-            
+
+            // Push planned travelers from the previous day into production
+            m_travelerManager.EnterProduction();
+
             // No more data is needed at this time
             CloseMAS();
 

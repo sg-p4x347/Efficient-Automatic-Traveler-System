@@ -52,6 +52,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             TravelersChanged = delegate { };
             m_travelers = new List<Traveler>();
+            m_importedFromPast = new List<Traveler>();
             m_orderManager = orderManager;
 
 
@@ -82,7 +83,7 @@ namespace Efficient_Automatic_Traveler_System
 
                             // RELATIONAL =============================================================
                             item.ChildTraveler = traveler.ID;
-                            traveler.ParentOrders.Add(order.SalesOrderNo);
+                            traveler.ParentOrderNums.Add(order.SalesOrderNo);
                             //=========================================================================
                         }
                         else
@@ -95,7 +96,7 @@ namespace Efficient_Automatic_Traveler_System
 
                                 // RELATIONAL =============================================================
                                 item.ChildTraveler = newTraveler.ID;
-                                newTraveler.ParentOrders.Add(order.SalesOrderNo);
+                                newTraveler.ParentOrderNums.Add(order.SalesOrderNo);
                                 //=========================================================================
 
                                 // add the new traveler to the list
@@ -113,7 +114,16 @@ namespace Efficient_Automatic_Traveler_System
             int index = 0;
             foreach (Traveler traveler in m_travelers)
             {
-                // link with other travelers
+                // link with orders
+                foreach (string orderNum in traveler.ParentOrderNums)
+                {
+                    Order parent = m_orderManager.FindOrder(orderNum);
+                    if (parent != null)
+                    {
+                        traveler.ParentOrders.Add(parent);
+                    }
+                }
+                // link with parent travelers
                 foreach (int id in traveler.ParentIDs)
                 {
                     Traveler parent = FindTraveler(id);
@@ -122,6 +132,7 @@ namespace Efficient_Automatic_Traveler_System
                         traveler.ParentTravelers.Add(parent);
                     }
                 }
+                // link with child travelers
                 foreach (int id in traveler.ChildIDs)
                 {
                     Traveler child = FindTraveler(id);
@@ -167,6 +178,7 @@ namespace Efficient_Automatic_Traveler_System
         public void ImportPast()
         {
             m_travelers.Clear();
+            m_importedFromPast.Clear();
             List<string> travelerArray = (new StringStream(BackupManager.ImportPast("travelers.json"))).ParseJSONarray();
             Server.Write("\r{0}", "Loading travelers from backup...");
             foreach (string travelerJSON in travelerArray)
@@ -175,16 +187,24 @@ namespace Efficient_Automatic_Traveler_System
                 // add this traveler to the master list if it is not complete
                 if (traveler != null && traveler.State != ItemState.PostProcess && traveler.Quantity > 0)
                 {
-                    // push this traveler into production
-                    if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
-                    {
-                        traveler.EnterProduction(this as ITravelerManager);
-                    }
+                    // add this traveler to the imported list
+                    m_importedFromPast.Add(traveler);
                     // add this traveler to the list
                     m_travelers.Add(traveler);
                 }
             }
             Server.Write("\r{0}", "Loading travelers from backup...Finished" + Environment.NewLine);
+        }
+        public void EnterProduction()
+        {
+            foreach (Traveler traveler in m_importedFromPast)
+            {
+                // push this traveler into production
+                if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
+                {
+                    traveler.EnterProduction(this as ITravelerManager);
+                }
+            }
         }
         public void Backup()
         {
@@ -201,7 +221,7 @@ namespace Efficient_Automatic_Traveler_System
         public void RemoveTraveler(int ID)
         {
             // remove itself from order items
-            foreach (string orderNo in FindTraveler(ID).ParentOrders)
+            foreach (string orderNo in FindTraveler(ID).ParentOrderNums)
             {
                 foreach (OrderItem item in m_orderManager.FindOrder(orderNo).FindItems(ID))
                 {
@@ -530,7 +550,7 @@ namespace Efficient_Automatic_Traveler_System
         private int QuantityNeeded(Traveler traveler)
         {
             int qtyNeeded = 0;
-            foreach (string orderNo in traveler.ParentOrders)
+            foreach (string orderNo in traveler.ParentOrderNums)
             {
                 Order order = m_orderManager.FindOrder(orderNo);
                 if (order != null)
@@ -620,7 +640,7 @@ namespace Efficient_Automatic_Traveler_System
         private void AssignOrder(Traveler traveler, TravelerItem item)
         {
             List<Order> parentOrders = new List<Order>();
-            foreach (string orderNo in traveler.ParentOrders)
+            foreach (string orderNo in traveler.ParentOrderNums)
             {
                 parentOrders.Add(m_orderManager.FindOrder(orderNo));
             }
@@ -664,6 +684,7 @@ namespace Efficient_Automatic_Traveler_System
         //----------------------------------
         #region Private member variables
         private List<Traveler> m_travelers;
+        private List<Traveler> m_importedFromPast;
         private IOrderManager m_orderManager;
 
         public event TravelersChangedSubscriber TravelersChanged; // plural

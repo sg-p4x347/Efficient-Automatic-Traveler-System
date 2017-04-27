@@ -57,7 +57,8 @@ namespace Efficient_Automatic_Traveler_System
             NewID();
             m_quantity = 0;
             items = new List<TravelerItem>();
-            m_parentOrders = new List<string>();
+            m_parentOrderNums = new List<string>();
+            m_parentOrders = new List<Order>();
             m_parentIDs = new List<int>();
             m_parentTravelers = new List<Traveler>();
             m_childIDs = new List<int>();
@@ -78,7 +79,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Items.Add(new TravelerItem(item));
             }
-            m_parentOrders = (new StringStream(obj["parentOrders"])).ParseJSONarray();
+            m_parentOrderNums = (new StringStream(obj["parentOrders"])).ParseJSONarray();
             foreach (string id in (new StringStream(obj["parentTravelers"])).ParseJSONarray())
             {
                 m_parentIDs.Add(Convert.ToInt32(id));
@@ -166,7 +167,7 @@ namespace Efficient_Automatic_Traveler_System
                 
                 {"quantity",m_quantity.ToString() },
                 {"items",Items.Stringify<TravelerItem>() },
-                {"parentOrders",m_parentOrders.Stringify<string>() },
+                {"parentOrders",m_parentOrderNums.Stringify<string>() },
                 {"parentTravelers",m_parentTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
                 {"childTravelers",m_childTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
                 {"station",m_station.Name.Quotate() },
@@ -329,6 +330,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
         }
+        public DateTime SoonestShipDate()
+        {
+            return ParentOrders.Max(y => y.ShipDate);
+        }
         // export for clients to display
         public virtual string Export(string clientType, StationClass station)
         {
@@ -402,7 +407,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"Date started", m_dateStarted.Quotate() },
                 {"ID",m_ID.ToString() },
                 {"Qty on traveler",m_quantity.ToString() },
-                {"Orders",m_parentOrders.Stringify() },
+                {"Orders",m_parentOrderNums.Stringify() },
                 {"Items",Items.Stringify() },
                 {"Starting station",m_station.Name.Quotate() }
             };
@@ -422,7 +427,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"In process",qtyInProcess.ToString()},
                 {"Scrapped",QuantityScrapped().ToString() },
                 {"Complete",qtyComplete.ToString() },
-                {"Orders",m_parentOrders.Stringify() }
+                {"Orders",m_parentOrderNums.Stringify() }
             };
             return obj.Stringify();
         }
@@ -506,9 +511,12 @@ namespace Efficient_Automatic_Traveler_System
         protected int m_quantity;
         private List<TravelerItem> items;
         // linking ^^^^^^^^^^^^^^^^^^^^^
-        private List<string> m_parentOrders;
+        private List<string> m_parentOrderNums;
+        private List<Order> m_parentOrders;
+
         private List<int> m_parentIDs;
         private List<Traveler> m_parentTravelers;
+
         private List<int> m_childIDs;
         private List<Traveler> m_childTravelers;
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -559,16 +567,16 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<string> ParentOrders
+        internal List<string> ParentOrderNums
         {
             get
             {
-                return m_parentOrders;
+                return m_parentOrderNums;
             }
 
             set
             {
-                m_parentOrders = value;
+                m_parentOrderNums = value;
             }
         }
 
@@ -672,6 +680,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_childIDs = value;
+            }
+        }
+
+        internal List<Order> ParentOrders
+        {
+            get
+            {
+                return m_parentOrders;
+            }
+
+            set
+            {
+                m_parentOrders = value;
             }
         }
         #endregion

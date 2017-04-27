@@ -238,6 +238,29 @@ namespace Efficient_Automatic_Traveler_System
 
             return webLocation;
         }
+        public string CSV(string path, List<SummaryColumn> columns)
+        {
+            List<string> rows = new List<string>();
+            // header
+            List<string> header = new List<string>();
+            foreach (SummaryColumn column in columns)
+            {
+                header.Add(column.Header);
+            }
+            rows.Add(header.Stringify().Trim('[',']'));
+            // detail
+            foreach (object obj in m_travelers)
+            {
+                List<string> row = new List<string>();
+                foreach (SummaryColumn column in columns)
+                {
+                    row.Add(column.GetProperty(obj));
+                }
+                rows.Add(row.Stringify().Trim('[', ']'));
+            }
+            File.WriteAllLines(Path.Combine(Server.RootDir, path), rows.ToArray<string>());
+            return "../" + path;
+        }
         #endregion
         #region Properties
         private SummarySort m_sort;

@@ -92,6 +92,7 @@
     <Compile Include="Order Manager\OrderManager.cs" />
     <Compile Include="Events\ScrapEvent.cs" />
     <Compile Include="StringStream.cs" />
+    <Compile Include="SummaryColumn.cs" />
     <Compile Include="TableBox.cs" />
     <Compile Include="Traveler Manager\Bill.cs" />
     <Compile Include="Traveler Manager\BlacklistItem.cs" />

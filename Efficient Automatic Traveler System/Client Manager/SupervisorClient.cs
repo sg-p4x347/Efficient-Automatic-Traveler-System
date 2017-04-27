@@ -159,7 +159,44 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-                string downloadLocation = summary.ScrapCSV();
+                string downloadLocation = summary.CSV("test.csv", new List<SummaryColumn>() {
+                    new SummaryColumn("ID","ID"),
+                    new SummaryColumn("ItemCode","ItemCode")
+                });
+                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+            //ClientMessage returnMessage = new ClientMessage();
+            //try
+            //{
+            //    Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+            //    Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+            //    string downloadLocation = summary.ScrapCSV();
+            //    returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+            //}
+            //catch (Exception ex)
+            //{
+            //    Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+            //    returnMessage = new ClientMessage("Info", "error");
+            //}
+            //return returnMessage;
+        }
+        public ClientMessage ExportTest(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                string downloadLocation = summary.CSV("EATS Client\\test.csv", new List<SummaryColumn>() {
+                    new SummaryColumn("ID","ID"),
+                    new SummaryColumn("Scrapped","Scrapped")
+                });
                 returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
             }
             catch (Exception ex)

@@ -399,7 +399,7 @@ namespace Efficient_Automatic_Traveler_System
                     //--------------------------------------------
                     SupPack = row[8];
                     RegPack = row[9];
-                    foreach (string orderNo in ParentOrders)
+                    foreach (string orderNo in ParentOrderNums)
                     {
                         Order order = orderManager.FindOrder(orderNo);
                         foreach (OrderItem orderItem in order.FindItems(ID))
