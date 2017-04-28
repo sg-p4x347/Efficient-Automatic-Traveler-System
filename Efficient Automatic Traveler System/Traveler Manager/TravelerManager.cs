@@ -306,6 +306,7 @@ namespace Efficient_Automatic_Traveler_System
                     // Pack tracking label must be printed
                     if (traveler is Table)
                     {
+                        
                         returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                         returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                     }

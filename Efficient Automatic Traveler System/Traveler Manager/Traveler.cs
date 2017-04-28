@@ -178,7 +178,7 @@ namespace Efficient_Automatic_Traveler_System
             return obj.Stringify();
         }
         // print a label for this traveler
-        public string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false)
+        public virtual string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false)
         {
             string result = "";
             try
@@ -330,10 +330,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
         }
-        public DateTime SoonestShipDate()
-        {
-            return ParentOrders.Max(y => y.ShipDate);
-        }
+        
         // export for clients to display
         public virtual string Export(string clientType, StationClass station)
         {
@@ -437,6 +434,7 @@ namespace Efficient_Automatic_Traveler_System
             List<string> header = new List<string>();
             header.Add("Traveler");
             header.Add("Quantity");
+            header.Add("Soonest Ship");
             header.Add("Station");
             return header.Stringify<string>().Trim('[').Trim(']');
         }
@@ -446,6 +444,7 @@ namespace Efficient_Automatic_Traveler_System
             List<string> detail = new List<string>();
             detail.Add(m_ID.ToString());
             detail.Add(m_quantity.ToString());
+            detail.Add(SoonestShipDate.ToString("MM/dd/yyyy"));
             detail.Add(m_station.Name);
             return detail.Stringify<string>().Trim('[').Trim(']');
         }
@@ -693,6 +692,13 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_parentOrders = value;
+            }
+        }
+        internal DateTime SoonestShipDate
+        {
+            get
+            {
+                return ParentOrders.Max(y => y.ShipDate);
             }
         }
         #endregion

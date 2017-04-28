@@ -9,10 +9,11 @@ namespace Efficient_Automatic_Traveler_System
     class ScrapEvent : ProcessEvent
     {
         #region Public Methods
-        public ScrapEvent(User user, StationClass station, double duration, bool startedWork, string reason) : base(user,station,duration,ProcessType.Scrapped)
+        public ScrapEvent(User user, StationClass station, double duration, bool startedWork, string source, string reason) : base(user,station,duration,ProcessType.Scrapped)
         {
             m_startedWork = startedWork;
             m_reason = reason;
+            m_source = source;
         }
         public ScrapEvent(string json) : base(json)
         {
@@ -20,6 +21,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 m_startedWork = Convert.ToBoolean(obj["startedWork"]);
+                m_source = obj["source"];
                 m_reason = obj["reason"];
             }
             catch (Exception ex)
@@ -37,6 +39,7 @@ namespace Efficient_Automatic_Traveler_System
             obj["station"] = obj["station"].Quotate();
             obj["process"] = obj["process"].Quotate();
             obj.Add("startedWork", m_startedWork.ToString().ToLower());
+            obj.Add("source", m_source.Quotate());
             obj.Add("reason", m_reason.Quotate());
             return obj.Stringify();
         }
@@ -52,6 +55,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Properties
         private bool m_startedWork;
         private string m_reason;
+        private string m_source;
         #endregion
 
         //-----------------------------------------------------
@@ -80,6 +84,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_reason = value;
+            }
+        }
+
+        public string Source
+        {
+            get
+            {
+                return m_source;
+            }
+
+            set
+            {
+                m_source = value;
             }
         }
         #endregion

@@ -118,7 +118,7 @@ namespace Efficient_Automatic_Traveler_System
             // add the header
             //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
             // add each detail for each traveler
-            List<string> fields = new List<string>() { "Part", "Quantity", "Date" };
+            List<string> fields = new List<string>() { "Part", "Quantity", "Date"};
             List<Dictionary<string,string>> finished = new List<Dictionary<string,string>>();
             foreach (Traveler traveler in m_travelers)
             {
@@ -184,7 +184,7 @@ namespace Efficient_Automatic_Traveler_System
             // add the header
             //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
             // add each detail for each traveler
-            List<string> fields = new List<string>() { "Item","Part", "User","Station","Date","Time","Started Work","Reason" };
+            List<string> fields = new List<string>() { "Item","Part", "User","Station","Date","Time","Started Work","Source","Reason" };
             List<Dictionary<string, string>> scrapped = new List<Dictionary<string, string>>();
             foreach (Traveler traveler in m_travelers)
             {
@@ -206,8 +206,9 @@ namespace Efficient_Automatic_Traveler_System
                                 item.Add("Station", scrapEvent.Station.Name);
                                 item.Add("Date", scrapEvent.Date.ToString("MM/dd/yyyy @ hh:mm"));
                                 item.Add("Time", scrapEvent.Duration.ToString());
-                                item.Add("Started Work", scrapEvent.StartedWork.ToString().Quotate());
-                                item.Add("Reason", scrapEvent.Reason.Quotate());
+                                item.Add("Started Work", scrapEvent.StartedWork.ToString());
+                                item.Add("Source", scrapEvent.Source);
+                                item.Add("Reason", scrapEvent.Reason);
                                 scrapped.Add(item);
                             }
                         }

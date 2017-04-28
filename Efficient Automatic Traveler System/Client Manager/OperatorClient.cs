@@ -41,7 +41,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             // get the list of travelers that have items at this station
             List<Traveler> stationSpecific = travelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList();
-            bool mirror = (stationSpecific.Count < travelers.Count);
+            bool mirror = true; //(stationSpecific.Count < travelers.Count);
             if (mirror)
             {
                 stationSpecific = m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList();
@@ -166,7 +166,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                ScrapEvent evt = new ScrapEvent(m_user, m_station, traveler.GetCurrentLabor() - Convert.ToDouble(obj["time"]), Convert.ToBoolean(obj["startedWork"].ToLower()),obj["reason"]);
+                ScrapEvent evt = new ScrapEvent(m_user, m_station, traveler.GetCurrentLabor() - Convert.ToDouble(obj["time"]), Convert.ToBoolean(obj["startedWork"].ToLower()),obj["source"],obj["reason"]);
 
                 TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
                 return m_travelerManager.AddTravelerEvent(evt, traveler, item);
@@ -229,6 +229,7 @@ namespace Efficient_Automatic_Traveler_System
                 DisplayChecklist();
             }
             m_current = freshTraveler;
+            
             return new ClientMessage("LoadTraveler",m_current.Export("OperatorClient",m_station));
         }
         public ClientMessage LoadTravelerJSON(string json)
@@ -237,12 +238,18 @@ namespace Efficient_Automatic_Traveler_System
         }
         public ClientMessage LoadItem(string json)
         {
-            Traveler freshTraveler = m_travelerManager.FindTraveler(Convert.ToInt32(new StringStream(json).ParseJSON()["travelerID"]));
+            Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+            Traveler freshTraveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
             if (freshTraveler != null && m_current != null && freshTraveler.ID != m_current.ID)
             {
                 DisplayChecklist();
             }
             m_current = freshTraveler;
+            // if this is Table pack station, print Table label
+            if (m_station == StationClass.GetStation("Table-Pack"))
+            {
+                m_current.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table);
+            }
             return m_travelerManager.LoadItem(json);
         }
     }

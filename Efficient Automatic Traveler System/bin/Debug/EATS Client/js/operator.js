@@ -147,6 +147,7 @@ function Application () {
 			var message = new InterfaceCall("Logout",{},"This");
 			self.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
+			self.travelerView.Clear();
 			self.LoginPopup();
 			
 		}
@@ -297,7 +298,7 @@ function Application () {
 				time: application.partTimer.timerTime.asMinutes(),
 				itemID: (self.travelerView.item ? self.travelerView.item.ID : "undefined"),
 				
-				source: vendorRadio.checked ? "vendor" : "production",
+				source: vendorRadio.checked ? "Vendor" : "Marco Group",
 				reason: scrapReasons.value,
 				startedWork: document.getElementById("startedWork").checked
 			});
@@ -406,6 +407,7 @@ function Application () {
 							if (object.mirror) {
 								// The only travelers in the queue are explicitly the ones in the message
 								self.travelerQueue.Clear();
+								self.travelerView.Clear();
 								object.travelers.forEach(function (obj) {
 									self.travelerQueue.AddTraveler(new Traveler(obj));
 								});
@@ -415,7 +417,7 @@ function Application () {
 									self.travelerQueue.UpdateTraveler(new Traveler(obj));
 								});
 							}
-							// autoload the first traveler in the queue if just now visiting
+							/* // autoload the first traveler in the queue if just now visiting
 							if ((!self.lastStation || self.station.ID != self.lastStation.ID) && self.travelerQueue.travelers[0]) {
 								self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(self.travelerQueue.travelers[0].ID)); // this ensures that the item is selected
 							} else if (!self.travelerQueue.Exists(self.travelerView.traveler)) {
@@ -425,7 +427,7 @@ function Application () {
 								} else {
 									self.travelerView.Clear();
 								}
-							}
+							} */
 							// try and load the old traveler
 							self.travelerQueue.travelers.forEach(function (traveler) {
 								if (traveler.ID == self.travelerView.lastTravelerID) {
@@ -751,7 +753,6 @@ function TravelerView() {
 			application.lastStation = JSON.parse(JSON.stringify(application.station));
 		}
 		
-		
 		if (application.station.creates.length > 0) {
 			//=================================
 			// CLIENTS THAT CAN CREATE ITEMS
@@ -900,7 +901,7 @@ function TravelerView() {
 			if (parseInt(qtyScrapped.value) < self.traveler.quantity && parseInt(qtyMade) < self.traveler.quantity) {
 				completedTraveler = self.traveler;
 			} else {
-				completedTraveler = application.travelerQueue.ShiftTraveler(self.traveler);
+				completedTraveler = self.traveler;
 			}
 			self.lastTravelerID = completedTraveler.ID;
 			//----------INTERFACE CALL-----------------------

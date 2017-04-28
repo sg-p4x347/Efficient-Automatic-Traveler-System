@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Data.Odbc;
-using Excel = Microsoft.Office.Interop.Excel;
-using Marshal = System.Runtime.InteropServices.Marshal;
+//using Excel = Microsoft.Office.Interop.Excel;
+//using Marshal = System.Runtime.InteropServices.Marshal;
+using System.Text.RegularExpressions;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -141,7 +142,8 @@ namespace Efficient_Automatic_Traveler_System
         public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS)
         {
             m_part = new Bill(m_part.BillNo, m_part.QuantityPerBill, Quantity,ref MAS);
-            m_part.BillDesc = m_part.BillDesc.Replace("TableTopAsm,", ""); // tabletopasm is pretty obvious and therefore extraneous
+            m_part.BillDesc = Regex.Replace(m_part.BillDesc,"TableTopAsm,", "", RegexOptions.IgnoreCase); // tabletopasm is pretty obvious and therefore extraneous
+            m_part.BillDesc = Regex.Replace(m_part.BillDesc, "TableTop,", "", RegexOptions.IgnoreCase);
             m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
             // Table info in the table csv
             GetColorInfo();
@@ -173,6 +175,7 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
                     json += ",\"Desc1\":\"" + Part.BillNo + "\"";
                     json += ",\"Desc2\":\"" + Part.BillDesc + "\"";
+                    json += ",\"Desc3\":\"" + m_bandingAbrev + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
@@ -282,7 +285,10 @@ namespace Efficient_Automatic_Traveler_System
             box.EnterProduction(travelerManager);
             travelerManager.GetTravelers.Add(box);
         }
-        
+        public override string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false)
+        {
+            return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint);
+        }
         #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -303,16 +309,18 @@ namespace Efficient_Automatic_Traveler_System
             // open the color ref csv file
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             System.IO.StreamReader colorRef = new StreamReader(System.IO.Path.Combine(exeDir, "Color Reference.csv"));
-            colorRef.ReadLine(); // read past the header
+            // read past the header
+            List<string> header = colorRef.ReadLine().Split(',').ToList();
             string line = colorRef.ReadLine();
             while (line != "" && line != null)
             {
                 string[] row = line.Split(',');
-                if (Convert.ToInt32(row[0]) == ColorNo)
+                if (Convert.ToInt32(row[header.IndexOf("Color #")]) == ColorNo)
                 {
-                    m_color = row[1];
-                    m_bandingColor = row[2];
-                    BlankColor = row[3];
+                    m_color = row[header.IndexOf("Color")];
+                    m_bandingColor = row[header.IndexOf("Banding Color")];
+                    BlankColor = row[header.IndexOf("Blank Code")];
+                    m_bandingAbrev = row[header.IndexOf("Banding Abreviation")];
                     break;
                 }
                 line = colorRef.ReadLine();
@@ -376,6 +384,26 @@ namespace Efficient_Automatic_Traveler_System
                     BlankQuantity = Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(Quantity) / tablesPerBlank));
                     //int partsProduced = BlankQuantity * Convert.ToInt32(tablesPerBlank);
                     //LeftoverParts = partsProduced - Quantity;
+
+                    //--------------------------------------------
+                    // Pack Info
+                    //--------------------------------------------
+                    string boxType = row[header.IndexOf("Box Type")];
+                    if (boxType == "TD")
+                    {
+                        PackLabelQty = 2;
+                    } else if (boxType == "FPF")
+                    {
+                        PackLabelQty = 1;
+                    }
+                    if (Convert.ToBoolean(row[header.IndexOf("2PerTopBottom")].ToLower()))
+                    {
+                        PackLabelQty = 4;
+                    }
+                    //--------------------------------------------
+                    // PALLET
+                    //--------------------------------------------
+                    PalletSize = row[11];
                 }
                 line = tableRef.ReadLine();
             }
@@ -418,10 +446,7 @@ namespace Efficient_Automatic_Traveler_System
                             //}
                         }
                     }
-                    //--------------------------------------------
-                    // PALLET
-                    //--------------------------------------------
-                    PalletSize = row[11];
+                    
                     break;
                 }
                 line = tableRef.ReadLine();
@@ -617,6 +642,7 @@ namespace Efficient_Automatic_Traveler_System
         private int m_colorNo = 0;
         private string m_color = "";
         private string m_bandingColor = "";
+        private string m_bandingAbrev = "";
         private string m_shape = "";
         private string m_size = "";
         // Labor
@@ -636,6 +662,7 @@ namespace Efficient_Automatic_Traveler_System
         private int m_regPackQty = 0;
         private string m_supPack = "N/A";
         private int m_supPackQty = 0;
+        private int m_packLabelQty = 2;
         // Blank
         private string m_sheetSize = "";
         private string m_blankNo = "";
@@ -881,6 +908,32 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_size = value;
+            }
+        }
+
+        public int PackLabelQty
+        {
+            get
+            {
+                return m_packLabelQty;
+            }
+
+            set
+            {
+                m_packLabelQty = value;
+            }
+        }
+
+        public string Color
+        {
+            get
+            {
+                return m_color;
+            }
+
+            set
+            {
+                m_color = value;
             }
         }
         #endregion

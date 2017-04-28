@@ -1,50 +1,50 @@
-Color #,Color,Banding Color,Blank Code
-18,Blue Surface,Black,Blue Surface
-20,Blue Surface,Grey,Blue Surface
-21,London Grey,Grey,GREY
-22,Marker Board,Black,MARKER
-23,Marker Board,Grey,MARKER
-24,Storm Grey,Grey,GREY
-30,Mossy Oak,Black,CHOK
-31,Orissa Cherry,Black,CHOK
-32,Portland Cherry,Black,CHOK
-33,Java Glow,Black,JAVA
-34,Exec cherry,Black,CHOK
-35,Exec Cherry,Black,CHOK
-36,Fusion Maple,Fusion,MAGR
-37,Dogbone Storm,Graphite,GREY
-38,Tan Echo,Tan Echo,TAN
-39,Fusion Maple,Black,MAGR
-40,Exec Cherry,Cherry,CHOK
-41,Exec Cherry,Black,CHOK
-42,Mahogany,Mahogany,MAHOGANY
-43,Mahogany,Black,MAHOGANY
-44,Solar Oak,Solar Oak,CHOK
-45,Solar Oak,Black,CHOK
-46,Wild Apple,Wild Apple,APPL
-47,Wild Apple,Black,APPL
-48,Montana Walnut,Black,WALNUT
-49,Solar Oak,Black,CHOK
-50,Fusion Maple,Black,MAGR
-51,Gray Glace,Blue,MAGR
-52,Gray Glace,Green,MAGR
-53,Gray Glace,Red,MAGR
-54,Gray Glace,Yellow,MAGR
-55,Gray Glace,Black,MAGR
-56,Gray Glace,Navy,MAGR
-57,Gray Glace,Gravy,MAGR
-58,Solar Oak,Solar Oak,CHOK
-59,Fusion Maple,Fusion,MAGR
-60,Wild Cherry,Black,CHOK
-61,Fusion Maple,Grey,MAGR
-62,Fusion Maple,Blue,MAGR
-63,Fusion Maple,Red,MAGR
-64,Fusion Maple,Green,MAGR
-65,Fusion Maple,Yellow,MAGR
-69,Fusion Maple,Fusion,MAGR
-70,Solar Oak,Red,CHOK
-77,Grey Nebula,Black,Grey Nebula
-78,Grey Nebula,Grey,Grey Nebula
-79,Sand Shoal,Black,Sand Shoal
-80,Sand Shoal,Grey,Sand Shoal
-82,Gray Glace,Navy,MAGR
+Color #,Color,Banding Color,Blank Code,Banding Abreviation
+18,Blue Surface,Black,Blue Surface,BLK
+20,Blue Surface,Grey,Blue Surface,GRY
+21,London Grey,Grey,GREY,GRY
+22,Marker Board,Black,MARKER,BLK
+23,Marker Board,Grey,MARKER,GRY
+24,Storm Grey,Grey,GREY,GRY
+30,Mossy Oak,Black,CHOK,BLK
+31,Orissa Cherry,Black,CHOK,BLK
+32,Portland Cherry,Black,CHOK,BLK
+33,Java Glow,Black,JAVA,BLK
+34,Exec cherry,Black,CHOK,BLK
+35,Exec Cherry,Black,CHOK,BLK
+36,Fusion Maple,Fusion,MAGR,MAP
+37,Dogbone Storm,Graphite,GREY,GRY
+38,Tan Echo,Tan Echo,TAN,TAN
+39,Fusion Maple,Black,MAGR,BLK
+40,Exec Cherry,Cherry,CHOK,CHR
+41,Exec Cherry,Black,CHOK,BLK
+42,Mahogany,Mahogany,MAHOGANY,
+43,Mahogany,Black,MAHOGANY,BLK
+44,Solar Oak,Solar Oak,CHOK,OAK
+45,Solar Oak,Black,CHOK,BLK
+46,Wild Apple,Wild Apple,APPL,APL
+47,Wild Apple,Black,APPL,BLK
+48,Montana Walnut,Black,WALNUT,BLK
+49,Solar Oak,Black,CHOK,BLK
+50,Fusion Maple,Black,MAGR,BLK
+51,Gray Glace,Blue,MAGR,BLU
+52,Gray Glace,Green,MAGR,GRN
+53,Gray Glace,Red,MAGR,RED
+54,Gray Glace,Yellow,MAGR,YEL
+55,Gray Glace,Black,MAGR,BLK
+56,Gray Glace,Navy,MAGR,NAV
+57,Gray Glace,Grey,MAGR,GRY
+58,Solar Oak,Solar Oak,CHOK,OAK
+59,Fusion Maple,Fusion,MAGR,MAP
+60,Wild Cherry,Black,CHOK,BLK
+61,Fusion Maple,Grey,MAGR,GRY
+62,Fusion Maple,Blue,MAGR,BLU
+63,Fusion Maple,Red,MAGR,RED
+64,Fusion Maple,Green,MAGR,GRN
+65,Fusion Maple,Yellow,MAGR,YEL
+69,Fusion Maple,Fusion,MAGR,OAK
+70,Solar Oak,Red,CHOK,RED
+77,Grey Nebula,Black,Grey Nebula,BLK
+78,Grey Nebula,Grey,Grey Nebula,GRY
+79,Sand Shoal,Black,Sand Shoal,BLK
+80,Sand Shoal,Grey,Sand Shoal,GRY
+82,Gray Glace,Navy,MAGR,NAV

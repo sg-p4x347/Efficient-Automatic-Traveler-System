@@ -43,7 +43,7 @@ select {
 }
 /* Checkboxes */
 input[type=checkbox] {
-  transform: scale(1.5);
+  transform: scale(2);
 }
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown__content {
