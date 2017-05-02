@@ -258,9 +258,16 @@ namespace Efficient_Automatic_Traveler_System
             // gets the rate from the first (and only) bill; this is the common bill that all tables share
             return GetRate(Part.ComponentBills[0], Station);
         }
-        public override double GetTotalLabor(StationClass station)
+        public override double GetTotalLabor(StationClass station = null)
         {
-            return GetRate(Part.ComponentBills[0], station, true);
+            if (station != null)
+            {
+                return GetRate(Part.ComponentBills[0], station, true);
+            } else
+            {
+                // sum up every station
+                return StationClass.GetStations().Sum(i => GetTotalLabor(i));
+            }
         }
         public double GetTotalLabor()
         {

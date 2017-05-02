@@ -10,6 +10,7 @@ function Initialize() {
 	application.Initialize();
 }
 function Application () {
+	this.type = "operator";
 	// DOM
 	this.travelerQueue;
 	this.travelerView;
@@ -31,6 +32,9 @@ function Application () {
 	this.partTimer
 	this.stationTimer
 	// update and render
+	this.view = {
+		viewState:"InProcess"
+	}
 	this.Render = function () {
 		
 	};
@@ -139,7 +143,7 @@ function Application () {
 		self.popupManager.Unlock();
 		self.popupManager.CloseAll();
 		self.StartAutofocus();
-		
+		document.getElementById("logoutBtn").className = "dark button twoEM";
 		// LOG OUT BUTTON
 		var logoutBtn = document.getElementById("logoutBtn");
 		logoutBtn.onclick = function () {
@@ -345,7 +349,7 @@ function Application () {
 		document.getElementById("optionsBtn").onclick = function () {
 			var popup = self.popupManager.CreatePopup();
 			// OPEN DRAWING PDF--------------
-			var drawingBtn = self.popupManager.CreateButton("View Drawing");
+			var drawingBtn = document.getElementById("viewDrawingBtn");
 			drawingBtn.onclick = function () {
 				//----------INTERFACE CALL-----------------------
 				var message = new InterfaceCall("OpenDrawing",{
@@ -355,10 +359,9 @@ function Application () {
 				//-----------------------------------------------
 				self.popupManager.Close(popup);
 			}
-			popup.appendChild(drawingBtn);
 			
 			// MORE INFO--------------
-			var infoBtn = self.popupManager.CreateButton("More Info");
+			var infoBtn = document.getElementById("moreInfoBtn");
 			infoBtn.onclick = function () {
 				self.popupManager.Close(popup);
 				//----------INTERFACE CALL-----------------------
@@ -369,7 +372,6 @@ function Application () {
 				self.websocket.send(JSON.stringify(message));
 				//-----------------------------------------------
 			}
-			popup.appendChild(infoBtn);
 			
 			self.popupManager.AddCustom(popup);
 		}
@@ -565,7 +567,7 @@ function TravelerQueue() {
 		}
 		// create and add the new DOM objects
 		self.travelers.forEach(function (traveler) {
-			var DOMqueueItem = document.createElement("DIV");
+			/* var DOMqueueItem = document.createElement("DIV");
 			
 			if (traveler.selected) {
 				DOMqueueItem.className = "button blueBack queue__item selected";
@@ -585,6 +587,12 @@ function TravelerQueue() {
 			itemCode.innerHTML = itemCodeString;
 			DOMqueueItem.appendChild(itemCode);
 			
+			DOMqueueItem.onmousedown = function () {
+				self.SelectTraveler(traveler);
+			}
+			self.DOMelement.appendChild(DOMqueueItem); */
+			var DOMqueueItem = traveler.CreateQueueItem(application.station.name);
+			DOMqueueItem.style.fontSize = "1em";
 			DOMqueueItem.onmousedown = function () {
 				self.SelectTraveler(traveler);
 			}
@@ -707,6 +715,14 @@ function TravelerView() {
 			application.Info("A new traveler has been loaded automatically");
 		}
 	}
+	this.EnableTravelerBtns = function () {
+		document.getElementById("moreInfoBtn").className = "dark button twoEM";
+		document.getElementById("viewDrawingBtn").className = "dark button twoEM";
+	}
+	this.DisableTravelerBtns = function () {
+		document.getElementById("moreInfoBtn").className = "disabled";
+		document.getElementById("viewDrawingBtn").className = "disabled";
+	}
 	this.LoadItem = function (traveler, item) {
 		var self = this;
 		//----------INTERFACE CALL-----------------------
@@ -745,7 +761,10 @@ function TravelerView() {
 		self.ResetSliders();
 		self.UpdateSubmitBtn();
 		if (!self.traveler)  {
+			self.DisableTravelerBtns();
 			return;
+		} else {
+			self.EnableTravelerBtns();
 		}
 		// store the last state (this current state)
 		self.lastTravelerID = self.traveler.ID;

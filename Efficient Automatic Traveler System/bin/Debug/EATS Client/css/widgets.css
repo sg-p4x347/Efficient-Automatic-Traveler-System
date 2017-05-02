@@ -303,6 +303,9 @@ div.percentContainer {
 .shadow {
 	text-shadow: 1px 1px 1px black;
 }
+.glow {
+	text-shadow: 0px 0px 16px white;
+}
 .italics {
 	font-style: italic;
 }
@@ -317,6 +320,11 @@ div.percentContainer {
 	text-shadow: 0px 1px 0px #999, 0px 2px 0px #888, 0px 3px 0px #777, 0px 4px 0px #666, 0px 5px 0px #555, 0px 6px 0px #444, 0px 7px 0px #333, 0px 8px 7px #001135;
 	font: 80px 'ChunkFiveRegular';
 }
+.heading {
+	font-size: 1.5em;
+	color: rgb(F0F0F0);
+	text-shadow: 0px 0px 2px black;
+}
 /* margins */
 .stdMargin, .button {
 	margin: 4px;
@@ -328,7 +336,6 @@ div.percentContainer {
 div.queue__item {
 	transition-duration: 0.25s;
 
-	
 	font-family: "Arial Black", Gadget, sans-serif;
 	text-align: center;
 	text-shadow: 0px 0px 5px black;
@@ -346,6 +353,9 @@ div.queue__item {
 div.queue__item__desc {
 	color: white;
 	text-shadow: 1px 1px 1px black;
+}
+div.queue__item__qty {
+	color: #bc8000;
 }
 /* border */
 .inset {

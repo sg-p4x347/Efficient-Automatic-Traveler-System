@@ -104,11 +104,14 @@ div.summaryPopup table tr td,th {
 
 /*Traveler Queue*/
 div.queueContainer {
+	box-sizing: border-box;
 	text-align: center;
 	display: flex;
 	flex-direction: column;
-	width: 20%;
-	height: 200px;
+	width: 200px;
+	height: 50%;
+	border-left: 2px inset gray;
+	border-right: 2px outset gray;
 }
 div.queueContainer--tall {
 	text-align: center;

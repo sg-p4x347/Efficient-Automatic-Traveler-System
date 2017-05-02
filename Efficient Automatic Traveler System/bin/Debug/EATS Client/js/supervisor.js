@@ -14,6 +14,7 @@ function Test(e,self) {
 	return false;
 }
 function Application () {
+	this.type = "supervisor";
 	// DOM
 	this.queueArray;
 	this.JSONviewer;
@@ -635,6 +636,8 @@ function Application () {
 function TravelerQueue(station) {
 	this.DOMcontainer;
 	this.DOMelement;
+	this.totalQtyElem;
+	this.totalLaborElem;
 	this.travelers;
 	this.station;
 	
@@ -672,10 +675,16 @@ function TravelerQueue(station) {
 		while (self.DOMelement.hasChildNodes()) {
 			self.DOMelement.removeChild(self.DOMelement.lastChild);
 		}
+		var totalQty = 0;
+		var totalLabor = 0;
 		// create and add the new DOM objects
 		self.travelers.forEach(function (traveler) {
 			self.DOMelement.appendChild(traveler.CreateQueueItem(self.station.name));
+			totalQty += traveler.quantity;
+			totalLabor += traveler.totalLabor;
 		});
+		self.totalQtyElem.innerHTML = totalQty;
+		self.totalLaborElem.innerHTML = totalLabor;
 	}
 	this.BalanceSliders = function(qtyMoving,qtyStaying,movingBar,stayingBar,traveler) {
 		movingBar.style.width = ((parseInt(qtyMoving.value) / traveler.quantity) * 100) + "%";
@@ -826,7 +835,28 @@ function TravelerQueue(station) {
 		if (station.name == "Start") {
 			self.DOMcontainer.className = "queueContainer--tall";
 		}
-		self.DOMcontainer.innerHTML = self.station.name;
+		var queueTitle = document.createElement("DIV");
+		queueTitle.className = "heading";
+		queueTitle.innerHTML = self.station.name;
+		self.DOMcontainer.appendChild(queueTitle);
+		// Total traveler quantity ---------
+		var totalQtyElem = document.createElement("DIV");
+		totalQtyElem.innerHTML = "Total Qty:";
+		
+		self.totalQtyElem = document.createElement("SPAN");
+		self.totalQtyElem.className = "beige";
+		totalQtyElem.appendChild(self.totalQtyElem);
+		self.DOMcontainer.appendChild(totalQtyElem);
+		// Total labor quantity ------------
+		var totalLaborElem = document.createElement("DIV");
+		totalLaborElem.innerHTML = "Total Labor:";
+		
+		self.totalLaborElem = document.createElement("SPAN");
+		self.totalLaborElem.className = "beige";
+		totalLaborElem.appendChild(self.totalLaborElem);
+		totalLaborElem.appendChild(document.createTextNode(" min"));
+		self.DOMcontainer.appendChild(totalLaborElem);
+		//----------------------------------
 		
 		self.DOMelement = document.createElement("DIV");
 		self.DOMelement.className = "queue";

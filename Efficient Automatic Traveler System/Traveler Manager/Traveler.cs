@@ -342,6 +342,7 @@ namespace Efficient_Automatic_Traveler_System
                 obj.Add("qtyPending", QuantityPendingAt(station).ToString());
                 obj.Add("qtyScrapped", QuantityScrapped().ToString());
                 obj.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
+                obj.Add("totalLabor",Math.Round(GetTotalLabor()).ToString());
                 obj.Add("members", '[' + ExportTableRows(clientType, station) + ']');
             }
 
@@ -474,7 +475,7 @@ namespace Efficient_Automatic_Traveler_System
         // gets the work rate for the current station
         public abstract double GetCurrentLabor();
         // gets the total work wrapped up in the given station
-        public abstract double GetTotalLabor(StationClass station);
+        public abstract double GetTotalLabor(StationClass station = null);
         // overridden in derived classes, packs properties into the Export() json string
         protected abstract string ExportProperties();
         // pre
@@ -488,10 +489,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 foreach (Item componentItem in bill.ComponentItems)
                 {
-                    if (station.LaborCodes.Exists(laborCode => laborCode == componentItem.ItemCode))
-                    {
-                        return (total ? componentItem.TotalQuantity : componentItem.QuantityPerBill);
-                    }
+                    double rate = GetRate(componentItem, station, total);
+                    if (rate > 0.0) return rate;
                 }
             } catch (Exception ex)
             {
@@ -499,7 +498,14 @@ namespace Efficient_Automatic_Traveler_System
             }
             return 0.0;
         }
-        
+        protected double GetRate(Item item, StationClass station, bool total = false)
+        {
+            if (station.LaborCodes.Exists(laborCode => laborCode == item.ItemCode))
+            {
+                return (total ? item.TotalQuantity : item.QuantityPerBill);
+            }
+            return 0.0;
+        }
         #endregion
         //--------------------------------------------------------
         #region Properties

@@ -34,35 +34,42 @@ function Traveler(obj) {
 		if (self.selected) {
 			DOMqueueItem.className += " selected";
 		}
-		DOMqueueItem.innerHTML = pad(self.ID,6) + "<br>";
-		//-------------------------------------------
-		self.checkBox = document.createElement("INPUT");
-		self.checkBox.type = "checkbox";
-		self.checkBox.checked = self.selected;
-		self.checkBox.onchange = function () {
-			self.Select(this.checked);
+		DOMqueueItem.innerHTML = pad(self.type == "TableBox" ? self.parentTravelers[0] : self.ID,6) + "<br>";
+		// QTY -------------------------------------------
+		var qty = document.createElement("DIV");
+		qty.className = "queue__item__qty blue";
+		qty.innerHTML = self.quantity;
+		DOMqueueItem.appendChild(qty);
+		// CHECKBOX-------------------------------------------
+		if (self.quantity > 0 && application.type == "supervisor") {
+			self.checkBox = document.createElement("INPUT");
+			self.checkBox.type = "checkbox";
+			self.checkBox.checked = self.selected;
+			self.checkBox.onchange = function () {
+				self.Select(this.checked);
+			}
+			self.checkBox.onclick = function(event) {
+				event.stopPropagation();
+				if (self.checkBox.checked && application.input.shift) {
+					application.SelectRange(application.selection.lastTraveler,self);
+				}
+				application.selection.lastQueue = self.stationQueue;
+				application.selection.lastTraveler = self;
+			}
+			DOMqueueItem.appendChild(self.checkBox);
 		}
-		DOMqueueItem.appendChild(self.checkBox);
-		//-------------------------------------------
+		// ITEM CODE-------------------------------------------
 		var itemCode = document.createElement("SPAN");
-		itemCode.className = "queue__item__desc beige";
-		var itemCodeString = "";
-		if (self.itemCode) {
-			itemCodeString = self.itemCode;
-		} else if (self.type == "TableBox") {
-			itemCodeString = "For: " + self.parentTravelers[0];
+			itemCode.className = "queue__item__desc beige";
+		if (self.type == "TableBox") {
+			itemCode.innerHTML = "";
+		} else {
+			itemCode.innerHTML = self.itemCode;
 		}
-		itemCode.innerHTML = itemCodeString;
+		
 		DOMqueueItem.appendChild(itemCode);
 		
-		self.checkBox.onclick = function(event) {
-			event.stopPropagation();
-			if (self.checkBox.checked && application.input.shift) {
-				application.SelectRange(application.selection.lastTraveler,self);
-			}
-			application.selection.lastQueue = self.stationQueue;
-			application.selection.lastTraveler = self;
-		}
+		
 		
 		DOMqueueItem.onclick = function () {
 			//----------INTERFACE CALL-----------------------

@@ -52,15 +52,22 @@ namespace Efficient_Automatic_Traveler_System
         // returns a JSON formatted string to be sent to a client
         public override string ExportTableRows(string clientType, StationClass station)
         {
-            string inherited = base.ExportTableRows(clientType, station);
-            Table parentTable = ((Table)ParentTravelers[0]);
-            List<string> rows = new List<string>()
+            try
+            {
+                string inherited = base.ExportTableRows(clientType, station);
+                Table parentTable = ((Table)ParentTravelers[0]);
+                List<string> rows = new List<string>()
             {
                 new NameValueQty<string,string>("Table", parentTable.ItemCode,"").ToString(),
                 new NameValueQty<string,string>("Table Shape",parentTable.Shape,"").ToString(),
                 new NameValueQty<string, string>("Table Size", m_tableSize,"").ToString()
             };
-            return inherited + (inherited.Length != 0 ? "," : "") + rows.Stringify(false).TrimStart('[').TrimEnd(']');
+                return inherited + (inherited.Length != 0 ? "," : "") + rows.Stringify(false).TrimStart('[').TrimEnd(']');
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return "";
+            }
         }
         // labels
         public override string GetLabelFields(ushort itemID, LabelType type)
@@ -72,11 +79,13 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6") + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + ((Table)ParentTravelers[0]).ItemCode + "\"";
+                    json += ",\"Desc3\":\"" + "" + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6")+ "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + "!!!***SCRAP***!!!" + "\"";
+                    json += ",\"Desc3\":\"" + "" + "\"";
                     break;
                 case LabelType.Pack:
                     json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";
@@ -90,7 +99,6 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Properties
-
         // table size
         private string m_tableSize;
         #endregion

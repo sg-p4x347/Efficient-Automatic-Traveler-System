@@ -58,12 +58,19 @@ namespace Efficient_Automatic_Traveler_System
         // returns a JSON formatted string to be sent to a client
         public override string ExportTableRows(string clientType, StationClass station)
         {
-            List<string> rows = new List<string>()
+            try
+            {
+                List<string> rows = new List<string>()
             {
                 new NameValueQty<string, string>("Parent Traveler", ParentTravelers[0].ID.ToString("D6"),"").ToString(),
                 new NameValueQty<string, string>("Box Size", m_boxSize,"").ToString()
             };
-            return rows.Stringify(false).TrimStart('[').TrimEnd(']');
+                return rows.Stringify(false).TrimStart('[').TrimEnd(']');
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return "";
+            }
         }
         public override void AdvanceItem(ushort ID)
         {
@@ -120,7 +127,11 @@ namespace Efficient_Automatic_Traveler_System
 
         public override double GetTotalLabor(StationClass station)
         {
-            throw new NotImplementedException();
+            if (m_boxLabor != null)
+            {
+                return GetRate(m_boxLabor, station, true);
+            }
+            return 0.0;
         }
         public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS)
         {

@@ -24,6 +24,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
+                m_online = false;
                 m_MAS = new OdbcConnection();
                 m_rootDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
@@ -181,16 +182,19 @@ namespace Efficient_Automatic_Traveler_System
         private void Update()
         {
             Server.WriteLine("\n<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>" + DateTime.Now.ToString("\tMM/dd/yyy @ hh:mm") + "\n");
-            
+
             BackupManager.Initialize();
             InventoryManager.Import();
             // Refresh the static managers
             Configure();
             UserManager.Import();
-            
+
             // open the MAS connection
             ConnectToData();
-
+        }
+        private void UpdateOnline()
+        {
+            
             // Import stored orders from json file and MAS
             m_orderManager.ImportOrders(ref m_MAS);
 
@@ -208,7 +212,28 @@ namespace Efficient_Automatic_Traveler_System
 
             // Store current state of data into backup folder
             Backup();
-            Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
+            Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
+        }
+        private void UpdateOffline()
+        {
+            // Import stored orders from json file and MAS
+            m_orderManager.ImportOrders(ref m_MAS);
+
+            // Load, Create, and combine all travelers
+            m_travelerManager.CompileTravelers();
+
+            // Finalize the travelers by importing external information
+            m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
+
+            // Push planned travelers from the previous day into production
+            m_travelerManager.EnterProduction();
+
+            // No more data is needed at this time
+            CloseMAS();
+
+            // Store current state of data into backup folder
+            Backup();
+            Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
         }
         // copies memory into a new backup version as insurance
         private void Backup()
@@ -220,7 +245,7 @@ namespace Efficient_Automatic_Traveler_System
             UserManager.Backup();
         }
         // Opens a connection to the MAS database
-        private void ConnectToData()
+        private async void ConnectToData()
         {
             Server.Write("\r{0}", "Connecting to MAS...");
 
@@ -229,14 +254,31 @@ namespace Efficient_Automatic_Traveler_System
             m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;UID=GKC;PWD=sgp4x347;";
             try
             {
-                m_MAS.Open();
-                Server.Write("\r{0}", "Connecting to MAS...Connected\n");
+                Task task = m_MAS.OpenAsync();
+                if (await Task.WhenAny(task, Task.Delay(3000)) == task)
+                {
+                    Online();
+                } else
+                {
+                    Offline();
+                }
+                
             }
             catch (Exception ex)
             {
                 Server.Write("\r{0}", "Connecting to MAS...Failed\n");
                 Server.WriteLine(ex.Message);
             }
+        }
+        private void Online()
+        {
+            Server.Write("\r{0}", "Connecting to MAS...Connected\n");
+            UpdateOnline();
+        }
+        private void Offline()
+        {
+            Server.Write("\r{0}", "Connecting to MAS...Failed\n");
+            UpdateOffline();
         }
         private void CloseMAS()
         {
@@ -347,6 +389,7 @@ namespace Efficient_Automatic_Traveler_System
         private static string m_rootDirectory;
         private string m_ip;
         private int m_port;
+        private bool m_online;
         private ClientManager m_clientManager;
         private Thread m_clientManagerThread;
         private TimeSpan m_updateInterval;
