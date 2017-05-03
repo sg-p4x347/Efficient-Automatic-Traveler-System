@@ -402,7 +402,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 else
                 {
-                    returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
+                    returnMessage = new ClientMessage("Info", "Invalid traveler number");
                 }
             }
             catch (Exception ex)

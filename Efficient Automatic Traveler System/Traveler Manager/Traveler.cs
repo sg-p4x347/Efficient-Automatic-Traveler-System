@@ -336,7 +336,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> obj = new StringStream(ToString()).ParseJSON(false);
             obj["type"] = obj["type"].Replace(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name.Replace(' ','_') + ".", "");
-            obj.Add("laborRates", GetCurrentLabor().ToString());
+
+            obj = obj.Concat(ExportProperties(station)).ToDictionary(x => x.Key, x => x.Value);
             if (station != null) {
                 obj["station"] = station.Name.Quotate();
                 obj.Add("qtyPending", QuantityPendingAt(station).ToString());
@@ -477,7 +478,7 @@ namespace Efficient_Automatic_Traveler_System
         // gets the total work wrapped up in the given station
         public abstract double GetTotalLabor(StationClass station = null);
         // overridden in derived classes, packs properties into the Export() json string
-        protected abstract string ExportProperties();
+        protected abstract Dictionary<string, string> ExportProperties(StationClass station);
         // pre
         public abstract void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS);
         #endregion
@@ -500,7 +501,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         protected double GetRate(Item item, StationClass station, bool total = false)
         {
-            if (station.LaborCodes.Exists(laborCode => laborCode == item.ItemCode))
+            if (station != null && item != null && station.LaborCodes.Exists(laborCode => laborCode == item.ItemCode))
             {
                 return (total ? item.TotalQuantity : item.QuantityPerBill);
             }

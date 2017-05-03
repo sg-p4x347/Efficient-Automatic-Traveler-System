@@ -344,34 +344,35 @@ function Application () {
 		self.completedList = new TravelerQueue();
 		self.completedList.Initialize("completedList");
 		//----------------
-		// Options button
+		// Options
 		//----------------
+		// OPEN DRAWING PDF--------------
+		var drawingBtn = document.getElementById("viewDrawingBtn");
+		drawingBtn.onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("OpenDrawing",{
+				travelerID: self.travelerView.traveler.ID
+			});
+			self.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			//self.popupManager.Close(popup);
+		}
+		
+		// MORE INFO--------------
+		var infoBtn = document.getElementById("moreInfoBtn");
+		infoBtn.onclick = function () {
+			//self.popupManager.Close(popup);
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("LoadTravelerJSON",
+			{
+				travelerID: self.travelerView.traveler.ID
+			});
+			self.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+		}
 		document.getElementById("optionsBtn").onclick = function () {
 			var popup = self.popupManager.CreatePopup();
-			// OPEN DRAWING PDF--------------
-			var drawingBtn = document.getElementById("viewDrawingBtn");
-			drawingBtn.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("OpenDrawing",{
-					travelerID: self.travelerView.traveler.ID
-				});
-				self.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-				self.popupManager.Close(popup);
-			}
 			
-			// MORE INFO--------------
-			var infoBtn = document.getElementById("moreInfoBtn");
-			infoBtn.onclick = function () {
-				self.popupManager.Close(popup);
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("LoadTravelerJSON",
-				{
-					travelerID: self.travelerView.traveler.ID
-				});
-				self.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-			}
 			
 			self.popupManager.AddCustom(popup);
 		}

@@ -90,6 +90,7 @@ namespace Efficient_Automatic_Traveler_System
                 json += ',' + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
+                json += ',' + new NameValueQty<string, string>("Rate", GetRate(Part.ComponentBills[0], station).ToString() + " min","").ToString();
             } else if (clientType == "OperatorClient" && station == StationClass.GetStation("Vector")) {
                 json += new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
                 json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
@@ -299,9 +300,11 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Private Methods
-        protected override string ExportProperties()
+        protected override Dictionary<string, string> ExportProperties(StationClass station)
         {
-            return ",\"type\":\"Table\"";
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            obj.Add("laborRate", GetRate(Part.ComponentBills[0],station).ToString());
+            return obj;
         }
         //private void GetBlacklist()
         //{

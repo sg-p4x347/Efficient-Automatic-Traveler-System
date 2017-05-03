@@ -1039,12 +1039,12 @@ function Input () {
 		
 		// add key listeners
 		window.addEventListener('keydown', function (event) {
-			event.preventDefault();
+			//event.preventDefault();
 			self.keyMap[event.keyCode] = true;
 			self.UpdateAction();
 		});
 		window.addEventListener('keyup', function (event) {
-			event.preventDefault();
+			//event.preventDefault();
 			self.keyMap[event.keyCode] = false;
 			self.UpdateAction();
 		});
