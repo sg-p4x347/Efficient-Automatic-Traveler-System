@@ -26,7 +26,7 @@ function Traveler(obj) {
 			} else {
 				self.colorClass = "ghostBack";
 			}
-			 break;
+			break;
 			case "InProcess": self.colorClass = "redBack"; break;
 			case "PostProcess": self.colorClass = "greenBack"; break;
 		}

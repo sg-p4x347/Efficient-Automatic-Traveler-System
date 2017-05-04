@@ -139,9 +139,9 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Private Methods
-        protected override string ExportProperties()
+        protected override Dictionary<string,string> ExportProperties(StationClass station)
         {
-            return ",\"type\":\"Chair\"";
+            return new Dictionary<string, string>();
         }
         protected void GetBoxSize(string csvTable, string itemCode)
         {
