@@ -11,6 +11,18 @@
     </head>
 	<body onload = "Initialize()">
 		<div id = "blackout" class = "blackout hidden">
+			<!-- LOGIN POPUP -->
+			<div id = "loginPopup" class = "blackout__popup" style = "display: none;">
+				<p id = "loginInfo" class = "red"></p>
+				Login as:
+				<form id = "loginForm">
+					User ID:<input type = "text" id = "uidBox">
+					Password:<input type = "password" id = "pwdBox">
+					<input type = "submit" id = "loginBtn" class = "dark button">
+				</form>
+				<!-- STATION SELECTION -->
+				<select id = "stationList" class = "dark"></select>
+			</div>
 			<!-- LABEL POPUP -->
 			<div id = "labelPopup" class = "blackout__popup" style = "display: none;">
 				<p>Print Labels</p>
@@ -88,6 +100,8 @@
 				<input 	id = "viewInProcess" 	type = "radio" name = "viewState" value = "InProcess">In-Process<br>
 				<input 	id = "viewPostProcess" 	type = "radio" name = "viewState" value = "PostProcess">Post-Process
 			</form>
+			<!-- LOGOUT BUTTON -->
+			<div id = "logoutBtn" class = "dark button twoEM disabled">Logout</div>
 			<!-- OPTIONS BUTTON -->
 			<img id = "superOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
 		</div>

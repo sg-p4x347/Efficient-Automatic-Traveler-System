@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client Manager\AdministratorClient.cs" />
     <Compile Include="BackupManager.cs" />
     <Compile Include="Client Manager\OperatorClient.cs" />
     <Compile Include="Client Manager\SupervisorClient.cs" />

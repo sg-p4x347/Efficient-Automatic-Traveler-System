@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>EATS Administrator</title>
+		<script type="text/javascript" src="./js/config.js?<%=DateTime.Now.Ticks %>"></script>
+        <script type="text/javascript" src="./js/administrator.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/utility.js?<%=DateTime.Now.Ticks %>"></script>
+		<link rel="stylesheet" type="text/css" href="./css/administrator.css?<%=DateTime.Now.Ticks %>"></link>
+		<link rel="stylesheet" type="text/css" href="./css/widgets.css?<%=DateTime.Now.Ticks %>"></link>
+		<link rel="icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>"></link>
+    </head>
+	<body onload = "Initialize()">
+		<div id = "blackout" class = "blackout hidden">
+			<!-- LOGIN POPUP -->
+			<div id = "loginPopup" class = "blackout__popup" style = "display: none;">
+				<p id = "loginInfo" class = "red"></p>
+				<form id = "loginForm">
+					User ID:<input type = "text" id = "uidBox">
+					Password:<input type = "password" id = "pwdBox">
+					<input type = "submit" id = "loginBtn" class = "dark button">
+				</form>
+			</div>
+		</div>
+
+		<div class = "body">
+			<div id = "configBtn" class = "dark button twoEM">Server settings</div>
+			<div id = "usersBtn" class = "dark button twoEM">Users</div>
+		</div>
+		
+		<div class = "footer"></div>
+	</body>
+</html>

@@ -60,7 +60,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static bool operator !=(Event A, Event B)
         {
-            return !(A.m_date == B.m_date);
+            return !(A != null && B != null && A.m_date == B.m_date);
         }
         public override int GetHashCode()
         {

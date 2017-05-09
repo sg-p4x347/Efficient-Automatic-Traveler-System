@@ -130,8 +130,14 @@ namespace Efficient_Automatic_Traveler_System
                         {"user",message.Parameters },
                         {"station",obj["station"].Quotate()}
                     };
-                    m_user.Login(StationClass.GetStation(obj["station"]));
-                    return new ClientMessage("LoginSuccess", paramObj.Stringify());
+                    if (m_user.Login(obj["PWD"], StationClass.GetStation(obj["station"])))
+                    {
+                        return new ClientMessage("LoginSuccess", paramObj.Stringify());
+                    } else
+                    {
+                        return new ClientMessage("LoginPopup", ("Invalid password").Quotate());
+                    }
+                    
                 } else
                 {
                     return message;

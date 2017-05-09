@@ -57,12 +57,16 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                BackupManager.Backup("users.json", m_users.Stringify<User>());
+                BackupManager.Backup("users.json", Export() );
             }
             catch (Exception ex)
             {
                 Server.LogException(ex);
             }
+        }
+        static public string Export()
+        {
+            return m_users.Stringify<User>();
         }
         static public void AddUser(User user)
         {

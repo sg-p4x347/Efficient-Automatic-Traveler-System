@@ -74,6 +74,38 @@ namespace Efficient_Automatic_Traveler_System
         //{
         //    return m_travelerManager.LoadTraveler(json);
         //}
+        public override ClientMessage Login(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                ClientMessage message = base.Login(json);
+                if (message.Method == "LoginSuccess")
+                {
+                    Dictionary<string, string> paramObj = new Dictionary<string, string>()
+                    {
+                        {"user",message.Parameters }
+                    };
+                    if (m_user.Login(obj["PWD"]))
+                    {
+                        return new ClientMessage("LoginSuccess", paramObj.Stringify());
+                    }
+                    else
+                    {
+                        return new ClientMessage("LoginPopup", ("Invalid password").Quotate());
+                    }
+                }
+                else
+                {
+                    return message;
+                }
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                return new ClientMessage("LoginPopup", ("System error! oops...").Quotate());
+            }
+        }
         public ClientMessage LoadTravelerJSON(string json)
         {
             return m_travelerManager.LoadTravelerJSON(json);
@@ -199,6 +231,31 @@ namespace Efficient_Automatic_Traveler_System
                     new SummaryColumn("Scrapped","Scrapped")
                 });
                 returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+        public ClientMessage QuantityAt(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                StationClass station = StationClass.GetStation(obj["station"]);
+                
+                Type type = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + obj["type"]);
+                int quantity = m_travelerManager.GetTravelers.Where(y => y.GetType() == type).Sum(x => x.QuantityAt(station));
+                Dictionary<string, string> returnObj = new Dictionary<string, string>()
+                {
+                    {"station",station.Name.Quotate() },
+                    {"quantity",quantity.ToString() }
+                };
+                returnMessage = new ClientMessage("QuantityAt", returnObj.Stringify());
+
             }
             catch (Exception ex)
             {

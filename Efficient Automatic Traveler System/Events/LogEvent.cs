@@ -15,10 +15,11 @@ namespace Efficient_Automatic_Traveler_System
     class LogEvent : Event
     {
         #region Public Methods
-        public LogEvent(User user, StationClass station, LogType logType) : base()
+        public LogEvent(User user, LogType logType, StationClass station = null, string client = "") : base()
         {
             m_user = user;
             m_station = station;
+            m_client = client;
             m_logType = logType;
         }
         public LogEvent(string json) : base(json)
@@ -28,6 +29,7 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 m_user = UserManager.Find(obj["user"]);
                 m_station = StationClass.GetStation(obj["station"]);
+                m_client = obj["client"];
                 m_logType = (LogType)Enum.Parse(typeof(LogType), obj["logType"]);
             }
             catch (Exception ex)
@@ -42,7 +44,8 @@ namespace Efficient_Automatic_Traveler_System
             obj["type"] = this.GetType().ToString().Quotate();
             obj["date"] = obj["date"].Quotate();
             obj.Add("user", m_user != null ? m_user.UID.Quotate() : "".Quotate());
-            obj.Add("station", m_station.Name.Quotate());
+            obj.Add("station", (m_station != null ? m_station.Name : "").Quotate());
+            obj.Add("client", m_client.Quotate());
             obj.Add("logType", m_logType.ToString().Quotate());
             return obj.Stringify();
         }
@@ -56,8 +59,9 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------------------------------------
 
         #region Properties
-        protected User m_user;
-        protected StationClass m_station;
+        private User m_user;
+        private StationClass m_station;
+        private string m_client;
         protected LogType m_logType;
 
 
@@ -89,6 +93,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_logType = value;
+            }
+        }
+
+        internal string Client
+        {
+            get
+            {
+                return m_client;
+            }
+
+            set
+            {
+                m_client = value;
             }
         }
         #endregion

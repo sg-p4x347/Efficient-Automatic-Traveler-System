@@ -114,11 +114,14 @@ div.queueContainer {
 	border: 2px inset gray;
 }
 div.queueContainer--tall {
+	padding: 8px;
+	box-sizing: border-box;
 	text-align: center;
 	display: flex;
 	flex-direction: column;
 	width: 20%;
 	height: 100%;
+	border: 2px inset gray;
 }
 div.queue {
 	font-size: 0.5em;

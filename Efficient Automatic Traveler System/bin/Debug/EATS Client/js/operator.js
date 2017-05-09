@@ -129,6 +129,7 @@ function Application () {
 				var message = new InterfaceCall("Login",
 				{
 					UID: document.getElementById("uidBox").value,
+					PWD: document.getElementById("pwdBox").value,
 					station: document.getElementById("stationList").value,
 				},"This");
 				self.websocket.send(JSON.stringify(message));
@@ -200,9 +201,7 @@ function Application () {
 			}
 		});
 	}
-	this.StartAutofocus = function () {
-		window.addEventListener("keydown",this.Autofocus);
-	}
+	
 	this.Autofocus = function (evt) {
 		if (document.getElementById("travelerSearchBox") != document.activeElement)  {
 			application.FocusOnSearch();
@@ -224,6 +223,9 @@ function Application () {
 		var popup = this.popupManager.AddJSONviewer(traveler,"Traveler")
 		popup.DOMcontainer.className += " threeEM";
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
+	}
+	this.StartAutofocus = function () {
+		window.addEventListener("keydown",this.Autofocus);
 	}
 	this.StopAutofocus = function () {
 		window.removeEventListener("keydown",this.Autofocus);

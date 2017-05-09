@@ -97,26 +97,42 @@ namespace Efficient_Automatic_Traveler_System
             // a client connected and control resumes here
             if (HandShake(tcpClient))
             {
+                //string clientType = await Client.RecieveMessageAsync(tcpClient.GetStream());
+                //Type type = typeof(Client).Assembly.GetType("Efficient_Automatic_Traveler_System." + clientType);
+                //if (type != null)
+                //{
+                //    Client client = (Client)Activator.CreateInstance(type, m_travelerManager as ITravelerManager);
+                //    client.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
+                //    client.ListenAsync();
+                //    m_clients.Add(client);
+                //    Console.WriteLine("A client connected ( " + m_clients.Count + " total )");
+                //}
                 switch (await Client.RecieveMessageAsync(tcpClient.GetStream()))
                 {
                     case "OperatorClient":
-                        OperatorClient operatorClient = new OperatorClient(tcpClient,m_travelerManager as ITravelerManager);
+                        OperatorClient operatorClient = new OperatorClient(tcpClient, m_travelerManager as ITravelerManager);
                         operatorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         operatorClient.ListenAsync();
                         m_clients.Add(operatorClient);
                         Console.WriteLine("An operator connected (" + m_clients.Count + " total clients)");
                         break;
                     case "SupervisorClient":
-                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient,m_travelerManager as ITravelerManager);
+                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient, m_travelerManager as ITravelerManager);
                         supervisorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         supervisorClient.ListenAsync();
                         m_clients.Add(supervisorClient);
                         Console.WriteLine("A supervisor connected (" + m_clients.Count + " total clients)");
                         break;
+                    case "AdministratorClient":
+                        AdministratorClient administratorClient = new AdministratorClient(tcpClient);
+                        administratorClient.ListenAsync();
+                        m_clients.Add(administratorClient);
+                        Console.WriteLine("An administrator connected (" + m_clients.Count + " total clients)");
+                        break;
                     case "connection aborted": // don't do anything, the connection was lost
                         break;
                 }
-                
+
             }
             ConnectAsync();
         }

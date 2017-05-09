@@ -146,7 +146,7 @@ namespace Efficient_Automatic_Traveler_System
                         MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
                         if (mi != null)
                         {
-                            string returnMessage = (mi.Invoke(pi.GetValue(this), new object[] { obj["parameters"] })).ToString();
+                            string returnMessage = (mi.Invoke(this, new object[] { obj["parameters"] })).ToString();
                             if (returnMessage != null && returnMessage != "") SendMessage(returnMessage);
                         }
                     }

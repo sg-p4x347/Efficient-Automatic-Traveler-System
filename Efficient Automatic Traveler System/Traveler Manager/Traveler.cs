@@ -459,7 +459,7 @@ namespace Efficient_Automatic_Traveler_System
             TravelerItem item = FindItem(ID);
             // now in post process
             item.State = ItemState.PostProcess;
-            item.History.Add(new LogEvent(null, item.Station, LogType.Finish));
+            item.History.Add(new LogEvent(null, LogType.Finish, item.Station));
             // check to see if this concludes the traveler
             if (Items.Where(x => x.State == ItemState.PostProcess && !x.Scrapped).Count() >= m_quantity && Items.All(x => x.State == ItemState.PostProcess))
             {

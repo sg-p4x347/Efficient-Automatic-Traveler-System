@@ -62,7 +62,75 @@ function Application () {
 		}
 		
 	};
-	
+	this.LoginPopup = function (info) {
+		var self = this;
+		// station list
+		if (self.stationList.length > 0) self.InitStations(self.stationList);
+		// logout button text
+		document.getElementById("logoutBtn").innerHTML = "Logout";
+		// popup stuff
+		self.popupManager.CloseAll();
+		self.StopAutofocus();
+		var loginPopup = document.getElementById("loginPopup");//.cloneNode(true);
+		
+		self.popupManager.AddSpecific("loginPopup");
+		self.popupManager.Lock(loginPopup);
+		// Extra info
+		document.getElementById("loginInfo").innerHTML = (info ? info : "");
+		// login submit
+		document.getElementById("loginBtn").onclick = function (evt) {
+			evt.preventDefault();
+			if (document.getElementById("uidBox").value != "") {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("Login",
+				{
+					UID: document.getElementById("uidBox").value,
+					PWD: document.getElementById("pwdBox").value,
+				},"This");
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				self.popupManager.Close(loginPopup);
+			}
+			return false;
+		}
+	}
+	this.LoginSuccess = function (data) {
+		var self = this;
+		self.popupManager.Unlock();
+		self.popupManager.CloseAll();
+		self.StartAutofocus();
+		document.getElementById("logoutBtn").className = "dark button twoEM";
+		// LOG OUT BUTTON
+		var logoutBtn = document.getElementById("logoutBtn");
+		logoutBtn.onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("Logout",{},"This");
+			self.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			self.travelerView.Clear();
+			self.LoginPopup();
+			
+		}
+		self.userID = document.getElementById("uidBox").value;
+		logoutBtn.innerHTML = "Logout " + data.user.name;
+		
+	}
+	this.StartAutofocus = function () {
+		window.addEventListener("keydown",this.Autofocus);
+	}
+	this.StopAutofocus = function () {
+		window.removeEventListener("keydown",this.Autofocus);
+	}
+	this.Autofocus = function () {
+		var self = this;
+		if (searchBox != document.activeElement)  {application.FocusOnSearch();}
+		clearTimeout(self.IOScheckTimeout)
+		self.IOScheckTimeout = setTimeout(function () {
+			if (searchBox.value.length >= 11) {
+				document.getElementById("searchForm").onsubmit();
+			}
+		},500);
+	}
 	//----------------
 	// Multi-select
 	//----------------
@@ -95,6 +163,9 @@ function Application () {
 		// put the start queue at the beginning
 		self.queueArray.insertBefore(start.DOMcontainer, self.queueArray.childNodes[0]);
 		self.SetWindow();
+	}
+	this.QuantityAt = function (obj) {
+		this.queues[obj.station].totalQtyElem.innerHTML = obj.quantity;
 	}
 	// updates the queues with the current travelers
 	this.HandleTravelersChanged = function () {
@@ -377,6 +448,17 @@ function Application () {
 		},"This");
 		self.websocket.send(JSON.stringify(message));
 		//-----------------------------------------------
+		
+		/* for (var queue in self.queues) {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("QuantityAt",
+			{
+				station: queue,
+				type: "Traveler"
+			},"This");
+			self.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+		} */
 	}
 	this.Redirect = function(location) {
 		window.location = location;
@@ -433,15 +515,7 @@ function Application () {
 		//----------------
 		var searchBox = document.getElementById("searchBox");
 
-		window.addEventListener("keydown",function () {
-			if (searchBox != document.activeElement)  {application.FocusOnSearch();}
-			clearTimeout(self.IOScheckTimeout)
-			self.IOScheckTimeout = setTimeout(function () {
-				if (searchBox.value.length >= 11) {
-					document.getElementById("searchForm").onsubmit();
-				}
-			},500);
-		});
+		//window.addEventListener("keydown",);
 		document.getElementById("searchForm").onsubmit = function () {
 			var searchArray = searchBox.value.split('-');
 			// try to parse the search string
@@ -573,6 +647,7 @@ function Application () {
 				// Web Socket is connected, send data using send()
 				// send the client type identification
 				self.websocket.send("SupervisorClient");
+				self.LoginPopup();
 			};
 			
 			self.websocket.onmessage = function(messageEvent) {
@@ -938,7 +1013,7 @@ function TravelerView() {
 		// Part number
 		var itemCode = document.createElement("TH");
 		itemCode.className = "view__headerItem red shadow";
-		itemCode.innerHTML = traveler.itemCode;
+		itemCode.innerHTML = (traveler.itemCode ? traveler.itemCode : "");
 		headerRow.appendChild(itemCode);
 		// Quantity
 		var quantity = document.createElement("TH");

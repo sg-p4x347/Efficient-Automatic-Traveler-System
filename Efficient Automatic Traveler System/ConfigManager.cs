@@ -35,8 +35,12 @@ namespace Efficient_Automatic_Traveler_System
         static public void Backup()
         {
             string path = Path.Combine(Server.RootDir, "config.json");
-            File.WriteAllText(path, m_configObj.Stringify(true));
+            File.WriteAllText(path, Export(true));
             BackupManager.Backup(path);
+        }
+        static public string Export(bool pretty = false)
+        {
+            return m_configObj.Stringify(pretty);
         }
         // returns the json string stored under the specified key
         static public string Get(string key)
