@@ -281,7 +281,7 @@ namespace Efficient_Automatic_Traveler_System
         protected CancellationTokenSource m_cts;
         protected bool m_connected;
         protected User m_user;
-
+        private AccessLevel m_accessLevel;
         public bool Connected
         {
             get
@@ -297,9 +297,22 @@ namespace Efficient_Automatic_Traveler_System
                 return this;
             }
         }
+
+        internal AccessLevel AccessLevel
+        {
+            get
+            {
+                return m_accessLevel;
+            }
+
+            set
+            {
+                m_accessLevel = value;
+            }
+        }
+
         public virtual ClientMessage Login(string json)
         {
-            ClientMessage returnMessage = new ClientMessage();
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
@@ -308,16 +321,26 @@ namespace Efficient_Automatic_Traveler_System
                 if (user != null)
                 {
                     m_user = user;
-                    return new ClientMessage("LoginSuccess", user.ToString());
+                    string loginError = m_user.Login(obj["PWD"], this, (obj.ContainsKey("station") ? StationClass.GetStation(obj["station"]) : null));
+                    if (loginError == null)
+                    {
+                        return new ClientMessage("LoginSuccess", user.Name.Quotate());
+                    } else
+                    {
+                        return new ClientMessage("LoginPopup", loginError.Quotate());
+                    }
+
+                } else
+                {
+                    return new ClientMessage("LoginPopup", ("Invalid user ID").Quotate());
                 }
-                returnMessage = new ClientMessage("LoginPopup", ("Invalid user ID").Quotate());
+                
             }
             catch (Exception ex)
             {
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("LoginPopup", ("System error! oops...").Quotate());
+                return new ClientMessage("LoginPopup", ("System error! oops...").Quotate());
             }
-            return returnMessage;
         }
         public ClientMessage Logout(string json)
         {

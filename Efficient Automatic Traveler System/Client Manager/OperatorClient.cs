@@ -19,6 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         public OperatorClient (TcpClient client, ITravelerManager travelerManager) : base(client)
         {
+            AccessLevel = AccessLevel.Operator;
             m_travelerManager = travelerManager;
             SendMessage((new ClientMessage("InitStations", StationClass.GetStations().Stringify())).ToString());
         }
@@ -130,15 +131,9 @@ namespace Efficient_Automatic_Traveler_System
                         {"user",message.Parameters },
                         {"station",obj["station"].Quotate()}
                     };
-                    if (m_user.Login(obj["PWD"], StationClass.GetStation(obj["station"])))
-                    {
-                        return new ClientMessage("LoginSuccess", paramObj.Stringify());
-                    } else
-                    {
-                        return new ClientMessage("LoginPopup", ("Invalid password").Quotate());
-                    }
-                    
-                } else
+                    return new ClientMessage("LoginSuccess", paramObj.Stringify());
+                }
+                else
                 {
                     return message;
                 }

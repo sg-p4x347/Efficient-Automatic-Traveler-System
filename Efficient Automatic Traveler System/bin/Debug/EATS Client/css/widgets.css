@@ -386,3 +386,8 @@ div.queue__item__qty {
 	transition-delay: 2s;
     visibility: visible;
 }
+.loginForm {
+	display: flex;
+	flex-direction: column;
+	margin-left: auto;
+}

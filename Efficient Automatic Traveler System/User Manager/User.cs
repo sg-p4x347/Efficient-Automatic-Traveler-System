@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    enum AccessLevel
+    {
+        Operator = 0,
+        Supervisor = 1,
+        Administrator = 2
+    }
     class User
     {
         #region Public Methods
@@ -15,6 +21,7 @@ namespace Efficient_Automatic_Traveler_System
             m_name = obj["name"];
             m_UID = obj["UID"];
             m_PWD = obj["PWD"];
+            m_accessLevel = (AccessLevel)Enum.Parse(typeof(AccessLevel), obj["accessLevel"]);
             m_history = new List<Event>();
             foreach (string evt in (new StringStream(obj["history"])).ParseJSONarray())
             {
@@ -28,18 +35,28 @@ namespace Efficient_Automatic_Traveler_System
                 {"name",m_name.Quotate() },
                 {"UID",m_UID.Quotate() },
                 {"PWD",m_PWD.Quotate() },
+                {"accessLevel",m_accessLevel.ToString().Quotate() },
                 {"history",m_history.Stringify<Event>() }
             };
             return obj.Stringify();
         }
-        public bool Login(string PWD, StationClass station = null, string client = null)
+        // returns the reason for failure, else null
+        public string Login(string PWD, Client client, StationClass station = null)
         {
             if (m_PWD == PWD)
             {
-                m_history.Add(new LogEvent(this, LogType.Login, station: station, client: client));
-                return true;
+                if (m_accessLevel >= client.AccessLevel)
+                {
+                    m_history.Add(new LogEvent(this, LogType.Login, station: station, client: typeof(Client).Name));
+                } else
+                {
+                    return "Permission is denied; you must at least be a(n) " + client.AccessLevel.ToString();
+                }
+            } else
+            {
+                return "Bad password";
             }
-            return false;
+            return null;
         }
         public void Logout(StationClass station = null)
         {
@@ -49,11 +66,24 @@ namespace Efficient_Automatic_Traveler_System
                 m_history.Add(new LogEvent(this, LogType.Logout, logEvents.Last().Station));
             }
         }
+
+        // returns a json string representing a form to be filled out by a client
+        public static string Form()
+        {
+            Dictionary<string, string> form = new Dictionary<string, string>();
+            form.Add("name", "User");
+            List<string> fields = new List<string>();
+            fields.Add(new Dictionary<string, string>
+            {
+                {"" }
+            }.Stringify())
+        }
         #endregion
         #region Properties
         private string m_name;
         private string m_UID;
         private string m_PWD;
+        private AccessLevel m_accessLevel;
         private List<Event> m_history;
         #endregion
         #region Interface
@@ -106,6 +136,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_PWD = value;
+            }
+        }
+
+        public AccessLevel AccessLevel
+        {
+            get
+            {
+                return m_accessLevel;
+            }
+
+            set
+            {
+                m_accessLevel = value;
             }
         }
         #endregion

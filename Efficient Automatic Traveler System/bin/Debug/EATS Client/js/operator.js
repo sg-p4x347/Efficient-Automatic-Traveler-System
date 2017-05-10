@@ -157,7 +157,7 @@ function Application () {
 			
 		}
 		self.userID = document.getElementById("uidBox").value;
-		logoutBtn.innerHTML = "Logout " + data.user.name;
+		logoutBtn.innerHTML = "Logout " + data.user;
 		
 		// set the station
 		self.SetStation(data.station);

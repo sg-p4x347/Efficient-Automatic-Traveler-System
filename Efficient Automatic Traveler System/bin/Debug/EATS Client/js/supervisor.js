@@ -94,25 +94,24 @@ function Application () {
 			return false;
 		}
 	}
-	this.LoginSuccess = function (data) {
+	this.LoginSuccess = function (name) {
 		var self = this;
 		self.popupManager.Unlock();
 		self.popupManager.CloseAll();
 		self.StartAutofocus();
-		document.getElementById("logoutBtn").className = "dark button twoEM";
+		document.getElementById("logoutBtn").className = "dark button oneEM";
 		// LOG OUT BUTTON
 		var logoutBtn = document.getElementById("logoutBtn");
 		logoutBtn.onclick = function () {
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("Logout",{},"This");
+			var message = new InterfaceCall("Logout");
 			self.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
-			self.travelerView.Clear();
 			self.LoginPopup();
 			
 		}
 		self.userID = document.getElementById("uidBox").value;
-		logoutBtn.innerHTML = "Logout " + data.user.name;
+		logoutBtn.innerHTML = "Logout " + name;
 		
 	}
 	this.StartAutofocus = function () {
@@ -624,6 +623,26 @@ function Application () {
 				//-----------------------------------------------
 			}
 			popup.appendChild(scrapBtn);
+			
+			// ADD NEW USER --------------
+			var newUserBtn = self.popupManager.CreateButton("New User");
+			newUserBtn.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("NewUser");
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			popup.appendChild(newUserBtn);
+			
+			// EDIT USER --------------
+			var editUserBtn = self.popupManager.CreateButton("Edit User");
+			editUserBtn.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("EditUser");
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			popup.appendChild(editUserBtn);
 			
 			self.popupManager.AddCustom(popup);
 		}
