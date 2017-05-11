@@ -266,9 +266,22 @@ namespace Efficient_Automatic_Traveler_System
             return returnMessage;
         }
 
+        public ClientMessage UserForm(string json)
+        {
+            return new ClientMessage("UserForm", User.Form());
+        }
         public ClientMessage NewUser(string json)
         {
-
+            try
+            {
+                UserManager.AddUser(new User(new Form(json)));
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                return new ClientMessage("Info", "error");
+            }
         }
         #endregion
         //-----------------------------------

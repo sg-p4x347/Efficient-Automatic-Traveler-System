@@ -378,6 +378,19 @@ function Application () {
 	//----------------
 	// supervisor Options (called from the server)
 	//----------------
+	this.UserForm = function (format) {
+		var self = this;
+		//self.popupManager.CloseAll();
+		self.StopAutofocus();
+		self.popupManager.Form(format, function (filledForm) {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("NewUser",filledForm);
+			self.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			self.StartAutofocus();
+		});
+		
+	}
 	this.CreateSummary = function (summaryObj) {
 		var self = this;
 		self.popupManager.CloseAll();
@@ -628,7 +641,7 @@ function Application () {
 			var newUserBtn = self.popupManager.CreateButton("New User");
 			newUserBtn.onclick = function () {
 				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("NewUser");
+				var message = new InterfaceCall("UserForm");
 				self.websocket.send(JSON.stringify(message));
 				//-----------------------------------------------
 			}

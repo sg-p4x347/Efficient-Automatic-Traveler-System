@@ -28,6 +28,14 @@ namespace Efficient_Automatic_Traveler_System
                 m_history.Add(BackupManager.ImportDerived<Event>(evt));
             }
         }
+        public User(Form form)
+        {
+            m_name = form.ValueOf("name");
+            m_UID = form.ValueOf("UID");
+            m_PWD = form.ValueOf("PWD");
+            m_accessLevel = (AccessLevel)Enum.Parse(typeof(AccessLevel), form.ValueOf("accessLevel"));
+            m_history = new List<Event>();
+        }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>()
@@ -70,13 +78,12 @@ namespace Efficient_Automatic_Traveler_System
         // returns a json string representing a form to be filled out by a client
         public static string Form()
         {
-            Dictionary<string, string> form = new Dictionary<string, string>();
-            form.Add("name", "User");
-            List<string> fields = new List<string>();
-            fields.Add(new Dictionary<string, string>
-            {
-                {"" }
-            }.Stringify())
+            Form form = new Form(typeof(User));
+            form.Textbox("name","Name");
+            form.Textbox("UID", "User ID");
+            form.Textbox("PWD", "Password");
+            form.Selection<AccessLevel>("accessLevel", "Access Level");
+            return form.ToString();
         }
         #endregion
         #region Properties

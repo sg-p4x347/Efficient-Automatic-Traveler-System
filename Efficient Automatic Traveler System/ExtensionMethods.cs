@@ -73,6 +73,11 @@ namespace Efficient_Automatic_Traveler_System
         // returns a JSON string representing the collection of enumeration values
         public static string Stringify<T>()
         {
+            
+            return GetNames<T>().Stringify<string>();
+        }
+        public static List<string> GetNames<T>()
+        {
             Type enumType = typeof(T);
 
             // Can't use type constraints on value types, so have to do check like this
@@ -85,9 +90,9 @@ namespace Efficient_Automatic_Traveler_System
 
             foreach (T val in enumValArray)
             {
-                names.Add( val.ToString());
+                names.Add(val.ToString());
             }
-            return names.Stringify<string>();
+            return names;
         }
     }
 }

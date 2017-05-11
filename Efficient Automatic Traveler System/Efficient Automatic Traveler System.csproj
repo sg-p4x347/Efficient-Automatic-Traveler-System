@@ -83,6 +83,7 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Form.cs" />
     <Compile Include="Interfaces\IClient.cs" />
+    <Compile Include="Interfaces\IForm.cs" />
     <Compile Include="Interfaces\IManager.cs" />
     <Compile Include="Interfaces\IOperator.cs" />
     <Compile Include="Interfaces\IOperatorClient.cs" />

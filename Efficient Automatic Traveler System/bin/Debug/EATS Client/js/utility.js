@@ -463,6 +463,48 @@ function PopupManager(blackout) {
 		}
 		return false;
 	}
+	// displays a form in the format provided by the formData object
+	this.Form = function (format,submitCallback) {
+		var self = this;
+		var popup = self.CreatePopup();
+		var title = self.CreateP(format.name);
+		
+		var inputs = [];
+		format.fields.forEach(function (field) {
+			// for each field in the form
+			var row = self.CreateHorizontalList();
+			var fieldTitle = self.CreateP(field.title);
+			row.appendChild(fieldTitle);
+			//------
+			var input;
+			if (field.type != "select") {
+				input = document.createElement("INPUT");
+				input.type = field.type;
+			} else {
+				input = document.createElement("SELECT");
+				field.options.forEach(function (optionText) {
+					var option = document.createElement("OPTION");
+					option.innerHTML = optionText;
+					option.value = optionText;
+					input.appendChild(option);
+				});
+			}
+			row.appendChild(input);
+			inputs.push(input);
+			//------
+			popup.appendChild(row);
+		});
+		var submit = self.CreateButton("Submit");
+		submit.onclick = function () {
+			format.fields.forEach(function (field,i) {
+				self.Close(popup);
+				format.fields[i].value = inputs[i].value;
+			});
+			submitCallback(format);
+		}
+		popup.appendChild(submit);
+		self.Open(popup);
+	}
 	
 	//=========================================
 	// CREATE MODULAR DOM OBJECTS
