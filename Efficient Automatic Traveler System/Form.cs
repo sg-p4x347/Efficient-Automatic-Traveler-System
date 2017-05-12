@@ -44,30 +44,31 @@ namespace Efficient_Automatic_Traveler_System
         // Form Elements
         //=======================================
         
-        public void Textbox(string name, string title)
+        public void Textbox(string name, string title, string value = "")
         {
-            m_fields.Add(Basic(name,title, "text",""));
+            m_fields.Add(Basic(name,title, "text",value.Quotate()));
         }
         
-        public void Integer(string name, string title)
+        public void Integer(string name, string title, int value = 0)
         {
-            m_fields.Add(Basic(name,title, "number",0.ToString()));
+            m_fields.Add(Basic(name,title, "number",value.ToString()));
         }
-        public void Checkbox(string name,string title)
+        public void Checkbox(string name,string title, bool value = false)
         {
-            m_fields.Add(Basic(name,title, "checkbox",false.ToString().ToLower()));
+            m_fields.Add(Basic(name,title, "checkbox",value.ToString().ToLower()));
         }
-        public void Selection<T>(string name, string title)
+        public void Selection<T>(string name, string title, string value = "")
         {
             Selection(name,title, ExtensionMethods.GetNames<T>());
         }
-        public void Selection(string name, string title, List<string> options)
+        public void Selection(string name, string title, List<string> options, string value = "")
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {
                 {"type","select".Quotate() },
                 {"name",name.Quotate() },
                 {"title",title.Quotate() },
-                {"options",options.Stringify() }
+                {"options",options.Stringify() },
+                {"value",value.Quotate() }
             };
             m_fields.Add(obj.Stringify());
         }
@@ -82,7 +83,8 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>() {
                 {"type",type.Quotate() },
                 {"name",name.Quotate() },
-                {"title",title.Quotate() }
+                {"title",title.Quotate() },
+                {"value",value }
             };
             return obj.Stringify();
         }
@@ -93,6 +95,19 @@ namespace Efficient_Automatic_Traveler_System
         #region Properties
         private string m_name;
         private List<string> m_fields;
+
+        public string Name
+        {
+            get
+            {
+                return m_name;
+            }
+
+            set
+            {
+                m_name = value;
+            }
+        }
         #endregion
     }
 }

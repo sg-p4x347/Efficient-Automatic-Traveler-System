@@ -270,6 +270,24 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message);
             }
         }
+        public static OdbcConnection GetMasConnection()
+        {
+            Server.Write("\r{0}", "Connecting to MAS...");
+            OdbcConnection mas = new OdbcConnection();
+            // initialize the MAS connection
+            mas.ConnectionString = "DSN=SOTAMAS90;Company=MGI;";
+            mas.ConnectionString = "DSN=SOTAMAS90;Company=MGI;UID=GKC;PWD=sgp4x347;";
+            try
+            {
+                mas.Open();
+            }
+            catch (Exception ex)
+            {
+                Server.Write("\r{0}", "Connecting to MAS...Failed\n");
+                Server.WriteLine(ex.Message);
+            }
+            return mas;
+        }
         private void Online()
         {
             Server.Write("\r{0}", "Connecting to MAS...Connected\n");

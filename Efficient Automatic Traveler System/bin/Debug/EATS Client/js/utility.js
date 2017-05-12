@@ -468,7 +468,8 @@ function PopupManager(blackout) {
 		var self = this;
 		var popup = self.CreatePopup();
 		var title = self.CreateP(format.name);
-		
+		title.className = "twoEM beige";
+		popup.appendChild(title);
 		var inputs = [];
 		format.fields.forEach(function (field) {
 			// for each field in the form
@@ -489,6 +490,7 @@ function PopupManager(blackout) {
 					input.appendChild(option);
 				});
 			}
+			input.value = field.value;
 			row.appendChild(input);
 			inputs.push(input);
 			//------
@@ -501,6 +503,24 @@ function PopupManager(blackout) {
 				format.fields[i].value = inputs[i].value;
 			});
 			submitCallback(format);
+		}
+		popup.appendChild(submit);
+		self.Open(popup);
+	}
+	// displays a search box; calls a callback with the search phrase
+	this.Search = function (message,callback) {
+		var self = this;
+		var popup = self.CreatePopup();
+		var title = self.CreateP(message);
+		popup.appendChild(title);
+		var searchBox = document.createElement("INPUT");
+		searchBox.type = "text";
+		searchBox.className = "oneEM";
+		popup.appendChild(searchBox);
+		var submit = self.CreateButton("Search");
+		submit.onclick = function () {
+			self.Close(popup);
+			callback(searchBox.value);
 		}
 		popup.appendChild(submit);
 		self.Open(popup);

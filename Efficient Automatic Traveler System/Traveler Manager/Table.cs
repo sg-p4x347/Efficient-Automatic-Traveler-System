@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    internal class Table : Traveler, IPart
+    internal class Table : Traveler, IPart, IForm
     {
         #region Public Methods
         //--------------------------
@@ -52,6 +52,9 @@ namespace Efficient_Automatic_Traveler_System
         public Table() : base() {
             m_part = null;
         }
+        public Table(Form form) : base(form)
+        {
+        }
         public Table(string json) : base(json) {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();
             if (obj["itemCode"] != "")
@@ -91,11 +94,13 @@ namespace Efficient_Automatic_Traveler_System
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
                 json += ',' + new NameValueQty<string, string>("Rate", GetRate(Part.ComponentBills[0], station).ToString() + " min","").ToString();
+                
             } else if (clientType == "OperatorClient" && station == StationClass.GetStation("Vector")) {
                 json += new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
                 json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
-                //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Edgebanding", m_eband.ItemCode, m_eband.TotalQuantity.ToString() + " " + m_eband.Unit).ToString();
+                json += ',' + new NameValueQty<string, string>("Edgebanding", BandingColor, m_eband.TotalQuantity.ToString() + " " + m_eband.Unit).ToString();
             }
+            if (Comment != "") json += ',' + new NameValueQty<string, string>("Comment", Comment, "").ToString();
             return json;
         }
         public override string ExportHuman()
@@ -153,9 +158,17 @@ namespace Efficient_Automatic_Traveler_System
             // for work rates
             //FindComponents(m_part);
         }
-        public override void AdvanceItem(ushort ID)
+        public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
         {
-            FindItem(ID).Station = GetNextStation(ID);
+            TravelerItem item = FindItem(ID);
+            item.Station = GetNextStation(ID);
+            // Queue box after table leaves vector
+            if (travelerManager != null && item.Station.Type == "tablePack")
+            {
+                TableBox box = CreateBoxTraveler();
+                box.EnterProduction(travelerManager);
+                travelerManager.GetTravelers.Add(box);
+            }
         }
         public override void FinishItem(ushort ID)
         {
@@ -297,6 +310,27 @@ namespace Efficient_Automatic_Traveler_System
         {
             return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint);
         }
+
+        // IForm -------------------
+        public Form CreateForm()
+        {
+            Form form = new Form(this.GetType());
+            form.Textbox("itemCode", "Model");
+            form.Integer("quantity", "Quantity");
+            form.Textbox("comment", "Comment");
+            return form;
+        }
+
+        public Form CreateFilledForm()
+        {
+            Form form = new Form(this.GetType());
+            form.Textbox("itemCode", "Model",ItemCode);
+            form.Integer("quantity", "Quantity",Quantity);
+            form.Textbox("comment", "Comment",Comment);
+            return form;
+        }
+        //-------------------------
+
         #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -643,6 +677,8 @@ namespace Efficient_Automatic_Traveler_System
                 FindComponents(componentBill);
             }
         }
+
+        
         #endregion
         //--------------------------------------------------------
         #region Properties

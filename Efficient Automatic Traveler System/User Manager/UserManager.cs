@@ -77,7 +77,7 @@ namespace Efficient_Automatic_Traveler_System
         // returns the user that is requested
         static public User Find(string searchPhrase)
         {
-            return m_users.Find(x => x.UID == searchPhrase || x.Name == searchPhrase);
+            return m_users.Find(x => x.UID == searchPhrase || x.Name.ToLower() == searchPhrase.ToLower());
         }
         #endregion
         #region Private Methods

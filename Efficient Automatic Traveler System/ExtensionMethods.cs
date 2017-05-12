@@ -85,12 +85,35 @@ namespace Efficient_Automatic_Traveler_System
                 throw new ArgumentException("T must be of type System.Enum");
 
             Array enumValArray = Enum.GetValues(enumType);
-
             List<string> names = new List<string>();
 
             foreach (T val in enumValArray)
             {
+
                 names.Add(val.ToString());
+            }
+            return names;
+        }
+        // returns the list of names that are less than the enumeration value
+        public static List<string> GetNamesLessThanOrEqual<T>(T less)
+        {
+            Type enumType = typeof(T);
+
+            // Can't use type constraints on value types, so have to do check like this
+            if (enumType.BaseType != typeof(Enum))
+                throw new ArgumentException("T must be of type System.Enum");
+
+            Array enumValArray = Enum.GetValues(enumType);
+            List<string> names = new List<string>();
+
+            foreach (T val in enumValArray)
+            {
+                Enum value = Enum.Parse(enumType, val.ToString()) as Enum;
+                Enum lessValue = Enum.Parse(enumType, less.ToString()) as Enum;
+                if (value.CompareTo(lessValue) <= 0)
+                {
+                    names.Add(val.ToString());
+                }
             }
             return names;
         }

@@ -66,6 +66,11 @@ namespace Efficient_Automatic_Traveler_System
             m_station = null;
             m_state = 0;
             m_dateStarted = "";
+            m_comment = "";
+        }
+        public Traveler(Form form) : base()
+        {
+            Update(form);
         }
         // Gets the base properties and orders of the traveler from a json string
         public Traveler(string json) : this()
@@ -275,13 +280,13 @@ namespace Efficient_Automatic_Traveler_System
             m_dateStarted = DateTime.Today.ToString("MM/dd/yyyy");
         }
         // advances all completed items at the specified station
-        public void Advance(StationClass station)
+        public void Advance(StationClass station, ITravelerManager travelerManager = null)
         {
             foreach (TravelerItem item in Items)
             {
                 if (item.Station == station && item.IsComplete())
                 {
-                    AdvanceItem(item.ID);
+                    AdvanceItem(item.ID, travelerManager);
                 }
             }
         }
@@ -450,6 +455,12 @@ namespace Efficient_Automatic_Traveler_System
             detail.Add(m_station.Name);
             return detail.Stringify<string>().Trim('[').Trim(']');
         }
+
+        public virtual void Update(Form form)
+        {
+            Quantity = Convert.ToInt32(form.ValueOf("quantity"));
+            Comment = form.ValueOf("comment");
+        }
         #endregion
         //--------------------------------------------------------
         #region Abstract Methods
@@ -470,7 +481,7 @@ namespace Efficient_Automatic_Traveler_System
         public abstract bool CombinesWith(object[] args);
         public abstract string ExportTableRows(string clientType, StationClass station);
         // advances the item to the next station
-        public abstract void AdvanceItem(ushort ID);
+        public abstract void AdvanceItem(ushort ID, ITravelerManager travelerManager = null);
         // gets the next station for the given item
         public abstract StationClass GetNextStation(UInt16 itemID);
         // gets the work rate for the current station
@@ -516,6 +527,7 @@ namespace Efficient_Automatic_Traveler_System
         
         protected int m_quantity;
         private List<TravelerItem> items;
+        private string m_comment;
         // linking ^^^^^^^^^^^^^^^^^^^^^
         private List<string> m_parentOrderNums;
         private List<Order> m_parentOrders;
@@ -706,6 +718,19 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return ParentOrders.Max(y => y.ShipDate);
+            }
+        }
+
+        public string Comment
+        {
+            get
+            {
+                return m_comment;
+            }
+
+            set
+            {
+                m_comment = value;
             }
         }
         #endregion

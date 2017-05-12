@@ -268,18 +268,72 @@ namespace Efficient_Automatic_Traveler_System
 
         public ClientMessage UserForm(string json)
         {
-            return new ClientMessage("UserForm", User.Form());
+            return new ClientMessage("UserForm", m_user.CreateForm().ToString());
         }
         public ClientMessage NewUser(string json)
         {
             try
             {
-                UserManager.AddUser(new User(new Form(json)));
-                return new ClientMessage();
+                Form form = new Form(json);
+                User newUser = new User(form);
+                User existingUser = UserManager.Find(newUser.UID);
+                if (existingUser == null)
+                {
+                    // This is a brand spanking new user!
+                    UserManager.AddUser(newUser);
+                    return new ClientMessage("Info", newUser.Name + " has been added!");
+                } else
+                {
+                    // User already exists, inform the supervisor
+                    return new ClientMessage("Info", "Existing user already has the ID: " + existingUser.UID);
+                }
             }
             catch (Exception ex)
             {
-                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                Server.LogException(ex);
+                return new ClientMessage("Info", "error");
+            }
+        }
+        public ClientMessage EditUser(string json)
+        {
+            try
+            {
+                Form form = new Form(json);
+                User newUser = new User(form);
+                User existingUser = UserManager.Find(newUser.UID);
+                if (existingUser != null)
+                {
+                    // User exists, lets try to update some information
+                    existingUser.Update(form);
+                    return new ClientMessage("Info", newUser.Name + " has been updated!");
+                } else
+                {
+                    // User ID was changed, inform the supervisor
+                    return new ClientMessage("Info", "You cannot change the user's ID");
+                }
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "error");
+            }
+        }
+        public ClientMessage EditUserForm(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                User user = UserManager.Find(obj["searchPhrase"]);
+                if (user != null)
+                {
+                    return new ClientMessage("EditUserForm",user.CreateFilledForm().ToString());
+                } else
+                {
+                    return new ClientMessage("Info", "Could not find the requested user");
+                }
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
                 return new ClientMessage("Info", "error");
             }
         }

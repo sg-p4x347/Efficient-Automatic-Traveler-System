@@ -54,8 +54,6 @@ namespace Efficient_Automatic_Traveler_System
             m_travelers = new List<Traveler>();
             m_importedFromPast = new List<Traveler>();
             m_orderManager = orderManager;
-
-
         }
         public void CompileTravelers()
         {
@@ -322,7 +320,7 @@ namespace Efficient_Automatic_Traveler_System
         // has to know which station this is being submitted from
         public ClientMessage SubmitTraveler(Traveler traveler, StationClass station)
         {
-            traveler.Advance(station);
+            traveler.Advance(station,this);
             OnTravelersChanged(new List<Traveler>() { traveler });
             return new ClientMessage();
         }
@@ -543,6 +541,22 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage.ToString();
         }
+
+        //public ClientMessage ManualTraveler(string json)
+        //{
+        //    try
+        //    {
+        //        ref OdbcConnection MAS = Server.GetMasConnection();
+        //        Form form = new Form(json);
+        //        Type type = Type.GetType(form.Name);
+        //        Traveler traveler = traveler = (Traveler)Activator.CreateInstance(type, form);
+
+        //    } catch (Exception ex)
+        //    {
+        //        Server.LogException(ex);
+        //        return new ClientMessage("Info", "error");
+        //    }
+        //}
         #endregion
         //----------------------------------
         #region Private methods

@@ -65,7 +65,7 @@ function Application () {
 	this.LoginPopup = function (info) {
 		var self = this;
 		// station list
-		if (self.stationList.length > 0) self.InitStations(self.stationList);
+		//if (self.stationList.length > 0) self.InitStations(self.stationList);
 		// logout button text
 		document.getElementById("logoutBtn").innerHTML = "Logout";
 		// popup stuff
@@ -378,18 +378,21 @@ function Application () {
 	//----------------
 	// supervisor Options (called from the server)
 	//----------------
-	this.UserForm = function (format) {
+	this.UserForm = function (format,method = "NewUser") {
 		var self = this;
 		//self.popupManager.CloseAll();
 		self.StopAutofocus();
 		self.popupManager.Form(format, function (filledForm) {
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("NewUser",filledForm);
+			var message = new InterfaceCall(method,filledForm);
 			self.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
 			self.StartAutofocus();
 		});
 		
+	}
+	this.EditUserForm = function (format) {
+		this.UserForm(format,"EditUser");
 	}
 	this.CreateSummary = function (summaryObj) {
 		var self = this;
@@ -650,10 +653,16 @@ function Application () {
 			// EDIT USER --------------
 			var editUserBtn = self.popupManager.CreateButton("Edit User");
 			editUserBtn.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("EditUser");
-				self.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
+				self.StopAutofocus();
+				self.popupManager.Search("Search for a user",function(searchPhrase) {
+					//----------INTERFACE CALL-----------------------
+					var message = new InterfaceCall("EditUserForm",{
+						searchPhrase: searchPhrase
+					});
+					self.websocket.send(JSON.stringify(message));
+					//-----------------------------------------------
+					self.StartAutofocus();
+				});
 			}
 			popup.appendChild(editUserBtn);
 			

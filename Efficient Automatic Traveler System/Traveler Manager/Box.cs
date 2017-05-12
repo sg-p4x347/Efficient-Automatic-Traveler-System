@@ -72,7 +72,7 @@ namespace Efficient_Automatic_Traveler_System
                 return "";
             }
         }
-        public override void AdvanceItem(ushort ID)
+        public override void AdvanceItem(ushort ID,ITravelerManager travelerManager = null)
         {
             FindItem(ID).Station = GetNextStation(ID);
         }

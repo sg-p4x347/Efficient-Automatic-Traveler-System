@@ -8,6 +8,8 @@ namespace Efficient_Automatic_Traveler_System
 {
     interface IForm
     {
-        string CreateForm();
+        Form CreateForm();
+        Form CreateFilledForm();
+        void Update(Form form);
     }
 }

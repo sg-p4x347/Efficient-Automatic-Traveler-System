@@ -12,7 +12,7 @@ namespace Efficient_Automatic_Traveler_System
         Supervisor = 1,
         Administrator = 2
     }
-    class User
+    class User : IForm
     {
         #region Public Methods
         public User(string json)
@@ -35,6 +35,13 @@ namespace Efficient_Automatic_Traveler_System
             m_PWD = form.ValueOf("PWD");
             m_accessLevel = (AccessLevel)Enum.Parse(typeof(AccessLevel), form.ValueOf("accessLevel"));
             m_history = new List<Event>();
+        }
+        public void Update(Form form)
+        {
+            m_name = form.ValueOf("name");
+            m_UID = form.ValueOf("UID");
+            m_PWD = form.ValueOf("PWD");
+            m_accessLevel = (AccessLevel)Enum.Parse(typeof(AccessLevel), form.ValueOf("accessLevel"));
         }
         public override string ToString()
         {
@@ -76,14 +83,25 @@ namespace Efficient_Automatic_Traveler_System
         }
 
         // returns a json string representing a form to be filled out by a client
-        public static string Form()
+        public Form CreateForm()
         {
             Form form = new Form(typeof(User));
             form.Textbox("name","Name");
             form.Textbox("UID", "User ID");
             form.Textbox("PWD", "Password");
-            form.Selection<AccessLevel>("accessLevel", "Access Level");
-            return form.ToString();
+            //form.Selection<AccessLevel>("accessLevel", "Access Level");
+            form.Selection("accessLevel", "Access level", ExtensionMethods.GetNamesLessThanOrEqual<AccessLevel>(m_accessLevel));
+            return form;
+        }
+        public Form CreateFilledForm()
+        {
+            Form form = new Form(typeof(User));
+            form.Textbox("name", "Name",m_name);
+            form.Textbox("UID", "User ID",m_UID);
+            form.Textbox("PWD", "Password",m_PWD);
+            //form.Selection<AccessLevel>("accessLevel", "Access Level");
+            form.Selection("accessLevel", "Access level", ExtensionMethods.GetNamesLessThanOrEqual<AccessLevel>(m_accessLevel),m_accessLevel.ToString());
+            return form;
         }
         #endregion
         #region Properties
