@@ -378,6 +378,18 @@ function Application () {
 	//----------------
 	// supervisor Options (called from the server)
 	//----------------
+	this.TravelerForm = function (format) {
+		var self = this;
+		//self.popupManager.CloseAll();
+		self.StopAutofocus();
+		self.popupManager.Form(format, function (filledForm) {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("NewTraveler",filledForm);
+			self.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			self.StartAutofocus();
+		});
+	}
 	this.UserForm = function (format,method = "NewUser") {
 		var self = this;
 		//self.popupManager.CloseAll();
@@ -665,6 +677,16 @@ function Application () {
 				});
 			}
 			popup.appendChild(editUserBtn);
+			
+			// ADD NEW TRAVELER --------------
+			var newTravelerBtn = self.popupManager.CreateButton("New Traveler");
+			newTravelerBtn.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("TravelerForm");
+				self.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			popup.appendChild(newTravelerBtn);
 			
 			self.popupManager.AddCustom(popup);
 		}

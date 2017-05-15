@@ -337,6 +337,15 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "error");
             }
         }
+
+        public ClientMessage TravelerForm(string json)
+        {
+            return m_travelerManager.TravelerForm(json);
+        }
+        public ClientMessage NewTraveler(string json)
+        {
+            return m_travelerManager.NewTraveler(json);
+        }
         #endregion
         //-----------------------------------
         #region Properties

@@ -43,6 +43,8 @@ namespace Efficient_Automatic_Traveler_System
         string DisintegrateTraveler(string json);
         string EnterProduction(string json);
         string DownloadSummary(string json);
+        ClientMessage TravelerForm(string json);
+        ClientMessage NewTraveler(string json);
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
     class TravelerManager : IManager, ITravelerManager
@@ -112,37 +114,43 @@ namespace Efficient_Automatic_Traveler_System
             int index = 0;
             foreach (Traveler traveler in m_travelers)
             {
-                // link with orders
-                foreach (string orderNum in traveler.ParentOrderNums)
+                try
                 {
-                    Order parent = m_orderManager.FindOrder(orderNum);
-                    if (parent != null)
+                    // link with orders
+                    foreach (string orderNum in traveler.ParentOrderNums)
                     {
-                        traveler.ParentOrders.Add(parent);
+                        Order parent = m_orderManager.FindOrder(orderNum);
+                        if (parent != null)
+                        {
+                            traveler.ParentOrders.Add(parent);
+                        }
                     }
-                }
-                // link with parent travelers
-                foreach (int id in traveler.ParentIDs)
+                    // link with parent travelers
+                    foreach (int id in traveler.ParentIDs)
+                    {
+                        Traveler parent = FindTraveler(id);
+                        if (parent != null)
+                        {
+                            traveler.ParentTravelers.Add(parent);
+                        }
+                    }
+                    // link with child travelers
+                    foreach (int id in traveler.ChildIDs)
+                    {
+                        Traveler child = FindTraveler(id);
+                        if (child != null)
+                        {
+                            traveler.ChildTravelers.Add(child);
+                        }
+                    }
+                    // import part info
+                    traveler.ImportInfo(this as ITravelerManager, orderManager, ref MAS);
+                    index++;
+                    Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
+                } catch (Exception ex)
                 {
-                    Traveler parent = FindTraveler(id);
-                    if (parent != null)
-                    {
-                        traveler.ParentTravelers.Add(parent);
-                    }
+                    Server.LogException(ex);
                 }
-                // link with child travelers
-                foreach (int id in traveler.ChildIDs)
-                {
-                    Traveler child = FindTraveler(id);
-                    if (child != null)
-                    {
-                        traveler.ChildTravelers.Add(child);
-                    }
-                }
-                // import part info
-                traveler.ImportInfo(this as ITravelerManager, orderManager, ref MAS);
-                index++;
-                Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
             }
             Server.Write("\r{0}", "Gathering Info...Finished\n");
             // travelers have changed
@@ -542,21 +550,42 @@ namespace Efficient_Automatic_Traveler_System
             return returnMessage.ToString();
         }
 
-        //public ClientMessage ManualTraveler(string json)
-        //{
-        //    try
-        //    {
-        //        ref OdbcConnection MAS = Server.GetMasConnection();
-        //        Form form = new Form(json);
-        //        Type type = Type.GetType(form.Name);
-        //        Traveler traveler = traveler = (Traveler)Activator.CreateInstance(type, form);
-
-        //    } catch (Exception ex)
-        //    {
-        //        Server.LogException(ex);
-        //        return new ClientMessage("Info", "error");
-        //    }
-        //}
+        public ClientMessage TravelerForm(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                //Type type = Type.GetType(obj["type"]);
+                Type type = Type.GetType("Efficient_Automatic_Traveler_System.Table");
+                Traveler traveler = (Traveler)Activator.CreateInstance(type);
+                Form form = traveler.CreateForm();
+                form.Source = "TravelerManager";
+                return new ClientMessage("TravelerForm", form.ToString());
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "error in TravelerManager.TravelerForm");
+            }
+        }
+        public ClientMessage NewTraveler(string json)
+        {
+            try
+            {
+                OdbcConnection MAS = Server.GetMasConnection();
+                Form form = new Form(json);
+                Type type = Type.GetType("Efficient_Automatic_Traveler_System." + form.Name);
+                Traveler traveler = traveler = (Traveler)Activator.CreateInstance(type, form);
+                traveler.ImportInfo(this as ITravelerManager, m_orderManager, ref MAS);
+                m_travelers.Add(traveler);
+                OnTravelersChanged(m_travelers);
+                return new ClientMessage("Info","Success!");
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "error");
+            }
+        }
         #endregion
         //----------------------------------
         #region Private methods

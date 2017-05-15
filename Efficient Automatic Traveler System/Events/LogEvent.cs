@@ -43,7 +43,7 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new StringStream(base.ToString()).ParseJSON();
             obj["type"] = this.GetType().ToString().Quotate();
             obj["date"] = obj["date"].Quotate();
-            obj.Add("user", m_user != null ? m_user.UID.Quotate() : "".Quotate());
+            obj.Add("user", (m_user != null ? m_user.UID : "").Quotate());
             obj.Add("station", (m_station != null ? m_station.Name : "").Quotate());
             obj.Add("client", m_client.Quotate());
             obj.Add("logType", m_logType.ToString().Quotate());

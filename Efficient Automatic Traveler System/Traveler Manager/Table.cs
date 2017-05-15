@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    internal class Table : Traveler, IPart, IForm
+    internal class Table : Traveler, IPart
     {
         #region Public Methods
         //--------------------------
@@ -54,6 +54,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public Table(Form form) : base(form)
         {
+            m_part = new Bill(form.ValueOf("itemCode"), 1, Convert.ToInt32(form.ValueOf("quantity")));
         }
         public Table(string json) : base(json) {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();
@@ -94,13 +95,14 @@ namespace Efficient_Automatic_Traveler_System
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
                 json += ',' + new NameValueQty<string, string>("Rate", GetRate(Part.ComponentBills[0], station).ToString() + " min","").ToString();
-                
+                if (Comment != "") json += ',' + new NameValueQty<string, string>("Comment", Comment, "").ToString();
             } else if (clientType == "OperatorClient" && station == StationClass.GetStation("Vector")) {
                 json += new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
                 json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
-                json += ',' + new NameValueQty<string, string>("Edgebanding", BandingColor, m_eband.TotalQuantity.ToString() + " " + m_eband.Unit).ToString();
+                json += ',' + new NameValueQty<string, string>("Edgebanding", BandingColor, "").ToString();
+                if (Comment != "") json += ',' + new NameValueQty<string, string>("Comment", Comment, "").ToString();
             }
-            if (Comment != "") json += ',' + new NameValueQty<string, string>("Comment", Comment, "").ToString();
+            
             return json;
         }
         public override string ExportHuman()
@@ -302,9 +304,6 @@ namespace Efficient_Automatic_Traveler_System
         public override void EnterProduction(ITravelerManager travelerManager)
         {
             base.EnterProduction(travelerManager);
-            TableBox box = CreateBoxTraveler();
-            box.EnterProduction(travelerManager);
-            travelerManager.GetTravelers.Add(box);
         }
         public override string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false)
         {
@@ -312,21 +311,17 @@ namespace Efficient_Automatic_Traveler_System
         }
 
         // IForm -------------------
-        public Form CreateForm()
+        public override Form CreateForm()
         {
-            Form form = new Form(this.GetType());
+            Form form = base.CreateForm();
             form.Textbox("itemCode", "Model");
-            form.Integer("quantity", "Quantity");
-            form.Textbox("comment", "Comment");
             return form;
         }
 
-        public Form CreateFilledForm()
+        public override Form CreateFilledForm()
         {
-            Form form = new Form(this.GetType());
+            Form form = base.CreateFilledForm();
             form.Textbox("itemCode", "Model",ItemCode);
-            form.Integer("quantity", "Quantity",Quantity);
-            form.Textbox("comment", "Comment",Comment);
             return form;
         }
         //-------------------------

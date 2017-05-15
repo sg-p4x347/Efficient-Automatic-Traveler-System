@@ -151,6 +151,7 @@ div.percentContainer {
 	z-index: 100;
 }
 .blackout__popup {
+	white-space: break-word;
 	padding: 8px;
 	font-size: 2em;
 	color: black;
@@ -389,5 +390,5 @@ div.queue__item__qty {
 .loginForm {
 	display: flex;
 	flex-direction: column;
-	margin-left: auto;
+	text-align: center;
 }

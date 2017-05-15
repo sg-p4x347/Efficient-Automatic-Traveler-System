@@ -114,7 +114,8 @@ function Application () {
 	this.LoadJSON = function (obj,name) {
 		var self = this;
 		var jsonViewer = self.popupManager.AddJSONviewer(obj,name);
-		jsonViewer.DOMcontainer.style.width = "90%";
+		jsonViewer.DOMcontainer.style.width = "auto";
+		jsonViewer.DOMcontainer.style.minWidth = "200px";
 		jsonViewer.DOMcontainer.style.height = "90%";
 	}
 	//==========================================

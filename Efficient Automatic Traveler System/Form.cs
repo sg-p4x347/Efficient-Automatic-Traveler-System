@@ -12,12 +12,14 @@ namespace Efficient_Automatic_Traveler_System
         public Form(Type type)
         {
             m_name = type.Name;
+            m_source = "";
             m_fields = new List<string>();
         }
         public Form(string json)
         {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();
             m_name = obj["name"];
+            //m_source = obj["source"];
             m_fields = new StringStream(obj["fields"]).ParseJSONarray();
         }
         public override string ToString()
@@ -95,7 +97,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Properties
         private string m_name;
         private List<string> m_fields;
-
+        private string m_source;
         public string Name
         {
             get
@@ -106,6 +108,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_name = value;
+            }
+        }
+
+        public string Source
+        {
+            get
+            {
+                return m_source;
+            }
+
+            set
+            {
+                m_source = value;
             }
         }
         #endregion

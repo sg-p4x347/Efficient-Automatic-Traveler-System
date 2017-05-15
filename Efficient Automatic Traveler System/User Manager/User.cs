@@ -25,7 +25,11 @@ namespace Efficient_Automatic_Traveler_System
             m_history = new List<Event>();
             foreach (string evt in (new StringStream(obj["history"])).ParseJSONarray())
             {
-                m_history.Add(BackupManager.ImportDerived<Event>(evt));
+                Event evtObj = BackupManager.ImportDerived<Event>(evt);
+                if (evtObj.Date > DateTime.Today)
+                {
+                    m_history.Add(evtObj);
+                }
             }
         }
         public User(Form form)
@@ -62,7 +66,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (m_accessLevel >= client.AccessLevel)
                 {
-                    m_history.Add(new LogEvent(this, LogType.Login, station: station, client: typeof(Client).Name));
+                    m_history.Add(new LogEvent(this, LogType.Login, station: station, client: client.GetType().Name));
+                    UserManager.Backup();
                 } else
                 {
                     return "Permission is denied; you must at least be a(n) " + client.AccessLevel.ToString();
@@ -78,7 +83,8 @@ namespace Efficient_Automatic_Traveler_System
             List<LogEvent> logEvents = m_history.OfType<LogEvent>().ToList();
             if (logEvents.Count > 0 && logEvents.Exists(x => x.LogType == LogType.Login))
             {
-                m_history.Add(new LogEvent(this, LogType.Logout, logEvents.Last().Station));
+                m_history.Add(new LogEvent(this, LogType.Logout, logEvents.Last().Station, logEvents.Last().Client));
+                UserManager.Backup();
             }
         }
 

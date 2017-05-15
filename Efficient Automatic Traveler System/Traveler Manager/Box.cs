@@ -34,7 +34,8 @@ namespace Efficient_Automatic_Traveler_System
         public Box(Traveler traveler) : base()
         {
             Station = StationClass.GetStation("Box");
-            m_quantity = traveler.Quantity;
+            //m_quantity = traveler.Quantity;
+            m_quantity = 1;
             ParentTravelers.Add(traveler);
         }
         public override string ToString()

@@ -50,7 +50,7 @@ namespace Efficient_Automatic_Traveler_System
         public qtyType Qty;
     }
     
-    abstract internal class Traveler
+    abstract internal class Traveler : IForm
     {
         #region Public Methods
         public Traveler() {
@@ -68,7 +68,7 @@ namespace Efficient_Automatic_Traveler_System
             m_dateStarted = "";
             m_comment = "";
         }
-        public Traveler(Form form) : base()
+        public Traveler(Form form) : this()
         {
             Update(form);
         }
@@ -460,6 +460,23 @@ namespace Efficient_Automatic_Traveler_System
         {
             Quantity = Convert.ToInt32(form.ValueOf("quantity"));
             Comment = form.ValueOf("comment");
+            Station = StationClass.GetStation(form.ValueOf("station"));
+        }
+        public virtual Form CreateForm()
+        {
+            Form form = new Form(this.GetType());
+            form.Integer("quantity", "Quantity");
+            form.Textbox("comment", "Comment");
+            form.Selection("station", "Starting Station", StationClass.StationNames());
+            return form;
+        }
+        public virtual Form CreateFilledForm()
+        {
+            Form form = new Form(this.GetType());
+            form.Integer("quantity", "Quantity",m_quantity);
+            form.Textbox("comment", "Comment",m_comment);
+            form.Selection("station", "Starting Station",new List<string>(), m_station.Name);
+            return form;
         }
         #endregion
         //--------------------------------------------------------
