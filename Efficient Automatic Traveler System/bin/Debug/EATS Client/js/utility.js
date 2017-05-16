@@ -38,7 +38,7 @@ function Traveler(obj) {
 		// QTY -------------------------------------------
 		var qty = document.createElement("DIV");
 		qty.className = "queue__item__qty blue";
-		qty.innerHTML = self.quantity;
+		qty.innerHTML = self.qtyPending;
 		DOMqueueItem.appendChild(qty);
 		// CHECKBOX-------------------------------------------
 		if (self.quantity > 0 && application.type == "supervisor") {

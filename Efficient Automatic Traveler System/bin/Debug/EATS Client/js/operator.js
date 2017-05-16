@@ -55,11 +55,11 @@ function Application () {
 			viewContainer.style.height = "100%";
 			
 			
-			queueContainer.style.width = "10%";
+			queueContainer.style.width = "15%";
 			queueContainer.style.height = "100%";
 			
 			
-			interfaceContainer.style.width = "40%";
+			interfaceContainer.style.width = "35%";
 			interfaceContainer.style.height = "100%";
 		} else {
 			// portrait layout
@@ -221,7 +221,7 @@ function Application () {
 	// Loads the traveler GUI
 	this.LoadTravelerJSON = function (traveler) {
 		var popup = this.popupManager.AddJSONviewer(traveler,"Traveler")
-		popup.DOMcontainer.className += " threeEM";
+		popup.DOMcontainer.className += " twoEM";
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
 	}
 	this.StartAutofocus = function () {
@@ -236,6 +236,9 @@ function Application () {
 		self.partTimer.Stop();
 		self.popupManager.CloseAll(true);
 		var popup = self.popupManager.CreatePopup();
+		popup.style.position = "fixed";
+		popup.style.left = "16px";
+		popup.style.bottom = "16px";
 		var info = self.popupManager.CreateP("");
 		info.className = "red";
 		popup.appendChild(info);

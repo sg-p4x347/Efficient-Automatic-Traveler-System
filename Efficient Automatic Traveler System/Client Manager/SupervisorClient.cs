@@ -117,12 +117,18 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                return new ClientMessage("LoadTraveler", traveler.Export("SupervisorClient",null));
+                if (traveler != null)
+                {
+                    return new ClientMessage("LoadTraveler", traveler.Export("SupervisorClient", null));
+                } else
+                {
+                    return new ClientMessage("Info", "That traveler does not exist right now");
+                }
             }
             catch (Exception ex)
             {
                 Server.LogException(ex);
-                return new ClientMessage("Info", "Could not print label(s) due to a pesky error :(");
+                return new ClientMessage("Info", "Could not load traveler due to a pesky error :(");
             }
         }
         public ClientMessage LoadTravelerAt(string json)

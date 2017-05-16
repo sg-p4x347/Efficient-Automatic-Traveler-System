@@ -57,11 +57,11 @@ namespace Efficient_Automatic_Traveler_System
                 string inherited = base.ExportTableRows(clientType, station);
                 Table parentTable = ((Table)ParentTravelers[0]);
                 List<string> rows = new List<string>()
-            {
-                new NameValueQty<string,string>("Table", parentTable.ItemCode,"").ToString(),
-                new NameValueQty<string,string>("Table Shape",parentTable.Shape,"").ToString(),
-                new NameValueQty<string, string>("Table Size", m_tableSize,"").ToString()
-            };
+                {
+                    new NameValueQty<string,string>("Table", parentTable.ItemCode,"").ToString(),
+                    new NameValueQty<string,string>("Table Shape",parentTable.Shape,"").ToString(),
+                    new NameValueQty<string, string>("Table Size", m_tableSize,"").ToString()
+                };
                 return inherited + (inherited.Length != 0 ? "," : "") + rows.Stringify(false).TrimStart('[').TrimEnd(']');
             } catch (Exception ex)
             {

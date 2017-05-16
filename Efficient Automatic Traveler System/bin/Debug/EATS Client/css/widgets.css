@@ -151,7 +151,6 @@ div.percentContainer {
 	z-index: 100;
 }
 .blackout__popup {
-	white-space: break-word;
 	padding: 8px;
 	font-size: 2em;
 	color: black;
@@ -161,6 +160,8 @@ div.percentContainer {
 	flex-direction: column;
 	text-align: center;
 	border-radius: 16px;
+	max-height: 100vh;
+	overflow-y: auto;
 }
 /*flex modifiers*/
 .justify-space-between {
