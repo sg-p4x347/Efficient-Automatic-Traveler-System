@@ -20,6 +20,7 @@ function Application () {
 	this.JSONviewer;
 	this.popupManager;
 	this.IOScheckTimeout;
+	this.interfaceCalls = [];
 	// DATA
 	this.labelTypes = [];
 	this.stationList = [];
@@ -130,6 +131,11 @@ function Application () {
 			}
 		},500);
 	}
+	
+	this.InlineCall = function(methodName, parameters, callback) {
+		var self = this;
+		self.interfaceCalls.push(new InlineCall(methodName, parameters, callback,self.interfaceCalls.length));
+	}
 	//----------------
 	// Multi-select
 	//----------------
@@ -205,8 +211,6 @@ function Application () {
 	// Loads the traveler GUI
 	this.LoadTraveler = function (traveler) {
 		this.TravelerPopup(traveler);
-		
-		
 	}
 	this.LoadTravelerJSON = function (traveler) {
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
@@ -747,11 +751,18 @@ function Application () {
 							}
 							if (object.hasOwnProperty("method")) {
 								if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
-									// The server is invoking a client method
-									if (object.parameters != "") {
-										self[object.method](object.parameters);
+									var target;
+									if (object.method == "InlineCall") {
+										// The server is invoking a callback
+										target = self.interfaceCalls[self.interfaceCalls.indexOf(parseInt(object.callID))].callback;
 									} else {
-										self[object.method]();
+										target = self[object.method];
+									}
+									// The server is invoking a client method
+									if (target !== undefined && object.parameters != "") {
+										target(object.parameters);
+									} else {
+										target();
 									}
 								}
 							}

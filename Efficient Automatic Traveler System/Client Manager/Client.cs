@@ -20,11 +20,13 @@ namespace Efficient_Automatic_Traveler_System
         {
             Method = type;
             Parameters = (type == "Info" ? message.Quotate() : message);
+            CallID = 0;
         }
         public ClientMessage(string type)
         {
             Method = type;
             Parameters = "";
+            CallID = 0;
         }
         public override string ToString()
         {
@@ -43,6 +45,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string Method;
         public string Parameters;
+        public int CallID;
     }
     /* all derived classes that use ITravelers 
      * implement definitions for thise prototypes */
@@ -138,7 +141,7 @@ namespace Efficient_Automatic_Traveler_System
                 //    m_station = Convert.ToInt32(obj["station"]);
                 //    HandleTravelersChanged(m_travelerManager.GetTravelers);
                 //}
-                if (obj.ContainsKey("interfaceMethod"))
+                if (obj.ContainsKey("interfaceMethod") && obj.ContainsKey("callID") && obj.ContainsKey("parameters") && obj.ContainsKey("interfaceTarget") && obj.ContainsKey("interfaceMethod"))
                 {
                     PropertyInfo pi = this.GetType().GetProperty(obj["interfaceTarget"]);
                     if (pi != null)
@@ -146,8 +149,9 @@ namespace Efficient_Automatic_Traveler_System
                         MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
                         if (mi != null)
                         {
-                            string returnMessage = (mi.Invoke(this, new object[] { obj["parameters"] })).ToString();
-                            if (returnMessage != null && returnMessage != "") SendMessage(returnMessage);
+                            ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
+                            returnMessage.CallID = Convert.ToInt32(obj["callID"]);
+                            SendMessage(returnMessage.ToString());
                         }
                     }
                 }

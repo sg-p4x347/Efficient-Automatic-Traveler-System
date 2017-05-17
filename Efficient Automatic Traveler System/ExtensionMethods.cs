@@ -117,5 +117,22 @@ namespace Efficient_Automatic_Traveler_System
             }
             return names;
         }
+        public static string MergeJSON(this string A, string B)
+        {
+            try
+            {
+                Dictionary<string, string> objA = new StringStream(A).ParseJSON();
+                Dictionary<string, string> objB = new StringStream(B).ParseJSON();
+                foreach (KeyValuePair<string,string> kvp in objB)
+                {
+                    objA.Add(kvp.Key, kvp.Value);
+                }
+                return objA.Stringify();
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return "error";
+            }
+        }
     }
 }

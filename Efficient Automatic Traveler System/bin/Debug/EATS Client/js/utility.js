@@ -3,6 +3,13 @@ function InterfaceCall(methodName, parameters, target) {
 	this.parameters = (parameters === undefined ? "" : parameters);
 	this.interfaceTarget = (target === undefined ? "This" : target);
 }
+function InlineCall(methodName, parameters, callback,callID) {
+	this.interfaceMethod = methodName;
+	this.parameters = (parameters === undefined ? "" : parameters);
+	this.callID = callID;
+	this.callback = callback;
+	
+}
 function Traveler(obj) {
 	obj.selected = false;
 	obj.FindItem = function (itemID) {

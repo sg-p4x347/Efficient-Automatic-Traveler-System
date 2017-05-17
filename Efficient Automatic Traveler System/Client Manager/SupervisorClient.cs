@@ -30,16 +30,21 @@ namespace Efficient_Automatic_Traveler_System
         {
             bool mirror = true; // travelers.Count == m_travelerManager.GetTravelers.Count;
             travelers = m_travelerManager.GetTravelers;
-            string message = @"{""travelers"":[";
-            string travelerJSON = "";
+            Dictionary<string, string> message = new Dictionary<string, string>();
+            List<string> travelerStrings = new List<string>();
+
             foreach (Traveler traveler in travelers.Where(x => x.State == m_viewState || x.Items.Exists(y => y.State == m_viewState)))
             {
-                travelerJSON += (travelerJSON.Length > 0 ? "," : "") + traveler.Export(this.GetType().Name, traveler.Station);
+                string travelerJSON = traveler.ToString();
+                foreach (StationClass station in traveler.CurrentStations())
+                {
+                    travelerJSON.MergeJSON(traveler.ExportStationSummary(station));
+                }
+                travelerStrings.Add(traveler.Export(this.GetType().Name, traveler.Station));
             }
-            message += travelerJSON + "],";
-            message += "\"mirror\":" + mirror.ToString().ToLower();
-            message += "}";
-            SendMessage(message);
+            message.Add("travelers", travelerStrings.Stringify(false));
+            message.Add("mirror", mirror.ToString().ToLower());
+            SendMessage(message.Stringify());
         }
         #endregion
         //----------------------------------
@@ -352,6 +357,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_travelerManager.NewTraveler(json);
         }
+
         #endregion
         //-----------------------------------
         #region Properties

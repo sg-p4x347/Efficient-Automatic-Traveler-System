@@ -331,11 +331,37 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Where(x => x.Scrapped).Count();
         }
+        public int QuantityScrappedAt(StationClass station)
+        {
+            return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Scrapped)).Count();
+        }
         public int QuantityCompleteAt(StationClass station)
         {
             return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
         }
         
+        public string ExportStationSummary(StationClass station)
+        {
+            Dictionary<string, string> topLevel = new Dictionary<string, string>();
+            Dictionary<string, string> detail = new Dictionary<string, string>();
+            detail.Add("qtyPending", QuantityAt(station).ToString());
+            detail.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
+            detail.Add("qtyScrapped", QuantityScrappedAt(station).ToString());
+            topLevel.Add(station.Name, detail.Stringify());
+            return topLevel.Stringify();
+        }
+        public List<StationClass> CurrentStations()
+        {
+            List<StationClass> stations = new List<StationClass>();
+            foreach(TravelerItem item in Items)
+            {
+                if (!stations.Exists(x => x == item.Station))
+                {
+                    stations.Add(item.Station);
+                }
+            }
+            return stations;
+        }
         // export for clients to display
         public virtual string Export(string clientType, StationClass station)
         {
