@@ -93,6 +93,15 @@ div.timer__btn {
 #blackout {
 	font-size: 2em;
 }
+#completeItemBtn {
+	flex-grow: 2;
+}
+#scrapItemBtn {
+	flex-grow: 2;
+}
+#submitTravelerBtn {
+	flex-grow: 2;
+}
 /*Organizational divs*/
 div.header {
 	display: flex;

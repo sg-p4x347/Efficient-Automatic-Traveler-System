@@ -342,23 +342,25 @@ namespace Efficient_Automatic_Traveler_System
         
         public string ExportStationSummary(StationClass station)
         {
-            Dictionary<string, string> topLevel = new Dictionary<string, string>();
             Dictionary<string, string> detail = new Dictionary<string, string>();
-            detail.Add("qtyPending", QuantityAt(station).ToString());
+            if (station == StationClass.GetStation("Start"))
+            {
+                detail.Add("qtyPending", m_quantity.ToString());
+            } else
+            {
+                detail.Add("qtyPending", QuantityPendingAt(station).ToString());
+            }
+            
             detail.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
             detail.Add("qtyScrapped", QuantityScrappedAt(station).ToString());
-            topLevel.Add(station.Name, detail.Stringify());
-            return topLevel.Stringify();
+            return detail.Stringify();
         }
         public List<StationClass> CurrentStations()
         {
             List<StationClass> stations = new List<StationClass>();
-            foreach(TravelerItem item in Items)
+            foreach (StationClass station in StationClass.GetStations())
             {
-                if (!stations.Exists(x => x == item.Station))
-                {
-                    stations.Add(item.Station);
-                }
+                if (QuantityPendingAt(station) > 0 || QuantityAt(station) > 0) stations.Add(station);
             }
             return stations;
         }
@@ -532,7 +534,7 @@ namespace Efficient_Automatic_Traveler_System
         // gets the total work wrapped up in the given station
         public abstract double GetTotalLabor(StationClass station = null);
         // overridden in derived classes, packs properties into the Export() json string
-        protected abstract Dictionary<string, string> ExportProperties(StationClass station);
+        public abstract Dictionary<string, string> ExportProperties(StationClass station = null);
         // pre
         public abstract void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS);
         #endregion

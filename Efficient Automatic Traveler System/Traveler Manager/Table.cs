@@ -86,7 +86,7 @@ namespace Efficient_Automatic_Traveler_System
         //}
         public override string ExportTableRows(string clientType, StationClass station)
         {
-            string json = "";
+            string json = "{\"members\":[";
             if (clientType == "OperatorClient" && (station.Type == "heian" || station.Type == "weeke")) {
                 json += new NameValueQty<string, int>("Part", ItemCode, Quantity).ToString();
                 json += ',' + new NameValueQty<string, string>("Description", m_part.BillDesc, "").ToString();
@@ -103,7 +103,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (Comment != "") json += ',' + new NameValueQty<string, string>("Comment", Comment, "").ToString();
             }
             
-            return json;
+            return json + "]}";
         }
         public override string ExportHuman()
         {
@@ -329,10 +329,17 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Private Methods
-        protected override Dictionary<string, string> ExportProperties(StationClass station)
+        public override Dictionary<string, string> ExportProperties(StationClass station)
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("laborRate", GetRate(Part.ComponentBills[0],station).ToString());
+            try
+            {
+                obj.Add("laborRate", GetRate(Part.ComponentBills[0], station).ToString());
+                obj.Add("totalLabor", GetTotalLabor().ToString());
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+            }
             return obj;
         }
         //private void GetBlacklist()

@@ -141,7 +141,7 @@ namespace Efficient_Automatic_Traveler_System
                 //    m_station = Convert.ToInt32(obj["station"]);
                 //    HandleTravelersChanged(m_travelerManager.GetTravelers);
                 //}
-                if (obj.ContainsKey("interfaceMethod") && obj.ContainsKey("callID") && obj.ContainsKey("parameters") && obj.ContainsKey("interfaceTarget") && obj.ContainsKey("interfaceMethod"))
+                if (obj.ContainsKey("interfaceMethod") && obj.ContainsKey("parameters"))
                 {
                     PropertyInfo pi = this.GetType().GetProperty(obj["interfaceTarget"]);
                     if (pi != null)
@@ -150,7 +150,6 @@ namespace Efficient_Automatic_Traveler_System
                         if (mi != null)
                         {
                             ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                            returnMessage.CallID = Convert.ToInt32(obj["callID"]);
                             SendMessage(returnMessage.ToString());
                         }
                     }

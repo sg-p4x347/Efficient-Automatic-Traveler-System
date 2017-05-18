@@ -140,7 +140,7 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Private Methods
-        protected override Dictionary<string,string> ExportProperties(StationClass station)
+        public override Dictionary<string,string> ExportProperties(StationClass station)
         {
             return new Dictionary<string, string>();
         }

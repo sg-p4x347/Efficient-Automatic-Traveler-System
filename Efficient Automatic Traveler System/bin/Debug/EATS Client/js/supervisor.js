@@ -20,7 +20,6 @@ function Application () {
 	this.JSONviewer;
 	this.popupManager;
 	this.IOScheckTimeout;
-	this.interfaceCalls = [];
 	// DATA
 	this.labelTypes = [];
 	this.stationList = [];
@@ -132,10 +131,6 @@ function Application () {
 		},500);
 	}
 	
-	this.InlineCall = function(methodName, parameters, callback) {
-		var self = this;
-		self.interfaceCalls.push(new InlineCall(methodName, parameters, callback,self.interfaceCalls.length));
-	}
 	//----------------
 	// Multi-select
 	//----------------
@@ -155,6 +150,7 @@ function Application () {
 	this.InitStations = function (stationList) {
 		var self = this;
 		self.stationList = stationList;
+		self.queues = {};
 		var start;
 		self.stationList.forEach(function (station) {
 			var queue = new TravelerQueue(station);
@@ -173,15 +169,30 @@ function Application () {
 		this.queues[obj.station].totalQtyElem.innerHTML = obj.quantity;
 	}
 	// updates the queues with the current travelers
-	this.HandleTravelersChanged = function () {
+	this.HandleTravelersChanged = function (message) {
 		var self = this;
+		if (message.mirror) {
+			self.travelers = [];
+			message.travelers.forEach(function (obj) {
+				var traveler = new Traveler(obj);
+				self.travelers.push(traveler);
+			});
+		} else {
+			message.travelers.forEach(function (obj) {
+				self.travelers.forEach(function (traveler, index) {
+					if (traveler.ID == obj.ID) {
+						self.travelers[index] = new Traveler(obj);
+					}
+				});
+			});
+		}
 		// clear the queues
 		for (var station in self.queues) {
 			self.queues[station].Clear();
 		}
 		// add all the travelers back
 		self.travelers.forEach(function (traveler) {
-			traveler.stations.forEach(function (station) {
+			for (var station in traveler.stations) {
 				if (Contains(traveler.items,[{prop:"state",value:self.view.viewState},{prop:"station",value:station}]) || (traveler.items.length == 0 && traveler.state == self.view.viewState)
 					|| (traveler.qtyPending > 0)) {
 					// QTY pending is sent based on the starting station for the traveler from the Export function on Traveler.cs
@@ -190,7 +201,7 @@ function Application () {
 					copy.queueIndex = self.queues[station].travelers.length;
 					self.queues[station].AddTraveler(copy);
 				}
-			});
+			}
 		});
 		// update summary, if open
 		if (self.popupManager.Exists("summaryPopup")) {
@@ -219,6 +230,19 @@ function Application () {
 	this.LoadTravelerAt = function (traveler) {
 		this.TravelerPopup(traveler);
 	}
+	this.TravelerPopupDisplayFields(fields) {
+		var self = this;
+		for (var fieldName in fields) {
+			var promptInfo = document.getElementById("promptInfo");
+		document.getElementById("promptInfoStation").innerHTML = (traveler.station ? traveler.station : "");
+		document.getElementById("promptInfoTravelerID").innerHTML = pad(traveler.ID,6);
+		document.getElementById("promptInfoItemCode").innerHTML = traveler.itemCode;
+		document.getElementById("promptInfoQuantity").innerHTML = traveler.quantity;
+		document.getElementById("promptInfoPending").innerHTML = (traveler.qtyPending ? traveler.qtyPending : "-");
+		document.getElementById("promptInfoCompleted").innerHTML = (traveler.qtyCompleted ? traveler.qtyCompleted : "-");
+		document.getElementById("promptInfoAction").innerHTML = "Move [" + pad(traveler.ID,6) + "]'s starting location to...";
+		}
+	}
 	this.TravelerPopup = function (traveler) {
 		var self = this;
 		var promptBox = document.getElementById("travelerPopup");//.cloneNode(true);
@@ -227,14 +251,7 @@ function Application () {
 		while (promptBox.hasChildNodes()) {
 			promptBox.removeChild(promptBox.lastChild);
 		} */
-		var promptInfo = document.getElementById("promptInfo");
-		document.getElementById("promptInfoStation").innerHTML = (traveler.station ? traveler.station : "");
-		document.getElementById("promptInfoTravelerID").innerHTML = pad(traveler.ID,6);
-		document.getElementById("promptInfoItemCode").innerHTML = traveler.itemCode;
-		document.getElementById("promptInfoQuantity").innerHTML = traveler.quantity;
-		document.getElementById("promptInfoPending").innerHTML = (traveler.qtyPending ? traveler.qtyPending : "-");
-		document.getElementById("promptInfoCompleted").innerHTML = (traveler.qtyCompleted ? traveler.qtyCompleted : "-");
-		document.getElementById("promptInfoAction").innerHTML = "Move [" + pad(traveler.ID,6) + "]'s starting location to...";
+		
 		//-----------------
 		// Move starting station to...
 		//-----------------
@@ -731,39 +748,23 @@ function Application () {
 					if (object) {					
 						// valid json object recieved, time to hande the message
 						if (!object.hasOwnProperty("ping")) {
-							if (object.hasOwnProperty("travelers") && object.hasOwnProperty("mirror")) {
-								if (object.mirror) {
-									self.travelers = [];
-									object.travelers.forEach(function (obj) {
-										var traveler = new Traveler(obj);
-										self.travelers.push(traveler);
-									});
-								} else {
-									object.travelers.forEach(function (obj) {
-										self.travelers.forEach(function (traveler, index) {
-											if (traveler.ID == obj.ID) {
-												self.travelers[index] = new Traveler(obj);
-											}
-										});
-									});
-								}
-								self.HandleTravelersChanged();
-							}
 							if (object.hasOwnProperty("method")) {
 								if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
-									var target;
+									
+									if (object.parameters != "") {
+										self[object.method](object.parameters);
+									} else {
+										self[object.method]();
+									}
+									/* var target;
 									if (object.method == "InlineCall") {
 										// The server is invoking a callback
-										target = self.interfaceCalls[self.interfaceCalls.indexOf(parseInt(object.callID))].callback;
+										var index = self.interfaceCalls.indexOf(parseInt(object.callID));
+										target = self.interfaceCalls[index].callback;
+										self.interfaceCalls.splice(index,1);
 									} else {
-										target = self[object.method];
-									}
-									// The server is invoking a client method
-									if (target !== undefined && object.parameters != "") {
-										target(object.parameters);
-									} else {
-										target();
-									}
+										//target = self[object.method];
+										// The server is invoking a client method */
 								}
 							}
 						}

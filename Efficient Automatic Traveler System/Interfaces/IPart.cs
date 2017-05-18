@@ -9,5 +9,6 @@ namespace Efficient_Automatic_Traveler_System
     internal interface IPart
     {
         Bill Part { get; }
+        string ItemCode { get; }
     }
 }

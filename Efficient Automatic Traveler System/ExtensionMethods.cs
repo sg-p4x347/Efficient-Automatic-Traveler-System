@@ -121,8 +121,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Dictionary<string, string> objA = new StringStream(A).ParseJSON();
-                Dictionary<string, string> objB = new StringStream(B).ParseJSON();
+                Dictionary<string, string> objA = new StringStream(A).ParseJSON(false);
+                Dictionary<string, string> objB = new StringStream(B).ParseJSON(false);
                 foreach (KeyValuePair<string,string> kvp in objB)
                 {
                     objA.Add(kvp.Key, kvp.Value);
@@ -131,7 +131,21 @@ namespace Efficient_Automatic_Traveler_System
             } catch (Exception ex)
             {
                 Server.LogException(ex);
-                return "error";
+                return "";
+            }
+        }
+        public static void Merge(this Dictionary<string, string> A, Dictionary<string, string> B)
+        {
+            try
+            {
+                foreach (KeyValuePair<string, string> kvp in B)
+                {
+                    A.Add(kvp.Key, kvp.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
             }
         }
     }

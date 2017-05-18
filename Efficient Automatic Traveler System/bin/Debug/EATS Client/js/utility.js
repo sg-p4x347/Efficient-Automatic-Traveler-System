@@ -3,13 +3,13 @@ function InterfaceCall(methodName, parameters, target) {
 	this.parameters = (parameters === undefined ? "" : parameters);
 	this.interfaceTarget = (target === undefined ? "This" : target);
 }
-function InlineCall(methodName, parameters, callback,callID) {
+/* function InlineCall(methodName, parameters, callback,callID) {
 	this.interfaceMethod = methodName;
 	this.parameters = (parameters === undefined ? "" : parameters);
 	this.callID = callID;
 	this.callback = callback;
 	
-}
+} */
 function Traveler(obj) {
 	obj.selected = false;
 	obj.FindItem = function (itemID) {
@@ -24,6 +24,8 @@ function Traveler(obj) {
 	}
 	obj.CreateQueueItem = function (station) {
 		var self = this;
+		
+		var stationSpecific = self.stations[station];
 		var DOMqueueItem = document.createElement("DIV");
 		self.colorClass = "blueBack";
 		switch (application.view.viewState) {
@@ -41,11 +43,11 @@ function Traveler(obj) {
 		if (self.selected) {
 			DOMqueueItem.className += " selected";
 		}
-		DOMqueueItem.innerHTML = pad(self.type == "TableBox" ? self.parentTravelers[0] : self.ID,6) + "<br>";
+		DOMqueueItem.innerHTML = pad(self.type == "Efficient_Automatic_Traveler_System.TableBox" ? self.parentTravelers[0] : self.ID,6) + "<br>";
 		// QTY -------------------------------------------
 		var qty = document.createElement("DIV");
 		qty.className = "queue__item__qty blue";
-		qty.innerHTML = self.qtyPending;
+		qty.innerHTML = stationSpecific.qtyPending;
 		DOMqueueItem.appendChild(qty);
 		// CHECKBOX-------------------------------------------
 		if (self.quantity > 0 && application.type == "supervisor") {
@@ -68,8 +70,8 @@ function Traveler(obj) {
 		// ITEM CODE-------------------------------------------
 		var itemCode = document.createElement("SPAN");
 			itemCode.className = "queue__item__desc beige";
-		if (self.type == "TableBox") {
-			itemCode.innerHTML = "";
+		if (self.type == "Efficient_Automatic_Traveler_System.TableBox") {
+			itemCode.innerHTML = "Table Box";
 		} else {
 			itemCode.innerHTML = self.itemCode;
 		}

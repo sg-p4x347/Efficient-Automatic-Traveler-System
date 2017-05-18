@@ -39,10 +39,10 @@ namespace Efficient_Automatic_Traveler_System
         ClientMessage LoadTravelerJSON(string json);
         ClientMessage LoadTravelerAt(string json);
         ClientMessage LoadItem(string json);
-        string CreateSummary(string json);
-        string DisintegrateTraveler(string json);
-        string EnterProduction(string json);
-        string DownloadSummary(string json);
+        ClientMessage CreateSummary(string json);
+        ClientMessage DisintegrateTraveler(string json);
+        ClientMessage EnterProduction(string json);
+        ClientMessage DownloadSummary(string json);
         ClientMessage TravelerForm(string json);
         ClientMessage NewTraveler(string json);
     }
@@ -448,7 +448,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        public string CreateSummary(string json)
+        public ClientMessage CreateSummary(string json)
         {
             ClientMessage returnMessage;
             try
@@ -473,9 +473,9 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage.ToString();
+            return returnMessage;
         }
-        public string DisintegrateTraveler(string json)
+        public ClientMessage DisintegrateTraveler(string json)
         {
             ClientMessage returnMessage;
             try
@@ -506,9 +506,9 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage.ToString();
+            return returnMessage;
         }
-        public string EnterProduction(string json)
+        public ClientMessage EnterProduction(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
             try
@@ -530,9 +530,9 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage.ToString();
+            return returnMessage;
         }
-        public string DownloadSummary(string json)
+        public ClientMessage DownloadSummary(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
             try
@@ -547,7 +547,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
                 returnMessage = new ClientMessage("Info", "error");
             }
-            return returnMessage.ToString();
+            return returnMessage;
         }
 
         public ClientMessage TravelerForm(string json)

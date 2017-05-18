@@ -40,31 +40,25 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
-            // get the list of travelers that have items at this station
-            List<Traveler> stationSpecific = travelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList();
-            bool mirror = true; //(stationSpecific.Count < travelers.Count);
-            if (mirror)
+            bool mirror = true; // travelers.Count == m_travelerManager.GetTravelers.Count;
+            travelers = m_travelerManager.GetTravelers;
+            Dictionary<string, string> message = new Dictionary<string, string>();
+            List<string> travelerStrings = new List<string>();
+
+            foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
             {
-                stationSpecific = m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList();
+                string travelerJSON = traveler.ToString();
+                Dictionary<string, string> stations = new Dictionary<string, string>();
+                stations.Add(m_station.Name, traveler.ExportStationSummary(m_station));
+                Dictionary<string, string> stationsObj = new Dictionary<string, string>();
+                stationsObj.Add("stations", stations.Stringify());
+                travelerJSON = travelerJSON.MergeJSON(stationsObj.Stringify()); // merge station properties
+                travelerJSON = travelerJSON.MergeJSON(traveler.ExportTableRows("OperatorClient", m_station));
+                travelerStrings.Add(travelerJSON);
             }
-            string message = @"{""travelers"":[";
-            string travelerJSON = "";
-            foreach (Traveler traveler in stationSpecific)
-            {
-                travelerJSON += (travelerJSON.Length != 0 ? "," : "") + traveler.Export(this.GetType().Name, m_station);
-                //if (traveler.GetType().Name == "Table")
-                //{
-                //    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Table)traveler).Export(this.GetType().Name,m_station);
-                //}
-                //else if (traveler.GetType().Name == "Chair")
-                //{
-                //    travelerJSON += (travelerJSON.Length != 0 ? "," : "") + ((Chair)traveler).Export(this.GetType().Name,m_station);
-                //}
-            }
-            message += travelerJSON + "],";
-            message += "\"mirror\":" + mirror.ToString().ToLower();
-            message += "}";
-            SendMessage(message);
+            message.Add("travelers", travelerStrings.Stringify(false));
+            message.Add("mirror", mirror.ToString().ToLower());
+            SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify()).ToString());
         }
 
         //------------------------------
@@ -231,7 +225,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             m_current = freshTraveler;
             
-            return new ClientMessage("LoadTraveler",m_current.Export("OperatorClient",m_station));
+            return new ClientMessage();
         }
         public ClientMessage LoadTravelerJSON(string json)
         {

@@ -237,7 +237,7 @@ function Application () {
 		self.popupManager.CloseAll(true);
 		var popup = self.popupManager.CreatePopup();
 		popup.style.position = "fixed";
-		popup.style.left = "16px";
+		popup.style.right = "16px";
 		popup.style.bottom = "16px";
 		var info = self.popupManager.CreateP("");
 		info.className = "red";
@@ -316,6 +316,40 @@ function Application () {
 			
 			return false;
 		}
+	}
+	this.HandleTravelersChanged = function (message) {
+		var self = this;
+		if (message.mirror) {
+			// The only travelers in the queue are explicitly the ones in the message
+			self.travelerQueue.Clear();
+			self.travelerView.Clear();
+			message.travelers.forEach(function (obj) {
+				self.travelerQueue.AddTraveler(new Traveler(obj));
+			});
+		} else {
+			// Only update existing travelers in the queue
+			message.travelers.forEach(function (obj) {
+				self.travelerQueue.UpdateTraveler(new Traveler(obj));
+			});
+		}
+		/* // autoload the first traveler in the queue if just now visiting
+		if ((!self.lastStation || self.station.ID != self.lastStation.ID) && self.travelerQueue.travelers[0]) {
+			self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(self.travelerQueue.travelers[0].ID)); // this ensures that the item is selected
+		} else if (!self.travelerQueue.Exists(self.travelerView.traveler)) {
+			if (self.travelerQueue.travelers[0]) {
+				self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(self.travelerQueue.travelers[0].ID)); // this ensures that the item is selected
+				self.Info("A new traveler has been loaded automatically");
+			} else {
+				self.travelerView.Clear();
+			}
+		} */
+		// try and load the old traveler
+		self.travelerQueue.travelers.forEach(function (traveler) {
+			if (traveler.ID == self.travelerView.lastTravelerID) {
+				self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(traveler.ID));
+				//self.travelerView.Load(traveler);
+			}
+		});
 	}
 	// initialize html and application components
 	this.Initialize = function () {
@@ -411,39 +445,7 @@ function Application () {
 					}
 					if (object) {					
 					// valid json object recieved, time to hande the message
-						if (object.hasOwnProperty("travelers") && object.hasOwnProperty("mirror")) {
-							if (object.mirror) {
-								// The only travelers in the queue are explicitly the ones in the message
-								self.travelerQueue.Clear();
-								self.travelerView.Clear();
-								object.travelers.forEach(function (obj) {
-									self.travelerQueue.AddTraveler(new Traveler(obj));
-								});
-							} else {
-								// Only update existing travelers in the queue
-								object.travelers.forEach(function (obj) {
-									self.travelerQueue.UpdateTraveler(new Traveler(obj));
-								});
-							}
-							/* // autoload the first traveler in the queue if just now visiting
-							if ((!self.lastStation || self.station.ID != self.lastStation.ID) && self.travelerQueue.travelers[0]) {
-								self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(self.travelerQueue.travelers[0].ID)); // this ensures that the item is selected
-							} else if (!self.travelerQueue.Exists(self.travelerView.traveler)) {
-								if (self.travelerQueue.travelers[0]) {
-									self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(self.travelerQueue.travelers[0].ID)); // this ensures that the item is selected
-									self.Info("A new traveler has been loaded automatically");
-								} else {
-									self.travelerView.Clear();
-								}
-							} */
-							// try and load the old traveler
-							self.travelerQueue.travelers.forEach(function (traveler) {
-								if (traveler.ID == self.travelerView.lastTravelerID) {
-									self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(traveler.ID));
-									//self.travelerView.Load(traveler);
-								}
-							});
-						} else if (object.hasOwnProperty("method")) {
+						if (object.hasOwnProperty("method")) {
 							if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
 								// The server is invoking a client method
 								self[object.method](object.parameters);
@@ -655,7 +657,7 @@ function TravelerView() {
 		document.getElementById("scrapItemBtn").className = "dark button twoEM";
 	}
 	this.UpdateSubmitBtn = function () {
-		if (this.traveler && this.traveler.qtyCompleted > 0) {
+		if (this.traveler && this.traveler.stations[application.station.name].qtyCompleted > 0) {
 			document.getElementById("submitTravelerBtn").className = "dark button twoEM";
 		} else {
 			document.getElementById("submitTravelerBtn").className = "dark button twoEM disabled";
@@ -832,9 +834,9 @@ function TravelerView() {
 		var qtyMade = document.getElementById("qtyCompleted");
 		var qtyScrapped = document.getElementById("qtyScrapped");
 		var qtyPending = document.getElementById("qtyPending");
-		qtyMade.innerHTML = this.traveler ? this.traveler.qtyCompleted : '-';
-		qtyScrapped.innerHTML = this.traveler ? this.traveler.qtyScrapped : '-';
-		qtyPending.innerHTML = this.traveler ? this.traveler.qtyPending : '-';
+		qtyMade.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyCompleted : '-';
+		qtyScrapped.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyScrapped : '-';
+		qtyPending.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyPending : '-';
 		
 		
 		

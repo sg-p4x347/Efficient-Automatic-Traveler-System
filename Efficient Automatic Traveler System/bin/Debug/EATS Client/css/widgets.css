@@ -130,7 +130,7 @@ div.percentContainer {
 	width: 64px;
 	height: 64px;
 	display: flex;
-	opacity: 0.5
+	opacity: 0.5;
 }
 .optionsBtn:hover, :active {
 	opacity: 1.0;

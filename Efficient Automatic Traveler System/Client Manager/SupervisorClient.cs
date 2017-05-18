@@ -24,7 +24,7 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage((new ClientMessage("InitStations",StationClass.GetStations().Stringify())).ToString());
             SendMessage((new ClientMessage("InitLabelTypes", ExtensionMethods.Stringify<LabelType>())).ToString());
             SendMessage((new ClientMessage("InterfaceOpen")).ToString());
-            //HandleTravelersChanged(m_travelerManager.GetTravelers);
+            HandleTravelersChanged(m_travelerManager.GetTravelers);
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
@@ -35,19 +35,36 @@ namespace Efficient_Automatic_Traveler_System
 
             foreach (Traveler traveler in travelers.Where(x => x.State == m_viewState || x.Items.Exists(y => y.State == m_viewState)))
             {
-                string travelerJSON = traveler.ToString();
-                foreach (StationClass station in traveler.CurrentStations())
-                {
-                    travelerJSON.MergeJSON(traveler.ExportStationSummary(station));
-                }
-                travelerStrings.Add(traveler.Export(this.GetType().Name, traveler.Station));
+                
+                travelerStrings.Add(ExportTraveler(traveler));
+                //travelerStrings.Add(traveler.Export(this.GetType().Name, traveler.Station));
             }
             message.Add("travelers", travelerStrings.Stringify(false));
             message.Add("mirror", mirror.ToString().ToLower());
-            SendMessage(message.Stringify());
+            SendMessage(new ClientMessage("HandleTravelersChanged",message.Stringify()).ToString());
         }
         #endregion
         //----------------------------------
+        #region Private Methods
+        // standard export for supervisor travelers
+        private string ExportTraveler(Traveler traveler)
+        {
+            Dictionary<string, string> travelerJSON = new StringStream(traveler.ToString()).ParseJSON(false);
+            Dictionary<string, string> stations = new Dictionary<string, string>();
+            List<StationClass> stationsToDisplay = traveler.CurrentStations();
+            if (m_viewState == ItemState.PreProcess) stationsToDisplay.Add(StationClass.GetStation("Start"));
+            foreach (StationClass station in stationsToDisplay)
+            {
+                stations.Add(station.Name, traveler.ExportStationSummary(station));
+            }
+            Dictionary<string, string> stationsObj = new Dictionary<string, string>();
+            stationsObj.Add("stations", stations.Stringify());
+            travelerJSON.Merge(stationsObj);
+            travelerJSON.Merge(traveler.ExportProperties());
+            return travelerJSON.Stringify();
+        }
+        
+        #endregion
         #region Properties
         protected ITravelerManager m_travelerManager;
         protected List<Traveler> m_travelers;
@@ -76,6 +93,7 @@ namespace Efficient_Automatic_Traveler_System
             return m_travelerManager.MoveTravelerStart(json);
         }
 
+        
         //public ClientMessage LoadTraveler(string json)
         //{
         //    return m_travelerManager.LoadTraveler(json);
@@ -138,30 +156,78 @@ namespace Efficient_Automatic_Traveler_System
         }
         public ClientMessage LoadTravelerAt(string json)
         {
-            return m_travelerManager.LoadTravelerAt(json);
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                if (traveler != null)
+                {
+                    returnMessage = new ClientMessage("LoadTravelerAt", ExportTraveler(traveler));
+                }
+                else
+                {
+                    returnMessage = new ClientMessage("Info", "Invalid traveler number");
+                }
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+            //return m_travelerManager.LoadTravelerAt(json);
         }
 
         public ClientMessage LoadItem(string json)
         {
             return m_travelerManager.LoadItem(json);
         }
-
-        public string CreateSummary(string json)
+        // the fields that are visible in the traveler popup
+        public ClientMessage TravelerPopupDisplayFields(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                StationClass station = StationClass.GetStation(obj["station"]);
+                obj.Add("Traveler", (traveler is TableBox ? traveler.ParentTravelers[0].ID : traveler.ID).ToString());
+                obj.Add("Type", traveler.GetType().Name.Quotate());
+                if (!(traveler is Box))
+                {
+                    obj.Add("Model", (traveler as IPart).ItemCode.Quotate());
+                }
+                obj.Add("Quantity", traveler.Quantity.ToString());
+                if (station != null)
+                {
+                    obj.Add("Station", station.Name.Quotate());
+                    obj.Add("Pending", traveler.QuantityPendingAt(station).ToString());
+                    obj.Add("Complete", traveler.QuantityCompleteAt(station).ToString());
+                }
+                return new ClientMessage("TravelerPopupDisplayFields", obj.Stringify());
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info","Error when getting display fields");
+            }
+        }
+        //
+        public ClientMessage CreateSummary(string json)
         {
             return m_travelerManager.CreateSummary(json);
         }
 
-        public string DisintegrateTraveler(string json)
+        public ClientMessage DisintegrateTraveler(string json)
         {
             return m_travelerManager.DisintegrateTraveler(json);
         }
 
-        public string EnterProduction(string json)
+        public ClientMessage EnterProduction(string json)
         {
             return m_travelerManager.EnterProduction(json);
         }
 
-        public string DownloadSummary(string json)
+        public ClientMessage DownloadSummary(string json)
         {
             return m_travelerManager.DownloadSummary(json);
         }
