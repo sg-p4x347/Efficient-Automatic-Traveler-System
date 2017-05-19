@@ -191,20 +191,24 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 StationClass station = StationClass.GetStation(obj["station"]);
-                obj.Add("Traveler", (traveler is TableBox ? traveler.ParentTravelers[0].ID : traveler.ID).ToString());
-                obj.Add("Type", traveler.GetType().Name.Quotate());
+                Dictionary<string, string> fields = new Dictionary<string, string>();
+                fields.Add("Traveler", (traveler is TableBox ? traveler.ParentTravelers[0].ID : traveler.ID).ToString());
+                fields.Add("Type", traveler.GetType().Name.Quotate());
                 if (!(traveler is Box))
                 {
-                    obj.Add("Model", (traveler as IPart).ItemCode.Quotate());
+                    fields.Add("Model", (traveler as IPart).ItemCode.Quotate());
                 }
-                obj.Add("Quantity", traveler.Quantity.ToString());
+                fields.Add("Qty on traveler", traveler.Quantity.ToString());
                 if (station != null)
                 {
-                    obj.Add("Station", station.Name.Quotate());
-                    obj.Add("Pending", traveler.QuantityPendingAt(station).ToString());
-                    obj.Add("Complete", traveler.QuantityCompleteAt(station).ToString());
+                    fields.Add("Station", station.Name.Quotate());
+                    fields.Add("Pending", traveler.QuantityPendingAt(station).ToString());
+                    if (traveler.QuantityCompleteAt(station) > 0)
+                    {
+                        fields.Add("Complete", traveler.QuantityCompleteAt(station).ToString());
+                    }
                 }
-                return new ClientMessage("TravelerPopupDisplayFields", obj.Stringify());
+                return new ClientMessage("TravelerPopupDisplayFields", fields.Stringify());
             } catch (Exception ex)
             {
                 Server.LogException(ex);

@@ -177,7 +177,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"childTravelers",m_childTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
                 {"station",m_station.Name.Quotate() },
                 {"state",m_state.ToString().Quotate() },
-                {"type",this.GetType().ToString().Quotate()},
+                {"type",this.GetType().Name.Quotate()},
                 {"dateStarted",DateStarted.Quotate() }
             };
             return obj.Stringify();

@@ -150,7 +150,8 @@ namespace Efficient_Automatic_Traveler_System
                         if (mi != null)
                         {
                             ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                            SendMessage(returnMessage.ToString());
+                            string messageString = returnMessage.ToString();
+                            if (messageString != "") SendMessage(messageString);
                         }
                     }
                 }

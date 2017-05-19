@@ -34,32 +34,7 @@
 					
 					
 				</div>
-				<table>
-					<tr>
-						<td>Traveler:</td>
-						<td><p id = "promptInfoTravelerID" class = "white three-d"></p></td>	
-					</tr>
-					<tr>
-						<td>Model:</td>
-						<td><p id = "promptInfoItemCode" class = "white three-d"></p></td>
-					</tr>
-					<tr>
-						<td>Station:</td>
-						<td><span id = "promptInfoStation"></span></td>	
-					</tr>
-					<tr>
-						<td>Qty:</td>
-						<td><span id = "promptInfoQuantity"></span></td>
-					</tr>
-					<tr>
-						<td>Pending:</td>
-						<td><span id = "promptInfoPending"></span></td>
-					</tr>
-					<tr>
-						<td>Completed:</td>
-						<td><span id = "promptInfoCompleted"></span></td>
-					</tr>
-				</table>
+				<div id = "travelerPopupFields" class = "twoEM"></div>
 				<span id = "promptInfoAction"></span>
 				<select id = "promptSelect" class = "dark oneEM"></select>
 				<div class = "list--horizontal justify-space-between">
@@ -74,8 +49,8 @@
 				<div class = "yellowBack button" onclick = "application.popupManager.Close(document.getElementById('summaryPopup'));">Close</div>
 				<div class = "list--horizontal" >
 					<h1 id = "summaryTitle"></h1> &nbsp
-					From &nbsp <select id = "summaryFromSelect" class = "whiteBack twoEm"></select> &nbsp
-					To &nbsp <select id = "summaryToSelect" class = "whiteBack twoEm"></select> &nbsp
+					From &nbsp <select id = "summaryFromSelect" class = "whiteBack twoEM"></select> &nbsp
+					To &nbsp <select id = "summaryToSelect" class = "whiteBack twoEM"></select> &nbsp
 				</div>
 				
 				<table id = "summary"></table>

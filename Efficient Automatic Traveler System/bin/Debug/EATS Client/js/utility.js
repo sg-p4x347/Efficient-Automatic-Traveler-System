@@ -39,11 +39,12 @@ function Traveler(obj) {
 			case "InProcess": self.colorClass = "redBack"; break;
 			case "PostProcess": self.colorClass = "greenBack"; break;
 		}
-		DOMqueueItem.className = "button queue__item twoEM " + self.colorClass;
+		DOMqueueItem.className = "queue__item twoEM ";
 		if (self.selected) {
 			DOMqueueItem.className += " selected";
 		}
-		DOMqueueItem.innerHTML = pad(self.type == "Efficient_Automatic_Traveler_System.TableBox" ? self.parentTravelers[0] : self.ID,6) + "<br>";
+			DOMqueueItem.className += " " + self.colorClass;
+		DOMqueueItem.innerHTML = pad(self.type == "TableBox" ? self.parentTravelers[0] : self.ID,6) + "<br>";
 		// QTY -------------------------------------------
 		var qty = document.createElement("DIV");
 		qty.className = "queue__item__qty blue";
@@ -70,7 +71,7 @@ function Traveler(obj) {
 		// ITEM CODE-------------------------------------------
 		var itemCode = document.createElement("SPAN");
 			itemCode.className = "queue__item__desc beige";
-		if (self.type == "Efficient_Automatic_Traveler_System.TableBox") {
+		if (self.type == "TableBox") {
 			itemCode.innerHTML = "Table Box";
 		} else {
 			itemCode.innerHTML = self.itemCode;
@@ -97,8 +98,8 @@ function Traveler(obj) {
 	obj.Select = function(state) {
 		obj.selected = state;
 		obj.checkBox.checked = state;
-		obj.DOMqueueItem.className = (state ? "button queue__item twoEM selected " + obj.colorClass
-			: "button queue__item twoEM " + obj.colorClass);
+		obj.DOMqueueItem.className = (state ? "queue__item twoEM selected " + obj.colorClass
+			: "queue__item twoEM " + obj.colorClass);
 	}
 	return obj;
 }
@@ -535,6 +536,7 @@ function PopupManager(blackout) {
 		self.Open(popup);
 	}
 	
+	
 	//=========================================
 	// CREATE MODULAR DOM OBJECTS
 	
@@ -576,6 +578,27 @@ function PopupManager(blackout) {
 		list.appendChild(check);
 		list.appendChild(text);
 		return list;
+	}
+	// displays a formatted table created from the fields object provided
+	this.CreateTable = function (fields) {
+		var table = document.createElement("TABLE");
+		table.className = "blackout__popup__table";
+		for (var fieldName in fields) {
+			var row = document.createElement("TR");
+			// name
+			var name = document.createElement("TD");
+			name.style.textAlign = "left";
+			name.innerHTML = fieldName;
+			row.appendChild(name);
+			// value
+			var value = document.createElement("TD");
+			value.style.textAlign = "right";
+			value.innerHTML = fields[fieldName];
+			row.appendChild(value);
+			
+			table.appendChild(row);
+		}
+		return table;
 	}
 	//=========================================
 	
@@ -646,6 +669,7 @@ function AddTooltip(element,tip) {
 	element.title = tip;
 }
 
+
 function Timer(DOMelement) {
 		// Timer
 	this.timerStart;
@@ -707,7 +731,7 @@ function Timer(DOMelement) {
 	this.Clear();
 }
 function ClearChildren(domElement) {
-	while (domElement.lastChild) {
-		domElement.remove(domElement.lastChild);
+	while (domElement.hasChildNodes()) {
+		domElement.removeChild(domElement.lastChild);
 	}
 }

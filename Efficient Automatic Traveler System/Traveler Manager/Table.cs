@@ -335,7 +335,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 obj.Add("laborRate", GetRate(Part.ComponentBills[0], station).ToString());
-                obj.Add("totalLabor", GetTotalLabor().ToString());
+                obj.Add("totalLabor", Math.Round(GetTotalLabor(),1).ToString());
             } catch (Exception ex)
             {
                 Server.LogException(ex);
@@ -733,7 +733,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_part;
             }
         }
-        internal string ItemCode
+        public string ItemCode
         {
             get
             {

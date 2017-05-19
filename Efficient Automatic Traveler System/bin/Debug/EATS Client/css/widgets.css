@@ -60,13 +60,16 @@ input[type=checkbox] {
 	color: black;
 }
 .button {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
 	font-family: Verdana, Geneva, sans-serif;
 	
 	text-align: center;
 	
 	border-radius: 8px;
 }
-div.button:hover, div.button:active, div.selected {
+.button:hover, .button:active, .selected {
 	background-color: silver;
 	border-color: white;
 	color: black;
@@ -162,6 +165,9 @@ div.percentContainer {
 	border-radius: 16px;
 	max-height: 100vh;
 	overflow-y: auto;
+}
+.blackout__popup__table {
+	width: 100%;
 }
 /*flex modifiers*/
 .justify-space-between {
@@ -341,7 +347,8 @@ div.percentContainer {
 }
 div.queue__item {
 	transition-duration: 0.25s;
-
+	
+	border-radius: 8px;
 	font-family: "Arial Black", Gadget, sans-serif;
 	text-align: center;
 	text-shadow: 0px 0px 5px black;
@@ -355,6 +362,12 @@ div.queue__item {
 	
 	border-width: 3px;
 	border-radius: 6px;
+}
+div.queue__item:hover, div.queue__item.selected {
+	background-color: silver;
+	border-color: white;
+	color: black;
+	text-shadow: none;
 }
 div.queue__item__desc {
 	color: white;

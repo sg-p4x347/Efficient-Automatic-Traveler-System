@@ -43,7 +43,7 @@ namespace Efficient_Automatic_Traveler_System
                 // HTTP file serving
             } catch (Exception ex)
             {
-                Server.WriteLine(ex.Message + " : " + ex.StackTrace);
+                LogException(ex);
             }
         }
         public void Start()
@@ -191,10 +191,11 @@ namespace Efficient_Automatic_Traveler_System
 
             // open the MAS connection
             ConnectToData();
+            
         }
         private void UpdateOnline()
         {
-            
+            Server.WriteLine("> Updating in Online mode");
             // Import stored orders from json file and MAS
             m_orderManager.ImportOrders(ref m_MAS);
 
@@ -216,6 +217,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void UpdateOffline()
         {
+            Server.WriteLine("> Updating in Offline mode");
             // Import stored orders from json file and MAS
             m_orderManager.ImportOrders(ref m_MAS);
 
@@ -249,13 +251,14 @@ namespace Efficient_Automatic_Traveler_System
         {
             Server.Write("\r{0}", "Connecting to MAS...");
 
-            // initialize the MAS connection
-            m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;";
-            m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;UID=GKC;PWD=sgp4x347;";
+           
             try
             {
-                Task task = m_MAS.OpenAsync();
-                if (await Task.WhenAny(task, Task.Delay(3000)) == task)
+                // initialize the MAS connection
+                m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;";
+                m_MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;UID=GKC;PWD=sgp4x347;";
+                m_MAS.Open();
+                if (m_MAS.State == System.Data.ConnectionState.Open)
                 {
                     Online();
                 } else
@@ -267,7 +270,7 @@ namespace Efficient_Automatic_Traveler_System
             catch (Exception ex)
             {
                 Server.Write("\r{0}", "Connecting to MAS...Failed\n");
-                Server.WriteLine(ex.Message);
+                LogException(ex);
             }
         }
         public static OdbcConnection GetMasConnection()
@@ -408,6 +411,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_ip;
         private int m_port;
         private bool m_online;
+        private static string m_assembly = "Efficient_Automatic_Traveler_System.";
         private ClientManager m_clientManager;
         private Thread m_clientManagerThread;
         private TimeSpan m_updateInterval;
@@ -501,6 +505,14 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_rootDirectory;
+            }
+        }
+
+        public static string Assembly
+        {
+            get
+            {
+                return m_assembly;
             }
         }
     }

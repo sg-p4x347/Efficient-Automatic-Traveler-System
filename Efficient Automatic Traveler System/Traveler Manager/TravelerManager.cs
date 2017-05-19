@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Data.Odbc;
 using System.Diagnostics;
 using System.IO;
-
+using System.Reflection;
 namespace Efficient_Automatic_Traveler_System
 {
     // Class: Used to generate and store the digital "travelers" that are used throughout the system
@@ -719,7 +719,7 @@ namespace Efficient_Automatic_Traveler_System
             Traveler traveler = null;
             if (obj["type"] != "")
             {
-                Type type = Type.GetType(obj["type"]);
+                Type type = Type.GetType(Server.Assembly + obj["type"]);
                 traveler = (Traveler)Activator.CreateInstance(type, json);
             }
             return traveler;

@@ -230,18 +230,19 @@ function Application () {
 	this.LoadTravelerAt = function (traveler) {
 		this.TravelerPopup(traveler);
 	}
-	this.TravelerPopupDisplayFields(fields) {
+	this.TravelerPopupDisplayFields = function(fields) {
 		var self = this;
-		for (var fieldName in fields) {
-			var promptInfo = document.getElementById("promptInfo");
+		var travelerPopupFields = document.getElementById("travelerPopupFields")
+		ClearChildren(travelerPopupFields);
+		travelerPopupFields.appendChild(self.popupManager.CreateTable(fields));
+		/* var promptInfo = document.getElementById("promptInfo");
 		document.getElementById("promptInfoStation").innerHTML = (traveler.station ? traveler.station : "");
 		document.getElementById("promptInfoTravelerID").innerHTML = pad(traveler.ID,6);
 		document.getElementById("promptInfoItemCode").innerHTML = traveler.itemCode;
 		document.getElementById("promptInfoQuantity").innerHTML = traveler.quantity;
 		document.getElementById("promptInfoPending").innerHTML = (traveler.qtyPending ? traveler.qtyPending : "-");
 		document.getElementById("promptInfoCompleted").innerHTML = (traveler.qtyCompleted ? traveler.qtyCompleted : "-");
-		document.getElementById("promptInfoAction").innerHTML = "Move [" + pad(traveler.ID,6) + "]'s starting location to...";
-		}
+		document.getElementById("promptInfoAction").innerHTML = "Move [" + pad(traveler.ID,6) + "]'s starting location to..."; */
 	}
 	this.TravelerPopup = function (traveler) {
 		var self = this;
@@ -251,6 +252,14 @@ function Application () {
 		while (promptBox.hasChildNodes()) {
 			promptBox.removeChild(promptBox.lastChild);
 		} */
+		//----------INTERFACE CALL-----------------------
+		var message = new InterfaceCall("TravelerPopupDisplayFields",
+		{
+			travelerID: traveler.ID,
+			station: (traveler.station ? traveler.station : "")
+		});
+		application.websocket.send(JSON.stringify(message));
+		//-----------------------------------------------
 		
 		//-----------------
 		// Move starting station to...
@@ -834,7 +843,7 @@ function TravelerQueue(station) {
 			totalLabor += traveler.totalLabor;
 		});
 		self.totalQtyElem.innerHTML = totalQty;
-		self.totalLaborElem.innerHTML = totalLabor;
+		self.totalLaborElem.innerHTML = totalLabor.toFixed(1);
 	}
 	this.BalanceSliders = function(qtyMoving,qtyStaying,movingBar,stayingBar,traveler) {
 		movingBar.style.width = ((parseInt(qtyMoving.value) / traveler.quantity) * 100) + "%";
