@@ -10,6 +10,8 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 
+using System.Timers;
+
 namespace Efficient_Automatic_Traveler_System
 {
     class OperatorClient : Client, IOperator, ITravelers
@@ -54,6 +56,7 @@ namespace Efficient_Automatic_Traveler_System
                 stationsObj.Add("stations", stations.Stringify());
                 travelerJSON = travelerJSON.MergeJSON(stationsObj.Stringify()); // merge station properties
                 travelerJSON = travelerJSON.MergeJSON(traveler.ExportTableRows("OperatorClient", m_station));
+                travelerJSON = travelerJSON.MergeJSON(traveler.ExportProperties(m_station).Stringify());
                 travelerStrings.Add(travelerJSON);
             }
             message.Add("travelers", travelerStrings.Stringify(false));
@@ -86,6 +89,7 @@ namespace Efficient_Automatic_Traveler_System
         protected ITravelerManager m_travelerManager;
         protected StationClass m_station;
         protected Traveler m_current;
+        protected DateTime m_partStart;
         internal StationClass Station
         {
             get
@@ -145,7 +149,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                ProcessEvent evt = new ProcessEvent(m_user, m_station, traveler.GetCurrentLabor() - Convert.ToDouble(obj["time"]), (ProcessType)Enum.Parse(typeof(ProcessType), obj["eventType"]));
+                ProcessEvent evt = new ProcessEvent(m_user, m_station, traveler.GetCurrentLabor(m_station) - Convert.ToDouble(obj["time"]), (ProcessType)Enum.Parse(typeof(ProcessType), obj["eventType"]));
                 
                 TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
                 return m_travelerManager.AddTravelerEvent(evt,traveler,item);
@@ -161,7 +165,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                ScrapEvent evt = new ScrapEvent(m_user, m_station, traveler.GetCurrentLabor() - Convert.ToDouble(obj["time"]), Convert.ToBoolean(obj["startedWork"].ToLower()),obj["source"],obj["reason"]);
+                ScrapEvent evt = new ScrapEvent(m_user, m_station, traveler.GetCurrentLabor(m_station) - Convert.ToDouble(obj["time"]), Convert.ToBoolean(obj["startedWork"].ToLower()),obj["source"],obj["reason"]);
 
                 TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
                 return m_travelerManager.AddTravelerEvent(evt, traveler, item);

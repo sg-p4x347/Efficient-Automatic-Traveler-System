@@ -161,9 +161,13 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+
+
+                Dictionary<string, string> exportedProps = new StringStream(ExportTraveler(traveler)).ParseJSON(false);
+                exportedProps["station"] = obj["station"].Quotate();
                 if (traveler != null)
                 {
-                    returnMessage = new ClientMessage("LoadTravelerAt", ExportTraveler(traveler));
+                    returnMessage = new ClientMessage("LoadTravelerAt", exportedProps.Stringify());
                 }
                 else
                 {

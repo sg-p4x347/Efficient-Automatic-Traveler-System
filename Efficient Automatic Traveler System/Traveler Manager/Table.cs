@@ -138,7 +138,20 @@ namespace Efficient_Automatic_Traveler_System
             detail.Add(GetTotalLabor().ToString());
             return detail.Stringify<string>(false).Trim('[').Trim(']');
         }
-
+        public override Dictionary<string, string> ExportProperties(StationClass station)
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            try
+            {
+                obj.Add("laborRate", GetRate(Part.ComponentBills[0], station).ToString());
+                obj.Add("totalLabor", Math.Round(GetTotalLabor(), 1).ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+            }
+            return obj;
+        }
         // export for summary view
         public override string ExportSummary()
         {
@@ -269,12 +282,12 @@ namespace Efficient_Automatic_Traveler_System
 
         
         // Gets the work rate for the current station
-        public override double GetCurrentLabor()
+        public override double GetCurrentLabor(StationClass station)
         {
             // gets the rate from the first (and only) bill; this is the common bill that all tables share
-            return GetRate(Part.ComponentBills[0], Station);
+            return GetRate(Part.ComponentBills[0], station != null ? station : Station);
         }
-        public override double GetTotalLabor(StationClass station = null)
+        public override double GetTotalLabor(StationClass station)
         {
             if (station != null)
             {
@@ -329,19 +342,7 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Private Methods
-        public override Dictionary<string, string> ExportProperties(StationClass station)
-        {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            try
-            {
-                obj.Add("laborRate", GetRate(Part.ComponentBills[0], station).ToString());
-                obj.Add("totalLabor", Math.Round(GetTotalLabor(),1).ToString());
-            } catch (Exception ex)
-            {
-                Server.LogException(ex);
-            }
-            return obj;
-        }
+        
         //private void GetBlacklist()
         //{
         //    m_blacklist.Add(new BlacklistItem("88")); // Glue items

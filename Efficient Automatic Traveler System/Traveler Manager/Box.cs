@@ -121,7 +121,7 @@ namespace Efficient_Automatic_Traveler_System
                 return station;
             }
         }
-        public override double GetCurrentLabor()
+        public override double GetCurrentLabor(StationClass station)
         {
             return (m_boxLabor != null ? m_boxLabor.QuantityPerBill : 0.0);
         }

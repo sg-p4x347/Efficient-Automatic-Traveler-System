@@ -140,7 +140,8 @@ namespace Efficient_Automatic_Traveler_System
                             item.Add("Quantity", quantity.ToString());
                             foreach (string stationName in StationClass.StationNames())
                             {
-                                double sum = traveler.Items.Sum(i => i.TimeAt(StationClass.GetStation(stationName)));
+                                double sum = m_travelers.Where(t => t is Table && (t as IPart).ItemCode == table.ItemCode).Sum( j => j.Items.Sum(i => i.ProcessTimeAt(StationClass.GetStation(stationName))));
+
                                 if (sum > 0)
                                 {
                                     string field = stationName + " (min)";

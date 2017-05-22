@@ -81,7 +81,7 @@ function Traveler(obj) {
 		
 		
 		
-		DOMqueueItem.onclick = function () {
+		/* DOMqueueItem.onclick = function () {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("LoadTravelerAt",
 			{
@@ -91,7 +91,7 @@ function Traveler(obj) {
 			application.websocket.send(JSON.stringify(message));
 			//-----------------------------------------------
 			//self.PromptAction(traveler);
-		}
+		} */
 		self.DOMqueueItem = DOMqueueItem;
 		return DOMqueueItem;
 	}
@@ -588,11 +588,14 @@ function PopupManager(blackout) {
 			// name
 			var name = document.createElement("TD");
 			name.style.textAlign = "left";
-			name.innerHTML = fieldName;
+			name.innerHTML = fieldName + ':';
+			
 			row.appendChild(name);
 			// value
 			var value = document.createElement("TD");
 			value.style.textAlign = "right";
+			value.style.color = "#FFFFFF";
+			value.className = "shadow";
 			value.innerHTML = fields[fieldName];
 			row.appendChild(value);
 			
@@ -688,7 +691,7 @@ function Timer(DOMelement) {
 		var self = this;
 		self.timerDirection = 1;
 		self.Stop();
-		self.timerTime = (time ? time : new moment.duration("00:00:00"));
+		self.timerTime = (time ? new moment.duration(time,'minutes') : new moment.duration("00:00:00"));
 		self.DOMelement.innerHTML = pad(self.timerTime.hours(),2) + ":" + pad(self.timerTime.minutes(),2) + ":" + pad(self.timerTime.seconds(),2);
 		self.timerInterval = setInterval(function () {
 			self.timerTime.add(1,'s');
@@ -723,9 +726,9 @@ function Timer(DOMelement) {
 	}
 	this.Resume = function () {
 		if (this.timerDirection === 1) {
-			this.Start(this.timerTime);
+			this.Start(this.timerTime.asMinutes());
 		} else if (this.timerDirection === -1) {
-			this.CountDown(this.timerTime.minutes());
+			this.CountDown(this.timerTime.asMinutes());
 		}
 	}
 	this.Clear();

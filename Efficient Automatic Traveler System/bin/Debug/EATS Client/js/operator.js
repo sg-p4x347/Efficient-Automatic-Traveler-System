@@ -248,6 +248,7 @@ function Application () {
 		});
 		var submit = self.popupManager.CreateButton("Submit");
 		submit.onclick = function () {
+			
 			var nodes = popup.getElementsByTagName("INPUT");
 			var allSelected = true;
 			for (var i=0; i<nodes.length; i++) {
@@ -259,6 +260,20 @@ function Application () {
 			if (allSelected) {
 				self.popupManager.Close(popup);
 				self.partTimer.Resume();
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("ChecklistSubmit",
+				{
+					travelerID: self.travelerView.traveler.ID,
+					eventType: "Scrapped",
+					time: application.partTimer.timerTime.asMinutes(),
+					itemID: (self.travelerView.item ? self.travelerView.item.ID : "undefined"),
+					
+					source: vendorRadio.checked ? "Vendor" : "Marco Group",
+					reason: scrapReasons.value,
+					startedWork: document.getElementById("startedWork").checked
+				});
+				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
 			} else {
 				info.innerHTML = "Please verify all items";
 			}
@@ -599,7 +614,19 @@ function TravelerQueue() {
 				self.SelectTraveler(traveler);
 			}
 			self.DOMelement.appendChild(DOMqueueItem); */
+			
 			var DOMqueueItem = traveler.CreateQueueItem(application.station.name);
+			DOMqueueItem.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("LoadTravelerAt",
+				{
+					travelerID: traveler.ID,
+					station: application.station.name
+				});
+				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+				
+			}
 			DOMqueueItem.style.fontSize = "1em";
 			DOMqueueItem.onmousedown = function () {
 				self.SelectTraveler(traveler);

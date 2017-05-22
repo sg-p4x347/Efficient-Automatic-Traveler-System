@@ -36,6 +36,8 @@ function Application () {
 		lastQueue: undefined,
 		lastTraveler: undefined
 	};
+	// DRAG AND DROP
+	this.dragging = false;
 	// Websocket
 	this.websocket;
 	this.SetWindow = function () {
@@ -556,6 +558,34 @@ function Application () {
 			//-----------------------------------------------
 		}
 	}
+	// DRAG AND DROP
+	this.BeginDrag = function(traveler,queue,event) {
+		var self = this;
+		var x = event.touches[0].pageX;
+		var y = event.touches[0].pageY;
+		var dragElement;
+		if (!self.dragging) {
+			self.dragging = true;
+			
+			dragElement = traveler.CreateQueueItem(queue.station.name);
+			dragElement.id = "dragElement";
+			dragElement.style.position = "fixed";
+			
+			
+			
+			dragElement.ontouchmove = function moveEvent(evt) {
+				self.BeginDrag(traveler,queue,evt);
+			}
+			document.getElementById("queueArray").appendChild(dragElement);
+		} else {
+			dragElement = document.getElementById("dragElement");
+		}
+		dragElement.style.left = Math.round(x - dragElement.offsetWidth/2) + "px";
+		dragElement.style.top = Math.round(y - dragElement.offsetHeight/2) + "px";
+	}
+	this.EndDrag = function () {
+		document.getElementById("dragElement");
+	}
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
@@ -838,13 +868,30 @@ function TravelerQueue(station) {
 		var totalLabor = 0;
 		// create and add the new DOM objects
 		self.travelers.forEach(function (traveler) {
-			self.DOMelement.appendChild(traveler.CreateQueueItem(self.station.name));
+			var DOMqueueItem = traveler.CreateQueueItem(self.station.name);
+			DOMqueueItem.onclick = function () {
+				//----------INTERFACE CALL-----------------------
+				var message = new InterfaceCall("LoadTravelerAt",
+				{
+					travelerID: traveler.ID,
+					station: self.station.name
+				});
+				application.websocket.send(JSON.stringify(message));
+				//-----------------------------------------------
+			}
+			DOMqueueItem.ontouchmove = function (event) {
+				application.BeginDrag(traveler,self,event);
+			}
+			
+			//self.PromptAction(traveler);
+			self.DOMelement.appendChild(DOMqueueItem);
 			totalQty += traveler.quantity;
 			totalLabor += traveler.totalLabor;
 		});
 		self.totalQtyElem.innerHTML = totalQty;
 		self.totalLaborElem.innerHTML = totalLabor.toFixed(1);
 	}
+	
 	this.BalanceSliders = function(qtyMoving,qtyStaying,movingBar,stayingBar,traveler) {
 		movingBar.style.width = ((parseInt(qtyMoving.value) / traveler.quantity) * 100) + "%";
 		stayingBar.style.width = ((parseInt(qtyStaying.value) / traveler.quantity) * 100) + "%";

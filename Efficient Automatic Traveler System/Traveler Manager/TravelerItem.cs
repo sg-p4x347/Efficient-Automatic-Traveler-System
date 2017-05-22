@@ -60,7 +60,7 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
-        public double TimeAt(StationClass station)
+        public double ProcessTimeAt(StationClass station)
         {
             return m_history.OfType<ProcessEvent>().ToList().Where(evt => evt.Station == station).Sum(e => e.Duration);
         }

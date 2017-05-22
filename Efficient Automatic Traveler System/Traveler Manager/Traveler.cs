@@ -530,7 +530,7 @@ namespace Efficient_Automatic_Traveler_System
         // gets the next station for the given item
         public abstract StationClass GetNextStation(UInt16 itemID);
         // gets the work rate for the current station
-        public abstract double GetCurrentLabor();
+        public abstract double GetCurrentLabor(StationClass station = null);
         // gets the total work wrapped up in the given station
         public abstract double GetTotalLabor(StationClass station = null);
         // overridden in derived classes, packs properties into the Export() json string
