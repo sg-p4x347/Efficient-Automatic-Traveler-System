@@ -80,7 +80,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Private Methods
 
         // basic form element
-        private static string Basic(string name, string title, string type, string value)
+        private string Basic(string name, string title, string type, string value)
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {
                 {"type",type.Quotate() },

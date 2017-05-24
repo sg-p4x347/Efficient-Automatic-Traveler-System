@@ -87,7 +87,7 @@ function Application () {
 					UID: document.getElementById("uidBox").value,
 					PWD: document.getElementById("pwdBox").value,
 				},"This");
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 				self.popupManager.Close(loginPopup);
 			}
@@ -105,7 +105,7 @@ function Application () {
 		logoutBtn.onclick = function () {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("Logout");
-			self.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			self.LoginPopup();
 			
@@ -209,7 +209,7 @@ function Application () {
 			var message = new InterfaceCall("CreateSummary",{
 				sort:"Active"
 			});
-			self.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 		}
 	}
@@ -300,7 +300,7 @@ function Application () {
 		self.popupManager.Form(format, function (filledForm) {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("NewTraveler",filledForm);
-			self.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			self.StartAutofocus();
 		});
@@ -312,7 +312,7 @@ function Application () {
 		self.popupManager.Form(format, function (filledForm) {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall(method,filledForm);
-			self.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			self.StartAutofocus();
 		});
@@ -388,7 +388,7 @@ function Application () {
 		{
 			viewState: self.view.viewState
 		},"This");
-		self.websocket.send(JSON.stringify(message));
+		
 		//-----------------------------------------------
 	}
 	this.Redirect = function(location) {
@@ -426,7 +426,7 @@ function Application () {
 				labelType: document.getElementById("labelSelect").value,
 				quantity: 1
 			});
-			self.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 		}
 	}
@@ -490,7 +490,7 @@ function Application () {
 						travelerID: travelerID,
 						itemID: itemID
 					});
-					self.websocket.send(JSON.stringify(message));
+					
 					//-----------------------------------------------
 				} else {
 					// attempt to load the traveler
@@ -499,7 +499,7 @@ function Application () {
 					{
 						travelerID: travelerID
 					});
-					self.websocket.send(JSON.stringify(message));
+					
 					//-----------------------------------------------
 				}
 			} else {
@@ -525,7 +525,7 @@ function Application () {
 					from: "",
 					to: ""
 				});
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 			}
 			popup.appendChild(summaryBtn);
@@ -540,7 +540,7 @@ function Application () {
 					sort: "Available",
 					type: "Table"
 				});
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 			}
 			popup.appendChild(downloadSummaryBtn);
@@ -553,7 +553,7 @@ function Application () {
 					sort: "Sorted",
 					type: "Table"
 				});
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 			}
 			popup.appendChild(sortedSummary);
@@ -566,7 +566,7 @@ function Application () {
 					sort: "All",
 					type: "Table"
 				});
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 			}
 			popup.appendChild(productionBtn);
@@ -579,7 +579,7 @@ function Application () {
 					sort: "All",
 					type: "Table"
 				});
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 			}
 			popup.appendChild(scrapBtn);
@@ -589,7 +589,7 @@ function Application () {
 			newUserBtn.onclick = function () {
 				//----------INTERFACE CALL-----------------------
 				var message = new InterfaceCall("UserForm");
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 			}
 			popup.appendChild(newUserBtn);
@@ -603,7 +603,7 @@ function Application () {
 					var message = new InterfaceCall("EditUserForm",{
 						searchPhrase: searchPhrase
 					});
-					self.websocket.send(JSON.stringify(message));
+					
 					//-----------------------------------------------
 					self.StartAutofocus();
 				});
@@ -615,7 +615,7 @@ function Application () {
 			newTravelerBtn.onclick = function () {
 				//----------INTERFACE CALL-----------------------
 				var message = new InterfaceCall("TravelerForm");
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 			}
 			popup.appendChild(newTravelerBtn);

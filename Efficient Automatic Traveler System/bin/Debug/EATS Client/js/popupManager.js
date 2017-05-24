@@ -184,7 +184,7 @@ function PopupManager(blackout) {
 		var self = this;
 		var popup = self.CreatePopup(title,true);
 		var horizontal = self.CreateHorizontalList();
-		var fieldsTable = self.CreateTable(displayFields);
+		var fieldsTable = self.CreateTable(displayFields,object);
 		horizontal.appendChild(fieldsTable);
 		var controlDiv = document.createElement("DIV");
 		controls.forEach(function (control) {
@@ -284,7 +284,7 @@ function PopupManager(blackout) {
 		return list;
 	}
 	// displays a formatted table created from the fields object provided
-	this.CreateTable = function (fields) {
+	this.CreateTable = function (fields,object) {
 		var table = document.createElement("TABLE");
 		table.className = "blackout__popup__table";
 		for (var fieldName in fields) {
@@ -295,15 +295,20 @@ function PopupManager(blackout) {
 			name.innerHTML = fieldName + ':';
 			
 			row.appendChild(name);
-			// value
-			var value = document.createElement("TD");
-			value.style.textAlign = "right";
-			value.style.color = "#FFFFFF";
-			value.className = "shadow";
-			value.innerHTML = fields[fieldName];
-			row.appendChild(value);
-			
-			table.appendChild(row);
+			if (typeof fields[fieldName] === "object") {
+				// control
+				
+			} else {
+				// value
+				var value = document.createElement("TD");
+				value.style.textAlign = "right";
+				value.style.color = "#FFFFFF";
+				value.className = "shadow";
+				value.innerHTML = fields[fieldName];
+				row.appendChild(value);
+				
+				table.appendChild(row);
+			}
 		}
 		return table;
 	}

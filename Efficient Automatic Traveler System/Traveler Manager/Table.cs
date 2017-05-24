@@ -143,6 +143,7 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>();
             try
             {
+                obj.Add("shape", Shape.Quotate());
                 obj.Add("laborRate", GetRate(Part.ComponentBills[0], station).ToString());
                 obj.Add("totalLabor", Math.Round(GetTotalLabor(station), 1).ToString());
             }

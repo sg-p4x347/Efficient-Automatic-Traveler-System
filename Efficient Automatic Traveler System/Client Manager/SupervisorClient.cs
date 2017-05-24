@@ -195,27 +195,47 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 StationClass station = StationClass.GetStation(obj["station"]);
-                Dictionary<string, string> returnObj = new Dictionary<string, string>();
-                Dictionary<string, string> fields = new Dictionary<string, string>();
-                fields.Add("ID", (traveler is TableBox ? traveler.ParentTravelers[0].ID : traveler.ID).ToString());
-                fields.Add("Type", traveler.GetType().Name.Quotate());
-                if (!(traveler is Box))
+                //Dictionary<string, string> returnObj = new Dictionary<string, string>();
+                //Dictionary<string, string> fields = new Dictionary<string, string>();
+                //fields.Add("ID", (traveler is TableBox ? traveler.ParentTravelers[0].ID : traveler.ID).ToString());
+                //fields.Add("Type", traveler.GetType().Name.Quotate());
+                //if (traveler is IPart)
+                //{
+                //    fields.Add("Model", (traveler as IPart).ItemCode.Quotate());
+                //}
+                //if (traveler is Table)
+                //{
+                //    fields.Add("Shape", (traveler as Table).Shape.Quotate());
+                //}
+                //fields.Add("Qty on traveler", traveler.Quantity.ToString());
+                //if (station != null)
+                //{
+                //    fields.Add("Station", station.Name.Quotate());
+                //    fields.Add("Pending", traveler.QuantityPendingAt(station).ToString());
+                //    if (traveler.QuantityCompleteAt(station) > 0)
+                //    {
+                //        fields.Add("Complete", traveler.QuantityCompleteAt(station).ToString());
+                //    }
+                //}
+                //returnObj.Add("displayFields", fields.Stringify());
+                //returnObj.Add("object", traveler.ToString());
+                //return new ClientMessage("TravelerPopup", returnObj.Stringify());
+                Column fields = new Column()
                 {
-                    fields.Add("Model", (traveler as IPart).ItemCode.Quotate());
-                }
-                fields.Add("Qty on traveler", traveler.Quantity.ToString());
-                if (station != null)
-                {
-                    fields.Add("Station", station.Name.Quotate());
-                    fields.Add("Pending", traveler.QuantityPendingAt(station).ToString());
-                    if (traveler.QuantityCompleteAt(station) > 0)
+                    new Row()
                     {
-                        fields.Add("Complete", traveler.QuantityCompleteAt(station).ToString());
+                        new TextNode("ID"), new TextNode(traveler.ID.ToString())
+                    },
+                    new Row()
+                    {
+                        new TextNode("Parent Travelers"), new Button("View","ViewParentTravelers")
                     }
-                }
-                returnObj.Add("displayFields", fields.Stringify());
-                returnObj.Add("object", traveler.ToString());
-                return new ClientMessage("TravelerPopup", returnObj.Stringify());
+                };
+                Column controls = new Column()
+                {
+                    new Button("More Info","LoadTravelerJSON")
+                };
+                Row groups = new Row() { fields, controls };
             } catch (Exception ex)
             {
                 Server.LogException(ex);

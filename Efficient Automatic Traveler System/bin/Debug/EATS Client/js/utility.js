@@ -57,15 +57,12 @@ function Traveler(obj) {
 		DOMqueueItem.appendChild(qty);
 		// Icon -------------------------------------------
 		var path = "./img/";
-		switch (self.type) {
-			case "Table":
-			path += "table.png";
-			break;
-			case "TableBox":
+		if (self.type == "Table") {
+			path += self.shape + ".png";
+		} else if (self.type == "TableBox") {
 			path += "box.png";
-			break;
 		}
-		DOMqueueItem.style.backgroundImage = "url(" + path + ")";
+		DOMqueueItem.style.backgroundImage = 'url("' + path + '")';
 		// CHECKBOX-------------------------------------------
 		if (self.quantity > 0 && application.type == "supervisor") {
 			self.checkBox = document.createElement("INPUT");
