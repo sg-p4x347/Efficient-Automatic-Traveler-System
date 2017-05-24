@@ -139,36 +139,7 @@ div.percentContainer {
 	opacity: 1.0;
 }
 
-.blackout {
-	font-size: 1em;
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	bottom: 0px;
-	right: 0px;
-	display: flex;
-	justify-content: space-around;
-	align-items: center;
-	align-content: center;
-	background-color: rgba(255,255,255,0.25);
-	z-index: 100;
-}
-.blackout__popup {
-	padding: 8px;
-	font-size: 2em;
-	color: black;
-	background-color: rgb(255,165,0);
-	border: 2px solid black;
-	display: flex;
-	flex-direction: column;
-	text-align: center;
-	border-radius: 16px;
-	max-height: 100vh;
-	overflow-y: auto;
-}
-.blackout__popup__table {
-	width: 100%;
-}
+
 /*flex modifiers*/
 .justify-space-between {
 	justify-content: space-between;
@@ -362,8 +333,12 @@ div.queue__item {
 	
 	border-width: 3px;
 	border-radius: 6px;
+	
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
 }
-div.queue__item:hover, div.queue__item.selected {
+div.queue__item:hover, div.queue__item.selected, .blackout__popup__listView__item:hover {
 	background-color: silver;
 	border-color: white;
 	color: black;
@@ -374,7 +349,7 @@ div.queue__item__desc {
 	text-shadow: 1px 1px 1px black;
 }
 div.queue__item__qty {
-	color: beige;
+	color: lime;
 }
 /* border */
 .inset {

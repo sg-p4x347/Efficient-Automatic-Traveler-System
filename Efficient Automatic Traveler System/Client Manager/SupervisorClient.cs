@@ -52,7 +52,7 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> travelerJSON = new StringStream(traveler.ToString()).ParseJSON(false);
             Dictionary<string, string> stations = new Dictionary<string, string>();
             List<StationClass> stationsToDisplay = traveler.CurrentStations();
-            if (m_viewState == ItemState.PreProcess) stationsToDisplay.Add(StationClass.GetStation("Start"));
+            //if (m_viewState == ItemState.PreProcess) stationsToDisplay.Add(StationClass.GetStation("Start"));
             foreach (StationClass station in stationsToDisplay)
             {
                 stations.Add(station.Name, traveler.ExportStationSummary(station));
@@ -188,15 +188,16 @@ namespace Efficient_Automatic_Traveler_System
             return m_travelerManager.LoadItem(json);
         }
         // the fields that are visible in the traveler popup
-        public ClientMessage TravelerPopupDisplayFields(string json)
+        public ClientMessage TravelerPopup(string json)
         {
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 StationClass station = StationClass.GetStation(obj["station"]);
+                Dictionary<string, string> returnObj = new Dictionary<string, string>();
                 Dictionary<string, string> fields = new Dictionary<string, string>();
-                fields.Add("Traveler", (traveler is TableBox ? traveler.ParentTravelers[0].ID : traveler.ID).ToString());
+                fields.Add("ID", (traveler is TableBox ? traveler.ParentTravelers[0].ID : traveler.ID).ToString());
                 fields.Add("Type", traveler.GetType().Name.Quotate());
                 if (!(traveler is Box))
                 {
@@ -212,7 +213,9 @@ namespace Efficient_Automatic_Traveler_System
                         fields.Add("Complete", traveler.QuantityCompleteAt(station).ToString());
                     }
                 }
-                return new ClientMessage("TravelerPopupDisplayFields", fields.Stringify());
+                returnObj.Add("displayFields", fields.Stringify());
+                returnObj.Add("object", traveler.ToString());
+                return new ClientMessage("TravelerPopup", returnObj.Stringify());
             } catch (Exception ex)
             {
                 Server.LogException(ex);

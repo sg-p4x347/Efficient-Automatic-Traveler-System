@@ -13,4 +13,11 @@
         <File name="css\widgets.css" />
         <File name="js\utility.js" />
     </Project>
+    <Project name="Utility">
+        <File name="js\jsonViewer.js" />
+        <File name="js\popupManager.js" />
+        <File name="js\utility.js" />
+        <File name="css\widgets.css" />
+        <File name="css\popupManager.css" />
+    </Project>
 </NotepadPlus>

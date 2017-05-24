@@ -362,6 +362,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (QuantityPendingAt(station) > 0 || QuantityAt(station) > 0) stations.Add(station);
             }
+            if (Station == StationClass.GetStation("Start")) stations.Add(Station);
             return stations;
         }
         // export for clients to display

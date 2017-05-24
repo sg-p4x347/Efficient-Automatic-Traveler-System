@@ -36,8 +36,6 @@ function Application () {
 		lastQueue: undefined,
 		lastTraveler: undefined
 	};
-	// DRAG AND DROP
-	this.dragging = false;
 	// Websocket
 	this.websocket;
 	this.SetWindow = function () {
@@ -223,178 +221,63 @@ function Application () {
 	}
 	// Loads the traveler GUI
 	this.LoadTraveler = function (traveler) {
-		this.TravelerPopup(traveler);
+		//----------INTERFACE CALL-----------------------
+		var message = new InterfaceCall("TravelerPopup",
+		{
+			travelerID: traveler.ID,
+			station: (traveler.station ? traveler.station : "")
+		});
+		//-----------------------------------------------
 	}
 	this.LoadTravelerJSON = function (traveler) {
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
 		this.popupManager.AddJSONviewer(traveler,"Traveler");
 	}
 	this.LoadTravelerAt = function (traveler) {
-		this.TravelerPopup(traveler);
-	}
-	this.TravelerPopupDisplayFields = function(fields) {
-		var self = this;
-		var travelerPopupFields = document.getElementById("travelerPopupFields")
-		ClearChildren(travelerPopupFields);
-		travelerPopupFields.appendChild(self.popupManager.CreateTable(fields));
-		/* var promptInfo = document.getElementById("promptInfo");
-		document.getElementById("promptInfoStation").innerHTML = (traveler.station ? traveler.station : "");
-		document.getElementById("promptInfoTravelerID").innerHTML = pad(traveler.ID,6);
-		document.getElementById("promptInfoItemCode").innerHTML = traveler.itemCode;
-		document.getElementById("promptInfoQuantity").innerHTML = traveler.quantity;
-		document.getElementById("promptInfoPending").innerHTML = (traveler.qtyPending ? traveler.qtyPending : "-");
-		document.getElementById("promptInfoCompleted").innerHTML = (traveler.qtyCompleted ? traveler.qtyCompleted : "-");
-		document.getElementById("promptInfoAction").innerHTML = "Move [" + pad(traveler.ID,6) + "]'s starting location to..."; */
-	}
-	this.TravelerPopup = function (traveler) {
-		var self = this;
-		var promptBox = document.getElementById("travelerPopup");//.cloneNode(true);
-		var closeFunction = application.popupManager.AddSpecific("travelerPopup");
-		/* // clear the promptBox
-		while (promptBox.hasChildNodes()) {
-			promptBox.removeChild(promptBox.lastChild);
-		} */
 		//----------INTERFACE CALL-----------------------
-		var message = new InterfaceCall("TravelerPopupDisplayFields",
+		var message = new InterfaceCall("TravelerPopup",
 		{
 			travelerID: traveler.ID,
 			station: (traveler.station ? traveler.station : "")
 		});
-		application.websocket.send(JSON.stringify(message));
 		//-----------------------------------------------
+	}
+	this.TravelerPopup = function(params) {
+		var self = this;
 		
-		//-----------------
-		// Move starting station to...
-		//-----------------
-		var promptSelect = document.getElementById("promptSelect");
-		ClearChildren(promptSelect);
-		// add the station options
-		application.stationList.forEach(function (station) {
-			if (station.creates.indexOf(traveler.type) != -1 || station.name === "Start") {
-				var option = document.createElement("OPTION");
-				option.innerHTML = station.name;
-				option.value = station.name;
-				promptSelect.appendChild(option);
-			}
-		});
-		promptSelect.value = self.lastSelectedStation;
-		//-----------------
-		// Move button
-		//-----------------
-		var promptMoveBtn = document.getElementById("promptMoveBtn");
-		promptMoveBtn.onclick = function () {
-			self.lastSelectedStation = promptSelect.value;
-			
-			
-			// perform move on all selected travelers
-			self.travelers.forEach(function (extraTraveler) {
-				if (extraTraveler.ID == traveler.ID || extraTraveler.selected) {
-					
-				}
-			});
-			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("MoveTravelerStart",
-			{
-				travelerIDs: application.GetSelectedIDs().concat(traveler.ID),
-				station: promptSelect.value
-			});
-			application.websocket.send(JSON.stringify(message));
-			//-----------------------------------------------
-			
-			closeFunction();
-		}
-		//-----------------
-		// Info button
-		//-----------------
-		document.getElementById("promptInfoBtn").onclick = function () {
-			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("LoadTravelerJSON",
-			{
-				travelerID: traveler.ID
-			});
-			application.websocket.send(JSON.stringify(message));
-			//-----------------------------------------------
-		}
-		//---------------------
-		// Traveler options 
-		//---------------------
-		document.getElementById("travelerOptionsBtn").onclick = function () {
-			var popup = application.popupManager.CreatePopup();
-			// More Info --------------
-			var infoBtn = application.popupManager.CreateButton("More Info");
-			infoBtn.onclick = function () {
-				application.popupManager.Close(popup);
-				
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("LoadTravelerJSON",
+		var moveSelection = application.stationList.Where(function (station) {
+			return station.creates.indexOf(params.object.type) != -1 || station.name === "Start";
+		}).ArrayFromProperty("name");
+		self.popupManager.ObjectViewer("Traveler",params.displayFields,params.object,[
+			new PopupSelection("Move","Select a station", moveSelection,function (traveler,value) {
+				new InterfaceCall("MoveTravelerStart",
 				{
+					travelerIDs: application.GetSelectedIDs().concat(traveler.ID),
+					station: value
+				});
+			}),
+			new PopupButton("More Info",function (traveler) {
+				new InterfaceCall("LoadTravelerJSON",{
 					travelerID: traveler.ID
 				});
-				application.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-				//document.getElementById("searchBox").value = traveler.ID;
-				//document.getElementById("searchForm").onsubmit();
-			}
-			popup.appendChild(infoBtn);
-			//-------------------------
-			
-			// Disintegrate ----------
-			var disintegrateBtn = application.popupManager.CreateButton("Disintegrate this traveler");
-			AddTooltip(disintegrateBtn,"Deletes the traveler, and releases the orders to create and combine into new travelers during the next system update");
-			disintegrateBtn.onclick = function () {
-				application.popupManager.Close(popup);
-				
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("DisintegrateTraveler",
-				{
+			}),
+			new PopupButton("Disintegrate",function (traveler) {
+				new InterfaceCall("DisintegrateTraveler",{
 					travelerIDs: application.GetSelectedIDs().concat(traveler.ID)
 				});
-				application.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-				
-				closeFunction();
-			}
-			popup.appendChild(disintegrateBtn);
-			//-------------------------
-			
-			// Enter Production ----------
-			var enterProductionBtn = application.popupManager.CreateButton("Enter Production");
-			enterProductionBtn.onclick = function () {
-				application.popupManager.Close(popup);
-				
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("EnterProduction",
-				{
+			}),
+			new PopupButton("Enter Production",function (traveler) {
+				new InterfaceCall("EnterProduction",{
 					travelerIDs: application.GetSelectedIDs().concat(traveler.ID)
 				});
-				application.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-				
-				closeFunction();
-			}
-			popup.appendChild(enterProductionBtn);
-			//----------------------------
-			application.popupManager.AddCustom(popup);
-			
-			// PRINT LABLES--------------
-			var printBtn = application.popupManager.CreateButton("Print Labels");
-			printBtn.onclick = function () {
-				application.popupManager.Close(popup);
+			}),
+			new PopupButton("Print Labels",function (traveler) {
 				application.popupManager.AddSpecific("labelPopup");
 				application.PrintLabelPopup(traveler);
-				/* //----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("CreateSummary",{
-					sort: "Active",
-					type: "Table",
-					from: "",
-					to: ""
-				});
-				self.websocket.send(JSON.stringify(message));
-				//----------------------------------------------- */
-			}
-			popup.appendChild(printBtn);
-		}
+			})
+		]);
 	}
+	
 	// Loads the item GUI
 	this.LoadItem = function (item) {
 		this.popupManager.AddJSONviewer(item,"Item");
@@ -507,17 +390,6 @@ function Application () {
 		},"This");
 		self.websocket.send(JSON.stringify(message));
 		//-----------------------------------------------
-		
-		/* for (var queue in self.queues) {
-			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("QuantityAt",
-			{
-				station: queue,
-				type: "Traveler"
-			},"This");
-			self.websocket.send(JSON.stringify(message));
-			//-----------------------------------------------
-		} */
 	}
 	this.Redirect = function(location) {
 		window.location = location;
@@ -560,7 +432,7 @@ function Application () {
 	}
 	// DRAG AND DROP
 	this.BeginDrag = function(traveler,queue,event) {
-		var self = this;
+		/* var self = this;
 		var x = event.touches[0].pageX;
 		var y = event.touches[0].pageY;
 		var dragElement;
@@ -581,10 +453,10 @@ function Application () {
 			dragElement = document.getElementById("dragElement");
 		}
 		dragElement.style.left = Math.round(x - dragElement.offsetWidth/2) + "px";
-		dragElement.style.top = Math.round(y - dragElement.offsetHeight/2) + "px";
+		dragElement.style.top = Math.round(y - dragElement.offsetHeight/2) + "px"; */
 	}
 	this.EndDrag = function () {
-		document.getElementById("dragElement");
+		//document.getElementById("dragElement");
 	}
 	// initialize html and application components
 	this.Initialize = function () {
@@ -876,7 +748,7 @@ function TravelerQueue(station) {
 					travelerID: traveler.ID,
 					station: self.station.name
 				});
-				application.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 			}
 			DOMqueueItem.ontouchmove = function (event) {
@@ -896,142 +768,6 @@ function TravelerQueue(station) {
 		movingBar.style.width = ((parseInt(qtyMoving.value) / traveler.quantity) * 100) + "%";
 		stayingBar.style.width = ((parseInt(qtyStaying.value) / traveler.quantity) * 100) + "%";
 	}
-	/* this.PromptAction = function (traveler) {
-		var self = this;
-		var promptBox = document.getElementById("travelerPopup");//.cloneNode(true);
-		var closeFunction = application.popupManager.AddSpecific("travelerPopup");
-		//// clear the promptBox
-		//while (promptBox.hasChildNodes()) {
-		//	promptBox.removeChild(promptBox.lastChild);
-		//} 
-		var promptInfo = document.getElementById("promptInfo");
-		document.getElementById("promptInfoStation").innerHTML = self.station.name;
-		document.getElementById("promptInfoTravelerID").innerHTML = pad(traveler.ID,6);
-		document.getElementById("promptInfoItemCode").innerHTML = traveler.itemCode;
-		document.getElementById("promptInfoQuantity").innerHTML = traveler.quantity;
-		document.getElementById("promptInfoPending").innerHTML = traveler.qtyPending;
-		document.getElementById("promptInfoCompleted").innerHTML = traveler.qtyCompleted;
-		document.getElementById("promptInfoAction").innerHTML = "Move [" + pad(traveler.ID,6) + "]'s starting location to...";
-		//-----------------
-		// Move starting station to...
-		//-----------------
-		var promptSelect = document.getElementById("promptSelect");
-		ClearChildren(promptSelect);
-		// add the station options
-		application.stationList.forEach(function (station) {
-			if (station.creates.indexOf(traveler.type) != -1 || station.name === "Start") {
-				var option = document.createElement("OPTION");
-				option.innerHTML = station.name;
-				option.value = station.name;
-				promptSelect.appendChild(option);
-			}
-		});
-		promptSelect.value = self.lastSelectedStation;
-		//-----------------
-		// Move button
-		//-----------------
-		var promptMoveBtn = document.getElementById("promptMoveBtn");
-		promptMoveBtn.onclick = function () {
-			self.lastSelectedStation = promptSelect.value;
-			
-			
-			// perform move on all selected travelers
-			self.travelers.forEach(function (extraTraveler) {
-				if (extraTraveler.ID == traveler.ID || extraTraveler.selected) {
-					
-				}
-			});
-			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("MoveTravelerStart",
-			{
-				travelerIDs: application.GetSelectedIDs().concat(traveler.ID),
-				station: promptSelect.value
-			});
-			application.websocket.send(JSON.stringify(message));
-			//-----------------------------------------------
-			
-			closeFunction();
-		}
-		//-----------------
-		// Info button
-		//-----------------
-		document.getElementById("promptInfoBtn").onclick = function () {
-			document.getElementById("searchBox").value = traveler.ID;
-			document.getElementById("searchForm").onsubmit();
-		}
-		//---------------------
-		// Traveler options 
-		//---------------------
-		document.getElementById("travelerOptionsBtn").onclick = function () {
-			var popup = application.popupManager.CreatePopup();
-			// More Info --------------
-			var infoBtn = application.popupManager.CreateButton("More Info");
-			infoBtn.onclick = function () {
-				application.popupManager.Close(popup);
-				
-				document.getElementById("searchBox").value = traveler.ID;
-				document.getElementById("searchForm").onsubmit();
-			}
-			popup.appendChild(infoBtn);
-			//-------------------------
-			
-			// Disintegrate ----------
-			var disintegrateBtn = application.popupManager.CreateButton("Disintegrate this traveler");
-			AddTooltip(disintegrateBtn,"Deletes the traveler, and releases the orders to create and combine into new travelers during the next system update");
-			disintegrateBtn.onclick = function () {
-				application.popupManager.Close(popup);
-				
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("DisintegrateTraveler",
-				{
-					travelerIDs: application.GetSelectedIDs().concat(traveler.ID)
-				});
-				application.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-				
-				closeFunction();
-			}
-			popup.appendChild(disintegrateBtn);
-			//-------------------------
-			
-			// Enter Production ----------
-			var enterProductionBtn = application.popupManager.CreateButton("Enter Production");
-			enterProductionBtn.onclick = function () {
-				application.popupManager.Close(popup);
-				
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("EnterProduction",
-				{
-					travelerIDs: application.GetSelectedIDs().concat(traveler.ID)
-				});
-				application.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-				
-				closeFunction();
-			}
-			popup.appendChild(enterProductionBtn);
-			//----------------------------
-			application.popupManager.AddCustom(popup);
-			
-			// PRINT LABLES--------------
-			var printBtn = application.popupManager.CreateButton("Print Labels");
-			printBtn.onclick = function () {
-				application.popupManager.Close(popup);
-				application.popupManager.AddSpecific("labelPopup");
-				application.PrintLabelPopup(traveler);
-				//----------INTERFACE CALL-----------------------
-				//var message = new InterfaceCall("CreateSummary",{
-				//	sort: "Active",
-				//	type: "Table",
-				//	from: "",
-				//	to: ""
-				//});
-				//self.websocket.send(JSON.stringify(message));
-				//-----------------------------------------------
-			}
-			popup.appendChild(printBtn);
-		}
-	} */
 	this.Initialize = function (station) {
 		var self = this;
 		self.station = station;

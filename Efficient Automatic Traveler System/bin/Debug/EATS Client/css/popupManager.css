@@ -1,0 +1,69 @@
+.blackout {
+	font-size: 1em;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 0px;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	align-content: center;
+	background-color: rgba(255,255,255,0.25);
+	z-index: 100;
+}
+.blackout__popup {
+	padding: 8px;
+	font-size: 2em;
+	color: black;
+	background-color:  #ffa500;  /*orange*/
+	border: 2px solid black;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	border-radius: 16px;
+	max-height: 100vh;
+	overflow-y: auto;
+	box-shadow: 1px 3px 8px rgba(0,0,0,0.75);
+}
+.blackout__popup__table {
+	border: 2px solid black;
+	border-left: none;
+	border-right: none;
+}
+.blackout__popup__table tr {
+	display: flex;
+	justify-content: space-between;
+	border: 2px solid black;
+	border-left: none;
+	border-right: none;
+}
+.blackout__popup__title {
+	font-size: 1.5em;
+	color: black;
+}
+.blackout__popup__listView {
+	border-radius: 4px;
+	border: 2px inset #b37400; /*light brown*/
+	background-color: #664200; /*brown*/
+}
+.blackout__popup__listView__item {
+	border-radius: 4px;
+	border: 2px outset #666666;
+	background-color: #808080;
+}
+.blackout__popup__closeImg {
+	align-self: flex-end;
+	width: 16px;
+	height: 16px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-image: url("../img/close.png");
+	border-radius: 20px;
+	border: 4px solid transparent;
+	transition-duration: 0.25s;
+}
+.blackout__popup__closeImg:hover {
+	background-color: red;
+	border: 4px solid red;
+}

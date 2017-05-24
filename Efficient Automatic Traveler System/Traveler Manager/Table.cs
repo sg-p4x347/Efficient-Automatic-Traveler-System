@@ -144,7 +144,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 obj.Add("laborRate", GetRate(Part.ComponentBills[0], station).ToString());
-                obj.Add("totalLabor", Math.Round(GetTotalLabor(), 1).ToString());
+                obj.Add("totalLabor", Math.Round(GetTotalLabor(station), 1).ToString());
             }
             catch (Exception ex)
             {

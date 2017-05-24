@@ -5,6 +5,9 @@
 		<script type="text/javascript" src="./js/config.js?<%=DateTime.Now.Ticks %>"></script>
         <script type="text/javascript" src="./js/supervisor.js?<%=DateTime.Now.Ticks %>"></script>
 		<script type="text/javascript" src="./js/utility.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/popupManager.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/jsonViewer.js?<%=DateTime.Now.Ticks %>"></script>
+		<link rel="stylesheet" type="text/css" href="./css/popupManager.css?<%=DateTime.Now.Ticks %>">
 		<link rel="stylesheet" type="text/css" href="./css/supervisor.css?<%=DateTime.Now.Ticks %>"></link>
 		<link rel="stylesheet" type="text/css" href="./css/widgets.css?<%=DateTime.Now.Ticks %>"></link>
 		<link rel="icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>"></link>
@@ -22,13 +25,14 @@
 			</div>
 			<!-- LABEL POPUP -->
 			<div id = "labelPopup" class = "blackout__popup" style = "display: none;">
+				<div class = "blackout__popup__closeImg" onclick = "application.popupManager.Close(document.getElementById('labelPopup'));"></div>
 				<p>Print Labels</p>
 				Label Type:<select id = "labelSelect" class = "dark oneEM"></select>
 				Item:<select id = "itemSelect" class = "dark oneEM"></select>
 				<div id = "printLabelBtn" class = "dark button">Print</div>
 			</div>
 			<!-- TRAVELER POPUP -->
-			<div id = "travelerPopup" class = "blackout__popup" style = "display: none;">
+			<!-- <div id = "travelerPopup" class = "blackout__popup" style = "display: none;">
 				<div class = "yellowBack button" onclick = "application.popupManager.Close(document.getElementById('travelerPopup'));">Close</div>
 				<div class = "list--horizontal justify-space-between">
 					
@@ -41,12 +45,12 @@
 					<div id = "promptMoveBtn" class = "dark button">Move</div>
 					<div id = "promptInfoBtn" class = "dark button">More info</div>
 					<!-- TRAVELER OPTIONS BUTTON -->
-					<img id = "travelerOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
+					<!-- <img id = "travelerOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
 				</div>
-			</div>
+			</div> -->
 			<!-- SUMMARY POPUP -->
 			<div id = "summaryPopup" class = "summaryPopup" style = "display: none;">
-				<div class = "yellowBack button" onclick = "application.popupManager.Close(document.getElementById('summaryPopup'));">Close</div>
+				<div class = "blackout__popup__closeImg" onclick = "application.popupManager.Close(document.getElementById('summaryPopup'));"></div>
 				<div class = "list--horizontal" >
 					<h1 id = "summaryTitle"></h1> &nbsp
 					From &nbsp <select id = "summaryFromSelect" class = "whiteBack twoEM"></select> &nbsp

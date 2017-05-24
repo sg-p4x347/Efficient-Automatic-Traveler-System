@@ -191,7 +191,7 @@ function Application () {
 		{
 			station: stationName
 		},"This");
-		application.websocket.send(JSON.stringify(message));
+		
 		//----------------------------------------------- */
 		document.getElementById("stationName").innerHTML = stationName;
 		self.stationList.some(function (station) {
@@ -272,7 +272,7 @@ function Application () {
 					reason: scrapReasons.value,
 					startedWork: document.getElementById("startedWork").checked
 				});
-				application.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 			} else {
 				info.innerHTML = "Please verify all items";
@@ -326,7 +326,7 @@ function Application () {
 				reason: scrapReasons.value,
 				startedWork: document.getElementById("startedWork").checked
 			});
-			application.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			
 			return false;
@@ -623,7 +623,7 @@ function TravelerQueue() {
 					travelerID: traveler.ID,
 					station: application.station.name
 				});
-				application.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 				
 			}
@@ -766,7 +766,7 @@ function TravelerView() {
 			travelerID: traveler.ID,
 			itemID: item.ID
 		});
-		application.websocket.send(JSON.stringify(message));
+		
 		//-----------------------------------------------
 		self.traveler = traveler;
 		self.item = item;
@@ -788,7 +788,7 @@ function TravelerView() {
 		{
 			travelerID: traveler.ID
 		});
-		application.websocket.send(JSON.stringify(message));
+		
 		//-----------------------------------------------
 		// initialize
 		self.Clear();
@@ -927,7 +927,7 @@ function TravelerView() {
 				time: application.partTimer.timerTime.asMinutes(),
 				itemID: (self.item ? self.item.ID : "undefined")
 			});
-			application.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			if (application.station.mode == "Serial") document.getElementById("submitTravelerBtn").onclick();
 			self.UpdateSubmitBtn();
@@ -942,7 +942,7 @@ function TravelerView() {
 				travelerID: self.traveler.ID,
 				itemID: (self.item ? self.item.ID : "undefined")
 			});
-			application.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			
 			self.UpdateSubmitBtn();
@@ -964,7 +964,7 @@ function TravelerView() {
 				travelerID: completedTraveler.ID,
 				station: application.station.name
 			});
-			application.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			self.UpdateSubmitBtn();
 		}
