@@ -64,6 +64,7 @@ function Application () {
 	};
 	this.LoginPopup = function (info) {
 		var self = this;
+		new InterfaceCall("ControlPanel");
 		// station list
 		//if (self.stationList.length > 0) self.InitStations(self.stationList);
 		// logout button text

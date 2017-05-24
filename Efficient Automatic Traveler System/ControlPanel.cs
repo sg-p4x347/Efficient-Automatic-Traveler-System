@@ -97,7 +97,7 @@ namespace Efficient_Automatic_Traveler_System
                 strings.Add(node.ToString());
             }
             Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("elements", strings.Stringify(false));
+            obj.Add("nodes", strings.Stringify(false));
             return base.ToString().MergeJSON(obj.Stringify());
         }
         // IEnumerable<Node>

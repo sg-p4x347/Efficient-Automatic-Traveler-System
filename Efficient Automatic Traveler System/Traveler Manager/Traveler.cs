@@ -200,10 +200,10 @@ namespace Efficient_Automatic_Traveler_System
                     //type = LabelType.Test;
                     switch (type)
                     {
-                        case LabelType.Tracking:    template = "4x2 Table Travel1";     printer = "4x2IT"; break; // 4x2Pack --> in hall
-                        case LabelType.Scrap:       template = "4x2 Table Scrap1";      printer = "4x2IT"; break;
-                        case LabelType.Pack:        template = "4x2 Table Carton EATS"; printer = "4x2IT"; break;
-                        case LabelType.Table:       template = "4x6 Table EATS";        printer = "4x6Table"; break;
+                        case LabelType.Tracking:    template = "4x2 Table Travel1";     printer = "4x2Heian2"; break; // 4x2Pack --> in hall
+                        case LabelType.Scrap:       template = "4x2 Table Scrap1";      printer = "4x2Heian2"; break;
+                        case LabelType.Pack:        template = "4x2 Table Carton EATS"; printer = "4x2FloorTableBox"; break;
+                        case LabelType.Table:       template = "4x6 Table EATS";        printer = "4x6FloorTable"; break;
                         case LabelType.Test:        template = "4x2 Table Carton EATS logo"; printer = "4x2IT"; break;
                     }
 

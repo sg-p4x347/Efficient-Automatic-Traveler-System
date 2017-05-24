@@ -217,6 +217,66 @@ function PopupManager(blackout) {
 		popup.appendChild(select);
 		self.Open(popup);
 	}
+	// displays a procedurally generated control panel from the format provided by the server
+	this.ControlPanel = function (format) {
+		var self = this;
+		var popup = self.CreatePopup(format.title,true);
+		
+		self.AddControlNode(format.body,popup,function (parameters) {
+			new InterfaceCall(parameters.callback,parameters);
+		},{});
+		/* var horizontal = self.CreateHorizontalList();
+		var fieldsTable = self.CreateTable(displayFields,object);
+		horizontal.appendChild(fieldsTable); */
+		/* var controlDiv = document.createElement("DIV");
+		controls.forEach(function (control) {
+			control.Initialize(self,object);
+			controlDiv.appendChild(control.element);
+		});
+		horizontal.appendChild(controlDiv);
+		popup.appendChild(horizontal); */
+		self.Open(popup);
+	}
+	// helper for the control panel
+	this.AddControlNode = function (node,parent,callback,parameters) {
+		var self = this;
+		
+		switch (node.type) {
+			case "TextNode": 
+				parent.appendChild(self.CreateP(node.text));
+				break;
+			case "Button":
+				var innerParams = JSON.parse(JSON.stringify(parameters));
+				innerParams.callback = node.callback;
+				var button = new PopupButton(node.name,callback);
+				button.Initialize(self,innerParams);
+				parent.appendChild(button.element);
+				break;
+			case "Selection":
+				var innerParams = JSON.parse(JSON.stringify(parameters));
+				innerParams.callback = node.callback;
+				var selection = new PopupSelection(node.name,node.options,callback);
+				selection.Initialize(self,innerParams);
+				parent.appendChild(selection.element);
+				break;
+			case "Row":
+				var innerParams = JSON.parse(JSON.stringify(parameters));
+				var row = self.CreateHorizontalList();
+				node.nodes.forEach(function (innerNode) {
+					self.AddControlNode(innerNode,row,callback,innerParams);
+				});
+				parent.appendChild();
+				break;
+			case "Column":
+				var innerParams = JSON.parse(JSON.stringify(parameters));
+				var column = document.createElement("DIV");
+				node.nodes.forEach(function (innerNode) {
+					self.AddControlNode(innerNode,column,callback,innerParams);
+				});
+				parent.appendChild();
+				break;
+		}
+	}
 	//=========================================
 	// CREATE MODULAR DOM OBJECTS
 	
@@ -383,7 +443,7 @@ function PopupControl(name,callback) {
 	this.element;
 	this.callback = callback;
 }
-PopupControl.prototype.Initialize = function (popupManager,object) {}
+PopupControl.prototype.Initialize = function (popupManager, object) {}
 function PopupButton(name, callback) {
 	PopupControl.call(this, name, callback);
 }
@@ -408,18 +468,26 @@ PopupCheckbox.prototype.Initialize = function (popupManager, object) {
 	}
 }
 
-function PopupSelection(name, message, options, callback) {
+function PopupSelection(name, options, callback) {
 	PopupControl.call(this, name, callback);
 	this.options = options;
-	this.message = message;
 }
 // calls the callback with: callback(object,value);
 PopupSelection.prototype.Initialize = function (popupManager, object) {
 	var self = this;
-	self.element = popupManager.CreateButton(self.name);
-	self.element.onclick = function () {
-		popupManager.Selection(self.message,self.options,function (value) {
-			self.callback(object,value);
-		});
+	self.element = document.createElement("SELECT");
+	self.element.className = "dark oneEM";
+	// add the options
+	options.forEach(function (optionValue) {
+		var option = document.createElement("OPTION");
+		option.innerHTML = optionValue;
+		option.value = optionValue;
+		
+		self.element.appendChild(option);
+	});
+	self.element.value = undefined;
+	self.element.onchange = function () {
+		object.value = value;
+		self.callback(object);
 	}
 }
