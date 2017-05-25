@@ -224,7 +224,7 @@ function PopupManager(blackout) {
 		
 		self.AddControlNode(format.body,popup,function (parameters) {
 			new InterfaceCall(parameters.callback,parameters);
-		},{});
+		},format.returnParam,true);
 		/* var horizontal = self.CreateHorizontalList();
 		var fieldsTable = self.CreateTable(displayFields,object);
 		horizontal.appendChild(fieldsTable); */
@@ -238,44 +238,59 @@ function PopupManager(blackout) {
 		self.Open(popup);
 	}
 	// helper for the control panel
-	this.AddControlNode = function (node,parent,callback,parameters) {
+	this.AddControlNode = function (node,parent,callback,parameters,highestLevel) {
 		var self = this;
 		
+		var nodeElement;
 		switch (node.type) {
 			case "TextNode": 
-				parent.appendChild(self.CreateP(node.text));
+				nodeElement = self.CreateP(node.text);
+				nodeElement.style.color = node.color;
+				nodeElement.style.textAlign = node.textAlign;
 				break;
 			case "Button":
 				var innerParams = JSON.parse(JSON.stringify(parameters));
 				innerParams.callback = node.callback;
 				var button = new PopupButton(node.name,callback);
 				button.Initialize(self,innerParams);
-				parent.appendChild(button.element);
+				nodeElement = button.element;
 				break;
 			case "Selection":
 				var innerParams = JSON.parse(JSON.stringify(parameters));
 				innerParams.callback = node.callback;
-				var selection = new PopupSelection(node.name,node.options,callback);
+				var selection = new PopupSelection(node.name,node.options,node.value,callback);
 				selection.Initialize(self,innerParams);
-				parent.appendChild(selection.element);
+				nodeElement = selection.element;
 				break;
 			case "Row":
 				var innerParams = JSON.parse(JSON.stringify(parameters));
 				var row = self.CreateHorizontalList();
+				row.style.justifyContent = node.justify;
+				row.className = "blackout__popup__controlPanel__row";
+				if (node.dividers) {row.className += " blackout__popup__controlPanel__row--dividers";}
 				node.nodes.forEach(function (innerNode) {
 					self.AddControlNode(innerNode,row,callback,innerParams);
 				});
-				parent.appendChild();
+				nodeElement = row;
 				break;
 			case "Column":
 				var innerParams = JSON.parse(JSON.stringify(parameters));
 				var column = document.createElement("DIV");
+				column.style.justifyContent = node.justify;
+				column.className = "blackout__popup__controlPanel__column";
+				if (node.dividers) {column.className += " blackout__popup__controlPanel__column--dividers";}
 				node.nodes.forEach(function (innerNode) {
 					self.AddControlNode(innerNode,column,callback,innerParams);
 				});
-				parent.appendChild();
+				nodeElement = column;
 				break;
 		}
+		nodeElement.className += " blackout__popup__controlPanel__node";
+		if (highestLevel) {
+			nodeElement.style.overflowX = "auto";
+			nodeElement.style.overflowY = "auto";
+		}
+		parent.appendChild(nodeElement);
 	}
 	//=========================================
 	// CREATE MODULAR DOM OBJECTS
@@ -468,9 +483,10 @@ PopupCheckbox.prototype.Initialize = function (popupManager, object) {
 	}
 }
 
-function PopupSelection(name, options, callback) {
+function PopupSelection(name, options, value, callback) {
 	PopupControl.call(this, name, callback);
 	this.options = options;
+	this.value = value;
 }
 // calls the callback with: callback(object,value);
 PopupSelection.prototype.Initialize = function (popupManager, object) {
@@ -478,16 +494,16 @@ PopupSelection.prototype.Initialize = function (popupManager, object) {
 	self.element = document.createElement("SELECT");
 	self.element.className = "dark oneEM";
 	// add the options
-	options.forEach(function (optionValue) {
+	self.options.forEach(function (optionValue) {
 		var option = document.createElement("OPTION");
 		option.innerHTML = optionValue;
 		option.value = optionValue;
 		
 		self.element.appendChild(option);
 	});
-	self.element.value = undefined;
+	self.element.value = self.value;
 	self.element.onchange = function () {
-		object.value = value;
+		object.value = self.element.value;
 		self.callback(object);
 	}
 }

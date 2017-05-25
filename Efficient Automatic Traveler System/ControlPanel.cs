@@ -18,17 +18,23 @@ namespace Efficient_Automatic_Traveler_System
     }
     class TextNode : Node
     {
-        public TextNode(string text)
+        public TextNode(string text, string color = "black", string textAlign = "center")
         {
             m_text = text;
+            m_color = color;
+            m_textAlign = textAlign;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("text", m_text.Quotate());
+            obj.Add("color", m_color.Quotate());
+            obj.Add("textAlign", m_textAlign.Quotate());
             return base.ToString().MergeJSON(obj.Stringify());
         }
         private string m_text;
+        private string m_color;
+        private string m_textAlign;
     }
     abstract class Control : Node
     {
@@ -63,16 +69,19 @@ namespace Efficient_Automatic_Traveler_System
     }
     class Selection : Control
     {
-        public Selection(string name, string callback, List<string> options) : base (name, callback) {
+        public Selection(string name, string callback, List<string> options, string value = "") : base (name, callback) {
             m_options = options;
+            m_value = value;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("options", m_options.Stringify());
+            obj.Add("value", m_value.Quotate());
             return base.ToString().MergeJSON(obj.Stringify());
         }
         private List<string> m_options;
+        private string m_value;
     }
 
     abstract class PanelList : Node, IEnumerable<Node>
@@ -120,29 +129,56 @@ namespace Efficient_Automatic_Traveler_System
     }
     class Row : PanelList
     {
-        public Row() : base() { }
-        public Row(Node[] elements) : base(elements) { }
+        public Row(string justify = "space-around", bool dividers = false) : base()
+        {
+            m_justify = justify;
+            m_dividers = dividers;
+        }
+        public override string ToString()
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            obj.Add("justify", m_justify.Quotate());
+            obj.Add("dividers", m_dividers.ToString().ToLower());
+            return base.ToString().MergeJSON(obj.Stringify());
+        }
+        private string m_justify;
+        private bool m_dividers;
     }
     class Column : PanelList
     {
-        public Column() : base() { }
-        public Column(Node[] elements) : base(elements) { }
+        public Column(string justify = "space-around", bool dividers = false) : base()
+        {
+            m_justify = justify;
+            m_dividers = dividers;
+        }
+        public override string ToString()
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            obj.Add("justify", m_justify.Quotate());
+            obj.Add("dividers", m_dividers.ToString().ToLower());
+            return base.ToString().MergeJSON(obj.Stringify());
+        }
+        private string m_justify;
+        private bool m_dividers;
     }
     class ControlPanel
     {
-        public ControlPanel(string title, Node body)
+        public ControlPanel(string title, Node body, string returnParam = "")
         {
             m_title = title;
             m_body = body;
+            m_returnParam = returnParam;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("title", m_title.Quotate());
             obj.Add("body", m_body.ToString());
+            obj.Add("returnParam", m_returnParam);
             return obj.Stringify();
         }
         private string m_title;
         private Node m_body;
+        private string m_returnParam;
     }
 }

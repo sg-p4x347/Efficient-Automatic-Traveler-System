@@ -42,6 +42,10 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify(true);
         }
+        public bool CreatesThis(Traveler obj)
+        {
+            return m_creates.Exists(x => x == obj.GetType().Name || x == obj.GetType().BaseType.Name);
+        }
         public static StationClass GetStation(string name)
         {
             return m_stations.Find(x => x.Name == name);

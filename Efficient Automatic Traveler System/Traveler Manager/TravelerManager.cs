@@ -341,13 +341,15 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                List<string> travelerIDs = (new StringStream(obj["travelerIDs"])).ParseJSONarray();
+                List<string> travelerIDs = new List<string>();
+                if (obj.ContainsKey("travelerIDs")) travelerIDs = new StringStream(obj["travelerIDs"]).ParseJSONarray();
+                if (obj.ContainsKey("travelerID")) travelerIDs.Add(obj["travelerID"]);
                 foreach (string ID in travelerIDs)
                 {
                     Traveler traveler = FindTraveler(Convert.ToInt32(ID));
-                    if (traveler != null && StationClass.GetStation(obj["station"]) != null)
+                    if (traveler != null && StationClass.GetStation(obj["value"]) != null)
                     {
-                        traveler.Station = StationClass.GetStation(obj["station"]);
+                        traveler.Station = StationClass.GetStation(obj["value"]);
                     }
                 }
                 OnTravelersChanged(GetTravelers);

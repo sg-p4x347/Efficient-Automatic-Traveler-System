@@ -195,57 +195,93 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 StationClass station = StationClass.GetStation(obj["station"]);
-                Dictionary<string, string> returnObj = new Dictionary<string, string>();
-                Dictionary<string, string> fields = new Dictionary<string, string>();
-                fields.Add("ID", (traveler is TableBox ? traveler.ParentTravelers[0].ID : traveler.ID).ToString());
-                fields.Add("Type", traveler.GetType().Name.Quotate());
+                Column fields = new Column(dividers: true);
+                fields.Add(new Row(justify: "space-between")
+                    {
+                        new TextNode("ID",textAlign: "left"), new TextNode(traveler.ID.ToString(),"white","right")
+                    }
+                );
+                fields.Add(
+                    new Row(justify: "space-between")
+                    {
+                        new TextNode("Type",textAlign: "left"), new TextNode(traveler.GetType().Name,"white","right")
+                    }
+                );
+                List<string> stations = StationClass.GetStations().Where(x => x.CreatesThis(traveler)).Select( y => y.Name).ToList();
+                stations.Add("Start");
+                fields.Add(
+                    new Row(justify: "space-between")
+                    {
+                        new TextNode("Starting station",textAlign: "left"), new Selection("Station","MoveTravelerStart",stations,traveler.Station.Name)
+                    }
+                );
                 if (traveler is IPart)
                 {
-                    fields.Add("Model", (traveler as IPart).ItemCode.Quotate());
+                    fields.Add(
+                        new Row(justify: "space-between")
+                        {
+                            new TextNode("Model",textAlign: "left"), new TextNode((traveler as IPart).ItemCode,"white","right")
+                        }
+                    );
                 }
                 if (traveler is Table)
                 {
-                    fields.Add("Shape", (traveler as Table).Shape.Quotate());
+                    fields.Add(
+                        new Row(justify: "space-between")
+                        {
+                            new TextNode("Shape",textAlign: "left"), new TextNode((traveler as Table).Shape,"white","right")
+                        }
+                    );
                 }
-                fields.Add("Qty on traveler", traveler.Quantity.ToString());
+                fields.Add(
+                    new Row(justify: "space-between")
+                    {
+                        new TextNode("Qty on traveler",textAlign: "left"), new TextNode(traveler.Quantity.ToString(),"white","right")
+                    }
+                );
                 if (station != null)
                 {
-                    fields.Add("Station", station.Name.Quotate());
-                    fields.Add("Pending", traveler.QuantityPendingAt(station).ToString());
+                    fields.Add(
+                        new Row(justify: "space-between")
+                        {
+                            new TextNode("Station",textAlign: "left"), new TextNode(traveler.Station.Name,"white","right")
+                        }
+                    );
+                    fields.Add(
+                        new Row(justify: "space-between")
+                        {
+                            new TextNode("Pending",textAlign: "left"), new TextNode(traveler.QuantityPendingAt(station).ToString(),"white","right")
+                        }
+                    );
                     if (traveler.QuantityCompleteAt(station) > 0)
                     {
-                        fields.Add("Complete", traveler.QuantityCompleteAt(station).ToString());
+                        fields.Add(
+                            new Row(justify: "space-between")
+                            {
+                                new TextNode("Pending",textAlign: "left"), new TextNode(traveler.QuantityCompleteAt(station).ToString(),"white","right")
+                            }
+                        );
                     }
                 }
-                returnObj.Add("displayFields", fields.Stringify());
-                returnObj.Add("object", traveler.ToString());
-                return new ClientMessage("TravelerPopup", returnObj.Stringify());
-            } catch (Exception ex)
-            {
-                Server.LogException(ex);
-                return new ClientMessage("Info","Error when getting display fields");
-            }
-        }
-        // CONTROL PANEL TEST.... TEMP
-        public ClientMessage ControlPanel(string json)
-        {
-            Column fields = new Column()
-                {
-                    new Row()
-                    {
-                        new TextNode("ID"), new TextNode("123456")
-                    },
-                    new Row()
-                    {
-                        new TextNode("Parent Travelers"), new Button("View","Test")
-                    }
-                };
-            Column controls = new Column()
+                
+                Column controls = new Column()
                 {
                     new Button("Test","Test")
                 };
-            ControlPanel panel = new ControlPanel("Traveler", new Row() { fields, controls });
-            return new ClientMessage("ControlPanel", panel.ToString());
+                Dictionary<string, string> returnParam = new Dictionary<string, string>();
+                returnParam.Add("travelerID", traveler.ID.ToString());
+                ControlPanel panel = new ControlPanel("Traveler", new Row() { fields, controls }, returnParam.Stringify());
+                return new ClientMessage("ControlPanel", panel.ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error when getting display fields");
+            }
+        }
+        public ClientMessage Test(string json)
+        {
+            return new ClientMessage("Info", json);
         }
         public ClientMessage CreateSummary(string json)
         {
