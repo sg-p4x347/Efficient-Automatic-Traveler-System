@@ -346,6 +346,9 @@ namespace Efficient_Automatic_Traveler_System
             if (station == StationClass.GetStation("Start"))
             {
                 detail.Add("qtyPending", m_quantity.ToString());
+            } else if (station == StationClass.GetStation("Finished"))
+            {
+                detail.Add("qtyPending", QuantityAt(station).ToString());
             } else
             {
                 detail.Add("qtyPending", QuantityPendingAt(station).ToString());

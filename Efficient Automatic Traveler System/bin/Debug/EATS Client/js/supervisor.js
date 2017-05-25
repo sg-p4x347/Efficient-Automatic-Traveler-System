@@ -275,7 +275,7 @@ function Application () {
 				});
 			}),
 			new PopupButton("Print Labels",function (traveler) {
-				application.popupManager.AddSpecific("labelPopup");
+				
 				application.PrintLabelPopup(traveler);
 			})
 		]);
@@ -403,6 +403,7 @@ function Application () {
 	}
 	this.PrintLabelPopup = function (traveler) {
 		var self = this;
+		self.popupManager.AddSpecific("labelPopup");
 		var labelSelect = document.getElementById("labelSelect");
 		ClearChildren(labelSelect);
 		self.labelTypes.forEach(function (type) {
@@ -461,6 +462,17 @@ function Application () {
 	this.EndDrag = function () {
 		//document.getElementById("dragElement");
 	}
+	this.ControlPanel = function (format) {
+		this.popupManager.ControlPanel(format)
+	}
+	this.SearchPopup = function (params) {
+		var self = this;
+		self.StopAutofocus();
+		self.popupManager.Search(params.message,function (searchPhrase) {
+			new InterfaceCall(params.interfaceCall,{searchPhrase: searchPhrase});
+			self.StartAutofocus();
+		});
+	}
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
@@ -517,7 +529,10 @@ function Application () {
 		//----------------
 		
 		document.getElementById("superOptionsBtn").onclick = function () {
-			var popup = self.popupManager.CreatePopup();
+			new InterfaceCall("OptionsMenu");
+			
+		}
+		/* var popup = self.popupManager.CreatePopup();
 			// OPEN SUMMARY CURRENT SUMMARY VIEW--------------
 			var summaryBtn = self.popupManager.CreateButton("View Summary");
 			summaryBtn.onclick = function () {
@@ -623,9 +638,7 @@ function Application () {
 			}
 			popup.appendChild(newTravelerBtn);
 			
-			self.popupManager.AddCustom(popup);
-		}
-		
+			self.popupManager.AddCustom(popup); */
 		
 		//----------------
 		// queueArray

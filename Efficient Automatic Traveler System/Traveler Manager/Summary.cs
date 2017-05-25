@@ -14,7 +14,8 @@ namespace Efficient_Automatic_Traveler_System
         Sorted,
         Finished, // travelers that have finished items
         Scrap,
-        All
+        All,
+        PreProcess
     }
     class Summary
     {
@@ -28,6 +29,8 @@ namespace Efficient_Automatic_Traveler_System
                 case SummarySort.Available: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Station == StationClass.GetStation("Start") && x.Quantity > 0).ToList(); break;
                 case SummarySort.Sorted: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
                 case SummarySort.All: m_travelers = travelerManager.GetTravelers; break;
+                case SummarySort.PreProcess: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Quantity > 0).ToList(); break;
+
                 default:
                     m_travelers = new List<Traveler>();
                     break;

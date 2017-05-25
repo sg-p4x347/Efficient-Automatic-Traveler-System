@@ -105,10 +105,7 @@ function PopupManager(blackout) {
 	// displays a form in the format provided by the formData object
 	this.Form = function (format,submitCallback) {
 		var self = this;
-		var popup = self.CreatePopup();
-		var title = self.CreateP(format.name);
-		title.className = "twoEM beige";
-		popup.appendChild(title);
+		var popup = self.CreatePopup(format.name,true);
 		var inputs = [];
 		format.fields.forEach(function (field) {
 			// for each field in the form
@@ -224,7 +221,7 @@ function PopupManager(blackout) {
 		
 		self.AddControlNode(format.body,popup,function (parameters) {
 			new InterfaceCall(parameters.callback,parameters);
-		},format.returnParam,true);
+		},true);
 		/* var horizontal = self.CreateHorizontalList();
 		var fieldsTable = self.CreateTable(displayFields,object);
 		horizontal.appendChild(fieldsTable); */
@@ -238,7 +235,7 @@ function PopupManager(blackout) {
 		self.Open(popup);
 	}
 	// helper for the control panel
-	this.AddControlNode = function (node,parent,callback,parameters,highestLevel) {
+	this.AddControlNode = function (node,parent,callback,highestLevel) {
 		var self = this;
 		
 		var nodeElement;
@@ -246,41 +243,42 @@ function PopupManager(blackout) {
 			case "TextNode": 
 				nodeElement = self.CreateP(node.text);
 				nodeElement.style.color = node.color;
+				if (node.color != "black") {
+					nodeElement.style.textShadow = "1px 1px 1px black";
+				}
 				nodeElement.style.textAlign = node.textAlign;
 				break;
 			case "Button":
-				var innerParams = JSON.parse(JSON.stringify(parameters));
+				var innerParams = node.returnParam;
 				innerParams.callback = node.callback;
 				var button = new PopupButton(node.name,callback);
 				button.Initialize(self,innerParams);
 				nodeElement = button.element;
 				break;
 			case "Selection":
-				var innerParams = JSON.parse(JSON.stringify(parameters));
+				var innerParams = node.returnParam;
 				innerParams.callback = node.callback;
 				var selection = new PopupSelection(node.name,node.options,node.value,callback);
 				selection.Initialize(self,innerParams);
 				nodeElement = selection.element;
 				break;
 			case "Row":
-				var innerParams = JSON.parse(JSON.stringify(parameters));
 				var row = self.CreateHorizontalList();
 				row.style.justifyContent = node.justify;
 				row.className = "blackout__popup__controlPanel__row";
 				if (node.dividers) {row.className += " blackout__popup__controlPanel__row--dividers";}
 				node.nodes.forEach(function (innerNode) {
-					self.AddControlNode(innerNode,row,callback,innerParams);
+					self.AddControlNode(innerNode,row,callback);
 				});
 				nodeElement = row;
 				break;
 			case "Column":
-				var innerParams = JSON.parse(JSON.stringify(parameters));
 				var column = document.createElement("DIV");
 				column.style.justifyContent = node.justify;
 				column.className = "blackout__popup__controlPanel__column";
 				if (node.dividers) {column.className += " blackout__popup__controlPanel__column--dividers";}
 				node.nodes.forEach(function (innerNode) {
-					self.AddControlNode(innerNode,column,callback,innerParams);
+					self.AddControlNode(innerNode,column,callback);
 				});
 				nodeElement = column;
 				break;
@@ -312,7 +310,7 @@ function PopupManager(blackout) {
 		}
 		if (title !== undefined) {
 			var title = this.CreateP(title);
-			title.className = "blackout__popup__title";
+			title.className = "blackout__popup__title emboss";
 			popup.appendChild(title);
 		}
 		return popup;

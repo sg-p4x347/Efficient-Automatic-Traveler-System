@@ -299,6 +299,13 @@ div.percentContainer {
 	text-shadow: 0px 1px 0px #999, 0px 2px 0px #888, 0px 3px 0px #777, 0px 4px 0px #666, 0px 5px 0px #555, 0px 6px 0px #444, 0px 7px 0px #333, 0px 8px 7px #001135;
 	font: 80px 'ChunkFiveRegular';
 }
+.emboss {
+	color: rgba(0,0,0,0.5);
+	font-weight: bold;
+	text-shadow:
+	2px 2px 1px rgba(255,255,255,0.3);
+	
+}
 .heading {
 	font-size: 1.5em;
 	font-style: bold;

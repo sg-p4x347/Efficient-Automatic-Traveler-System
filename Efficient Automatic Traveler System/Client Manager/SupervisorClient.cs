@@ -195,6 +195,12 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 StationClass station = StationClass.GetStation(obj["station"]);
+                // the parameter that returns with all the control events
+                string returnParam = new Dictionary<string, string>()
+                {
+                    {"travelerID", traveler.ID.ToString() }
+                }.Stringify();
+
                 Column fields = new Column(dividers: true);
                 fields.Add(new Row(justify: "space-between")
                     {
@@ -212,7 +218,7 @@ namespace Efficient_Automatic_Traveler_System
                 fields.Add(
                     new Row(justify: "space-between")
                     {
-                        new TextNode("Starting station",textAlign: "left"), new Selection("Station","MoveTravelerStart",stations,traveler.Station.Name)
+                        new TextNode("Starting station",textAlign: "left"), new Selection("Station","MoveTravelerStart",stations,traveler.Station.Name,returnParam)
                     }
                 );
                 if (traveler is IPart)
@@ -263,20 +269,67 @@ namespace Efficient_Automatic_Traveler_System
                         );
                     }
                 }
-                
+
                 Column controls = new Column()
                 {
-                    new Button("Test","Test")
+                    new Button("More Info","LoadTravelerJSON",returnParam),
+                    new Button("Disintegrate","DisintegrateTraveler",returnParam),
+                    new Button("Enter Production","EnterProduction",returnParam),
+                    new Button("Print Labels","LabelPopup",returnParam)
                 };
-                Dictionary<string, string> returnParam = new Dictionary<string, string>();
-                returnParam.Add("travelerID", traveler.ID.ToString());
-                ControlPanel panel = new ControlPanel("Traveler", new Row() { fields, controls }, returnParam.Stringify());
+                
+                ControlPanel panel = new ControlPanel("Traveler", new Row() { fields, controls });
                 return new ClientMessage("ControlPanel", panel.ToString());
             }
             catch (Exception ex)
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error when getting display fields");
+            }
+        }
+        public ClientMessage OptionsMenu(string json)
+        {
+            try
+            {
+                Column download = new Column(justify: "flex-start")
+                {
+                    new TextNode("Download"),
+                    
+                    new Button("Download Pre-Process Tables","DownloadSummary",@"{""sort"":""PreProcess"",""type"":""Table""}"),
+                    new Button("Download Production", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Download Scrap", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}")
+                };
+                Column manage = new Column(justify: "flex-start")
+                {
+                    new TextNode("Manage"),
+                    new Button("New User","UserForm"),
+                    new Button("Edit User","SearchPopup",@"{""interfaceCall"":""EditUserForm"",""message"":""Search for a user by name or ID""}"),
+                    new TextNode(""),
+                    new Button("New Traveler","TravelerForm")
+                };
+                Column view = new Column(justify: "flex-start")
+                {
+                    new TextNode("View"),
+                    new Button("View Summary","CreateSummary",@"{""sort"":""Active"",""type"":""Table"",""from"":"""",""to"":""""}")
+                };
+                ControlPanel panel = new ControlPanel("Options", new Row() { download , manage, view});
+                return new ClientMessage("ControlPanel", panel.ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error when getting display fields");
+            }
+        }
+        public ClientMessage SearchPopup(string json)
+        {
+            try
+            {
+                return new ClientMessage("SearchPopup", json);
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error reflecting function call");
             }
         }
         public ClientMessage Test(string json)
@@ -301,6 +354,20 @@ namespace Efficient_Automatic_Traveler_System
         public ClientMessage DownloadSummary(string json)
         {
             return m_travelerManager.DownloadSummary(json);
+        }
+        public ClientMessage LabelPopup(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                return new ClientMessage("PrintLabelPopup", traveler.ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error opening print dialog");
+            }
         }
         public ClientMessage PrintLabel(string json)
         {

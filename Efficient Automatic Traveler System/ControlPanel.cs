@@ -38,38 +38,41 @@ namespace Efficient_Automatic_Traveler_System
     }
     abstract class Control : Node
     {
-        public Control(string name, string callback)
+        public Control(string name, string callback, string returnParam)
         {
             m_name = name;
             m_callback = callback;
+            m_returnParam = returnParam;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("name", m_name.Quotate());
             obj.Add("callback", m_callback.Quotate());
+            obj.Add("returnParam", m_returnParam);
             return base.ToString().MergeJSON(obj.Stringify());
         }
         private string m_name;
         private string m_callback;
+        private string m_returnParam;
     }
     class Button : Control
     {
-        public Button(string name, string callback) : base(name, callback)
+        public Button(string name, string callback, string returnParam = "{}") : base(name, callback, returnParam)
         {
 
         }
     }
     class Checkbox : Control
     {
-        public Checkbox(string name, string callback) : base(name, callback)
+        public Checkbox(string name, string callback, string returnParam = "{}") : base(name, callback, returnParam)
         {
 
         }
     }
     class Selection : Control
     {
-        public Selection(string name, string callback, List<string> options, string value = "") : base (name, callback) {
+        public Selection(string name, string callback, List<string> options, string value = "", string returnParam = "{}") : base (name, callback, returnParam) {
             m_options = options;
             m_value = value;
         }
@@ -163,22 +166,19 @@ namespace Efficient_Automatic_Traveler_System
     }
     class ControlPanel
     {
-        public ControlPanel(string title, Node body, string returnParam = "")
+        public ControlPanel(string title, Node body)
         {
             m_title = title;
             m_body = body;
-            m_returnParam = returnParam;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("title", m_title.Quotate());
             obj.Add("body", m_body.ToString());
-            obj.Add("returnParam", m_returnParam);
             return obj.Stringify();
         }
         private string m_title;
         private Node m_body;
-        private string m_returnParam;
     }
 }
