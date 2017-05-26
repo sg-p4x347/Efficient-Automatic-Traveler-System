@@ -224,26 +224,44 @@ function Application () {
 	}
 	// Loads the traveler GUI
 	this.LoadTraveler = function (traveler) {
-		//----------INTERFACE CALL-----------------------
-		var message = new InterfaceCall("TravelerPopup",
-		{
-			travelerID: traveler.ID,
-			station: (traveler.station ? traveler.station : "")
-		});
-		//-----------------------------------------------
+		if (application.GetSelectedIDs().length > 0) {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("MultiTravelerOptions",
+			{
+				travelerIDs: application.GetSelectedIDs()
+			});
+			//-----------------------------------------------
+		} else {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("TravelerPopup",
+			{
+				travelerID: traveler.ID,
+				station: (traveler.station ? traveler.station : "")
+			});
+			//-----------------------------------------------
+		}
 	}
 	this.LoadTravelerJSON = function (traveler) {
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
 		this.popupManager.AddJSONviewer(traveler,"Traveler");
 	}
 	this.LoadTravelerAt = function (traveler) {
-		//----------INTERFACE CALL-----------------------
-		var message = new InterfaceCall("TravelerPopup",
-		{
-			travelerID: traveler.ID,
-			station: (traveler.station ? traveler.station : "")
-		});
-		//-----------------------------------------------
+		if (application.GetSelectedIDs().length > 0) {
+			//----------INTERFACE CALL-----------------------
+			new InterfaceCall("MultiTravelerOptions",
+			{
+				travelerIDs: application.GetSelectedIDs()
+			});
+			//-----------------------------------------------
+		} else {
+			//----------INTERFACE CALL-----------------------
+			new InterfaceCall("TravelerPopup",
+			{
+				travelerID: traveler.ID,
+				station: (traveler.station ? traveler.station : "")
+			});
+			//-----------------------------------------------
+		}
 	}
 	this.TravelerPopup = function(params) {
 		var self = this;

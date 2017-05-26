@@ -64,7 +64,7 @@ function Application () {
 					UID: document.getElementById("uidBox").value,
 					PWD: document.getElementById("pwdBox").value
 				},"This");
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 				self.popupManager.Close(loginPopup);
 			}
@@ -82,7 +82,7 @@ function Application () {
 		/* logoutBtn.onclick = function () {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("Logout",{},"This");
-			self.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			self.travelerView.Clear();
 			self.LoginPopup();
@@ -102,13 +102,11 @@ function Application () {
 	this.ConfigBtnClick = function () {
 		//----------INTERFACE CALL-----------------------
 		var message = new InterfaceCall("LoadConfig");
-		this.websocket.send(JSON.stringify(message));
 		//-----------------------------------------------
 	}
 	this.UsersBtnClick = function () {
 		//----------INTERFACE CALL-----------------------
 		var message = new InterfaceCall("LoadUsers");
-		this.websocket.send(JSON.stringify(message));
 		//-----------------------------------------------
 	}
 	this.LoadJSON = function (obj,name) {

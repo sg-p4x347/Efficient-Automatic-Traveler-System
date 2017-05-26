@@ -132,7 +132,7 @@ function Application () {
 					PWD: document.getElementById("pwdBox").value,
 					station: document.getElementById("stationList").value,
 				},"This");
-				self.websocket.send(JSON.stringify(message));
+				
 				//-----------------------------------------------
 				self.popupManager.Close(loginPopup);
 			}
@@ -150,7 +150,7 @@ function Application () {
 		logoutBtn.onclick = function () {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("Logout",{},"This");
-			self.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			self.travelerView.Clear();
 			self.LoginPopup();
@@ -407,7 +407,7 @@ function Application () {
 			var message = new InterfaceCall("OpenDrawing",{
 				travelerID: self.travelerView.traveler.ID
 			});
-			self.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 			//self.popupManager.Close(popup);
 		}
@@ -421,7 +421,7 @@ function Application () {
 			{
 				travelerID: self.travelerView.traveler.ID
 			});
-			self.websocket.send(JSON.stringify(message));
+			
 			//-----------------------------------------------
 		}
 		document.getElementById("optionsBtn").onclick = function () {
@@ -1003,6 +1003,11 @@ function TravelerView() {
 						application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] has already been completed at this station :)");
 					} else {
 						self.LoadItem(traveler,application.travelerQueue.FindItem(travelerID,itemID));
+						// SEND SUBMIT EVENT TO SERVER SEPARATELY
+						new InterfaceCall("SearchSubmitted",{
+							travelerID: travelerID,
+							itemID: itemID
+						});
 					}
 				} else if (!isNaN(itemID)) {
 					application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] is not at your station;<br>It is at: " + item.station);

@@ -38,7 +38,8 @@ namespace Efficient_Automatic_Traveler_System
                 { "type",m_type.Quotate() },
                 { "creates", m_creates.Stringify<string>()},
                 { "mode", m_mode.ToString().Quotate()},
-                { "laborCodes",m_laborCodes.Stringify<string>()}
+                { "laborCodes",m_laborCodes.Stringify<string>()},
+                { "printers",m_printers.Stringify<string>() }
             };
             return obj.Stringify(true);
         }
@@ -97,8 +98,9 @@ namespace Efficient_Automatic_Traveler_System
             m_ID = StationClass.m_stations.Count;
             m_type = obj["type"];
             m_name = obj["name"];
-            m_creates = (new StringStream(typeObj["creates"])).ParseJSONarray();
-            m_laborCodes = (new StringStream(typeObj["laborCodes"])).ParseJSONarray();
+            m_creates = new StringStream(typeObj["creates"]).ParseJSONarray();
+            m_laborCodes = new StringStream(typeObj["laborCodes"]).ParseJSONarray();
+            m_printers = new StringStream(obj["printers"]).ParseJSONarray();
             Enum.TryParse<StationMode>(obj["mode"], out m_mode);
         }
         #endregion
@@ -108,6 +110,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_name;
         private List<string> m_creates; // list of traveler types that this station can create
         private List<string> m_laborCodes; // list of labor codes that are associated with this station
+        private List<string> m_printers; // list of label printers that this station can/should print to (typicallay a 4x2 and/or a 4x6)
         private StationMode m_mode;
 
         private static List<StationClass> m_stations = new List<StationClass>();
@@ -169,6 +172,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_type = value;
+            }
+        }
+
+        public List<string> Printers
+        {
+            get
+            {
+                return m_printers;
+            }
+
+            set
+            {
+                m_printers = value;
             }
         }
         #endregion

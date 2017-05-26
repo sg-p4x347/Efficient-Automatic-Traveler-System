@@ -287,6 +287,46 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error when getting display fields");
             }
         }
+        public ClientMessage MultiTravelerOptions(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                List<string> selectedIDs = new StringStream(obj["travelerIDs"]).ParseJSONarray();
+                
+                //foreach (string selectedID in selectedIDs)
+                //{
+                //    Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(selectedID));
+                    
+                //}
+
+                // the parameter that returns with all the control events
+                string returnParam = new Dictionary<string, string>()
+                {
+                    {"travelerIDs", obj["travelerIDs"] }
+                }.Stringify();
+
+                Column IDs = new Column(justify: "flex-start");
+                foreach (string selectedID in selectedIDs)
+                {
+                    IDs.Add(new TextNode(selectedID));
+                }
+                Column controls = new Column()
+                {
+                    new Button("Disintegrate","DisintegrateTraveler",returnParam),
+                    new Button("Enter Production","EnterProduction",returnParam),
+                    new TextNode("Starting Station"),
+                    new Selection("Starting Station","MoveTravelerStart",StationClass.StationNames(),returnParam: returnParam)
+                };
+
+                ControlPanel panel = new ControlPanel("Travelers", new Row() { IDs, controls });
+                return new ClientMessage("ControlPanel", panel.ToString());
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error getting multi-traveler options");
+            }
+        }
         public ClientMessage OptionsMenu(string json)
         {
             try

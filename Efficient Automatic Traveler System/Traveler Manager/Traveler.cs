@@ -188,7 +188,7 @@ namespace Efficient_Automatic_Traveler_System
             string result = "";
             try
             {
-                
+                TravelerItem item = FindItem(itemID);
                 using (var client = new WebClient())
                 {
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
@@ -198,15 +198,29 @@ namespace Efficient_Automatic_Traveler_System
                     string template = "";
                     // TEMP
                     //type = LabelType.Test;
+                    string size = "";
                     switch (type)
                     {
-                        case LabelType.Tracking:    template = "4x2 Table Travel1";     printer = "4x2Heian2"; break; // 4x2Pack --> in hall
-                        case LabelType.Scrap:       template = "4x2 Table Scrap1";      printer = "4x2Heian2"; break;
-                        case LabelType.Pack:        template = "4x2 Table Carton EATS"; printer = "4x2FloorTableBox"; break;
-                        case LabelType.Table:       template = "4x6 Table EATS";        printer = "4x6FloorTable"; break;
-                        case LabelType.Test:        template = "4x2 Table Carton EATS logo"; printer = "4x2IT"; break;
+                        case LabelType.Tracking:    template = "4x2 Table Travel1";              break; // 4x2Pack --> in hall
+                        case LabelType.Scrap:       template = "4x2 Table Scrap1";               break;
+                        case LabelType.Pack:        template = "4x2 Table Carton EATS";          break;
+                        case LabelType.Table:       template = "4x6 Table EATS";                 break;
+                        case LabelType.Test:        template = "4x2 Table Carton EATS logo";     break;
                     }
-
+                    size = template.Substring(0, 3).ToLower();
+                    printer = item.Station.Printers.Find(x => x.ToLower().Contains(size));
+                    if (printer == "")
+                    {
+                        throw new Exception("Could not find a " + size + " printer for this station when printing a [" + template + "] , check the config.json file for a printer listing on this station");
+                    }
+                    //switch (type)
+                    //{
+                    //    case LabelType.Tracking: template = "4x2 Table Travel1"; printer = "4x2Heian2"; break; // 4x2Pack --> in hall
+                    //    case LabelType.Scrap: template = "4x2 Table Scrap1"; printer = "4x2Heian2"; break;
+                    //    case LabelType.Pack: template = "4x2 Table Carton EATS"; printer = "4x2FloorTableBox"; break;
+                    //    case LabelType.Table: template = "4x6 Table EATS"; printer = "4x6FloorTable"; break;
+                    //    case LabelType.Test: template = "4x2 Table Carton EATS logo"; printer = "4x2IT"; break;
+                    //}
                     // piecing it together
                     json += fields.Trim(',');
                     json += ",\"printer\":\"" + printer + "\"";
@@ -220,7 +234,7 @@ namespace Efficient_Automatic_Traveler_System
                         result = client.UploadString(new StringStream(ConfigManager.Get("labelServer")).ParseJSON()["address"], "POST", json);
                     } else
                     {
-                        result = "Labels disabled";
+                        result = type.ToString() + " Labels disabled";
                     }
                 }
             }

@@ -244,12 +244,26 @@ namespace Efficient_Automatic_Traveler_System
                 DisplayChecklist();
             }
             m_current = freshTraveler;
-            // if this is Table pack station, print Table label
-            if (m_station == StationClass.GetStation("Table-Pack"))
-            {
-                m_current.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table);
-            }
             return m_travelerManager.LoadItem(json);
+        }
+        public ClientMessage SearchSubmitted(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                // if this is Table pack station, print Table label on search submission 
+                // (they scanned the barcode)
+                if (m_station == StationClass.GetStation("Table-Pack"))
+                {
+                    return new ClientMessage("Info",traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
+                }
+                return new ClientMessage();
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error processing search event");
+            }
         }
     }
 }

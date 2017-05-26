@@ -61,7 +61,7 @@ function JSONviewer(object,name,quit) {
 				} else {
 					self.DisplayValue(property,value,listHorizontal);
 				}
-				self.DOMcontainer.append(listHorizontal);
+				self.DOMcontainer.appendChild(listHorizontal);
 			}
 		}
 	}
