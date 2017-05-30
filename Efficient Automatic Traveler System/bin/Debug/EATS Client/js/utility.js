@@ -242,4 +242,17 @@ Array.prototype.Where = function (callbackTest,property) {
 	});
 	return subArray;
 }
-	
+function Selection(array,callback) {
+	var selection = document.createElement("SELECTION");
+	array.forEach(function (elem) {
+		var option = document.createElement("OPTION");
+		option.innerHTML = elem;
+		option.value = elem;
+		selection.appendChild(option);
+	});
+	selection.value = "";
+	selection.onchange = function () {
+		callback(selection.value);
+	}
+	return selection;
+}	

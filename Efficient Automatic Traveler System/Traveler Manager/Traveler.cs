@@ -213,6 +213,10 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         throw new Exception("Could not find a " + size + " printer for this station when printing a [" + template + "] , check the config.json file for a printer listing on this station");
                     }
+                    if (Convert.ToBoolean(ConfigManager.Get("debug")))
+                    {
+                        printer = "4x2IT";
+                    }
                     //switch (type)
                     //{
                     //    case LabelType.Tracking: template = "4x2 Table Travel1"; printer = "4x2Heian2"; break; // 4x2Pack --> in hall
@@ -283,9 +287,11 @@ namespace Efficient_Automatic_Traveler_System
         public void ScrapItem(ushort ID)
         {
             TravelerItem item = FindItem(ID);
+            item.SequenceNo = (ushort)(QuantityScrapped() + 1);
             item.Scrapped = true;
             item.State = ItemState.PostProcess;
             item.Station = StationClass.GetStation("Scrapped");
+            
         }
         
         public virtual void EnterProduction(ITravelerManager travelerManager)
@@ -308,13 +314,29 @@ namespace Efficient_Automatic_Traveler_System
         public TravelerItem AddItem(StationClass station)
         {
             // find the highest id
+            // and find the smallest available sequence number
             ushort highestID = 0;
+            int maxSeqNo = (Items.Count > 0 ? Items.Max(x => x.SequenceNo) : 1);
+            bool[] sequenceSlots = new bool[maxSeqNo+1];
             foreach (TravelerItem item in Items)
             {
                 highestID = Math.Max(highestID, item.ID);
+                if (!item.Scrapped) sequenceSlots[item.SequenceNo] = true;
+            }
+            ushort sequenceNo = (ushort)(maxSeqNo + 1);
+            bool replacement = false;
+            for (ushort i = 1; i < sequenceSlots.Length; i++)
+            {
+                if (!sequenceSlots[i])
+                {
+                    // hole in sequence was found, this is a replacement
+                    sequenceNo = i;
+                    replacement = true;
+                    break;
+                }
             }
             // use the next id (highest + 1)
-            TravelerItem newItem = new TravelerItem((ushort)(highestID + 1));
+            TravelerItem newItem = new TravelerItem((ushort)(highestID + 1), sequenceNo,replacement);
             newItem.Station = station;
             Items.Add(newItem);
             return newItem;

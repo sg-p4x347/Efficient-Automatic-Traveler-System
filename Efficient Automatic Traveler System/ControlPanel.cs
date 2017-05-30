@@ -9,36 +9,36 @@ namespace Efficient_Automatic_Traveler_System
     abstract class Node
     {
         public Node() { }
+        public Node(Dictionary<string, string> style)
+        {
+            m_style = style;
+        }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("type", this.GetType().Name.Quotate());
+            obj.Add("style", (m_style != null ? m_style.Stringify() : "{}"));
             return obj.Stringify();
         }
+        private Dictionary<string, string> m_style;
     }
     class TextNode : Node
     {
-        public TextNode(string text, string color = "black", string textAlign = "center")
+        public TextNode(string text, Dictionary<string, string> style = null) : base(style)
         {
             m_text = text;
-            m_color = color;
-            m_textAlign = textAlign;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("text", m_text.Quotate());
-            obj.Add("color", m_color.Quotate());
-            obj.Add("textAlign", m_textAlign.Quotate());
             return base.ToString().MergeJSON(obj.Stringify());
         }
         private string m_text;
-        private string m_color;
-        private string m_textAlign;
     }
     abstract class Control : Node
     {
-        public Control(string name, string callback, string returnParam)
+        public Control(string name, string callback, string returnParam, Dictionary<string, string> style = null) : base(style)
         {
             m_name = name;
             m_callback = callback;
@@ -58,21 +58,21 @@ namespace Efficient_Automatic_Traveler_System
     }
     class Button : Control
     {
-        public Button(string name, string callback, string returnParam = "{}") : base(name, callback, returnParam)
+        public Button(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null) : base(name, callback, returnParam, style)
         {
 
         }
     }
     class Checkbox : Control
     {
-        public Checkbox(string name, string callback, string returnParam = "{}") : base(name, callback, returnParam)
+        public Checkbox(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null) : base(name, callback, returnParam, style)
         {
 
         }
     }
     class Selection : Control
     {
-        public Selection(string name, string callback, List<string> options, string value = "", string returnParam = "{}") : base (name, callback, returnParam) {
+        public Selection(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null) : base (name, callback, returnParam, style) {
             m_options = options;
             m_value = value;
         }
@@ -89,13 +89,9 @@ namespace Efficient_Automatic_Traveler_System
 
     abstract class PanelList : Node, IEnumerable<Node>
     {
-        public PanelList()
+        public PanelList(Dictionary<string, string> style = null) : base(style)
         {
             m_nodes = new List<Node>();
-        }
-        public PanelList(Node[] elements)
-        {
-            m_nodes = elements.ToList();
         }
         public void Add(Node node)
         {
@@ -132,36 +128,30 @@ namespace Efficient_Automatic_Traveler_System
     }
     class Row : PanelList
     {
-        public Row(string justify = "space-around", bool dividers = false) : base()
+        public Row(bool dividers = false, Dictionary<string, string> style = null) : base(style)
         {
-            m_justify = justify;
             m_dividers = dividers;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("justify", m_justify.Quotate());
             obj.Add("dividers", m_dividers.ToString().ToLower());
             return base.ToString().MergeJSON(obj.Stringify());
         }
-        private string m_justify;
         private bool m_dividers;
     }
     class Column : PanelList
     {
-        public Column(string justify = "space-around", bool dividers = false) : base()
+        public Column(bool dividers = false, Dictionary<string, string> style = null) : base(style)
         {
-            m_justify = justify;
             m_dividers = dividers;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("justify", m_justify.Quotate());
             obj.Add("dividers", m_dividers.ToString().ToLower());
             return base.ToString().MergeJSON(obj.Stringify());
         }
-        private string m_justify;
         private bool m_dividers;
     }
     class ControlPanel

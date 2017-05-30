@@ -59,7 +59,6 @@ namespace Efficient_Automatic_Traveler_System
                 UpdateTimer(); // start the update loop
                 GetInputAsync(); // get console commands from the user
                 m_outputLog.Flush();
-                
                 Listen(); // start listening for http requests on port 80
             }
             catch (Exception ex)
@@ -198,7 +197,7 @@ namespace Efficient_Automatic_Traveler_System
             Server.WriteLine("> Updating in Online mode");
             // Import stored orders from json file and MAS
             m_orderManager.ImportOrders(ref m_MAS);
-
+            
             // Load, Create, and combine all travelers
             m_travelerManager.CompileTravelers();
 

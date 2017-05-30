@@ -242,11 +242,9 @@ function PopupManager(blackout) {
 		switch (node.type) {
 			case "TextNode": 
 				nodeElement = self.CreateP(node.text);
-				nodeElement.style.color = node.color;
-				if (node.color != "black") {
+				/* if (node.color != "black") {
 					nodeElement.style.textShadow = "1px 1px 1px black";
-				}
-				nodeElement.style.textAlign = node.textAlign;
+				} */
 				break;
 			case "Button":
 				var innerParams = node.returnParam;
@@ -264,7 +262,6 @@ function PopupManager(blackout) {
 				break;
 			case "Row":
 				var row = self.CreateHorizontalList();
-				row.style.justifyContent = node.justify;
 				row.className = "blackout__popup__controlPanel__row";
 				if (node.dividers) {row.className += " blackout__popup__controlPanel__row--dividers";}
 				node.nodes.forEach(function (innerNode) {
@@ -274,7 +271,6 @@ function PopupManager(blackout) {
 				break;
 			case "Column":
 				var column = document.createElement("DIV");
-				column.style.justifyContent = node.justify;
 				column.className = "blackout__popup__controlPanel__column";
 				if (node.dividers) {column.className += " blackout__popup__controlPanel__column--dividers";}
 				node.nodes.forEach(function (innerNode) {
@@ -284,6 +280,11 @@ function PopupManager(blackout) {
 				break;
 		}
 		nodeElement.className += " blackout__popup__controlPanel__node";
+		if (node.style) {
+			for (var style in node.style) {
+				nodeElement.style[style] = node.style[style];
+			}
+		}
 		if (highestLevel) {
 			nodeElement.style.overflowX = "auto";
 			nodeElement.style.overflowY = "auto";

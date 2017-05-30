@@ -197,21 +197,23 @@ namespace Efficient_Automatic_Traveler_System
         // labels
         public override string GetLabelFields(ushort itemID, LabelType type)
         {
+            TravelerItem item = FindItem(itemID);
             string json = "";
             switch (type)
             {
                 case LabelType.Tracking:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
-                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
+                    // Item ID is now a sequence number out of the qty on the traveler
+                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString() + "\"";
                     json += ",\"Desc1\":\"" + Part.BillNo + "\"";
                     json += ",\"Desc2\":\"" + Part.BillDesc + "\"";
                     json += ",\"Desc3\":\"" + m_bandingAbrev + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
-                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
+                    json += ",\"ID\":\"" + ID.ToString("D6") + " Scrap #" + item.SequenceNo.ToString() + "\"";
                     json += ",\"Desc1\":\"" + Part.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + "!!!***SCRAP***!!!" + "\"";
+                    json += ",\"Desc2\":\"" + "!! SCRAP #" + item.SequenceNo.ToString() + " !!\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
                     string reason = scrapEvent.Reason;
                     json += ",\"Reason\":" + reason.Quotate();

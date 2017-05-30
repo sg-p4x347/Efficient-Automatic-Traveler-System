@@ -125,7 +125,7 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> objB = new StringStream(B).ParseJSON(false);
                 foreach (KeyValuePair<string,string> kvp in objB)
                 {
-                    objA.Add(kvp.Key, kvp.Value);
+                    if (!objA.ContainsKey(kvp.Key)) objA.Add(kvp.Key, kvp.Value);
                 }
                 return objA.Stringify();
             } catch (Exception ex)

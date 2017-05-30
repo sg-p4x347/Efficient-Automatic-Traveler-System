@@ -201,7 +201,9 @@ function Application () {
 			}
 		});
 	}
-	
+	this.ControlPanel = function (format) {
+		this.popupManager.ControlPanel(format)
+	}
 	this.Autofocus = function (evt) {
 		if (document.getElementById("travelerSearchBox") != document.activeElement)  {
 			application.FocusOnSearch();
@@ -217,6 +219,39 @@ function Application () {
 		//window.location = location;
 		var win = window.open(location,'_blank');
 		win.focus();
+	}
+	this.PrintLabelPopup = function (params) {
+		var self = this;
+		self.popupManager.AddSpecific("labelPopup");
+		var labelSelect = document.getElementById("labelSelect");
+		ClearChildren(labelSelect);
+		params.labelTypes.forEach(function (type) {
+			var option = document.createElement("OPTION");
+			option.value = type;
+			option.innerHTML = type;
+			labelSelect.appendChild(option);
+		});
+		
+		var itemSelect = document.getElementById("itemSelection");
+		ClearChildren(itemSelect);
+		params.traveler.items.forEach(function (item) {
+			var option = document.createElement("OPTION");
+			option.value = item.ID;
+			option.innerHTML = item.ID;
+			itemSelect.appendChild(option);
+		});
+		
+		document.getElementById("printLabelBtn").onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("PrintLabel",{
+				travelerID: params.traveler.ID,
+				itemID: document.getElementById("itemSelection").value,
+				labelType: document.getElementById("labelSelect").value,
+				quantity: 1
+			});
+			
+			//-----------------------------------------------
+		}
 	}
 	// Loads the traveler GUI
 	this.LoadTravelerJSON = function (traveler) {
@@ -425,10 +460,7 @@ function Application () {
 			//-----------------------------------------------
 		}
 		document.getElementById("optionsBtn").onclick = function () {
-			var popup = self.popupManager.CreatePopup();
-			
-			
-			self.popupManager.AddCustom(popup);
+			new InterfaceCall("OptionsMenu");
 		}
 		//----------------
 		// Websocket
@@ -777,8 +809,10 @@ function TravelerView() {
 		while (self.DOMcontainer.hasChildNodes()) {
 			self.DOMcontainer.removeChild(self.DOMcontainer.lastChild);
 		}
-		document.getElementById("completeItemBtn").innerHTML = "Complete item #" + self.item.ID;
-		document.getElementById("scrapItemBtn").innerHTML = "Scrap item #" + self.item.ID;
+		//document.getElementById("completeItemBtn").innerHTML = "Complete item #" + self.item.ID;
+		//document.getElementById("scrapItemBtn").innerHTML = "Scrap item #" + self.item.ID;
+		document.getElementById("completeItemBtn").innerHTML = "Complete item"
+		document.getElementById("scrapItemBtn").innerHTML = "Scrap item"
 		self.LoadTable();
 	}
 	this.Load = function (traveler) {
@@ -843,7 +877,7 @@ function TravelerView() {
 			select.className = "dark twoEM";
 			self.traveler.items.forEach(function (item) {
 				// only add item if it is at this station and uncomplete
-				if (item.station == application.station.name && !Contains(item.history,[{prop:"type",value:0},{prop:"station",value:item.station}])) {
+				if (item.station == application.station.name && !Contains(item.history,[{prop:"process",value:"Completed"},{prop:"station",value:item.station}])) {
 					var option = document.createElement("OPTION");
 					option.value = item.ID;
 					option.innerHTML = item.ID;

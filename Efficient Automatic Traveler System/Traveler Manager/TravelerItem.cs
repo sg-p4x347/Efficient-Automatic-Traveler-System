@@ -14,9 +14,11 @@ namespace Efficient_Automatic_Traveler_System
     }
     class TravelerItem
     {
-        public TravelerItem(UInt16 ID)
+        public TravelerItem(UInt16 ID, UInt16 sequenceNo, bool replacement = false)
         {
             m_ID = ID;
+            m_sequenceNo = sequenceNo;
+            m_replacement = replacement;
             m_scrapped = false;
             m_station = StationClass.GetStation("Start");
             m_lastStation = StationClass.GetStation("Start");
@@ -30,6 +32,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 m_ID = Convert.ToUInt16(obj["ID"]);
+                m_sequenceNo = obj.ContainsKey("sequenceNo") ? Convert.ToUInt16(obj["sequenceNo"]) : (ushort)0;
+                m_replacement = obj.ContainsKey("replacement") ? Convert.ToBoolean(obj["replacement"]) : false;
                 m_scrapped = Convert.ToBoolean(obj["scrapped"]);
                 m_station = StationClass.GetStation(obj["station"]);
                 m_lastStation = StationClass.GetStation(obj["lastStation"]);
@@ -51,6 +55,8 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"ID",m_ID.ToString()},
+                {"sequenceNo",m_sequenceNo.ToString() },
+                {"replacement", m_replacement.ToString().ToLower() },
                 {"scrapped", m_scrapped.ToString().ToLower()},
                 {"station",Station.Name.Quotate() },
                 {"lastStation",m_lastStation.Name.Quotate() },
@@ -66,6 +72,8 @@ namespace Efficient_Automatic_Traveler_System
         }
         // Properties
         private UInt16 m_ID;
+        private UInt16 m_sequenceNo;
+        private bool m_replacement;
         private bool m_scrapped;
         private StationClass m_station;
         private StationClass m_lastStation;
@@ -157,6 +165,32 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_state = value;
+            }
+        }
+
+        public ushort SequenceNo
+        {
+            get
+            {
+                return m_sequenceNo;
+            }
+
+            set
+            {
+                m_sequenceNo = value;
+            }
+        }
+
+        public bool Replacement
+        {
+            get
+            {
+                return m_replacement;
+            }
+
+            set
+            {
+                m_replacement = value;
             }
         }
 

@@ -200,71 +200,113 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     {"travelerID", traveler.ID.ToString() }
                 }.Stringify();
-
+                //=================================
+                // STYLES
+                Dictionary<string, string> spaceBetween = new Dictionary<string, string>() { { "justifyContent", @"""space-between""" } };
+                Dictionary<string, string> leftAlign = new Dictionary<string, string>() { { "textAlign", @"""left""" } };
+                Dictionary<string, string> rightAlign = new Dictionary<string, string>() {
+                    { "textAlign", @"""right""" },
+                    { "color", @"""white""" }
+                };
+                Dictionary<string, string> scroll = new Dictionary<string, string>() {
+                    { "maxHeight", @"""3em"""},
+                    { "overflow-y", @"""auto""" }
+                };
+                //=================================
                 Column fields = new Column(dividers: true);
-                fields.Add(new Row(justify: "space-between")
+                fields.Add(new Row(style: spaceBetween)
                     {
-                        new TextNode("ID",textAlign: "left"), new TextNode(traveler.ID.ToString(),"white","right")
+                        new TextNode("ID",leftAlign), new TextNode(traveler.ID.ToString(),rightAlign)
                     }
                 );
-                fields.Add(
-                    new Row(justify: "space-between")
-                    {
-                        new TextNode("Type",textAlign: "left"), new TextNode(traveler.GetType().Name,"white","right")
-                    }
-                );
+                //fields.Add(
+                //    new Row(justify: "space-between")
+                //    {
+                //        new TextNode("Type",textAlign: "left"), new TextNode(traveler.GetType().Name,"white","right")
+                //    }
+                //);
                 List<string> stations = StationClass.GetStations().Where(x => x.CreatesThis(traveler)).Select( y => y.Name).ToList();
                 stations.Add("Start");
                 fields.Add(
-                    new Row(justify: "space-between")
+                    new Row(style: spaceBetween)
                     {
-                        new TextNode("Starting station",textAlign: "left"), new Selection("Station","MoveTravelerStart",stations,traveler.Station.Name,returnParam)
+                        new TextNode("Starting station",leftAlign), new Selection("Station","MoveTravelerStart",stations,traveler.Station.Name,returnParam)
                     }
                 );
                 if (traveler is IPart)
                 {
                     fields.Add(
-                        new Row(justify: "space-between")
+                        new Row(style: spaceBetween)
                         {
-                            new TextNode("Model",textAlign: "left"), new TextNode((traveler as IPart).ItemCode,"white","right")
+                            new TextNode("Model",leftAlign), new TextNode((traveler as IPart).ItemCode,rightAlign)
                         }
                     );
                 }
                 if (traveler is Table)
                 {
                     fields.Add(
-                        new Row(justify: "space-between")
+                        new Row(style: spaceBetween)
                         {
-                            new TextNode("Shape",textAlign: "left"), new TextNode((traveler as Table).Shape,"white","right")
+                            new TextNode("Shape",leftAlign), new TextNode((traveler as Table).Shape,rightAlign)
                         }
                     );
                 }
                 fields.Add(
-                    new Row(justify: "space-between")
+                    new Row(style: spaceBetween)
                     {
-                        new TextNode("Qty on traveler",textAlign: "left"), new TextNode(traveler.Quantity.ToString(),"white","right")
+                        new TextNode("Qty on traveler",leftAlign), new TextNode(traveler.Quantity.ToString(),rightAlign)
                     }
                 );
+                // Parents
+                if (traveler.ParentTravelers.Count > 0)
+                {
+                    Column parents = new Column(style: scroll);
+                    foreach (Traveler parent in traveler.ParentTravelers)
+                    {
+                        parents.Add(new Button(parent.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + parent.ID + "}"));
+                    }
+                    fields.Add(
+                        new Row(style: spaceBetween)
+                        {
+                            new TextNode("Parents",leftAlign), parents
+                        }
+                    );
+                }
+                // Children
+                if (traveler.ChildTravelers.Count > 0)
+                {
+                    Column children = new Column(style: scroll);
+                    foreach (Traveler child in traveler.ChildTravelers)
+                    {
+                        children.Add(new Button(child.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + child.ID + "}"));
+                    }
+                    fields.Add(
+                        new Row(style: spaceBetween)
+                        {
+                            new TextNode("Children",leftAlign), children
+                        }
+                    );
+                }
                 if (station != null)
                 {
                     fields.Add(
-                        new Row(justify: "space-between")
+                        new Row(style: spaceBetween)
                         {
-                            new TextNode("Station",textAlign: "left"), new TextNode(traveler.Station.Name,"white","right")
+                            new TextNode("Station",leftAlign), new TextNode(traveler.Station.Name,rightAlign)
                         }
                     );
                     fields.Add(
-                        new Row(justify: "space-between")
+                        new Row(style: spaceBetween)
                         {
-                            new TextNode("Pending",textAlign: "left"), new TextNode(traveler.QuantityPendingAt(station).ToString(),"white","right")
+                            new TextNode("Pending",leftAlign), new TextNode(traveler.QuantityPendingAt(station).ToString(),rightAlign)
                         }
                     );
                     if (traveler.QuantityCompleteAt(station) > 0)
                     {
                         fields.Add(
-                            new Row(justify: "space-between")
+                            new Row(style: spaceBetween)
                             {
-                                new TextNode("Pending",textAlign: "left"), new TextNode(traveler.QuantityCompleteAt(station).ToString(),"white","right")
+                                new TextNode("Complete",leftAlign), new TextNode(traveler.QuantityCompleteAt(station).ToString(),rightAlign)
                             }
                         );
                     }
@@ -278,7 +320,7 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("Print Labels","LabelPopup",returnParam)
                 };
                 
-                ControlPanel panel = new ControlPanel("Traveler", new Row() { fields, controls });
+                ControlPanel panel = new ControlPanel(traveler.GetType().Name, new Row() { fields, controls });
                 return new ClientMessage("ControlPanel", panel.ToString());
             }
             catch (Exception ex)
@@ -305,8 +347,8 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     {"travelerIDs", obj["travelerIDs"] }
                 }.Stringify();
-
-                Column IDs = new Column(justify: "flex-start");
+                Dictionary<string, string> flexStart = new Dictionary<string, string>() { { "justifyContent", @"""flex-start""" } };
+                Column IDs = new Column(style: flexStart);
                 foreach (string selectedID in selectedIDs)
                 {
                     IDs.Add(new TextNode(selectedID));
@@ -331,7 +373,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Column download = new Column(justify: "flex-start")
+                Dictionary<string, string> flexStart = new Dictionary<string, string>() { { "justifyContent", @"""flex-start""" } };
+                Column download = new Column(style: flexStart)
                 {
                     new TextNode("Download"),
                     
@@ -339,7 +382,7 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("Download Production", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("Download Scrap", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}")
                 };
-                Column manage = new Column(justify: "flex-start")
+                Column manage = new Column(style: flexStart)
                 {
                     new TextNode("Manage"),
                     new Button("New User","UserForm"),
@@ -347,7 +390,7 @@ namespace Efficient_Automatic_Traveler_System
                     new TextNode(""),
                     new Button("New Traveler","TravelerForm")
                 };
-                Column view = new Column(justify: "flex-start")
+                Column view = new Column(style: flexStart)
                 {
                     new TextNode("View"),
                     new Button("View Summary","CreateSummary",@"{""sort"":""Active"",""type"":""Table"",""from"":"""",""to"":""""}")

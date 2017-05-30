@@ -265,5 +265,64 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error processing search event");
             }
         }
+        public ClientMessage LabelPopup(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                string returnParam = new Dictionary<string, string>()
+                {
+                    {"traveler",traveler.ToString() },
+                    {"labelTypes",ExtensionMethods.GetNames<LabelType>().Stringify() }
+                }.Stringify();
+                return new ClientMessage("PrintLabelPopup", returnParam);
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error opening print dialog");
+            }
+        }
+        public ClientMessage PrintLabel(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                int qty = Convert.ToInt32(obj["quantity"]);
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), obj["labelType"]), qty > 0 ? qty : 1, true));
+
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Could not print label(s) due to a pesky error :(");
+            }
+        }
+        public ClientMessage OptionsMenu(string json)
+        {
+            try
+            {
+                // the parameter that returns with all the control events
+                string returnParam = new Dictionary<string, string>()
+                {
+                    {"travelerID", m_current.ID.ToString() }
+                }.Stringify();
+
+                Column options = new Column()
+                {
+                    new Button("Print Labels","LabelPopup",returnParam)
+                };
+
+                ControlPanel panel = new ControlPanel("Options", options);
+                return new ClientMessage("ControlPanel", panel.ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error when getting display fields");
+            }
+        }
     }
 }

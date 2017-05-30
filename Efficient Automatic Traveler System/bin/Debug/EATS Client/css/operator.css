@@ -5,7 +5,7 @@ body {
 	flex-direction: column;
 	align-items: stretch;
 	justify-content: space-around;
-	background-color: dimGray;
+	background-color: #303030;
 	font-size: 1em;
 	color: white;
 	font-family: "Arial", Arial, sans-serif;
@@ -125,7 +125,7 @@ div.interfaceContainer {
 	width: 80%;
 	height: 50%;
 	border: 4px inset gray;
-	background-color: #404040;
+	background-color: #202020;
 }
 div.viewContainer {
 	box-sizing: border-box;
@@ -135,7 +135,7 @@ div.viewContainer {
 	width: 100%;
 	height: 50%;
 	border: 4px inset gray;
-	background-color: #404040;
+	background-color: #202020;
 	overflow: auto;
 }
 div.queue {
@@ -143,7 +143,7 @@ div.queue {
 	display: flex;
 	flex-direction: column-reverse;
 	border-top: 4px inset gray;
-	background-color: #303030;
+	background-color: #202020;
 	overflow: auto;
 	width: 100%;
 	height: 100%;
