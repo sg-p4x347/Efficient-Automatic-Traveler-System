@@ -54,7 +54,6 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                string inherited = base.ExportTableRows(clientType, station);
                 Table parentTable = ((Table)ParentTravelers[0]);
                 List<string> rows = new List<string>()
                 {
@@ -62,7 +61,12 @@ namespace Efficient_Automatic_Traveler_System
                     new NameValueQty<string,string>("Table Shape",parentTable.Shape,"").ToString(),
                     new NameValueQty<string, string>("Table Size", m_tableSize,"").ToString()
                 };
-                return inherited + (inherited.Length != 0 ? "," : "") + rows.Stringify(false).TrimStart('[').TrimEnd(']');
+                rows.AddRange(new StringStream(base.ExportTableRows(clientType, station)).ParseJSONarray(false));
+                Dictionary<string, string> obj = new Dictionary<string, string>()
+                {
+                    {"members",rows.Stringify(false) }
+                };
+                return obj.Stringify();
             } catch (Exception ex)
             {
                 Server.LogException(ex);

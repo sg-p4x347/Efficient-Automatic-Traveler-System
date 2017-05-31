@@ -287,7 +287,7 @@ namespace Efficient_Automatic_Traveler_System
         public void ScrapItem(ushort ID)
         {
             TravelerItem item = FindItem(ID);
-            item.SequenceNo = (ushort)(QuantityScrapped() + 1);
+            //item.SequenceNo = (ushort)(QuantityScrapped() + 1);
             item.Scrapped = true;
             item.State = ItemState.PostProcess;
             item.Station = StationClass.GetStation("Scrapped");
@@ -316,7 +316,7 @@ namespace Efficient_Automatic_Traveler_System
             // find the highest id
             // and find the smallest available sequence number
             ushort highestID = 0;
-            int maxSeqNo = (Items.Count > 0 ? Items.Max(x => x.SequenceNo) : 1);
+            int maxSeqNo = (Items.Count > 0 ? Items.Max(x => x.SequenceNo) : 0);
             bool[] sequenceSlots = new bool[maxSeqNo+1];
             foreach (TravelerItem item in Items)
             {
@@ -532,7 +532,8 @@ namespace Efficient_Automatic_Traveler_System
         }
         public virtual Form CreateForm()
         {
-            Form form = new Form(this.GetType());
+            Form form = new Form();
+            form.Title = "Traveler";
             form.Integer("quantity", "Quantity");
             form.Textbox("comment", "Comment");
             form.Selection("station", "Starting Station", StationClass.StationNames());
@@ -540,7 +541,8 @@ namespace Efficient_Automatic_Traveler_System
         }
         public virtual Form CreateFilledForm()
         {
-            Form form = new Form(this.GetType());
+            Form form = new Form();
+            form.Title = "Traveler";
             form.Integer("quantity", "Quantity",m_quantity);
             form.Textbox("comment", "Comment",m_comment);
             form.Selection("station", "Starting Station",new List<string>(), m_station.Name);
@@ -602,6 +604,13 @@ namespace Efficient_Automatic_Traveler_System
                 return (total ? item.TotalQuantity : item.QuantityPerBill);
             }
             return 0.0;
+        }
+        protected int ScrapSequenceNo(TravelerItem item)
+        {
+            ScrapEvent scrapEvent = (ScrapEvent)item.History.FirstOrDefault(x => x is ScrapEvent);
+            // returns the quantity of items that have a scrap event at or prior to this item's scrap event
+            List<TravelerItem> items  =  Items.Where(x => x.History.Exists(y => y is ScrapEvent && y.Date <= scrapEvent.Date)).ToList();
+            return items.Count;
         }
         #endregion
         //--------------------------------------------------------

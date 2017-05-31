@@ -9,23 +9,23 @@ namespace Efficient_Automatic_Traveler_System
     public class Form
     {
         #region Public Methods
-        public Form(Type type)
+        public Form()
         {
-            m_name = type.Name;
+            m_title = "";
             m_source = "";
             m_fields = new List<string>();
         }
         public Form(string json)
         {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-            m_name = obj["name"];
+            m_title = obj["name"];
             //m_source = obj["source"];
             m_fields = new StringStream(obj["fields"]).ParseJSONarray();
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {
-                {"name",m_name.Quotate() },
+                {"name",m_title.Quotate() },
                 {"fields",m_fields.Stringify(false) }
             };
             return obj.Stringify();
@@ -63,16 +63,20 @@ namespace Efficient_Automatic_Traveler_System
         {
             Selection(name,title, ExtensionMethods.GetNames<T>());
         }
-        public void Selection(string name, string title, List<string> options, string value = "")
+        public void Selection(string name, string title, List<string> options, string value = "", string type = "select")
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {
-                {"type","select".Quotate() },
+                {"type",type.Quotate() },
                 {"name",name.Quotate() },
                 {"title",title.Quotate() },
                 {"options",options.Stringify() },
                 {"value",value.Quotate() }
             };
             m_fields.Add(obj.Stringify());
+        }
+        public void Radio(string name, string title, List<string> options, string value = "")
+        {
+            Selection(name, title, options, value, "radio");
         }
         #endregion
         //---------------------------------------------------------
@@ -95,19 +99,19 @@ namespace Efficient_Automatic_Traveler_System
         //---------------------------------------------------------
 
         #region Properties
-        private string m_name;
+        private string m_title;
         private List<string> m_fields;
         private string m_source;
         public string Name
         {
             get
             {
-                return m_name;
+                return m_title;
             }
 
             set
             {
-                m_name = value;
+                m_title = value;
             }
         }
 
@@ -121,6 +125,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_source = value;
+            }
+        }
+
+        public string Title
+        {
+            get
+            {
+                return m_title;
+            }
+
+            set
+            {
+                m_title = value;
             }
         }
         #endregion

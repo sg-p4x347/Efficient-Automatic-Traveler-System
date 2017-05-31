@@ -53,13 +53,16 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("Server started on " + m_ip + ":80"); 
                 Server.WriteLine("websocket on " + m_ip + ":" + m_port.ToString());
                 m_clientManagerThread.Start();
-
+                
                 
                 Update(); // immediately create travelers upon server start
                 UpdateTimer(); // start the update loop
                 GetInputAsync(); // get console commands from the user
                 m_outputLog.Flush();
+                KanbanManager.Start();
                 Listen(); // start listening for http requests on port 80
+
+                
             }
             catch (Exception ex)
             {
@@ -184,6 +187,7 @@ namespace Efficient_Automatic_Traveler_System
 
             BackupManager.Initialize();
             InventoryManager.Import();
+            KanbanManager.Import();
             // Refresh the static managers
             Configure();
             UserManager.Import();
@@ -415,7 +419,7 @@ namespace Efficient_Automatic_Traveler_System
         private Thread m_clientManagerThread;
         private TimeSpan m_updateInterval;
         private Timer m_timer;
-        private TravelerManager m_travelerManager;
+        private static TravelerManager m_travelerManager;
         private OrderManager m_orderManager;
         private OdbcConnection m_MAS;
         private static StreamWriter m_outputLog = new StreamWriter(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "server log.txt"));
@@ -512,6 +516,13 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_assembly;
+            }
+        }
+        public static ITravelerManager TravelerManager
+        {
+            get
+            {
+                return m_travelerManager as ITravelerManager;
             }
         }
     }

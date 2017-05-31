@@ -28,15 +28,14 @@
 				
 			</div>
 			<!-- SCRAP REPORT -->
-			<div id = "scrapReport" class = "blackout__popup" style = "display: none;">
-				<div class = "yellowBack button" onclick = "application.popupManager.Close(document.getElementById('scrapReport'));">Close</div>
+			<div id = "scrapReport" class = "blackout__popup twoEM" style = "display: none;">
+				<div class = "blackout__popup__closeImg" onclick = "application.popupManager.Close(document.getElementById('scrapReport'));"></div>
 				<form id = "scrapForm" onclick = "(function(event) {event.stopPropagation();})(event)">
-					<input type = "radio" id = "productionRadio" name = "source" value = "production"	checked>Marco Group
-					<input type = "radio" id = "vendorRadio" name = "source" value = "vendor"		checked>Vendor
-					<br><select id = "scrapReasons" class = "dark"></select>
-					<br><input type = "checkbox" id = "startedWork"><p class = "stdMargin">Started work</p>
-					
-					<br><input type = "submit" id = "submitScrap" class = "dark button">
+					<div><input type = "radio" id = "productionRadio" name = "source" value = "production"	checked>Marco Group</div>
+					<div><input type = "radio" id = "vendorRadio" name = "source" value = "vendor"		checked>Vendor</div>
+					<select id = "scrapReasons" class = "dark"></select>
+					<div><input type = "checkbox" id = "startedWork"><p class = "stdMargin">Started work</p></div>
+					<div class = "list--horizontal"><input type = "submit" id = "submitScrap" class = "dark button" style = "margin-top: 1em;"></div>
 				</form>
 			</div>
 			<!-- LABEL POPUP -->

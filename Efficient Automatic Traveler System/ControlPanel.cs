@@ -6,25 +6,28 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    abstract class Node
+    class Node
     {
         public Node() { }
-        public Node(Dictionary<string, string> style)
+        public Node(Dictionary<string, string> style = null, string DOMtype = "div")
         {
             m_style = style;
+            m_DOMtype = DOMtype;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("type", this.GetType().Name.Quotate());
+            obj.Add("DOMtype", m_DOMtype.Quotate());
             obj.Add("style", (m_style != null ? m_style.Stringify() : "{}"));
             return obj.Stringify();
         }
         private Dictionary<string, string> m_style;
+        private string m_DOMtype;
     }
     class TextNode : Node
     {
-        public TextNode(string text, Dictionary<string, string> style = null) : base(style)
+        public TextNode(string text, Dictionary<string, string> style = null, string DOMtype = "p") : base(style,DOMtype)
         {
             m_text = text;
         }
@@ -67,7 +70,6 @@ namespace Efficient_Automatic_Traveler_System
     {
         public Checkbox(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null) : base(name, callback, returnParam, style)
         {
-
         }
     }
     class Selection : Control
@@ -86,10 +88,15 @@ namespace Efficient_Automatic_Traveler_System
         private List<string> m_options;
         private string m_value;
     }
-
-    abstract class PanelList : Node, IEnumerable<Node>
+    class RadioButtons : Selection
     {
-        public PanelList(Dictionary<string, string> style = null) : base(style)
+        public RadioButtons(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null) : base(name, callback, options, value, returnParam, style)
+        {
+        }
+    }
+    class NodeList : Node, IEnumerable<Node>
+    {
+        public NodeList(Dictionary<string, string> style = null, string DOMtype = "div") : base(style,DOMtype)
         {
             m_nodes = new List<Node>();
         }
@@ -126,7 +133,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private List<Node> m_nodes;
     }
-    class Row : PanelList
+    class Row : NodeList
     {
         public Row(bool dividers = false, Dictionary<string, string> style = null) : base(style)
         {
@@ -140,7 +147,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private bool m_dividers;
     }
-    class Column : PanelList
+    class Column : NodeList
     {
         public Column(bool dividers = false, Dictionary<string, string> style = null) : base(style)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class ScrapEvent : ProcessEvent
+    class ScrapEvent : ProcessEvent//, IForm
     {
         #region Public Methods
         public ScrapEvent(User user, StationClass station, double duration, bool startedWork, string source, string reason) : base(user,station,duration,ProcessType.Scrapped)
@@ -43,6 +43,25 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("reason", m_reason.Quotate());
             return obj.Stringify();
         }
+        // IForm
+        //public Form CreateForm()
+        //{
+        //    Form form = new Form();
+        //    form.Title = "Scrap";
+        //    form.Radio("source","Problem Source", )
+        //    form.Selection("station", "Starting Station", StationClass.StationNames());
+        //    return form;
+        //}
+
+        //public Form CreateFilledForm()
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //public void Update(Form form)
+        //{
+        //    throw new NotImplementedException();
+        //}
         #endregion
 
         //-----------------------------------------------------

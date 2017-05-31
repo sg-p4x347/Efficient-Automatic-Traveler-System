@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.Odbc;
 
 namespace Efficient_Automatic_Traveler_System
 {
     static class InventoryManager
     {
         #region Public Methods
+        
         // initializes the user manager from a json file
         static public void Import(DateTime? date = null)
         {
@@ -68,8 +70,41 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
         }
-
-        // returns the user that is requested
+        static public Dictionary<string, int> GetCurrentMASinventory(List<string> itemCodes)
+        {
+            
+            Dictionary<string, int> inventory = new Dictionary<string, int>();
+            if (itemCodes != null && itemCodes.Count > 0)
+            {
+                OdbcConnection MAS = new OdbcConnection();
+                MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;UID=GKC;PWD=sgp4x347;";
+                MAS.Open();
+                if (MAS.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand command = MAS.CreateCommand();
+                    string sqlList = "(";
+                    bool first = true;
+                    foreach (string itemCode in itemCodes)
+                    {
+                        if (!first) sqlList += ',';
+                        first = false;
+                        sqlList += "'" + itemCode + "'";
+                    }
+                    sqlList += ')';
+                    command.CommandText = "SELECT ItemCode, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode IN " + sqlList;
+                    OdbcDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0) && !reader.IsDBNull(1) && !inventory.ContainsKey(reader.GetString(0)))
+                        {
+                            inventory.Add(reader.GetString(0), Convert.ToInt32(reader.GetValue(1)));
+                        }
+                    }
+                    reader.Close();
+                }
+            }
+            return inventory;
+        }
         static public int Get(string itemCode)
         {
             if (m_inventory.ContainsKey(itemCode))

@@ -37,7 +37,7 @@ function JSONviewer(object,name,quit) {
 		
 		// list the properties
 		for (var property in obj) {
-			if (property != "Name") {
+			if (property != "Name" && typeof obj[property] != "function") {
 				var value = obj[property];
 				var listHorizontal = document.createElement("DIV");
 				listHorizontal.className = "list--horizontal JSONviewer__field";

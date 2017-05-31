@@ -328,8 +328,11 @@ namespace Efficient_Automatic_Traveler_System
         // has to know which station this is being submitted from
         public ClientMessage SubmitTraveler(Traveler traveler, StationClass station)
         {
-            traveler.Advance(station,this);
-            OnTravelersChanged(new List<Traveler>() { traveler });
+            if (traveler != null && station != null)
+            {
+                traveler.Advance(station, this);
+                OnTravelersChanged(new List<Traveler>() { traveler });
+            }
             return new ClientMessage();
         }
         #endregion

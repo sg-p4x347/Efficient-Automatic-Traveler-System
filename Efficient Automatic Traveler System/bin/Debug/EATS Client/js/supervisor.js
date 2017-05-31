@@ -339,6 +339,19 @@ function Application () {
 		});
 		
 	}
+	this.NewKanbanItemForm = function (format,method = "NewKanbanItem") {
+		var self = this;
+		//self.popupManager.CloseAll();
+		self.StopAutofocus();
+		self.popupManager.Form(format, function (filledForm) {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall(method,filledForm);
+			
+			//-----------------------------------------------
+			self.StartAutofocus();
+		});
+		
+	}
 	this.EditUserForm = function (format) {
 		this.UserForm(format,"EditUser");
 	}
@@ -481,6 +494,7 @@ function Application () {
 		//document.getElementById("dragElement");
 	}
 	this.ControlPanel = function (format) {
+		this.popupManager.CloseAll();
 		this.popupManager.ControlPanel(format)
 	}
 	this.SearchPopup = function (params) {

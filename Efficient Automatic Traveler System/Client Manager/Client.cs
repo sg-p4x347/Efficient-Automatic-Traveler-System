@@ -346,7 +346,7 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("LoginPopup", ("System error! oops...").Quotate());
             }
         }
-        public ClientMessage Logout(string json)
+        public virtual ClientMessage Logout(string json)
         {
             if (m_user != null)
             {

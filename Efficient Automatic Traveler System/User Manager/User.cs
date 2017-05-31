@@ -91,7 +91,8 @@ namespace Efficient_Automatic_Traveler_System
         // returns a json string representing a form to be filled out by a client
         public Form CreateForm()
         {
-            Form form = new Form(typeof(User));
+            Form form = new Form();
+            form.Title = "User";
             form.Textbox("name","Name");
             form.Textbox("UID", "User ID");
             form.Textbox("PWD", "Password");
@@ -101,7 +102,8 @@ namespace Efficient_Automatic_Traveler_System
         }
         public Form CreateFilledForm()
         {
-            Form form = new Form(typeof(User));
+            Form form = new Form();
+            form.Title = "Edit User";
             form.Textbox("name", "Name",m_name);
             form.Textbox("UID", "User ID",m_UID);
             form.Textbox("PWD", "Password",m_PWD);

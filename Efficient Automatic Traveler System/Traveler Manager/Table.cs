@@ -211,9 +211,9 @@ namespace Efficient_Automatic_Traveler_System
                     break;
                 case LabelType.Scrap:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
-                    json += ",\"ID\":\"" + ID.ToString("D6") + " Scrap #" + item.SequenceNo.ToString() + "\"";
+                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString() + "\"";
                     json += ",\"Desc1\":\"" + Part.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + "!! SCRAP #" + item.SequenceNo.ToString() + " !!\"";
+                    json += ",\"Desc2\":\"" + "!! SCRAP #" + ScrapSequenceNo(item).ToString() + " !!\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
                     string reason = scrapEvent.Reason;
                     json += ",\"Reason\":" + reason.Quotate();
@@ -330,6 +330,7 @@ namespace Efficient_Automatic_Traveler_System
         public override Form CreateForm()
         {
             Form form = base.CreateForm();
+            form.Title = "Table";
             form.Textbox("itemCode", "Model");
             return form;
         }
@@ -337,6 +338,7 @@ namespace Efficient_Automatic_Traveler_System
         public override Form CreateFilledForm()
         {
             Form form = base.CreateFilledForm();
+            form.Title = "Edit Table";
             form.Textbox("itemCode", "Model",ItemCode);
             return form;
         }
@@ -441,14 +443,14 @@ namespace Efficient_Automatic_Traveler_System
                     string boxType = row[header.IndexOf("Box Type")];
                     if (boxType == "TD")
                     {
-                        PackLabelQty = 2;
+                        m_boxPieceQty = 2;
                     } else if (boxType == "FPF")
                     {
-                        PackLabelQty = 1;
+                        m_boxPieceQty = 1;
                     }
                     if (Convert.ToBoolean(row[header.IndexOf("2PerTopBottom")].ToLower()))
                     {
-                        PackLabelQty = 4;
+                        m_boxPieceQty = 4;
                     }
                     //--------------------------------------------
                     // PALLET
@@ -715,6 +717,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_supPack = "N/A";
         private int m_supPackQty = 0;
         private int m_packLabelQty = 2;
+        private int m_boxPieceQty = 1;
         // Blank
         private string m_sheetSize = "";
         private string m_blankNo = "";

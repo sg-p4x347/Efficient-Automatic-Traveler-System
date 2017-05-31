@@ -226,6 +226,8 @@ namespace Efficient_Automatic_Traveler_System
             if (freshTraveler != null && ( m_current == null || freshTraveler.ID != m_current.ID))
             {
                 DisplayChecklist();
+                // auto-submit completed items
+                m_travelerManager.SubmitTraveler(m_current, m_station);
             }
             m_current = freshTraveler;
             
@@ -323,6 +325,12 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error when getting display fields");
             }
+        }
+        public override ClientMessage Logout(string json)
+        {
+            // auto-submit completed items
+            m_travelerManager.SubmitTraveler(m_current, m_station);
+            return base.Logout(json);
         }
     }
 }

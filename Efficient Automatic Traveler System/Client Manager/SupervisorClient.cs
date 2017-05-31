@@ -388,7 +388,8 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("New User","UserForm"),
                     new Button("Edit User","SearchPopup",@"{""interfaceCall"":""EditUserForm"",""message"":""Search for a user by name or ID""}"),
                     new TextNode(""),
-                    new Button("New Traveler","TravelerForm")
+                    new Button("New Traveler","TravelerForm"),
+                    new Button("Kanban Monitor", "KanbanMonitor")
                 };
                 Column view = new Column(style: flexStart)
                 {
@@ -644,7 +645,26 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_travelerManager.NewTraveler(json);
         }
-
+        public ClientMessage KanbanMonitor(string json)
+        {
+            try
+            {
+                return new ClientMessage("ControlPanel", KanbanManager.CreateKanbanMonitor().ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error opening Kanban monitor");
+            }
+        }
+        public ClientMessage NewKanbanItemForm(string json)
+        {
+            return KanbanManager.NewKanbanItemForm(json);
+        }
+        public ClientMessage NewKanbanItem(string json)
+        {
+            return KanbanManager.NewKanbanItem(json);
+        }
         #endregion
         //-----------------------------------
         #region Properties

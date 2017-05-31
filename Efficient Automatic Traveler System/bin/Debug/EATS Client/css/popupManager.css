@@ -67,12 +67,11 @@
 	border: 4px solid red;
 }
 .blackout__popup__controlPanel__node {
-	display: flex;
-	justify-content: space-around;
 	margin: 1px;
 	padding: 1px;
 }
 .blackout__popup__controlPanel__column {
+	display: flex;
 	flex-direction: column;
 }
 .blackout__popup__controlPanel__column--dividers > .blackout__popup__controlPanel__node, .blackout__popup__controlPanel__column--dividers {
@@ -80,6 +79,7 @@
 	border-bottom: 2px solid black;
 }
 .blackout__popup__controlPanel__row {
+	display: flex;
 	flex-direction: row;
 }
 .blackout__popup__controlPanel__row--dividers > .blackout__popup__controlPanel__node, .blackout__popup__controlPanel__row--dividers {

@@ -102,6 +102,12 @@ div.timer__btn {
 #submitTravelerBtn {
 	flex-grow: 2;
 }
+
+#scrapForm {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
 /*Organizational divs*/
 div.header {
 	display: flex;
@@ -155,7 +161,7 @@ div.queueContainer {
 	flex-direction: column;
 	
 	border: 4px inset gray;
-	background-color: #404040;
+	background-color: #202020;
 	overflow: auto;
 	width: 20%;
 	height: 50%;

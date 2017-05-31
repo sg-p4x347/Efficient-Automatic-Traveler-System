@@ -240,8 +240,18 @@ function PopupManager(blackout) {
 		
 		var nodeElement;
 		switch (node.type) {
+			case "NodeList":
+				nodeElement = document.createElement(node.DOMtype);
+				node.nodes.forEach(function (innerNode) {
+					self.AddControlNode(innerNode,nodeElement,callback);
+				});
+				break;
+			case "Node":
+				nodeElement = document.createElement(node.DOMtype);
+				break;
 			case "TextNode": 
-				nodeElement = self.CreateP(node.text);
+				nodeElement = document.createElement(node.DOMtype);
+				nodeElement.innerHTML = node.text;
 				/* if (node.color != "black") {
 					nodeElement.style.textShadow = "1px 1px 1px black";
 				} */

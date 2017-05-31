@@ -333,7 +333,7 @@ function Application () {
 			});
 		};
 		
-		vendorRadio.onclick();
+		
 		var productionRadio = document.getElementById("productionRadio");
 		productionRadio.onclick =  function () {
 			ClearChildren(scrapReasons);
@@ -344,6 +344,9 @@ function Application () {
 				scrapReasons.appendChild(option);
 			});
 		};
+		
+		productionRadio.onclick();
+		productionRadio.checked = true;
 		self.popupManager.Lock(scrapReport);
 		
 		document.getElementById("submitScrap").onclick = function (event) {

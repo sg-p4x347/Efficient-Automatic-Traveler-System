@@ -66,7 +66,7 @@ namespace Efficient_Automatic_Traveler_System
                 new NameValueQty<string, string>("Parent Traveler", ParentTravelers[0].ID.ToString("D6"),"").ToString(),
                 new NameValueQty<string, string>("Box Size", m_boxSize,"").ToString()
             };
-                return rows.Stringify(false).TrimStart('[').TrimEnd(']');
+                return rows.Stringify(false);
             } catch (Exception ex)
             {
                 Server.LogException(ex);
