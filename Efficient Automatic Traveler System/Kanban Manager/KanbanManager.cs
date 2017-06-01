@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    internal delegate void KanbanChangedSubscriber();
     static class KanbanManager
     {
         // initializes the user manager from a json file
@@ -74,23 +75,25 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // Starts an update cycle that keeps inventory relatively up-to-date throughout the day
-        static public void Start()
+        static public async void Start()
         {
             m_updateInterval = TimeSpan.FromHours(Convert.ToDouble(ConfigManager.Get("KanbanManagerSyncPeriod")));
-            Update();
+            await Update();
             UpdateTimer();
         }
-        static private void Update()
+        static private async Task Update()
         {
             List<string> itemCodes = m_items.Select(x => x.ItemCode).ToList();
-            Dictionary<string,int> inventory = InventoryManager.GetCurrentMASinventory(itemCodes);
+            Dictionary<string,int> inventory = await InventoryManager.GetCurrentMASinventory(itemCodes);
             foreach (KeyValuePair<string, int> itemCodeQty in inventory)
             {
-                m_items.Find(i => i.ItemCode == itemCodeQty.Key).Update(
+                KanbanItem item = m_items.Find(i => i.ItemCode == itemCodeQty.Key);
+                item.Update(
                     itemCodeQty.Value,
                     Server.TravelerManager.GetTravelers.OfType<IPart>().Where(t => t.ItemCode == itemCodeQty.Key).Sum(x => ((Traveler)x).Quantity)
                 );
             }
+            KanbanChanged();
         }
         static private void UpdateTimer()
         {
@@ -107,12 +110,14 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> flexStart = new Dictionary<string, string>() { { "justifyContent", @"""flex-start""" } };
             Dictionary<string, string> center = new Dictionary<string, string>() { { "align-items", @"""center""" } };
+            
             Column controls = new Column(style: flexStart)
-                {
-                    new Button("New Item","NewKanbanItemForm")
-                };
-            NodeList monitorTable = new NodeList(DOMtype: "table");
-            foreach(KanbanItem item in m_items)
+            {
+                new Button("New Item","NewKanbanItemForm")
+            };
+            NodeList monitorTable = new NodeList(BorderStyle,DOMtype: "table");
+            monitorTable.Add(KanbanItem.CreateMonitorHeader());
+            foreach (KanbanItem item in m_items)
             {
                 monitorTable.Add(item.CreateMonitorRow());
             }
@@ -122,24 +127,33 @@ namespace Efficient_Automatic_Traveler_System
         {
             return new ClientMessage("NewKanbanItemForm", KanbanItem.CreateForm().ToString());
         }
-        public static ClientMessage NewKanbanItem(string json)
+        public static async Task<ClientMessage> NewKanbanItem(string json)
         {
             try
             {
                 Form form = new Form(json);
                 KanbanItem newItem = new KanbanItem(form);
                 m_items.Add(newItem);
+                await Update();
                 Backup();
-                return new ClientMessage("KanbanMonitor", CreateKanbanMonitor().ToString());
-            } catch (Exception ex)
+                return new ClientMessage("ControlPanel", CreateKanbanMonitor().ToString());
+            }
+            catch (Exception ex)
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error when adding new Kanban Item");
             }
             
         }
+        public static event KanbanChangedSubscriber KanbanChanged = delegate { };
+
         private static List<KanbanItem> m_items = new List<KanbanItem>();
         private static TimeSpan m_updateInterval;
         private static Timer m_timer;
+        
+        public static Dictionary<string, string> BorderStyle = new Dictionary<string, string>()
+        {
+            {"border","2px solid black".Quotate() }
+        };
     }
 }

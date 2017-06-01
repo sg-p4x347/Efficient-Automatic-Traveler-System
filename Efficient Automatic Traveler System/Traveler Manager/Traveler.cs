@@ -576,9 +576,15 @@ namespace Efficient_Automatic_Traveler_System
         // gets the total work wrapped up in the given station
         public abstract double GetTotalLabor(StationClass station = null);
         // overridden in derived classes, packs properties into the Export() json string
-        public abstract Dictionary<string, string> ExportProperties(StationClass station = null);
+        public virtual Dictionary<string, string> ExportProperties(StationClass station = null)
+        {
+            return new Dictionary<string, string>()
+            {
+                {"forInventory",(m_parentOrders.Count == 0).ToString().ToLower()}
+            };
+        }
         // pre
-        public abstract void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS);
+        public abstract Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS);
         #endregion
         //--------------------------------------------------------
         #region Private Methods

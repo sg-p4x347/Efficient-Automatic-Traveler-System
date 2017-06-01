@@ -143,6 +143,7 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>();
             try
             {
+                obj.Merge(base.ExportProperties(station));
                 obj.Add("shape", Shape.Quotate());
                 obj.Add("laborRate", GetRate(Part.ComponentBills[0], station).ToString());
                 obj.Add("totalLabor", Math.Round(GetTotalLabor(station), 1).ToString());
@@ -161,9 +162,10 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("Model", m_part.BillNo.Quotate());
             return obj.Stringify();
         }
-        public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS)
+        public async override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
-            m_part = new Bill(m_part.BillNo, m_part.QuantityPerBill, Quantity,ref MAS);
+            m_part = new Bill(m_part.BillNo, m_part.QuantityPerBill, Quantity);
+            await m_part.Import(MAS);
             m_part.BillDesc = Regex.Replace(m_part.BillDesc,"TableTopAsm,", "", RegexOptions.IgnoreCase); // tabletopasm is pretty obvious and therefore extraneous
             m_part.BillDesc = Regex.Replace(m_part.BillDesc, "TableTop,", "", RegexOptions.IgnoreCase);
             m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));

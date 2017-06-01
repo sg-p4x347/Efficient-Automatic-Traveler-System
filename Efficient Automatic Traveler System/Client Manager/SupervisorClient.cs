@@ -25,6 +25,7 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage((new ClientMessage("InitLabelTypes", ExtensionMethods.Stringify<LabelType>())).ToString());
             SendMessage((new ClientMessage("InterfaceOpen")).ToString());
             HandleTravelersChanged(m_travelerManager.GetTravelers);
+            KanbanManager.KanbanChanged += new KanbanChangedSubscriber(HandleKanbanChanged);
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
@@ -42,6 +43,15 @@ namespace Efficient_Automatic_Traveler_System
             message.Add("travelers", travelerStrings.Stringify(false));
             message.Add("mirror", mirror.ToString().ToLower());
             SendMessage(new ClientMessage("HandleTravelersChanged",message.Stringify()).ToString());
+        }
+
+        public void HandleKanbanChanged()
+        {
+            QueryClient("application.popupManager.Exists('Kanban Monitor')", "KanbanMonitor");
+        }
+        public void DisplayKanbanMonitor()
+        {
+            SendMessage(new ClientMessage("KanbanMonitor").ToString());
         }
         #endregion
         //----------------------------------
@@ -92,7 +102,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_travelerManager.MoveTravelerStart(json);
         }
-
+        public void CloseAllPopups()
+        {
+            SendMessage(new ClientMessage("CloseAll").ToString());
+        }
         
         //public ClientMessage LoadTraveler(string json)
         //{
@@ -203,11 +216,10 @@ namespace Efficient_Automatic_Traveler_System
                 //=================================
                 // STYLES
                 Dictionary<string, string> spaceBetween = new Dictionary<string, string>() { { "justifyContent", @"""space-between""" } };
-                Dictionary<string, string> leftAlign = new Dictionary<string, string>() { { "textAlign", @"""left""" } };
-                Dictionary<string, string> rightAlign = new Dictionary<string, string>() {
-                    { "textAlign", @"""right""" },
-                    { "color", @"""white""" }
-                };
+                List<string> leftAlign = new List<string>() { "leftAlign" };
+                List<string> rightAlign = new List<string>() { "rightAlign" };
+                List<string> shadow = new List<string>() { "shadow" };
+                List<string> white = new List<string>() { "white" };
                 Dictionary<string, string> scroll = new Dictionary<string, string>() {
                     { "maxHeight", @"""3em"""},
                     { "overflow-y", @"""auto""" }
@@ -216,7 +228,7 @@ namespace Efficient_Automatic_Traveler_System
                 Column fields = new Column(dividers: true);
                 fields.Add(new Row(style: spaceBetween)
                     {
-                        new TextNode("ID",leftAlign), new TextNode(traveler.ID.ToString(),rightAlign)
+                        new TextNode("ID",styleClasses: new Style("leftAlign")), new TextNode(traveler.ID.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
                     }
                 );
                 //fields.Add(
@@ -230,7 +242,7 @@ namespace Efficient_Automatic_Traveler_System
                 fields.Add(
                     new Row(style: spaceBetween)
                     {
-                        new TextNode("Starting station",leftAlign), new Selection("Station","MoveTravelerStart",stations,traveler.Station.Name,returnParam)
+                        new TextNode("Starting station",styleClasses: new Style("leftAlign")), new Selection("Station","MoveTravelerStart",stations,traveler.Station.Name,returnParam)
                     }
                 );
                 if (traveler is IPart)
@@ -238,7 +250,7 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Model",leftAlign), new TextNode((traveler as IPart).ItemCode,rightAlign)
+                            new TextNode("Model",styleClasses: new Style("leftAlign")), new TextNode((traveler as IPart).ItemCode,styleClasses:new Style("white","rightAlign","shadow"))
                         }
                     );
                 }
@@ -247,16 +259,36 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Shape",leftAlign), new TextNode((traveler as Table).Shape,rightAlign)
+                            new TextNode("Shape",styleClasses: new Style("leftAlign")), new TextNode((traveler as Table).Shape,styleClasses: new Style("white","rightAlign","shadow"))
                         }
                     );
                 }
+                
                 fields.Add(
                     new Row(style: spaceBetween)
                     {
-                        new TextNode("Qty on traveler",leftAlign), new TextNode(traveler.Quantity.ToString(),rightAlign)
+                        new TextNode("Qty on traveler",styleClasses: new Style("leftAlign")), new TextNode(traveler.Quantity.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
                     }
                 );
+                
+                if (traveler.ParentOrders.Count == 0)
+                {
+                    fields.Add(new TextNode("Make to Stock",styleClasses: new Style("red","shadow")));
+                } else
+                {
+                    // Orders
+                    Column orders = new Column(style: scroll);
+                    foreach (Order order in traveler.ParentOrders)
+                    {
+                        orders.Add(new TextNode(order.SalesOrderNo));
+                    }
+                    fields.Add(
+                        new Row(style: spaceBetween)
+                        {
+                            new TextNode("Orders",styleClasses: new Style("leftAlign")), orders
+                        }
+                    );
+                }
                 // Parents
                 if (traveler.ParentTravelers.Count > 0)
                 {
@@ -268,7 +300,7 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Parents",leftAlign), parents
+                            new TextNode("Parents",styleClasses: new Style("leftAlign")), parents
                         }
                     );
                 }
@@ -283,7 +315,7 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Children",leftAlign), children
+                            new TextNode("Children",styleClasses: new Style("leftAlign")), children
                         }
                     );
                 }
@@ -292,13 +324,13 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Station",leftAlign), new TextNode(traveler.Station.Name,rightAlign)
+                            new TextNode("Station",styleClasses: new Style("leftAlign")), new TextNode(traveler.Station.Name,styleClasses: new Style("white","rightAlign","shadow"))
                         }
                     );
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Pending",leftAlign), new TextNode(traveler.QuantityPendingAt(station).ToString(),rightAlign)
+                            new TextNode("Pending",styleClasses: new Style("leftAlign")), new TextNode(traveler.QuantityPendingAt(station).ToString(),styleClasses: new Style("white","rightAlign","shadow"))
                         }
                     );
                     if (traveler.QuantityCompleteAt(station) > 0)
@@ -306,7 +338,7 @@ namespace Efficient_Automatic_Traveler_System
                         fields.Add(
                             new Row(style: spaceBetween)
                             {
-                                new TextNode("Complete",leftAlign), new TextNode(traveler.QuantityCompleteAt(station).ToString(),rightAlign)
+                                new TextNode("Complete",styleClasses: new Style("leftAlign")), new TextNode(traveler.QuantityCompleteAt(station).ToString(),styleClasses: new Style("white","rightAlign","shadow"))
                             }
                         );
                     }
@@ -641,9 +673,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_travelerManager.TravelerForm(json);
         }
-        public ClientMessage NewTraveler(string json)
+        public async Task<ClientMessage> NewTraveler(string json)
         {
-            return m_travelerManager.NewTraveler(json);
+            return await m_travelerManager.NewTraveler(json);
         }
         public ClientMessage KanbanMonitor(string json)
         {
@@ -661,10 +693,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             return KanbanManager.NewKanbanItemForm(json);
         }
-        public ClientMessage NewKanbanItem(string json)
+        public async Task<ClientMessage> NewKanbanItem(string json)
         {
-            return KanbanManager.NewKanbanItem(json);
+            return await KanbanManager.NewKanbanItem(json);
         }
+       
         #endregion
         //-----------------------------------
         #region Properties

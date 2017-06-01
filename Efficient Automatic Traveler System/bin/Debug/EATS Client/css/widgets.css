@@ -316,6 +316,25 @@ div.percentContainer {
 	
 
 }
+/* alignment */
+.leftAlign {
+	text-align: left;
+}
+.centerAlign {
+	text-align: center;
+}
+.rightAlign {
+	text-align: right;
+}
+.topAlign {
+	vertical-align: top;
+}
+.middleAlign {
+	vertical-align: middle;
+}
+.bottomAlign {
+	vertical-align: bottom;
+}
 /* margins */
 .stdMargin, .button {
 	margin: 4px;

@@ -10,34 +10,38 @@ namespace Efficient_Automatic_Traveler_System
     class Item
     {
         // Interface
-        public Item(string itemCode, double quantityPerBill, double parentQuantity, ref OdbcConnection MAS)
+        public Item(string itemCode, double quantityPerBill, double parentQuantity, OdbcConnection MAS)
         {
             try
             {
                 m_itemCode = itemCode;
                 m_quantityPerBill = quantityPerBill;
                 m_totalQuantity = m_quantityPerBill * parentQuantity;
-                // get item info from MAS
-                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-                OdbcCommand command = MAS.CreateCommand();
-                command.CommandText = "SELECT ItemCodeDesc, StandardUnitOfMeasure FROM CI_item WHERE itemCode = '" + itemCode + "'";
-                OdbcDataReader reader = command.ExecuteReader();
-
-                // begin to read
-                if (reader.Read())
-                {
-                
-                        //if (!reader.IsDBNull(0)) m_itemType = reader.GetInt32(0);
-                        if (!reader.IsDBNull(0)) m_itemCodeDesc = reader.GetString(0);
-                        if (!reader.IsDBNull(1)) m_unit = reader.GetString(1);
-                
-                }
-                reader.Close();
+                Import(MAS);
             }
             catch (Exception ex)
             {
                 Server.WriteLine("An error occured when retrieving item information from MAS: " + ex.Message);
             }
+        }
+        public async void Import(OdbcConnection MAS)
+        {
+            // get item info from MAS
+            if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+            OdbcCommand command = MAS.CreateCommand();
+            command.CommandText = "SELECT ItemCodeDesc, StandardUnitOfMeasure FROM CI_item WHERE itemCode = '" + m_itemCode + "'";
+            OdbcDataReader reader = (OdbcDataReader)await command.ExecuteReaderAsync();
+
+            // begin to read
+            if (reader.Read())
+            {
+
+                //if (!reader.IsDBNull(0)) m_itemType = reader.GetInt32(0);
+                if (!reader.IsDBNull(0)) m_itemCodeDesc = reader.GetString(0);
+                if (!reader.IsDBNull(1)) m_unit = reader.GetString(1);
+
+            }
+            reader.Close();
         }
         public Item (Item item)
         {

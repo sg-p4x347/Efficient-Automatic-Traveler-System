@@ -219,6 +219,9 @@ function Application () {
 	this.Info = function (message) {
 		this.popupManager.Info(message);
 	}
+	this.Updating = function () {
+		this.popupManager.Loading();
+	}
 	this.InitLabelTypes = function (labelTypes) {
 		this.labelTypes = labelTypes;
 	}
@@ -304,8 +307,8 @@ function Application () {
 		this.popupManager.AddJSONviewer(item,"Item");
 		//this.JSONviewer = new JSONviewer(item,"Traveler Item");
 	}
-	this.Info = function (message) {
-		this.popupManager.Info(message);
+	this.CloseAll = function () {
+		this.popupManager.CloseAll();
 	}
 	this.FocusOnSearch = function () {
 		document.getElementById("searchBox").value = "";
@@ -316,7 +319,6 @@ function Application () {
 	//----------------
 	this.TravelerForm = function (format) {
 		var self = this;
-		//self.popupManager.CloseAll();
 		self.StopAutofocus();
 		self.popupManager.Form(format, function (filledForm) {
 			//----------INTERFACE CALL-----------------------
@@ -427,6 +429,9 @@ function Application () {
 	}
 	this.Redirect = function(location) {
 		window.location = location;
+	}
+	this.Evaluate = function (javascript) {
+		window.eval(javascript);
 	}
 	this.InterfaceOpen = function () {
 		// configure the default view settings with the server
@@ -709,7 +714,6 @@ function Application () {
 						if (!object.hasOwnProperty("ping")) {
 							if (object.hasOwnProperty("method")) {
 								if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
-									
 									if (object.parameters != "") {
 										self[object.method](object.parameters);
 									} else {

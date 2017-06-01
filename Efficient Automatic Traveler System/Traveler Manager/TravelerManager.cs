@@ -23,6 +23,7 @@ namespace Efficient_Automatic_Traveler_System
         void AdvanceTravelerItem(int travelerID, ushort itemID);
         void ScrapTravelerItem(int travelerID, ushort itemID);
         void RemoveTraveler(int travelerID);
+        void AddTraveler(string itemCode, int quantity);
         List<Traveler> GetTravelers
         {
             get;
@@ -44,7 +45,7 @@ namespace Efficient_Automatic_Traveler_System
         ClientMessage EnterProduction(string json);
         ClientMessage DownloadSummary(string json);
         ClientMessage TravelerForm(string json);
-        ClientMessage NewTraveler(string json);
+        Task<ClientMessage> NewTraveler(string json);
     }
     internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
     class TravelerManager : IManager, ITravelerManager
@@ -144,7 +145,7 @@ namespace Efficient_Automatic_Traveler_System
                         }
                     }
                     // import part info
-                    traveler.ImportInfo(this as ITravelerManager, orderManager, ref MAS);
+                    traveler.ImportInfo(this as ITravelerManager, orderManager, MAS);
                     index++;
                     Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
                 } catch (Exception ex)
@@ -246,6 +247,16 @@ namespace Efficient_Automatic_Traveler_System
             //}
             // finally... remove THIS traveler
             m_travelers.RemoveAll(x => x.ID == ID);
+        }
+        public void AddTraveler(string itemCode, int quantity)
+        {
+            OdbcConnection MAS = Server.GetMasConnection();
+            // create a new traveler from the itemcode and quantity
+            Traveler newTraveler = (Traveler.IsTable(itemCode) ? (Traveler)new Table(itemCode, quantity) : null /*(Traveler)new Chair(item.ItemCode, quantity)*/);
+
+            newTraveler.ImportInfo(this as ITravelerManager, m_orderManager, MAS);
+            m_travelers.Add(newTraveler);
+            OnTravelersChanged(m_travelers);
         }
         public List<Traveler> GetTravelers
         {
@@ -576,7 +587,7 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "error in TravelerManager.TravelerForm");
             }
         }
-        public ClientMessage NewTraveler(string json)
+        public async Task<ClientMessage> NewTraveler(string json)
         {
             try
             {
@@ -584,7 +595,7 @@ namespace Efficient_Automatic_Traveler_System
                 Form form = new Form(json);
                 Type type = Type.GetType("Efficient_Automatic_Traveler_System." + form.Name);
                 Traveler traveler = traveler = (Traveler)Activator.CreateInstance(type, form);
-                traveler.ImportInfo(this as ITravelerManager, m_orderManager, ref MAS);
+                await traveler.ImportInfo(this as ITravelerManager, m_orderManager, MAS);
                 m_travelers.Add(traveler);
                 OnTravelersChanged(m_travelers);
                 return new ClientMessage("Info","Success!");

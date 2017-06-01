@@ -28,14 +28,14 @@ namespace Efficient_Automatic_Traveler_System
             m_quantityPerBill = quantityPerBill;
             m_totalQuantity = parentQuantity * m_quantityPerBill;
         }
-        public Bill(string billNo, double quantityPerBill, double parentQuantity,ref OdbcConnection MAS)
+        public Bill(string billNo, double quantityPerBill, double parentQuantity,OdbcConnection MAS)
         {
             m_billNo = billNo;
             m_quantityPerBill = quantityPerBill;
             m_totalQuantity = parentQuantity * m_quantityPerBill;
-            Import(ref MAS);
+            Import(MAS);
         }
-        public void Import(ref OdbcConnection MAS)
+        public async Task Import(OdbcConnection MAS)
         {
             if (!m_imported)
             {
@@ -46,7 +46,7 @@ namespace Efficient_Automatic_Traveler_System
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand command = MAS.CreateCommand();
                         command.CommandText = "SELECT BillType, BillDesc1, CurrentBillRevision, DrawingNo, Revision FROM BM_billHeader WHERE billno = '" + m_billNo + "'";
-                        OdbcDataReader reader = command.ExecuteReader();
+                        OdbcDataReader reader = (OdbcDataReader)await command.ExecuteReaderAsync();
                         // read info
                         while (reader.Read())
                         {
@@ -83,12 +83,12 @@ namespace Efficient_Automatic_Traveler_System
                                 if (!reader.IsDBNull(1))
                                 {
                                     // Component has a bill
-                                    m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, ref MAS));
+                                    m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), m_totalQuantity,  MAS));
                                 }
                                 else
                                 {
                                     // Component is an item
-                                    m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, ref MAS));
+                                    m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, MAS));
                                 }
                             }
                         }

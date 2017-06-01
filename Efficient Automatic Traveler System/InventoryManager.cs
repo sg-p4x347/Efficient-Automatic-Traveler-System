@@ -70,7 +70,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
         }
-        static public Dictionary<string, int> GetCurrentMASinventory(List<string> itemCodes)
+        static public async Task<Dictionary<string, int>> GetCurrentMASinventory(List<string> itemCodes)
         {
             
             Dictionary<string, int> inventory = new Dictionary<string, int>();
@@ -92,7 +92,7 @@ namespace Efficient_Automatic_Traveler_System
                     }
                     sqlList += ')';
                     command.CommandText = "SELECT ItemCode, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode IN " + sqlList;
-                    OdbcDataReader reader = command.ExecuteReader();
+                    OdbcDataReader reader = (OdbcDataReader)await command.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         if (!reader.IsDBNull(0) && !reader.IsDBNull(1) && !inventory.ContainsKey(reader.GetString(0)))

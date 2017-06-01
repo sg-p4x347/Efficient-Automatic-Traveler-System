@@ -36,7 +36,11 @@ function Traveler(obj) {
 		switch (application.view.viewState) {
 			case "PreProcess": 
 			if (self.quantity > 0) {
-				self.colorClass = "blueBack";
+				if (self.forInventory) {
+					self.colorClass = "cyanBack";
+				} else {
+					self.colorClass = "blueBack";
+				}
 			} else {
 				self.colorClass = "ghostBack";
 			}

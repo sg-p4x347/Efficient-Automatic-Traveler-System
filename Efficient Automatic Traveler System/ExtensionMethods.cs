@@ -66,9 +66,9 @@ namespace Efficient_Automatic_Traveler_System
             return json;
         }
         // calling ToString on a string should return a quoted string, for JSON formatting
-        public static string Quotate(this string s)
+        public static string Quotate(this string s, char ch = '"')
         {
-            return '"' + s + '"';
+            return ch + s + ch;
         }
         // returns a JSON string representing the collection of enumeration values
         public static string Stringify<T>()

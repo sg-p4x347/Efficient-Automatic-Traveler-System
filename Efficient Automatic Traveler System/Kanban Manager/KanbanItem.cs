@@ -36,28 +36,50 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
+        public static NodeList CreateMonitorHeader()
+        {
+            NodeList row = new NodeList(DOMtype: "tr");
+            row.Add(new Node(KanbanManager.BorderStyle, DOMtype:"td"));
+            row.Add(new TextNode("Current", KanbanManager.BorderStyle, DOMtype: "th"));
+            row.Add(new TextNode("Min Qty", KanbanManager.BorderStyle, DOMtype: "th"));
+            row.Add(new TextNode("Item Code", KanbanManager.BorderStyle, DOMtype: "th"));
+            row.Add(new TextNode("Qty Queued", KanbanManager.BorderStyle, DOMtype: "th"));
+            row.Add(new TextNode("Traveler Qty", KanbanManager.BorderStyle, DOMtype: "th"));
+            return row;
+        }
         public NodeList CreateMonitorRow()
         {
             NodeList row = new NodeList(DOMtype: "tr");
-            byte red = (byte)Math.Min(255,255 - ((m_stockQty - MinStockQty) / MinStockQty) * 255);
-            byte green = (byte)Math.Min(255, ((m_stockQty - MinStockQty) / MinStockQty) * 255);
+            double x = (double)Math.Max(0, m_stockQty - MinStockQty) / (double)MinStockQty;
+
+            byte red = (byte)Math.Min(255, 2.0 * (1-x) * 255);
+            //byte green = (byte)Math.Min(255, (((double)Math.Max(0, m_stockQty - MinStockQty) / (double)MinStockQty)) * (double)255);
+            byte green = (byte)Math.Min(255,(255 * x * 2.0));
+            
             Dictionary<string, string> colorBox = new Dictionary<string, string>()
             {
                 {"backgroundColor", ("rgb(" + red + ',' + green + ",0)").Quotate()},
                 {"width", "1em".Quotate() },
                 {"height", "1em".Quotate() }
             };
-            row.Add(new Node(colorBox,"td"));
-            row.Add(new TextNode(m_stockQty.ToString(), DOMtype:"td"));
-            row.Add(new TextNode(m_minStockQty.ToString(), DOMtype: "td"));
-            row.Add(new TextNode(ItemCode, DOMtype: "td"));
-            row.Add(new TextNode(InjectionQty.ToString(), DOMtype: "td"));
+            colorBox.Merge(KanbanManager.BorderStyle);
+            row.Add(new Node(colorBox,DOMtype:"td"));
+            row.Add(new TextNode(m_stockQty.ToString(), KanbanManager.BorderStyle, DOMtype:"td"));
+            row.Add(new TextNode(m_minStockQty.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
+            row.Add(new TextNode(ItemCode, KanbanManager.BorderStyle, DOMtype: "td"));
+            row.Add(new TextNode(m_qtyOnTraveler.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
+            row.Add(new TextNode(InjectionQty.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
             return row;
         }
         public void Update(int stockQty, int qtyOnTraveler)
         {
             m_stockQty = stockQty;
             m_qtyOnTraveler = qtyOnTraveler;
+            if (m_stockQty + m_qtyOnTraveler < m_minStockQty)
+            {
+                // ADD A NEW TRAVELER (TO START)
+                Server.TravelerManager.AddTraveler(m_itemCode, m_injectionQty);
+            }
         }
 
         public static Form CreateForm()

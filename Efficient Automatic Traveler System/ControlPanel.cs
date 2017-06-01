@@ -6,12 +6,29 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    class Style
+    {
+        public Style()
+        {
+            this.ClassNames = new List<string>();
+        }
+        public Style(params string[] classNames)
+        {
+            this.ClassNames = new List<string>(classNames);
+        }
+        public static Style operator + (Style s1, Style s2)
+        {
+            return new Style(s1.ClassNames.Concat(s2.ClassNames).ToArray());
+        }
+        public List<string> ClassNames;
+    }
     class Node
     {
         public Node() { }
-        public Node(Dictionary<string, string> style = null, string DOMtype = "div")
+        public Node(Dictionary<string, string> style = null, Style styleClasses = null, string DOMtype = "div")
         {
-            m_style = style;
+            m_style = style != null ? style : new Dictionary<string, string>();
+            m_styleClasses = (styleClasses != null ? styleClasses : new Style());
             m_DOMtype = DOMtype;
         }
         public override string ToString()
@@ -19,15 +36,43 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("type", this.GetType().Name.Quotate());
             obj.Add("DOMtype", m_DOMtype.Quotate());
-            obj.Add("style", (m_style != null ? m_style.Stringify() : "{}"));
+            obj.Add("style", m_style.Stringify());
+            obj.Add("styleClasses", m_styleClasses.ClassNames.Stringify());
             return obj.Stringify();
         }
         private Dictionary<string, string> m_style;
+        private Style m_styleClasses = new Style();
         private string m_DOMtype;
+
+        public Dictionary<string, string> Style
+        {
+            get
+            {
+                return m_style;
+            }
+
+            set
+            {
+                m_style = value;
+            }
+        }
+
+        public Style StyleClasses
+        {
+            get
+            {
+                return m_styleClasses;
+            }
+
+            set
+            {
+                m_styleClasses = value;
+            }
+        }
     }
     class TextNode : Node
     {
-        public TextNode(string text, Dictionary<string, string> style = null, string DOMtype = "p") : base(style,DOMtype)
+        public TextNode(string text, Dictionary<string, string> style = null, Style styleClasses = null, string DOMtype = "p") : base(style,styleClasses,DOMtype)
         {
             m_text = text;
         }
@@ -41,7 +86,7 @@ namespace Efficient_Automatic_Traveler_System
     }
     abstract class Control : Node
     {
-        public Control(string name, string callback, string returnParam, Dictionary<string, string> style = null) : base(style)
+        public Control(string name, string callback, string returnParam, Dictionary<string, string> style = null, Style styleClasses = null) : base(style,styleClasses)
         {
             m_name = name;
             m_callback = callback;
@@ -61,20 +106,20 @@ namespace Efficient_Automatic_Traveler_System
     }
     class Button : Control
     {
-        public Button(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null) : base(name, callback, returnParam, style)
+        public Button(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base(name, callback, returnParam, style, styleClasses)
         {
 
         }
     }
     class Checkbox : Control
     {
-        public Checkbox(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null) : base(name, callback, returnParam, style)
+        public Checkbox(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base(name, callback, returnParam, style, styleClasses)
         {
         }
     }
     class Selection : Control
     {
-        public Selection(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null) : base (name, callback, returnParam, style) {
+        public Selection(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base (name, callback, returnParam, style, styleClasses) {
             m_options = options;
             m_value = value;
         }
@@ -90,13 +135,13 @@ namespace Efficient_Automatic_Traveler_System
     }
     class RadioButtons : Selection
     {
-        public RadioButtons(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null) : base(name, callback, options, value, returnParam, style)
+        public RadioButtons(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base(name, callback, options, value, returnParam, style, styleClasses)
         {
         }
     }
     class NodeList : Node, IEnumerable<Node>
     {
-        public NodeList(Dictionary<string, string> style = null, string DOMtype = "div") : base(style,DOMtype)
+        public NodeList(Dictionary<string, string> style = null, Style styleClasses = null, string DOMtype = "div") : base(style, styleClasses, DOMtype)
         {
             m_nodes = new List<Node>();
         }
@@ -135,7 +180,7 @@ namespace Efficient_Automatic_Traveler_System
     }
     class Row : NodeList
     {
-        public Row(bool dividers = false, Dictionary<string, string> style = null) : base(style)
+        public Row(bool dividers = false, Dictionary<string, string> style = null, Style styleClasses = null) : base(style, styleClasses)
         {
             m_dividers = dividers;
         }
@@ -149,7 +194,7 @@ namespace Efficient_Automatic_Traveler_System
     }
     class Column : NodeList
     {
-        public Column(bool dividers = false, Dictionary<string, string> style = null) : base(style)
+        public Column(bool dividers = false, Dictionary<string, string> style = null, Style styleClasses = null) : base(style, styleClasses)
         {
             m_dividers = dividers;
         }

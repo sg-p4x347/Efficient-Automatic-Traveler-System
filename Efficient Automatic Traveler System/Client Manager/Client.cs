@@ -11,6 +11,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -149,18 +150,46 @@ namespace Efficient_Automatic_Traveler_System
                         MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
                         if (mi != null)
                         {
-                            ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                            string messageString = returnMessage.ToString();
-                            if (messageString != "") SendMessage(messageString);
+                            Type attType = typeof(AsyncStateMachineAttribute);
+                            // Obtain the custom attribute for the method. 
+                            // The value returned contains the StateMachineType property. 
+                            // Null is returned if the attribute isn't present for the method. 
+                            var attrib = (AsyncStateMachineAttribute)mi.GetCustomAttribute(attType);
+                            if (attrib != null)
+                            {
+                                ListenAsync();
+                                // UPDATING... popup
+                                SendMessage(new ClientMessage("Updating").ToString());
+                                // Await the slow operation
+                                ClientMessage reutrnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { obj["parameters"] }));
+                                string messageString = reutrnMessage.ToString();
+                                if (messageString != "") SendMessage(messageString);
+                            } else
+                            {
+                                ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
+                                string messageString = returnMessage.ToString();
+                                if (messageString != "") SendMessage(messageString);
+                                ListenAsync();
+                            }                       
+                        } else
+                        {
+                            ListenAsync();
                         }
+                    } else
+                    {
+                        ListenAsync();
                     }
+                } else
+                {
+                    ListenAsync();
                 }
             }
             catch (Exception ex)
             {
                 // something went wrong, it is best to just listen for a new message
+                ListenAsync();
             }
-            ListenAsync();
+            
         }
         protected void LostConnection()
         {
@@ -355,6 +384,21 @@ namespace Efficient_Automatic_Traveler_System
                 m_user = null;
             }
             return new ClientMessage();
+        }
+
+        // Query the client, callback is determined by result
+        public void QueryClient(string condition, string trueCallback, string falseCallback = null)
+        {
+            string javascript = "if(" + condition + ") {";
+            javascript += "new InterfaceCall(" + trueCallback.Quotate('\'') + ");";
+            javascript += "} else {";
+            if (falseCallback != null)
+            {
+                javascript += "new InterfaceCall(" + falseCallback.Quotate('\'') + ");";
+            }
+            javascript += "}";
+
+            SendMessage(new ClientMessage("Evaluate", javascript.Quotate()).ToString());
         }
         //public string AddUID(string json)
         //{

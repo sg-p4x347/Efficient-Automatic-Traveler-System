@@ -105,6 +105,7 @@ function PopupManager(blackout) {
 	// displays a form in the format provided by the formData object
 	this.Form = function (format,submitCallback) {
 		var self = this;
+		self.CloseAll();
 		var popup = self.CreatePopup(format.name,true);
 		var inputs = [];
 		format.fields.forEach(function (field) {
@@ -218,7 +219,7 @@ function PopupManager(blackout) {
 	this.ControlPanel = function (format) {
 		var self = this;
 		var popup = self.CreatePopup(format.title,true);
-		
+		popup.id = format.title;
 		self.AddControlNode(format.body,popup,function (parameters) {
 			new InterfaceCall(parameters.callback,parameters);
 		},true);
@@ -290,6 +291,9 @@ function PopupManager(blackout) {
 				break;
 		}
 		nodeElement.className += " blackout__popup__controlPanel__node";
+		node.styleClasses.forEach(function (styleClass) {
+			nodeElement.className += " " + styleClass;
+		});
 		if (node.style) {
 			for (var style in node.style) {
 				nodeElement.style[style] = node.style[style];
@@ -300,6 +304,16 @@ function PopupManager(blackout) {
 			nodeElement.style.overflowY = "auto";
 		}
 		parent.appendChild(nodeElement);
+	}
+	
+	// displays an animated loading GIF
+	this.Loading = function () {
+		var self = this;
+		var popup = document.createElement("IMG");
+		popup.id = "loading";
+		popup.className = "blackout__popup__loadingGIF blackout__popup--center";
+		popup.src = "./img/loading.gif";
+		self.Open(popup);
 	}
 	//=========================================
 	// CREATE MODULAR DOM OBJECTS
@@ -437,9 +451,13 @@ function PopupManager(blackout) {
 	}
 	this.Open = function (popup) {
 		var self = this;
+		if (self.Exists("loading")) {
+			self.Close(document.getElementById("loading"));
+		}
 		self.popupCount++;
 		self.blackout.appendChild(popup);
 		self.blackout.className = "blackout";
+		
 	}
 	this.Lock = function (popup) {
 		var self = this;

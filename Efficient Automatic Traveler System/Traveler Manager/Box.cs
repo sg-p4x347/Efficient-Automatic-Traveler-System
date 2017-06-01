@@ -134,7 +134,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return 0.0;
         }
-        public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, ref OdbcConnection MAS)
+        public async override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
         }
         #endregion
@@ -142,7 +142,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Private Methods
         public override Dictionary<string,string> ExportProperties(StationClass station)
         {
-            return new Dictionary<string, string>();
+            return base.ExportProperties(station);
         }
         protected void GetBoxSize(string csvTable, string itemCode)
         {

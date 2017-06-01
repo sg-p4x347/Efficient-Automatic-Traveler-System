@@ -93,7 +93,7 @@
     <Compile Include="Interfaces\ISupervisorClient.cs" />
     <Compile Include="InventoryManager.cs" />
     <Compile Include="Kanban Manager\KanbanManager.cs" />
-    <Compile Include="KanbanItem.cs" />
+    <Compile Include="Kanban Manager\KanbanItem.cs" />
     <Compile Include="Order Manager\OrderItem.cs" />
     <Compile Include="Order Manager\OrderManager.cs" />
     <Compile Include="Events\ScrapEvent.cs" />

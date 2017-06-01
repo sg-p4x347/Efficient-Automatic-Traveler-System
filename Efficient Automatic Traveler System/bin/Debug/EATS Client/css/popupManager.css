@@ -26,6 +26,20 @@
 	overflow-y: auto;
 	box-shadow: 1px 3px 8px rgba(0,0,0,0.75);
 }
+.blackout__popup__loadingGIF {
+	width: 64px;
+	height: 64px;
+}
+.blackout__popup--topRight {
+	position: fixed;
+	top: 8px;
+	right: 8px;
+}
+.blackout__popup--center {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+}
 .blackout__popup__table {
 	border: 2px solid black;
 	border-left: none;
