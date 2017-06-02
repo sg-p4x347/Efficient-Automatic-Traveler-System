@@ -181,9 +181,10 @@ namespace Efficient_Automatic_Traveler_System
             TravelerItem item = FindItem(ID);
             item.Station = GetNextStation(ID);
             // Queue box after table leaves vector
-            if (travelerManager != null && item.Station.Type == "tablePack")
+            if (travelerManager != null && item.Station.Type == "tablePack" && ChildTravelers.Count == 0)
             {
                 TableBox box = CreateBoxTraveler();
+                box.Quantity = Quantity;
                 box.EnterProduction(travelerManager);
                 travelerManager.GetTravelers.Add(box);
             }
@@ -206,16 +207,16 @@ namespace Efficient_Automatic_Traveler_System
                 case LabelType.Tracking:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
                     // Item ID is now a sequence number out of the qty on the traveler
-                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString() + "\"";
+                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + PrintSequenceNo(item) + "\"";
                     json += ",\"Desc1\":\"" + Part.BillNo + "\"";
                     json += ",\"Desc2\":\"" + Part.BillDesc + "\"";
                     json += ",\"Desc3\":\"" + m_bandingAbrev + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
-                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString() + "\"";
+                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + PrintSequenceNo(item) + '/' + Quantity.ToString() + "\"";
                     json += ",\"Desc1\":\"" + Part.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + "!! SCRAP #" + ScrapSequenceNo(item).ToString() + " !!\"";
+                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceNo(item) +  " !!\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
                     string reason = scrapEvent.Reason;
                     json += ",\"Reason\":" + reason.Quotate();

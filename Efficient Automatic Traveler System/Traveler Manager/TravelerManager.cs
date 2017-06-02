@@ -299,15 +299,15 @@ namespace Efficient_Automatic_Traveler_System
                     //=================
                     // SCRAPPED
                     //=================
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.ID.ToString("D6") + '-' + traveler.PrintSequenceNo(item));
                     traveler.ScrapItem(item.ID);
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
 
                 } else if (newItem)
                 {
                     //=================
                     // NEW
                     //=================
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Tracking) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Tracking) + " for item: " + traveler.ID.ToString("D6") + '-' + traveler.PrintSequenceNo(item));
                 }
                 if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
                 {
@@ -722,7 +722,9 @@ namespace Efficient_Automatic_Traveler_System
                         item.Order = order.SalesOrderNo;
 
                         // allocate this item on the order
-                        orderItem.QtyOnHand++;
+                        // INVENTORY
+                        //orderItem.QtyOnHand++;
+
                     }
                 }
 

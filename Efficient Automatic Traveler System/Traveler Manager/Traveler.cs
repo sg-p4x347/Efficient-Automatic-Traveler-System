@@ -236,6 +236,7 @@ namespace Efficient_Automatic_Traveler_System
                     if (forcePrint || (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()])))
                     {
                         result = client.UploadString(new StringStream(ConfigManager.Get("labelServer")).ParseJSON()["address"], "POST", json);
+                        result += " at " + printer + " printer";
                     } else
                     {
                         result = type.ToString() + " Labels disabled";
@@ -283,6 +284,17 @@ namespace Efficient_Automatic_Traveler_System
         public TravelerItem FindItem(ushort ID)
         {
             return Items.Find(x => x.ID == ID);
+        }
+        public string PrintSequenceNo(TravelerItem item)
+        {
+            if (item.Scrapped)
+            {
+                return "Scrap #" + ScrapSequenceNo(item);
+            }
+            else
+            {
+                return (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString();
+            }
         }
         public void ScrapItem(ushort ID)
         {

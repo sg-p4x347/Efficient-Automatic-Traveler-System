@@ -8,18 +8,20 @@ namespace Efficient_Automatic_Traveler_System
 {
     class OrderItem
     {
-        public OrderItem()
+        public OrderItem(Order parent)
         {
             ItemCode = "";
             QtyOrdered = 0;
             QtyOnHand = 0;
             ChildTraveler = -1;
             LineNo = -1;
+            Parent = parent;
         }
-        public OrderItem(string json)
+        public OrderItem(string json, Order parent)
         {
             try
             {
+                Parent = parent;
                 StringStream ss = new StringStream(json);
                 Dictionary<string, string> obj = ss.ParseJSON();
                 ItemCode = obj["itemCode"];
@@ -58,5 +60,6 @@ namespace Efficient_Automatic_Traveler_System
         public int QtyOnHand;
         public int ChildTraveler;
         public int LineNo;
+        public Order Parent;
     }
 }

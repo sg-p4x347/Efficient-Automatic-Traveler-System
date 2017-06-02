@@ -80,18 +80,19 @@ namespace Efficient_Automatic_Traveler_System
         // labels
         public override string GetLabelFields(ushort itemID, LabelType type)
         {
+            TravelerItem item = FindItem(itemID);
             string json = "\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
             switch (type)
             {
                 case LabelType.Tracking:
-                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
+                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + PrintSequenceNo(item) + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + "" + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
-                    json += ",\"Desc2\":\"" + "!!!***SCRAP***!!!" + "\"";
+                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceNo(item) + " !!" + "\"";
                     break;
                 case LabelType.Pack:
                     json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";

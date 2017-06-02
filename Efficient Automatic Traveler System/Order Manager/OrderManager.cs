@@ -1,5 +1,4 @@
-﻿#define NewOrders
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -43,76 +42,92 @@ namespace Efficient_Automatic_Traveler_System
                 // load the orders that have travelers from the json file
                 Import();
                 List<string> currentOrderNumbers = new List<string>();
-                foreach (Order order in m_orders) { currentOrderNumbers.Add(order.SalesOrderNo); }
+                //foreach (Order order in m_orders) { currentOrderNumbers.Add(order.SalesOrderNo); }
 
                 Server.Write("\r{0}","Importing orders...");
                 
                 // get informatino from header
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                 OdbcCommand command = MAS.CreateCommand();
-                command.CommandText = "SELECT SalesOrderNo, CustomerNo, ShipVia, OrderDate, ShipExpireDate FROM SO_SalesOrderHeader";
+                command.CommandText = "SELECT SalesOrderNo, CustomerNo, ShipVia, OrderDate, ShipExpireDate, OrderType, OrderStatus FROM SO_SalesOrderHeader";
                 OdbcDataReader reader = command.ExecuteReader();
                 // read info
                 while (reader.Read())
                 {
-                    string salesOrderNo = reader.GetString(0);
-                    currentOrderNumbers.Add(salesOrderNo);
-                    Order order = m_orders.Find(x => x.SalesOrderNo == salesOrderNo);
-
-                    // does not match any stored records
-                    if (order == null)
+                    // if order is not a quote or on hold
+                    if (!reader.IsDBNull(5) && Convert.ToChar(reader.GetValue(5)) != 'Q'
+                        && !reader.IsDBNull(6) && Convert.ToChar(reader.GetValue(6)) != 'H')
                     {
-                        // create a new order
-                        order = new Order();
-                        if (!reader.IsDBNull(0)) order.SalesOrderNo = reader.GetString(0);
-                        if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
-                        if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
-                        if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
-                        if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
-                        if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
-                        
-#if NewOrders
-                        m_orders.Add(order);
-#endif
-                    }
-                    // Update information for existing order
-                    else
-                    {
-                        if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
-                        if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
-                        if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
-                        if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
-                        if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
-                    }
+                        string salesOrderNo = reader.GetString(0);
+                        currentOrderNumbers.Add(salesOrderNo);
+                        Order order = m_orders.Find(x => x.SalesOrderNo == salesOrderNo);
 
-                    // get information from detail
-                    if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-                    OdbcCommand detailCommand = MAS.CreateCommand();
-                    detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure, LineKey FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
-                    OdbcDataReader detailReader = detailCommand.ExecuteReader();
-
-                    // Read each line of the Sales Order, looking for the base Table, Chair, ect items, ignoring kits
-                    while (detailReader.Read())
-                    {
-                        string billCode = detailReader.GetString(0);
-                        if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
+                        // does not match any stored records
+                        if (order == null)
                         {
-                            OrderItem item = order.Items.Find(x => x.LineNo == Convert.ToInt32(detailReader.GetInt32(3)));
-                            if (item == null)
-                            {
-                                item = new OrderItem();
-                                // a new item, a new traveler
-                                if (!detailReader.IsDBNull(0)) item.ItemCode = detailReader.GetString(0);  // itemCode
-                                if (!detailReader.IsDBNull(1)) item.QtyOrdered = Convert.ToInt32(detailReader.GetValue(1)); // Quantity
-                                item.LineNo = Convert.ToInt32(detailReader.GetInt32(3));
-                                // allocate inventory items to this order item
-                                AllocateOrderItem(item, ref MAS);
 
-                                order.Items.Add(item);
+                            // create a new order
+
+                            order = new Order();
+                            if (!reader.IsDBNull(0)) order.SalesOrderNo = reader.GetString(0);
+                            if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
+                            if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
+                            if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
+                            if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
+                            if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
+
+                            m_orders.Add(order);
+                        }
+                        // Update information for existing order
+                        else
+                        {
+                            if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
+                            if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
+                            if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
+                            if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
+                            if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
+                        }
+
+                        // get information from detail
+                        if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                        OdbcCommand detailCommand = MAS.CreateCommand();
+                        detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure, LineKey FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
+                        OdbcDataReader detailReader = detailCommand.ExecuteReader();
+
+                        // Read each line of the Sales Order, looking for the base Table, Chair, ect items, ignoring kits
+                        while (detailReader.Read())
+                        {
+                            string billCode = detailReader.GetString(0);
+                            if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
+                            {
+                                OrderItem item = order.Items.Find(x => x.LineNo == Convert.ToInt32(detailReader.GetInt32(3)));
+                                /* IF using EATS inventory management, each order item needs to be pre-allocated when the order comes in, but assigned and closed when
+                                 * items are produced and get a label with a specific order on them
+                                 * 
+                                 * IF using MAS inventory managemetn, each order item gets a pre-allocated quantity from inventory, but item assignment to the order when
+                                 * items are completed can be ambiguous when it comes time to ship
+                                 * 
+                                 * EX:
+                                 * DAY 1.) 1 in inventory, an order for 3 and an order for 2
+                                 * DAY 2.) 3 in inventory, either order can ship, but when one is chosen to ship, the other one cannot.
+                                 */
+
+                                if (item == null)
+                                {
+                                    item = new OrderItem(order);
+                                    // a new item, a new traveler
+                                    if (!detailReader.IsDBNull(0)) item.ItemCode = detailReader.GetString(0);  // itemCode
+                                    if (!detailReader.IsDBNull(1)) item.QtyOrdered = Convert.ToInt32(detailReader.GetValue(1)); // Quantity
+                                    item.LineNo = Convert.ToInt32(detailReader.GetInt32(3));
+                                    // allocate inventory items to this order item
+                                    // AllocateOrderItem(item, ref MAS);
+
+                                    order.Items.Add(item);
+                                }
                             }
                         }
+                        detailReader.Close();
                     }
-                    detailReader.Close();
                 }
                 reader.Close();
                 // cull orders that do not exist anymore
@@ -126,9 +141,12 @@ namespace Efficient_Automatic_Traveler_System
                         m_orders.Add(order);
                     } else
                     {
-
+                        var test = "ded";
                     }
                 }
+                // allocate teh inventory
+                AllocateCurrentInventoryForCurrentOrders(MAS);
+
                 Server.Write("\r{0}", "Importing orders...Finished\n");
             }
             catch (Exception ex)
@@ -145,7 +163,11 @@ namespace Efficient_Automatic_Traveler_System
                 /* get total that is allocated for orders (items leave allocation when orders are invoiced,
                  which is also when orders move to a "Closed" state and aren't brought back into memory*/
 
-                int totalAllocated = m_orders.Sum(order => order.Items.Where(item => item.ItemCode == orderItem.ItemCode).Sum(item => item.QtyOnHand));
+                // EATS INVENTORY ALLOCATION
+                int totalAllocated = 0;
+                //totalAllocated= m_orders.Sum(order => order.Items.Where(item => item.ItemCode == orderItem.ItemCode).Sum(item => item.QtyOnHand));
+
+                
                 int onHand = 0;
                 if (Convert.ToBoolean(ConfigManager.Get("useMASinventory")))
                 {
@@ -156,6 +178,8 @@ namespace Efficient_Automatic_Traveler_System
                     if (reader.Read())
                     {
                         onHand = Convert.ToInt32(reader.GetValue(1));
+                        // MAS INVENTORY Allocation
+                        totalAllocated = Convert.ToInt32(reader.GetValue(0));
                     }
                     reader.Close();
                 } else
@@ -168,6 +192,43 @@ namespace Efficient_Automatic_Traveler_System
             catch (Exception ex)
             {
                 Server.WriteLine("Problem checking order items against inventory on order: " + ex.Message + " Stack Trace: " + ex.StackTrace);
+            }
+        }
+        public void AllocateCurrentInventoryForCurrentOrders(OdbcConnection MAS)
+        {
+            Dictionary<string, List<OrderItem>> ordersByItemCode = new Dictionary<string, List<OrderItem>>();
+            // get all orderItems in one list
+            List<OrderItem> allItems = m_orders.Select(o => o.Items).Aggregate((i,j) => i.Concat(j).ToList());
+            // get all unique itemCodes on order
+            List<string> itemCodes = allItems.GroupBy(x => x.ItemCode).Select(y => y.First()).Select(z => z.ItemCode).ToList();
+            // for all itemCodes on order
+            foreach (string itemCode in itemCodes)
+            {
+                // Get the number of available [itemCode] items in MAS inventory
+                int available = 0;
+                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                OdbcCommand command = MAS.CreateCommand();
+                command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + itemCode + "'";
+                OdbcDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    // avialable = onHand
+                    available = Convert.ToInt32(reader.GetValue(1));
+                }
+                reader.Close();
+
+                // get all OrderItem(s) with this itemCode
+                List<OrderItem> items = allItems.Where(x => x.ItemCode == itemCode).ToList();
+                // sort the list in ascending order with respect to the ship date
+                items.Sort((i, j) => i.Parent.ShipDate.CompareTo(j.Parent.ShipDate));
+                // for each OrderItem that has this itemCode;
+                foreach (OrderItem item in items)
+                {
+                    // allocate as much as possible to this OrderItem
+                    item.QtyOnHand = Math.Min(item.QtyOrdered, available);
+                    // subtract from the avilable supply
+                    available -= item.QtyOnHand;
+                }
             }
         }
         // reserve inventory items under order items by item type (by traveler)

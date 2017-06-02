@@ -38,7 +38,7 @@ namespace Efficient_Automatic_Traveler_System
                 ss = new StringStream(obj["items"]);
                 foreach (string item in ss.ParseJSONarray())
                 {
-                    m_items.Add(new OrderItem(item));
+                    m_items.Add(new OrderItem(item,this));
                 }
                 
             } catch (Exception ex)
