@@ -84,13 +84,15 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6") + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + ((Table)ParentTravelers[0]).ItemCode + "\"";
-                    json += ",\"Desc3\":\"" + PrintSequenceNo(item) + "\"";
+                    json += ",\"Desc3\":\"" + "BOX" + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6")+ "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
-                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceNo(item) + " !!" + "\"";
-                    json += ",\"Desc3\":\"" + "" + "\"";
+                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) + " !!" + "\"";
+                    ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
+                    string reason = scrapEvent.Reason;
+                    json += ",\"Reason\":" + reason.Quotate();
                     break;
                 case LabelType.Pack:
                     json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";

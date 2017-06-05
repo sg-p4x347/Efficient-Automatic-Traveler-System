@@ -148,5 +148,45 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
         }
+        internal static string ToCSV(this List<ICSV> list)
+        {
+            string csv = "";
+           
+            if (list.Count > 0) {
+                Dictionary<string, List<string>> columns = new Dictionary<string, List<string>>();
+                foreach (ICSV item in list)
+                {
+                    Dictionary<string,string> detail = item.ExportCSV();
+                    // add to the header
+                    int column = 0;
+                    foreach (string heading in detail.Keys)
+                    {
+                        if (!columns.ContainsKey(heading)) columns.Add(heading,new List<string>());
+                        columns[heading].Add(detail[heading]);
+                        column++;
+                    }
+                }
+                // header
+                foreach (string key in columns.Keys)
+                {
+                    csv += key.Quotate() + ',';
+                }
+                csv += '\n';
+                // detail
+                for (int row = 0; row < list.Count; row++)
+                {
+                    foreach(string key in columns.Keys)
+                    {
+                        if (row < columns[key].Count)
+                        {
+                            csv += columns[key][row].Quotate();
+                        }
+                        csv += ',';
+                    }
+                    csv += '\n';
+                }
+            }
+            return csv;
+        }
     }
 }

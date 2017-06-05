@@ -83,6 +83,7 @@
     <Compile Include="Events\ProcessEvent.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Form.cs" />
+    <Compile Include="Interfaces\ICSV.cs" />
     <Compile Include="Interfaces\IClient.cs" />
     <Compile Include="Interfaces\IForm.cs" />
     <Compile Include="Interfaces\IManager.cs" />

@@ -49,19 +49,23 @@ namespace Efficient_Automatic_Traveler_System
 
             foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
             {
-                string travelerJSON = traveler.ToString();
-                Dictionary<string, string> stations = new Dictionary<string, string>();
-                stations.Add(m_station.Name, traveler.ExportStationSummary(m_station));
-                Dictionary<string, string> stationsObj = new Dictionary<string, string>();
-                stationsObj.Add("stations", stations.Stringify());
-                travelerJSON = travelerJSON.MergeJSON(stationsObj.Stringify()); // merge station properties
-                travelerJSON = travelerJSON.MergeJSON(traveler.ExportTableRows("OperatorClient", m_station));
-                travelerJSON = travelerJSON.MergeJSON(traveler.ExportProperties(m_station).Stringify());
-                travelerStrings.Add(travelerJSON);
+                travelerStrings.Add(ExportTraveler(traveler));
             }
             message.Add("travelers", travelerStrings.Stringify(false));
             message.Add("mirror", mirror.ToString().ToLower());
             SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify()).ToString());
+        }
+        private string ExportTraveler(Traveler traveler)
+        {
+            string travelerJSON = traveler.ToString();
+            Dictionary<string, string> stations = new Dictionary<string, string>();
+            stations.Add(m_station.Name, traveler.ExportStationSummary(m_station));
+            Dictionary<string, string> stationsObj = new Dictionary<string, string>();
+            stationsObj.Add("stations", stations.Stringify());
+            travelerJSON = travelerJSON.MergeJSON(stationsObj.Stringify()); // merge station properties
+            travelerJSON = travelerJSON.MergeJSON(traveler.ExportTableRows("OperatorClient", m_station));
+            travelerJSON = travelerJSON.MergeJSON(traveler.ExportProperties(m_station).Stringify());
+            return travelerJSON;
         }
 
         //------------------------------
@@ -220,33 +224,63 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error occured");
             }
         }
-        public ClientMessage LoadTraveler(string json)
-        {
-            Traveler freshTraveler = m_travelerManager.FindTraveler(Convert.ToInt32(new StringStream(json).ParseJSON()["travelerID"]));
-            if (freshTraveler != null && ( m_current == null || freshTraveler.ID != m_current.ID))
-            {
-                DisplayChecklist();
-                // auto-submit completed items
-                m_travelerManager.SubmitTraveler(m_current, m_station);
-            }
-            m_current = freshTraveler;
+        //public ClientMessage LoadTraveler(string json)
+        //{
+        //    Traveler freshTraveler = m_travelerManager.FindTraveler(Convert.ToInt32(new StringStream(json).ParseJSON()["travelerID"]));
+        //    if (freshTraveler != null && ( m_current == null || freshTraveler.ID != m_current.ID))
+        //    {
+        //        DisplayChecklist();
+        //        // auto-submit completed items
+        //        m_travelerManager.SubmitTraveler(m_current, m_station);
+        //    }
+        //    m_current = freshTraveler;
             
-            return new ClientMessage();
-        }
+        //    return new ClientMessage();
+        //}
         public ClientMessage LoadTravelerJSON(string json)
         {
             return m_travelerManager.LoadTravelerJSON(json);
         }
+        public ClientMessage LoadTraveler(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                if (m_current == null || (traveler != null && traveler.ID != m_current.ID))
+                {
+                    DisplayChecklist();
+                    m_current = traveler;
+                }
+                return new ClientMessage("LoadTraveler", ExportTraveler(traveler));
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading traveler");
+            }
+        }
         public ClientMessage LoadItem(string json)
         {
-            Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-            Traveler freshTraveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-            if (freshTraveler != null && m_current != null && freshTraveler.ID != m_current.ID)
+            try
             {
-                DisplayChecklist();
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+                LoadTraveler(json);
+                Dictionary<string, string> returnParams = new Dictionary<string, string>()
+                {
+                    {"traveler", ExportTraveler(traveler)},
+                    {"item",item.ToString() },
+                    {"sequenceID",traveler.PrintSequenceID(item).Quotate() }
+                };
+                return new ClientMessage("LoadItem", returnParams.Stringify());
             }
-            m_current = freshTraveler;
-            return m_travelerManager.LoadItem(json);
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading item");
+            }
         }
         public ClientMessage SearchSubmitted(string json)
         {
@@ -254,12 +288,34 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                // if this is Table pack station, print Table label on search submission 
-                // (they scanned the barcode)
-                if (m_station == StationClass.GetStation("Table-Pack"))
+                if (traveler != null)
                 {
-                    return new ClientMessage("Info",traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
+                    TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+                    if (item != null)
+                    {
+                        if (item.Station == m_station)
+                        {
+                            SendMessage(LoadItem(json).ToString());
+                            // if this is Table pack station, print Table label on search submission 
+                            // (they scanned the barcode)
+                            if (m_station == StationClass.GetStation("Table-Pack"))
+                            {
+                                return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
+                            }
+                        } else
+                        {
+                            return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
+                        }
+                    } else
+                    {
+                        SendMessage(LoadTraveler(json).ToString());
+                        return new ClientMessage("Info", traveler.ID + '-' + obj["itemID"] + " does not exist");
+                    }
+                } else
+                {
+                    return new ClientMessage("Info", obj["travelerID"] + " does not exist");
                 }
+                
                 return new ClientMessage();
             } catch (Exception ex)
             {
@@ -323,7 +379,7 @@ namespace Efficient_Automatic_Traveler_System
             catch (Exception ex)
             {
                 Server.LogException(ex);
-                return new ClientMessage("Info", "Error when getting display fields");
+                return new ClientMessage("Info", "Error opening options menu");
             }
         }
         public override ClientMessage Logout(string json)

@@ -259,6 +259,14 @@ function Application () {
 		popup.DOMcontainer.className += " twoEM";
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
 	}
+	this.LoadTraveler = function (traveler) {
+		this.travelerView.Load(traveler);
+		this.travelerQueue.SelectTraveler(traveler);
+	}
+	this.LoadItem = function (params) {
+		this.travelerView.LoadItem(params.traveler,params.item,params.sequenceID);
+		this.travelerQueue.SelectTraveler(params.traveler);
+	}
 	this.StartAutofocus = function () {
 		window.addEventListener("keydown",this.Autofocus);
 	}
@@ -399,7 +407,8 @@ function Application () {
 		// try and load the old traveler
 		self.travelerQueue.travelers.forEach(function (traveler) {
 			if (traveler.ID == self.travelerView.lastTravelerID) {
-				self.travelerQueue.SelectTraveler(self.travelerQueue.FindTraveler(traveler.ID));
+				application.LoadTraveler(self.travelerQueue.FindTraveler(traveler.ID));
+				//self.travelerQueue.SelectTraveler();
 				//self.travelerView.Load(traveler);
 			}
 		});
@@ -463,7 +472,7 @@ function Application () {
 			//-----------------------------------------------
 		}
 		document.getElementById("optionsBtn").onclick = function () {
-			new InterfaceCall("OptionsMenu");
+			new InterfaceCall("OptionsMenu",{travelerID:self.travelerView.traveler.ID});
 		}
 		//----------------
 		// Websocket
@@ -594,7 +603,6 @@ function TravelerQueue() {
 		self.travelers.forEach(function (trav) {
 			trav.selected = trav.ID == traveler.ID;
 		});
-		application.travelerView.Load(traveler)
 		self.RePaint();
 	}
 	this.UnshiftTraveler = function (traveler) {
@@ -664,7 +672,7 @@ function TravelerQueue() {
 			}
 			DOMqueueItem.style.fontSize = "1em";
 			DOMqueueItem.onmousedown = function () {
-				self.SelectTraveler(traveler);
+				new InterfaceCall("LoadTraveler",{travelerID: traveler.ID});
 			}
 			self.DOMelement.appendChild(DOMqueueItem);
 		});
@@ -726,15 +734,17 @@ function TravelerView() {
 		}
 	}
 	
-	this.LoadTable = function () {
+	this.LoadTable = function (sequenceID) {
 		var self = this;
 		// create the view header
 		var viewHeader = document.createElement("DIV");
 		viewHeader.className = "view__header";
-		viewHeader.innerHTML = "Traveler: " + pad(self.traveler.ID,6);
-		if (self.item != undefined) {
-			viewHeader.innerHTML += " &#8213 " + self.item.ID;
+		if (sequenceID !== undefined) {
+			viewHeader.innerHTML = sequenceID;
+		} else {
+			viewHeader.innerHTML = pad(self.traveler.ID,6);
 		}
+		
 		self.DOMcontainer.appendChild(viewHeader);
 		// create the table
 		var DOMtable = document.createElement("TABLE");
@@ -793,15 +803,14 @@ function TravelerView() {
 		document.getElementById("moreInfoBtn").className = "disabled";
 		document.getElementById("viewDrawingBtn").className = "disabled";
 	}
-	this.LoadItem = function (traveler, item) {
+	this.LoadItem = function (traveler, item, sequenceID) {
 		var self = this;
 		//----------INTERFACE CALL-----------------------
-		var message = new InterfaceCall("LoadItem",
+		/* var message = new InterfaceCall("LoadItem",
 		{
 			travelerID: traveler.ID,
 			itemID: item.ID
-		});
-		
+		}); */
 		//-----------------------------------------------
 		self.traveler = traveler;
 		self.item = item;
@@ -816,15 +825,15 @@ function TravelerView() {
 		//document.getElementById("scrapItemBtn").innerHTML = "Scrap item #" + self.item.ID;
 		document.getElementById("completeItemBtn").innerHTML = "Complete item"
 		document.getElementById("scrapItemBtn").innerHTML = "Scrap item"
-		self.LoadTable();
+		self.LoadTable(sequenceID);
 	}
 	this.Load = function (traveler) {
 		var self = this;
 		//----------INTERFACE CALL-----------------------
-		var message = new InterfaceCall("LoadTraveler",
+		/* var message = new InterfaceCall("LoadTraveler",
 		{
 			travelerID: traveler.ID
-		});
+		}); */
 		
 		//-----------------------------------------------
 		// initialize
@@ -888,7 +897,11 @@ function TravelerView() {
 				}
 			});
 			select.onchange = function () {
-				self.LoadItem(self.traveler,self.traveler.FindItem(select.value));
+				new InterfaceCall("LoadItem",{
+					travelerID:self.traveler.ID,
+					itemID:select.value
+				});
+				//self.LoadItem(self.traveler,self.traveler.FindItem(select.value));
 			}
 			select.value = 0;
 		}
@@ -1029,11 +1042,13 @@ function TravelerView() {
 
 		travelerID = parseInt(array[0],10);
 		itemID = parseInt(array[1],10);
-		if (!isNaN(travelerID)) {
+		
+		new InterfaceCall("SearchSubmitted",{travelerID:travelerID,itemID,itemID});
+		/* if (!isNaN(travelerID)) {
 			var traveler = application.travelerQueue.FindTraveler(travelerID);
 			if (traveler) {
 				self.AutomaticReload(self.traveler,traveler);
-				application.travelerQueue.SelectTraveler(traveler);
+				
 				var item = traveler.FindItem(itemID);
 				if (item && item.station == application.station.name) {
 					if (Contains(item.history,[{prop:"station",value:item.station},{prop:"type",value:0}])) {
@@ -1048,6 +1063,8 @@ function TravelerView() {
 					}
 				} else if (!isNaN(itemID)) {
 					application.Info("Item [" + pad(travelerID,6) + "-" + itemID + "] is not at your station;<br>It is at: " + item.station);
+				} else {
+					application.travelerQueue.SelectTraveler(traveler);
 				}
 			} else {
 				application.Info("Traveler [" + pad(travelerID,6) + "] isn't at your station :(");
@@ -1055,10 +1072,11 @@ function TravelerView() {
 		} else {
 			application.Info("Invalid traveler ID :(");
 		}
-		document.getElementById("travelerSearchBox").value = "";
+		*/
 		} catch (exception) {
 			application.Info(exception.message);
-		}
+		} 
+		document.getElementById("travelerSearchBox").value = "";
 	}
 }
 

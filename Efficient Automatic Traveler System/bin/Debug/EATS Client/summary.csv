@@ -1,4 +1,4 @@
-"Traveler","Quantity","Soonest Ship","Station",Part,Description,Color,Banding Color,Blank,Blank Size,Blank Qty,Labor
-"24511","1","06/02/2017","Start","MG2245-54","42 Round,GG/Yel","Gray Glace","Yellow","MAGR FULL","1244 X 2460",1,10.494
-"24527","100","06/02/2017","Heian2","38-2310-78","Apex,24x28 Bone","Grey Nebula","Grey","","1244 X 2460",17,875.92
-"24529","6","06/02/2017","Start","MG2214-49","42 Square,Oak/Blk","Solar Oak","Black","CHOK FULL","1244 X 2460",3,66.8328
+"Name","UID","Access Level","Scrapped parts","Completed parts","Box(min)","Heian2(min)","Table-Pack(min)","Vector(min)",
+"Gage Coates","gage","Administrator","12","79","14.817","19.5264556780855","6.46666666666667","1.18333333333333",
+"test","test","Supervisor","0","0",,,,,
+"joe","joe","Operator","0","0",,,,,

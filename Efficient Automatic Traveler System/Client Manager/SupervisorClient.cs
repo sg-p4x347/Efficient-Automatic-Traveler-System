@@ -409,10 +409,11 @@ namespace Efficient_Automatic_Traveler_System
                 Column download = new Column(style: flexStart)
                 {
                     new TextNode("Download"),
-                    
-                    new Button("Download Pre-Process Tables","DownloadSummary",@"{""sort"":""PreProcess"",""type"":""Table""}"),
-                    new Button("Download Production", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
-                    new Button("Download Scrap", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}")
+
+                    new Button("Pre-Process Tables","DownloadSummary",@"{""sort"":""PreProcess"",""type"":""Table""}"),
+                    new Button("Production", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Scrap", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Users", "DownloadUserSummary")
                 };
                 Column manage = new Column(style: flexStart)
                 {
@@ -470,6 +471,18 @@ namespace Efficient_Automatic_Traveler_System
         public ClientMessage DownloadSummary(string json)
         {
             return m_travelerManager.DownloadSummary(json);
+        }
+        public ClientMessage DownloadUserSummary(string json)
+        {
+            try
+            {
+                return new ClientMessage("Redirect", Summary.UserCSV().Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error generating User summary");
+            }
         }
         public ClientMessage LabelPopup(string json)
         {

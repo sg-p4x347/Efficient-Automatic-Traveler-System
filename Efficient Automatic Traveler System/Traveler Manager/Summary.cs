@@ -95,7 +95,12 @@ namespace Efficient_Automatic_Traveler_System
             }
             return B;
         }
-
+        public static string UserCSV()
+        {
+            string webLocation = "./summary.csv";
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "summary.csv"), UserManager.Users.ToList<ICSV>().ToCSV());
+            return webLocation;
+        }
         public string MakeCSV()
         {
             string webLocation = "./summary.csv";

@@ -93,7 +93,7 @@ namespace Efficient_Automatic_Traveler_System
                     Server.TravelerManager.GetTravelers.OfType<IPart>().Where(t => t.ItemCode == itemCodeQty.Key).Sum(x => ((Traveler)x).Quantity)
                 );
             }
-            KanbanChanged();
+            HandleKanbanChanged();
         }
         static private void UpdateTimer()
         {
@@ -135,7 +135,6 @@ namespace Efficient_Automatic_Traveler_System
                 KanbanItem newItem = new KanbanItem(form);
                 m_items.Add(newItem);
                 await Update();
-                Backup();
                 return new ClientMessage("ControlPanel", CreateKanbanMonitor().ToString());
             }
             catch (Exception ex)
@@ -144,6 +143,11 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error when adding new Kanban Item");
             }
             
+        }
+        private static void HandleKanbanChanged()
+        {
+            Backup();
+            KanbanChanged();
         }
         public static event KanbanChangedSubscriber KanbanChanged = delegate { };
 

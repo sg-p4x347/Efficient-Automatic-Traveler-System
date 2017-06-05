@@ -299,15 +299,15 @@ namespace Efficient_Automatic_Traveler_System
                     //=================
                     // SCRAPPED
                     //=================
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.ID.ToString("D6") + '-' + traveler.PrintSequenceNo(item));
                     traveler.ScrapItem(item.ID);
-
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.PrintSequenceID(item));
+                    item.Station = StationClass.GetStation("Scrapped");
                 } else if (newItem)
                 {
                     //=================
                     // NEW
                     //=================
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Tracking) + " for item: " + traveler.ID.ToString("D6") + '-' + traveler.PrintSequenceNo(item));
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Tracking) + " for item: " + traveler.PrintSequenceID(item));
                 }
                 if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
                 {

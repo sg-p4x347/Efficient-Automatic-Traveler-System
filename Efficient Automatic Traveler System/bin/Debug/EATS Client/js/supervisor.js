@@ -196,8 +196,7 @@ function Application () {
 		// add all the travelers back
 		self.travelers.forEach(function (traveler) {
 			for (var station in traveler.stations) {
-				if (Contains(traveler.items,[{prop:"state",value:self.view.viewState},{prop:"station",value:station}]) || (traveler.items.length == 0 && traveler.state == self.view.viewState)
-					|| (traveler.qtyPending > 0)) {
+				if (self.view.viewState == "InProcess" && (traveler.stations[station].qtyPending > 0 && station != "Finished" && station != "Start" && station != "Scrapped") || (traveler.state == "PreProcess" && self.view.viewState == "PreProcess") || (self.view.viewState == "PostProcess" && (station == "Finished" || station == "Scrapped"))) {
 					// QTY pending is sent based on the starting station for the traveler from the Export function on Traveler.cs
 					var copy = new Traveler(JSON.parse(JSON.stringify(traveler)));
 					copy.stationQueue = station;

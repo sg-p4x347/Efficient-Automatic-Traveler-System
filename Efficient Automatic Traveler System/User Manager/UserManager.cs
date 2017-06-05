@@ -84,6 +84,14 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         #region Properties
         static private List<User> m_users = new List<User>();
+
+        internal static List<User> Users
+        {
+            get
+            {
+                return m_users;
+            }
+        }
         #endregion
     }
 }

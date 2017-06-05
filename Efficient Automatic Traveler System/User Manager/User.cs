@@ -12,7 +12,7 @@ namespace Efficient_Automatic_Traveler_System
         Supervisor = 1,
         Administrator = 2
     }
-    class User : IForm
+    class User : IForm, ICSV
     {
         #region Public Methods
         public User(string json)
@@ -110,6 +110,27 @@ namespace Efficient_Automatic_Traveler_System
             //form.Selection<AccessLevel>("accessLevel", "Access Level");
             form.Selection("accessLevel", "Access level", ExtensionMethods.GetNamesLessThanOrEqual<AccessLevel>(m_accessLevel),m_accessLevel.ToString());
             return form;
+        }
+
+        public Dictionary<string, string> ExportCSV()
+        {
+            Dictionary<string,string> detail = new Dictionary<string, string>() {
+                {"Name", m_name},
+                {"UID", m_UID },
+                {"Access Level", m_accessLevel.ToString() }
+            };
+            // parts scrapped
+            detail.Add("Scrapped parts", Server.TravelerManager.GetTravelers.Sum(t => t.Items.Sum(i => i.History.OfType<ScrapEvent>().Where(e => e.User == this).Count())).ToString());
+            // parts completed
+            detail.Add("Completed parts", Server.TravelerManager.GetTravelers.Sum(t => t.Items.Sum(i => i.History.OfType<ProcessEvent>().Where(e => e.Process == ProcessType.Completed && e.User == this).Count())).ToString());
+            // sum up work minutes at each station
+            foreach (StationClass station in StationClass.GetStations())
+            {
+                double minutes = Server.TravelerManager.GetTravelers.Sum(t => t.Items.Sum(i => i.History.OfType<ProcessEvent>().Where(e => e.Station == station && e.User == this).Sum(h => h.Duration)));
+                if (minutes > 0) detail.Add(station.Name + "(min)", minutes.ToString());
+            }
+           
+            return detail;
         }
         #endregion
         #region Properties

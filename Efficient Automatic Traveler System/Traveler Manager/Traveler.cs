@@ -285,16 +285,27 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Find(x => x.ID == ID);
         }
-        public string PrintSequenceNo(TravelerItem item)
+        public string PrintSequenceID(TravelerItem item)
         {
+            string sequenceID = ID.ToString("D6") + "-";
             if (item.Scrapped)
             {
-                return "Scrap #" + ScrapSequenceNo(item);
+                sequenceID += "Scrap #" + ScrapSequenceNo(item);
             }
             else
             {
-                return (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString();
+                sequenceID +=  (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString();
             }
+            return sequenceID;
+        }
+        public string PrintID(TravelerItem item = null)
+        {
+            string id = ID.ToString();
+            if (item != null)
+            {
+                id += "-" + item.ID.ToString();
+            }
+            return id;
         }
         public void ScrapItem(ushort ID)
         {
@@ -302,7 +313,6 @@ namespace Efficient_Automatic_Traveler_System
             //item.SequenceNo = (ushort)(QuantityScrapped() + 1);
             item.Scrapped = true;
             item.State = ItemState.PostProcess;
-            item.Station = StationClass.GetStation("Scrapped");
             
         }
         
@@ -531,7 +541,8 @@ namespace Efficient_Automatic_Traveler_System
             List<string> detail = new List<string>();
             detail.Add(m_ID.ToString());
             detail.Add(m_quantity.ToString());
-            detail.Add(SoonestShipDate.ToString("MM/dd/yyyy"));
+            DateTime? soonestShipDate = SoonestShipDate;
+            detail.Add(soonestShipDate.HasValue ? soonestShipDate.Value.ToString("MM/dd/yyyy") : "Make to stock");
             detail.Add(m_station.Name);
             return detail.Stringify<string>().Trim('[').Trim(']');
         }
@@ -825,11 +836,11 @@ namespace Efficient_Automatic_Traveler_System
                 m_parentOrders = value;
             }
         }
-        internal DateTime SoonestShipDate
+        internal DateTime? SoonestShipDate
         {
             get
             {
-                return ParentOrders.Max(y => y.ShipDate);
+                return ParentOrders.Count > 0  ? new DateTime?(ParentOrders.Max(y => y.ShipDate)) : null;
             }
         }
 

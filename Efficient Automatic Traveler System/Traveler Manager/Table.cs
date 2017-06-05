@@ -86,24 +86,29 @@ namespace Efficient_Automatic_Traveler_System
         //}
         public override string ExportTableRows(string clientType, StationClass station)
         {
-            string json = "{\"members\":[";
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            List<string> members = new List<string>();
+            members.Add(new NameValueQty<string, int>("Part", ItemCode, Quantity).ToString());
+            members.Add(new NameValueQty<string, string>("Description", m_part.BillDesc, "").ToString());
             if (clientType == "OperatorClient" && (station.Type == "heian" || station.Type == "weeke")) {
-                json += new NameValueQty<string, int>("Part", ItemCode, Quantity).ToString();
-                json += ',' + new NameValueQty<string, string>("Description", m_part.BillDesc, "").ToString();
-                json += ',' + new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
-                json += ',' + new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString();
+                members.Add(new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString());
+                members.Add(new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString());
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
-                json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
-                json += ',' + new NameValueQty<string, string>("Rate", GetRate(Part.ComponentBills[0], station).ToString() + " min","").ToString();
-                if (Comment != "") json += ',' + new NameValueQty<string, string>("Comment", Comment, "").ToString();
+                members.Add(new NameValueQty<string, string>("Color", m_color, "").ToString());
+                members.Add(new NameValueQty<string, string>("Rate", GetRate(Part.ComponentBills[0], station).ToString() + " min","").ToString());
+                if (Comment != "") members.Add(new NameValueQty<string, string>("Comment", Comment, "").ToString());
             } else if (clientType == "OperatorClient" && station == StationClass.GetStation("Vector")) {
-                json += new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString();
-                json += ',' + new NameValueQty<string, string>("Color", m_color, "").ToString();
-                json += ',' + new NameValueQty<string, string>("Edgebanding", BandingColor, "").ToString();
-                if (Comment != "") json += ',' + new NameValueQty<string, string>("Comment", Comment, "").ToString();
+                members.Add(new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString());
+                members.Add(new NameValueQty<string, string>("Color", m_color, "").ToString());
+                members.Add(new NameValueQty<string, string>("Edgebanding", BandingColor, "").ToString());
+                if (Comment != "") members.Add(new NameValueQty<string, string>("Comment", Comment, "").ToString());
+            } else if (station == StationClass.GetStation("Table-Pack"))
+            {
+                Traveler box = ChildTravelers.FirstOrDefault();
+                members.Add(new NameValueQty<string, string>("Box Traveler", box != null ? box.ID.ToString() : "No box traveler", "").ToString());
             }
-            
-            return json + "]}";
+            obj.Add("members", members.Stringify(false));
+            return obj.Stringify();
         }
         public override string ExportHuman()
         {
@@ -171,7 +176,7 @@ namespace Efficient_Automatic_Traveler_System
             m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
             // Table info in the table csv
             GetColorInfo();
-            GetBlankInfo();
+            GetBlankInfo(MAS);
             GetPackInfo(orderManager);
             // for work rates
             //FindComponents(m_part);
@@ -184,7 +189,7 @@ namespace Efficient_Automatic_Traveler_System
             if (travelerManager != null && item.Station.Type == "tablePack" && ChildTravelers.Count == 0)
             {
                 TableBox box = CreateBoxTraveler();
-                box.Quantity = Quantity;
+                box.Quantity = Items.Where(i => !i.Scrapped).Count();
                 box.EnterProduction(travelerManager);
                 travelerManager.GetTravelers.Add(box);
             }
@@ -207,16 +212,16 @@ namespace Efficient_Automatic_Traveler_System
                 case LabelType.Tracking:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
                     // Item ID is now a sequence number out of the qty on the traveler
-                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + PrintSequenceNo(item) + "\"";
+                    json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
                     json += ",\"Desc1\":\"" + Part.BillNo + "\"";
                     json += ",\"Desc2\":\"" + Part.BillDesc + "\"";
                     json += ",\"Desc3\":\"" + m_bandingAbrev + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
-                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + PrintSequenceNo(item) + '/' + Quantity.ToString() + "\"";
+                    json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
                     json += ",\"Desc1\":\"" + Part.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceNo(item) +  " !!\"";
+                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) +  " !!\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
                     string reason = scrapEvent.Reason;
                     json += ",\"Reason\":" + reason.Quotate();
@@ -383,8 +388,20 @@ namespace Efficient_Automatic_Traveler_System
             colorRef.Close();
         }
         // calculate how many actual tables will be produced from the blanks
-        private void GetBlankInfo()
+        private void GetBlankInfo(OdbcConnection MAS)
         {
+            // open a MAS connection
+            OdbcCommand command = MAS.CreateCommand();
+            command.CommandText = "SELECT UDF_TABLE_BLANK_NAME, UDF_TABLE_BLANK_SIZE, UDF_TABLE_SHAPE FROM CI_item WHERE itemCode = '" + ItemCode + "'";
+            OdbcDataReader reader = command.ExecuteReader();
+            // read info
+            if (reader.Read())
+            {
+                if (!reader.IsDBNull(0)) BlankNo = reader.GetString(0);
+                if (!reader.IsDBNull(1)) BlankSize = reader.GetString(1);
+                //if (!reader.IsDBNull(2)) traveler.ShapeNo = reader.GetString(2);
+                if (BlankNo == "") BlankNo = "Missing blank info";
+            }
             // open the table ref csv file
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, "Table Reference.csv"));
@@ -402,37 +419,37 @@ namespace Efficient_Automatic_Traveler_System
                     //--------------------------------------------
                     // BLANK INFO
                     //--------------------------------------------
+                    
+                    //BlankSize = row[header.IndexOf("Blank Size")];
+                    //SheetSize = row[header.IndexOf("Sheet Size")];
+                    //// [column 3 contains # of blanks per sheet]
+                    //PartsPerBlank = row[header.IndexOf("Tables Per Blank")] != "" ? Convert.ToInt32(row[header.IndexOf("Tables Per Blank")]) : 0;
 
-                    BlankSize = row[header.IndexOf("Blank Size")];
-                    SheetSize = row[header.IndexOf("Sheet Size")];
-                    // [column 3 contains # of blanks per sheet]
-                    PartsPerBlank = row[header.IndexOf("Tables Per Blank")] != "" ? Convert.ToInt32(row[header.IndexOf("Tables Per Blank")]) : 0;
+                    //// Exception cases -!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
+                    //List<int> exceptionColors = new List<int> { 60, 50, 49 };
+                    //if ((Part.BillNo.Contains("MG2247") || Part.BillNo.Contains("38-2247")) && exceptionColors.IndexOf(ColorNo) != -1)
+                    //{
+                    //    // Exceptions to the blank parent sheet (certain colors have grain that can't be used with the typical blank)
+                    //    BlankComment = "Use " + SheetSize + " sheet and align grain";
+                    //    PartsPerBlank = 2;
+                    //}
+                    ////!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
 
-                    // Exception cases -!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
-                    List<int> exceptionColors = new List<int> { 60, 50, 49 };
-                    if ((Part.BillNo.Contains("MG2247") || Part.BillNo.Contains("38-2247")) && exceptionColors.IndexOf(ColorNo) != -1)
-                    {
-                        // Exceptions to the blank parent sheet (certain colors have grain that can't be used with the typical blank)
-                        BlankComment = "Use " + SheetSize + " sheet and align grain";
-                        PartsPerBlank = 2;
-                    }
-                    //!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
-
-                    // check to see if there is a MAGR blank
-                    if (BlankColor == "MAGR" && row[header.IndexOf("MAGR blank")] != "")
-                    {
-                        BlankNo = row[header.IndexOf("MAGR blank")];
-                    }
-                    // check to see if there is a CHOK blank
-                    else if (BlankColor == "CHOK" && row[header.IndexOf("CHOK blank")] != "")
-                    {
-                        BlankNo = row[header.IndexOf("CHOK blank")];
-                    }
-                    // there are is no specific blank size in the kanban
-                    else
-                    {
-                        BlankNo = "";
-                    }
+                    //// check to see if there is a MAGR blank
+                    //if (BlankColor == "MAGR" && row[header.IndexOf("MAGR blank")] != "")
+                    //{
+                    //    BlankNo = row[header.IndexOf("MAGR blank")];
+                    //}
+                    //// check to see if there is a CHOK blank
+                    //else if (BlankColor == "CHOK" && row[header.IndexOf("CHOK blank")] != "")
+                    //{
+                    //    BlankNo = row[header.IndexOf("CHOK blank")];
+                    //}
+                    //// there are is no specific blank size in the kanban
+                    //else
+                    //{
+                    //    BlankNo = "";
+                    //}
                     // calculate production numbers
                     if (PartsPerBlank <= 0) PartsPerBlank = 1;
                     decimal tablesPerBlank = Convert.ToDecimal(PartsPerBlank);

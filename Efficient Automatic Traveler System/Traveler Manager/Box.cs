@@ -85,14 +85,14 @@ namespace Efficient_Automatic_Traveler_System
             switch (type)
             {
                 case LabelType.Tracking:
-                    json += ",\"ID\":\"" + ID.ToString("D6") + '-' + PrintSequenceNo(item) + "\"";
+                    json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + "" + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
-                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceNo(item) + " !!" + "\"";
+                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) + " !!" + "\"";
                     break;
                 case LabelType.Pack:
                     json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";
