@@ -111,17 +111,19 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> flexStart = new Dictionary<string, string>() { { "justifyContent", @"""flex-start""" } };
             Dictionary<string, string> center = new Dictionary<string, string>() { { "align-items", @"""center""" } };
             
-            Column controls = new Column(style: flexStart)
+            Row controls = new Row(style: flexStart)
             {
                 new Button("New Item","NewKanbanItemForm")
             };
             NodeList monitorTable = new NodeList(BorderStyle,DOMtype: "table");
             monitorTable.Add(KanbanItem.CreateMonitorHeader());
+            int rowIndex = 0;
             foreach (KanbanItem item in m_items)
             {
-                monitorTable.Add(item.CreateMonitorRow());
+                monitorTable.Add(item.CreateMonitorRow(rowIndex));
+                rowIndex++;
             }
-            return new ControlPanel("Kanban Monitor", new Row(true) { controls, monitorTable });
+            return new ControlPanel("Kanban Monitor", new Column(true) { controls, monitorTable });
         }
         public static ClientMessage NewKanbanItemForm( string json)
         {
@@ -133,6 +135,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Form form = new Form(json);
                 KanbanItem newItem = new KanbanItem(form);
+                if (m_items.Exists(i => i.ItemCode == newItem.ItemCode)) return new ClientMessage("Info", "A Kanban item for " + newItem.ItemCode + " already exists");
                 m_items.Add(newItem);
                 await Update();
                 return new ClientMessage("ControlPanel", CreateKanbanMonitor().ToString());
@@ -142,7 +145,50 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error when adding new Kanban Item");
             }
-            
+
+        }
+        public static ClientMessage EditKanbanItemForm(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+
+                return m_items.Find(i => i.ItemCode == obj["itemCode"]).CreateFilledForm().Dispatch("EditKanbanItem");
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error when creating KanbanItem edit form");
+            }
+        }
+        public static async Task<ClientMessage> EditKanbanItem(string json)
+        {
+            try
+            {
+                Form form = new Form(json);
+                KanbanItem newItem = new KanbanItem(form);
+                m_items.Find(i => i.ItemCode == newItem.ItemCode).Update(form);
+                await Update();
+                return new ClientMessage("ControlPanel", CreateKanbanMonitor().ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error when editing Kanban Item");
+            }
+        }
+        public static ClientMessage DeleteKanbanItem(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                m_items.RemoveAll(i => i.ItemCode == obj["itemCode"]);
+                return new ClientMessage("ControlPanel", CreateKanbanMonitor().ToString());
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error when deleting KanbanItem");
+            }
         }
         private static void HandleKanbanChanged()
         {
@@ -154,7 +200,14 @@ namespace Efficient_Automatic_Traveler_System
         private static List<KanbanItem> m_items = new List<KanbanItem>();
         private static TimeSpan m_updateInterval;
         private static Timer m_timer;
-        
+        public static int ItemCount
+        {
+            get
+            {
+                return m_items.Count;
+            }
+        }
+
         public static Dictionary<string, string> BorderStyle = new Dictionary<string, string>()
         {
             {"border","2px solid black".Quotate() }

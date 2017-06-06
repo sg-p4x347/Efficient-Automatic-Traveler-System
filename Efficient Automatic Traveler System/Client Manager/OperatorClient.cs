@@ -250,9 +250,11 @@ namespace Efficient_Automatic_Traveler_System
                 if (m_current == null || (traveler != null && traveler.ID != m_current.ID))
                 {
                     DisplayChecklist();
+                    m_travelerManager.SubmitTraveler(m_current, m_station);
                     m_current = traveler;
+                    return new ClientMessage("LoadTraveler", ExportTraveler(traveler));
                 }
-                return new ClientMessage("LoadTraveler", ExportTraveler(traveler));
+                return new ClientMessage();
             }
             catch (Exception ex)
             {

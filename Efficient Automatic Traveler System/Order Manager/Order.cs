@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum OrderState
+    enum OrderStatus
     {
         Open,
-        Closed
+        Closed,
+        Hold
     }
     class Order
     {
@@ -23,7 +24,7 @@ namespace Efficient_Automatic_Traveler_System
             m_customerNo = "";
             m_items = new List<OrderItem>();
             m_shipVia = "";
-            m_state = OrderState.Open;
+            m_status = OrderStatus.Open;
         }
         // Import from json string
         public Order(string json)
@@ -33,7 +34,7 @@ namespace Efficient_Automatic_Traveler_System
                 StringStream ss = new StringStream(json);
                 Dictionary<string, string> obj = ss.ParseJSON();
                 m_salesOrderNo = obj["salesOrderNo"];
-                m_state = (OrderState)Enum.Parse(typeof(OrderState), obj["state"]);
+                m_status = (OrderStatus)Enum.Parse(typeof(OrderStatus), obj["state"]);
                 m_items = new List<OrderItem>();
                 ss = new StringStream(obj["items"]);
                 foreach (string item in ss.ParseJSONarray())
@@ -56,10 +57,19 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"salesOrderNo",m_salesOrderNo.Quotate() },
-                {"state",m_state.ToString().Quotate() },
+                {"state",m_status.ToString().Quotate() },
                 {"items",m_items.Stringify<OrderItem>() }
             };
             return obj.Stringify();
+        }
+        public void SetStatus(char ch)
+        {
+            switch (ch)
+            {
+                case 'O': Status = OrderStatus.Open; break;
+                case 'C': Status = OrderStatus.Closed; break;
+                case 'H': Status = OrderStatus.Hold; break;
+            }
         }
         //-----------------------
         // Private members
@@ -73,7 +83,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_customerNo;
         private List<OrderItem> m_items;
         private string m_shipVia;
-        private OrderState m_state;
+        private OrderStatus m_status;
         public DateTime OrderDate
         {
             get
@@ -151,16 +161,16 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal OrderState State
+        internal OrderStatus Status
         {
             get
             {
-                return m_state;
+                return m_status;
             }
 
             set
             {
-                m_state = value;
+                m_status = value;
             }
         }
     }

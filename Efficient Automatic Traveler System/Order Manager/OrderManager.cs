@@ -55,8 +55,7 @@ namespace Efficient_Automatic_Traveler_System
                 while (reader.Read())
                 {
                     // if order is not a quote or on hold
-                    if (!reader.IsDBNull(5) && Convert.ToChar(reader.GetValue(5)) != 'Q'
-                        && !reader.IsDBNull(6) && Convert.ToChar(reader.GetValue(6)) != 'H')
+                    if (!reader.IsDBNull(5) && Convert.ToChar(reader.GetValue(5)) != 'Q')
                     {
                         string salesOrderNo = reader.GetString(0);
                         currentOrderNumbers.Add(salesOrderNo);
@@ -65,42 +64,32 @@ namespace Efficient_Automatic_Traveler_System
                         // does not match any stored records
                         if (order == null)
                         {
-
                             // create a new order
-
                             order = new Order();
                             if (!reader.IsDBNull(0)) order.SalesOrderNo = reader.GetString(0);
                             if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
-                            if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
-                            if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
                             if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
-                            if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
-
                             m_orders.Add(order);
                         }
                         // Update information for existing order
-                        else
-                        {
-                            if (!reader.IsDBNull(1)) order.CustomerNo = reader.GetString(1);
-                            if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
-                            if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
-                            if (!reader.IsDBNull(3)) order.OrderDate = reader.GetDateTime(3);
-                            if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
-                        }
+                        if (!reader.IsDBNull(2)) order.ShipVia = reader.GetString(2);
+                        if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
+                        if (!reader.IsDBNull(4)) order.ShipDate = reader.GetDateTime(4);
+                        if (!reader.IsDBNull(6)) order.SetStatus(Convert.ToChar(reader.GetValue(6)));
 
                         // get information from detail
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand detailCommand = MAS.CreateCommand();
-                        detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure, LineKey FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
+                        detailCommand.CommandText = "SELECT ItemCode, QuantityOrdered, UnitOfMeasure, LineKey, QuantityShipped, ExplodedKitItem FROM SO_SalesOrderDetail WHERE SalesOrderNo = '" + reader.GetString(0) + "'";
                         OdbcDataReader detailReader = detailCommand.ExecuteReader();
 
                         // Read each line of the Sales Order, looking for the base Table, Chair, ect items, ignoring kits
                         while (detailReader.Read())
                         {
                             string billCode = detailReader.GetString(0);
-                            if (!detailReader.IsDBNull(2) && detailReader.GetString(2) != "KIT")
+                            if (!detailReader.IsDBNull(5) && Convert.ToString(detailReader.GetValue(5)) == "N")
                             {
-                                OrderItem item = order.Items.Find(x => x.LineNo == Convert.ToInt32(detailReader.GetInt32(3)));
+                                OrderItem item = order.Items.Find(x => x.LineNo == Convert.ToInt32(detailReader.GetValue(3)));
                                 /* IF using EATS inventory management, each order item needs to be pre-allocated when the order comes in, but assigned and closed when
                                  * items are produced and get a label with a specific order on them
                                  * 
@@ -114,16 +103,18 @@ namespace Efficient_Automatic_Traveler_System
 
                                 if (item == null)
                                 {
+                                    // A new item
                                     item = new OrderItem(order);
                                     // a new item, a new traveler
                                     if (!detailReader.IsDBNull(0)) item.ItemCode = detailReader.GetString(0);  // itemCode
-                                    if (!detailReader.IsDBNull(1)) item.QtyOrdered = Convert.ToInt32(detailReader.GetValue(1)); // Quantity
-                                    item.LineNo = Convert.ToInt32(detailReader.GetInt32(3));
+                                    item.LineNo = Convert.ToInt32(detailReader.GetValue(3));
                                     // allocate inventory items to this order item
                                     // AllocateOrderItem(item, ref MAS);
-
                                     order.Items.Add(item);
                                 }
+                                // Update fields
+                                if (!detailReader.IsDBNull(1)) item.QtyOrdered = Convert.ToInt32(detailReader.GetValue(1)); // Ordered Quantity
+                                if (!detailReader.IsDBNull(4)) item.QtyShipped = Convert.ToInt32(detailReader.GetValue(4)); // Shipped Qty
                             }
                         }
                         detailReader.Close();
@@ -208,26 +199,38 @@ namespace Efficient_Automatic_Traveler_System
                 int available = 0;
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                 OdbcCommand command = MAS.CreateCommand();
-                command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + itemCode + "'";
+                command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand, QuantityOnBackOrder FROM IM_ItemWarehouse WHERE ItemCode = '" + itemCode + "'";
                 OdbcDataReader reader = command.ExecuteReader();
+                int SOqty = 0;
                 if (reader.Read())
                 {
                     // avialable = onHand
                     available = Convert.ToInt32(reader.GetValue(1));
+                    SOqty = Convert.ToInt32(reader.GetValue(0)) + Convert.ToInt32(reader.GetValue(2));
                 }
                 reader.Close();
-
-                // get all OrderItem(s) with this itemCode
+                int qtyOnSO = 0;
+                // get all Open OrderItem(s) with this itemCode
                 List<OrderItem> items = allItems.Where(x => x.ItemCode == itemCode).ToList();
+                // add hold order's quantities to available
+                available += items.Where(i => i.Parent.Status == OrderStatus.Hold).Sum(j => j.QtyNeeded);
+                // remove all non-open items
+                items.RemoveAll(i => i.Parent.Status != OrderStatus.Open);
                 // sort the list in ascending order with respect to the ship date
                 items.Sort((i, j) => i.Parent.ShipDate.CompareTo(j.Parent.ShipDate));
+                
                 // for each OrderItem that has this itemCode;
                 foreach (OrderItem item in items)
                 {
+                    qtyOnSO += item.QtyNeeded;
                     // allocate as much as possible to this OrderItem
-                    item.QtyOnHand = Math.Min(item.QtyOrdered, available);
+                    item.QtyOnHand = Math.Min(item.QtyNeeded, available);
                     // subtract from the avilable supply
                     available -= item.QtyOnHand;
+                }
+                if (SOqty != qtyOnSO)
+                {
+                    Server.WriteLine("MAS inventory inconsistency for " + itemCode + " : " + qtyOnSO + " " + SOqty + items.Select(i => i.Parent.SalesOrderNo).ToList().Stringify(false) );
                 }
             }
         }
@@ -343,7 +346,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Order order = new Order(orderJSON);
                 // add this order to the master list if it is not closed
-                if (order.State != OrderState.Closed)
+                if (order.Status != OrderStatus.Closed)
                 {
                     List<OrderItem> items = new List<OrderItem>();
                     foreach(OrderItem item in order.Items)

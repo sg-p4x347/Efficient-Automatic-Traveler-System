@@ -12,6 +12,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             ItemCode = "";
             QtyOrdered = 0;
+            QtyShipped = 0;
             QtyOnHand = 0;
             ChildTraveler = -1;
             LineNo = -1;
@@ -26,19 +27,21 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = ss.ParseJSON();
                 ItemCode = obj["itemCode"];
                 QtyOrdered = Convert.ToInt32(obj["qtyOrdered"]);
+                QtyOrdered = obj.ContainsKey("qtyShipped") ? Convert.ToInt32(obj["qtyShipped"]) : 0;
                 QtyOnHand = Convert.ToInt32(obj["qtyOnHand"]);
                 ChildTraveler = Convert.ToInt32(obj["childTraveler"]);
                 LineNo = Convert.ToInt32(obj["lineNo"]);
             }
             catch (Exception ex)
             {
-                Server.WriteLine("Error while reading OrderItem from file: " + ex.Message);
+                Server.LogException(ex);
             }
         }
-        public OrderItem(string i, int ordered, int onHand, int c, int l)
+        public OrderItem(string i, int ordered, int shipped, int onHand, int c, int l)
         {
             ItemCode = i;
             QtyOrdered = ordered;
+            QtyShipped = shipped;
             QtyOnHand = onHand;
             ChildTraveler = c;
             LineNo = l;
@@ -49,6 +52,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 {"itemCode", ItemCode.ToString().Quotate() },
                 {"qtyOrdered", QtyOrdered.ToString() },
+                {"qtyShipped",QtyShipped.ToString() },
                 {"qtyOnHand",QtyOnHand.ToString() },
                 {"childTraveler",ChildTraveler.ToString() },
                 {"lineNo",LineNo.ToString() }
@@ -57,9 +61,18 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string ItemCode;
         public int QtyOrdered;
+        public int QtyShipped;
         public int QtyOnHand;
         public int ChildTraveler;
         public int LineNo;
         public Order Parent;
+
+        public int QtyNeeded
+        {
+            get
+            {
+                return QtyOrdered - QtyShipped;
+            }
+        }
     }
 }

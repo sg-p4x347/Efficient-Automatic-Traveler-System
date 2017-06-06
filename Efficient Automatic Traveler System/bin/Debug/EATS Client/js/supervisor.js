@@ -353,6 +353,17 @@ function Application () {
 		});
 		
 	}
+	this.Form = function (params) {
+		var self = this;
+		//self.popupManager.CloseAll();
+		self.StopAutofocus();
+		self.popupManager.Form(params.format, function (filledForm) {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall(params.callback,filledForm);
+			//-----------------------------------------------
+			self.StartAutofocus();
+		});
+	}
 	this.EditUserForm = function (format) {
 		this.UserForm(format,"EditUser");
 	}

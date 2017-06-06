@@ -702,15 +702,29 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error opening Kanban monitor");
             }
         }
+        // Kanban Forms
         public ClientMessage NewKanbanItemForm(string json)
         {
             return KanbanManager.NewKanbanItemForm(json);
         }
+        public ClientMessage EditKanbanItemForm(string json)
+        {
+            return KanbanManager.EditKanbanItemForm(json);
+        }
+        // Kanban Form actions
         public async Task<ClientMessage> NewKanbanItem(string json)
         {
             return await KanbanManager.NewKanbanItem(json);
         }
-       
+        public async Task<ClientMessage> EditKanbanItem(string json)
+        {
+            return await KanbanManager.EditKanbanItem(json);
+        }
+        public ClientMessage DeleteKanbanItem(string json)
+        {
+            return KanbanManager.DeleteKanbanItem(json);
+        }
+
         #endregion
         //-----------------------------------
         #region Properties

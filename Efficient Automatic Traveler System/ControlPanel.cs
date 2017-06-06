@@ -69,6 +69,11 @@ namespace Efficient_Automatic_Traveler_System
                 m_styleClasses = value;
             }
         }
+        // Specialized Nodes
+        public static Node Img(Style style = null)
+        {
+            return new Node(styleClasses: style, DOMtype: "img");
+        }
     }
     class TextNode : Node
     {
@@ -223,4 +228,5 @@ namespace Efficient_Automatic_Traveler_System
         private string m_title;
         private Node m_body;
     }
+    
 }

@@ -1,6 +1,3 @@
 "Item","Part","User","Station","Date","Time","Started Work","Source","Reason"
-"033595-2","MG2228-49","Gage Coates","Vector","06/05/2017 @ 11:10","0.0666666666666669","False","Marco Group","MACHINE DAMAGE"
-"033595-7","MG2228-49","Gage Coates","Table-Pack","06/05/2017 @ 11:48","0.2","True","Vendor","OTHER"
-"033595-10","MG2228-49","Gage Coates","Heian2","06/05/2017 @ 11:40","0.05","False","Marco Group","MACHINE DAMAGE"
-"033595-11","MG2228-49","Gage Coates","Heian2","06/05/2017 @ 11:43","0.1","False","Marco Group","MACHINE DAMAGE"
-"033595-12","MG2228-49","Gage Coates","Vector","06/05/2017 @ 01:46","0.6","False","Marco Group","MACHINE DAMAGE"
+"035017-1","MG2238-49","Gage Coates","Heian2","06/06/2017 @ 09:13","0.233333333333334","False","Vendor","DISCOLOR"
+"035073-1","MG2236-52","test","Vector","06/06/2017 @ 09:05","0.45","True","Marco Group","LOST VACUUM"

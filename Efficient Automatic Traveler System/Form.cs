@@ -30,6 +30,15 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
+        public ClientMessage Dispatch(string callback)
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"format",ToString() },
+                {"callback",callback.Quotate() }
+            };
+            return new ClientMessage("Form", obj.Stringify());
+        }
         public string ValueOf(string fieldName)
         {
             foreach (string field in m_fields)

@@ -408,3 +408,25 @@ div.queue__item__qty {
 	flex-direction: column;
 	text-align: center;
 }
+.editBtn {
+	background-image: url("../img/edit.png");
+	background-repeat: no-repeat;
+    background-position: center; 
+	background-size: contain;
+	width: 1em;
+	height: 1em;
+	border-radius: 0.125em;
+}
+
+.deleteBtn {
+	background-image: url("../img/delete.png");
+	background-repeat: no-repeat;
+    background-position: center; 
+	background-size: contain;
+	width: 1em;
+	height: 1em;
+	border-radius: 0.125em;
+}
+.editBtn:hover, .deleteBtn:hover {
+	background-color: silver;
+}

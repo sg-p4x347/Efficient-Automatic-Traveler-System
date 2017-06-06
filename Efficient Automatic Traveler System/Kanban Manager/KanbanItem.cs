@@ -47,15 +47,15 @@ namespace Efficient_Automatic_Traveler_System
             row.Add(new TextNode("Traveler Qty", KanbanManager.BorderStyle, DOMtype: "th"));
             return row;
         }
-        public NodeList CreateMonitorRow()
+        public NodeList CreateMonitorRow(int rowIndex)
         {
             NodeList row = new NodeList(DOMtype: "tr");
             double x = (double)Math.Max(0, m_stockQty - MinStockQty) / (double)MinStockQty;
 
-            byte red = (byte)Math.Min(255, 2.0 * (1-x) * 255);
+            byte red = (byte)Math.Min(255, 2.0 * (1 - x) * 255);
             //byte green = (byte)Math.Min(255, (((double)Math.Max(0, m_stockQty - MinStockQty) / (double)MinStockQty)) * (double)255);
-            byte green = (byte)Math.Min(255,(255 * x * 2.0));
-            
+            byte green = (byte)Math.Min(255, (255 * x * 2.0));
+
             Dictionary<string, string> colorBox = new Dictionary<string, string>()
             {
                 {"backgroundColor", ("rgb(" + red + ',' + green + ",0)").Quotate()},
@@ -63,12 +63,20 @@ namespace Efficient_Automatic_Traveler_System
                 {"height", "1em".Quotate() }
             };
             colorBox.Merge(KanbanManager.BorderStyle);
-            row.Add(new Node(colorBox,DOMtype:"td"));
-            row.Add(new TextNode(m_stockQty.ToString(), KanbanManager.BorderStyle, DOMtype:"td"));
+            row.Add(new Node(colorBox, DOMtype: "td"));
+            row.Add(new TextNode(m_stockQty.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
             row.Add(new TextNode(m_minStockQty.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
             row.Add(new TextNode(ItemCode, KanbanManager.BorderStyle, DOMtype: "td"));
             row.Add(new TextNode(m_qtyOnTraveler.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
             row.Add(new TextNode(InjectionQty.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
+            row.Add(new NodeList(DOMtype: "td")
+            {
+                { new Button("","EditKanbanItemForm", @"{""itemCode"":" + m_itemCode.Quotate() + "}",styleClasses: new Style("editBtn")) }
+            });
+            row.Add(new NodeList(DOMtype: "td")
+            {
+                { new Button("", "DeleteKanbanItem",@"{""itemCode"":" + m_itemCode.Quotate() + "}",styleClasses: new Style("deleteBtn")) }
+            });
             return row;
         }
         public void Update(int stockQty, int qtyOnTraveler)
@@ -94,7 +102,12 @@ namespace Efficient_Automatic_Traveler_System
 
         public Form CreateFilledForm()
         {
-            throw new NotImplementedException();
+            Form form = new Form();
+            form.Title = "Kanban Item";
+            form.Textbox("itemCode", "Item Code", m_itemCode);
+            form.Integer("minStockQty", "Minimum balance", m_minStockQty);
+            form.Integer("injectionQty", "Traveler quantity", m_injectionQty);
+            return form;
         }
 
         public void Update(Form form)
