@@ -73,7 +73,7 @@
 			<!-- SEARCH FORM -->
 			<form id = "searchForm" class = "list--horizontal">
 				<p>Search</p>
-				<input id = "searchBox" class = "dark inset twoEM" type = "search" pattern = "\d*|(\d*-\d*)">
+				<input id = "searchBox" class = "dark inset twoEM" type = "search" pattern = "\d*|(\d*-\d*)|([a-zA-Z0-9_-]){7}$"><!---->
 			</form>
 			<!-- VIEW FORM -->
 			<form id = "viewForm" style = "white-space: nowrap;" onchange = "application.ViewChanged(this)">

@@ -322,7 +322,7 @@ namespace Efficient_Automatic_Traveler_System
             m_dateStarted = DateTime.Today.ToString("MM/dd/yyyy");
         }
         // advances all completed items at the specified station
-        public void Advance(StationClass station, ITravelerManager travelerManager = null)
+        public virtual void Advance(StationClass station, ITravelerManager travelerManager = null)
         {
             foreach (TravelerItem item in Items)
             {
@@ -557,7 +557,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Form form = new Form();
             form.Title = "Traveler";
-            form.Integer("quantity", "Quantity");
+            form.Integer("quantity", "Quantity",0);
             form.Textbox("comment", "Comment");
             form.Selection("station", "Starting Station", StationClass.StationNames());
             return form;
@@ -603,7 +603,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             return new Dictionary<string, string>()
             {
-                {"forInventory",(m_parentOrders.Count == 0).ToString().ToLower()}
+                {"forInventory",(m_parentOrders.Count == 0).ToString().ToLower()},
+                {"qtyScrapped",Items.Count(i => i.Scrapped).ToString() }
             };
         }
         // pre

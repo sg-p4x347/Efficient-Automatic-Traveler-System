@@ -538,7 +538,11 @@ function Application () {
 
 		//window.addEventListener("keydown",);
 		document.getElementById("searchForm").onsubmit = function () {
-			var searchArray = searchBox.value.split('-');
+			if (searchBox.value.length > 0) {
+				new InterfaceCall("SearchSubmitted",{
+				searchPhrase: searchBox.value});
+			}
+			/* var searchArray = searchBox.value.split('-');
 			// try to parse the search string
 			var travelerID = parseInt(searchArray[0],10);
 			var itemID = parseInt(searchArray[1],10);
@@ -567,7 +571,7 @@ function Application () {
 			} else {
 				self.Info("Invalid traveler ID :(");
 			}
-			searchBox.value = "";
+			searchBox.value = ""; */
 			return false;
 		}
 		

@@ -249,10 +249,16 @@ namespace Efficient_Automatic_Traveler_System
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 if (m_current == null || (traveler != null && traveler.ID != m_current.ID))
                 {
-                    DisplayChecklist();
-                    m_travelerManager.SubmitTraveler(m_current, m_station);
-                    m_current = traveler;
-                    return new ClientMessage("LoadTraveler", ExportTraveler(traveler));
+                    if (traveler.CurrentStations().Exists(t => t == m_station))
+                    {
+                        DisplayChecklist();
+                        m_travelerManager.SubmitTraveler(m_current, m_station);
+                        m_current = traveler;
+                        return new ClientMessage("LoadTraveler", ExportTraveler(traveler));
+                    } else
+                    {
+                        return new ClientMessage("Info", "Traveler " + traveler.ID.ToString("D6") + " is not at this station  :(");
+                    }
                 }
                 return new ClientMessage();
             }
@@ -292,26 +298,36 @@ namespace Efficient_Automatic_Traveler_System
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 if (traveler != null)
                 {
-                    TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
-                    if (item != null)
+                    ushort itemID;
+                    if (ushort.TryParse(obj["itemID"], out itemID))
                     {
-                        if (item.Station == m_station)
+                        TravelerItem item = traveler.FindItem(itemID);
+                        if (item != null)
                         {
-                            SendMessage(LoadItem(json).ToString());
-                            // if this is Table pack station, print Table label on search submission 
-                            // (they scanned the barcode)
-                            if (m_station == StationClass.GetStation("Table-Pack"))
+                            if (item.Station == m_station)
                             {
-                                return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
+                                SendMessage(LoadItem(json).ToString());
+                                // if this is Table pack station, print Table label on search submission 
+                                // (they scanned the barcode)
+                                if (m_station == StationClass.GetStation("Table-Pack"))
+                                {
+                                    return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
+                                }
                             }
-                        } else
+                            else
+                            {
+                                return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
+                            }
+                        }
+                        else
                         {
-                            return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
+                            SendMessage(LoadTraveler(json).ToString());
+                            return new ClientMessage("Info", traveler.ID.ToString() + "-" + obj["itemID"] + " does not exist");
                         }
                     } else
                     {
                         SendMessage(LoadTraveler(json).ToString());
-                        return new ClientMessage("Info", traveler.ID + '-' + obj["itemID"] + " does not exist");
+                        return new ClientMessage();
                     }
                 } else
                 {

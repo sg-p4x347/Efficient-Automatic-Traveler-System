@@ -220,10 +220,6 @@ namespace Efficient_Automatic_Traveler_System
                 List<string> rightAlign = new List<string>() { "rightAlign" };
                 List<string> shadow = new List<string>() { "shadow" };
                 List<string> white = new List<string>() { "white" };
-                Dictionary<string, string> scroll = new Dictionary<string, string>() {
-                    { "maxHeight", @"""3em"""},
-                    { "overflow-y", @"""auto""" }
-                };
                 //=================================
                 Column fields = new Column(dividers: true);
                 fields.Add(new Row(style: spaceBetween)
@@ -277,10 +273,10 @@ namespace Efficient_Automatic_Traveler_System
                 } else
                 {
                     // Orders
-                    Column orders = new Column(style: scroll);
+                    Column orders = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
                     foreach (Order order in traveler.ParentOrders)
                     {
-                        orders.Add(new TextNode(order.SalesOrderNo));
+                        orders.Add(new Button(order.SalesOrderNo,"OrderPopup",@"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"));
                     }
                     fields.Add(
                         new Row(style: spaceBetween)
@@ -292,7 +288,7 @@ namespace Efficient_Automatic_Traveler_System
                 // Parents
                 if (traveler.ParentTravelers.Count > 0)
                 {
-                    Column parents = new Column(style: scroll);
+                    Column parents = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
                     foreach (Traveler parent in traveler.ParentTravelers)
                     {
                         parents.Add(new Button(parent.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + parent.ID + "}"));
@@ -307,7 +303,7 @@ namespace Efficient_Automatic_Traveler_System
                 // Children
                 if (traveler.ChildTravelers.Count > 0)
                 {
-                    Column children = new Column(style: scroll);
+                    Column children = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
                     foreach (Traveler child in traveler.ChildTravelers)
                     {
                         children.Add(new Button(child.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + child.ID + "}"));
@@ -324,7 +320,7 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Station",styleClasses: new Style("leftAlign")), new TextNode(traveler.Station.Name,styleClasses: new Style("white","rightAlign","shadow"))
+                            new TextNode("Station",styleClasses: new Style("leftAlign")), new TextNode(station.Name,styleClasses: new Style("white","rightAlign","shadow"))
                         }
                     );
                     fields.Add(
@@ -359,6 +355,73 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error when getting display fields");
+            }
+        }
+        // the order popup
+        public ClientMessage OrderPopup(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Order order = Server.OrderManager.FindOrder(obj["orderNo"]);
+                if (order != null)
+                {
+                    Column orderPopup = new Column(true);
+                    orderPopup.Add(new Row(styleClasses:new Style("justify-space-between"))
+                        {
+                            new TextNode("Ship Date",styleClasses: new Style("leftAlign")), new TextNode(order.ShipDate.ToString("MM/dd/yyyy"),styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                    orderPopup.Add(new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                            new TextNode("Order Date",styleClasses: new Style("leftAlign")), new TextNode(order.OrderDate.ToString("MM/dd/yyyy"),styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                    orderPopup.Add(new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                            new TextNode("Customer",styleClasses: new Style("leftAlign")), new TextNode(order.CustomerNo,styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                    orderPopup.Add(new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                            new TextNode("Status",styleClasses: new Style("leftAlign")), new TextNode(order.Status.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                    NodeList lineItems = new NodeList(DOMtype: "table");
+
+                    // Header
+                    NodeList header = new NodeList( DOMtype: "tr");
+                    header.Add(new TextNode("Item Code", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("Qty. Ordered", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("Traveler", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
+                    lineItems.Add(header);
+                    foreach (OrderItem item in order.Items)
+                    {
+                        // Detail
+                        NodeList row = new NodeList(DOMtype: "tr");
+                        row.Add(new TextNode(item.ItemCode, styleClasses: new Style("mediumBorder"), DOMtype: "td"));
+                        row.Add(new TextNode(item.QtyOrdered.ToString(), styleClasses: new Style("mediumBorder"), DOMtype: "td"));
+                        if (item.ChildTraveler >= 0)
+                        {
+                            row.Add(new Button(item.ChildTraveler.ToString("D6"), "LoadTraveler", @"{""travelerID"":" + item.ChildTraveler + "}"));
+                        } else
+                        {
+                            row.Add(new Node(styleClasses: new Style("mediumBorder"), DOMtype: "td")); // blank if no child traveler
+                        }
+                        lineItems.Add(row);
+                    }
+                    orderPopup.Add(lineItems);
+                    return new ClientMessage("ControlPanel", new ControlPanel("Order " + order.SalesOrderNo, orderPopup).ToString());
+                }
+                else
+                {
+                    return new ClientMessage("Info", "Order " + obj["orderNo"] + " could not be found in EATS");
+                }
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading order popup");
             }
         }
         public ClientMessage MultiTravelerOptions(string json)
@@ -681,7 +744,47 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "error");
             }
         }
+        public ClientMessage SearchSubmitted(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                string[] parts = obj["searchPhrase"].Split('-');
+                if (parts.Length > 1 || parts[0].Length <= 6)
+                {
+                    int travelerID = Convert.ToInt32(parts[0]);
+                    ushort itemID = Convert.ToUInt16(parts[1]);
+                    Traveler traveler = m_travelerManager.FindTraveler(travelerID);
+                    if (traveler != null)
+                    {
+                        TravelerItem item = traveler.FindItem(itemID);
+                        if (item != null)
+                        {
+                            return LoadItem(@"{""travelerID"":" + traveler.ID + @",""itemID"":" + itemID + "}");
+                        } else
+                        {
+                            SendMessage(LoadTraveler(@"{""travelerID"":" + traveler.ID + "}").ToString());
+                            return new ClientMessage("Info", "Traveler " + travelerID.ToString("D6") + " has no item with ID: " + itemID);
+                        }
+                    } else
+                    {
+                        return new ClientMessage("Info", "Traveler " + travelerID.ToString("D6") + " could not be found");
+                    }
+                } else if (parts[0].Length == 7)
+                {
+                    // all orders have 7 character order numbers
+                    return OrderPopup(@"{""orderNo"":" + parts[0].Quotate() + "}");
+                } else
+                {
+                    return new ClientMessage("Info", "Incorrect format, please search:<br>a traveler, ex: 123456<br>a traveler item, ex: 123456-1234<br>an order, ex: 1234567");
+                }
 
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error occured during search event");
+            }
+        }
         public ClientMessage TravelerForm(string json)
         {
             return m_travelerManager.TravelerForm(json);

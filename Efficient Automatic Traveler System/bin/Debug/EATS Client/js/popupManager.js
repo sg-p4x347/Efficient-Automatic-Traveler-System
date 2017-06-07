@@ -118,6 +118,10 @@ function PopupManager(blackout) {
 			if (field.type != "select") {
 				input = document.createElement("INPUT");
 				input.type = field.type;
+				if (field.type == "number") {
+					input.min = field.min;
+					input.max = field.max;
+				}
 			} else {
 				input = document.createElement("SELECT");
 				field.options.forEach(function (optionText) {

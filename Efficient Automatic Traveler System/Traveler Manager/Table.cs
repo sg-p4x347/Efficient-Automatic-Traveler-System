@@ -95,7 +95,7 @@ namespace Efficient_Automatic_Traveler_System
                 members.Add(new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString());
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 members.Add(new NameValueQty<string, string>("Color", m_color, "").ToString());
-                members.Add(new NameValueQty<string, string>("Rate", GetRate(Part.ComponentBills[0], station).ToString() + " min","").ToString());
+                
                 if (Comment != "") members.Add(new NameValueQty<string, string>("Comment", Comment, "").ToString());
             } else if (clientType == "OperatorClient" && station == StationClass.GetStation("Vector")) {
                 members.Add(new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString());
@@ -106,7 +106,10 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Traveler box = ChildTravelers.FirstOrDefault();
                 members.Add(new NameValueQty<string, string>("Box Traveler", box != null ? box.ID.ToString() : "No box traveler", "").ToString());
+                members.Add(new NameValueQty<string, int>("Box pads",  "One-pack system",m_pads).ToString());
             }
+            double rate = GetRate(Part.ComponentBills[0], station);
+            members.Add(new NameValueQty<string, string>("Rate", rate > 0 ? rate.ToString() + " min" : "No rate", "").ToString());
             obj.Add("members", members.Stringify(false));
             return obj.Stringify();
         }
@@ -184,15 +187,30 @@ namespace Efficient_Automatic_Traveler_System
         public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
         {
             TravelerItem item = FindItem(ID);
+            //// Queue boxes for all items pending at the contour edgebander after the first table leaves a contour edgebander
+            //if (travelerManager != null && GetNextStation(ID).Type == "tablePack" && ChildTravelers.Count == 0)
+            //{
+            //    TableBox box = CreateBoxTraveler();
+            //    box.Quantity = QuantityPendingAt(item.Station); // item.Station SHOULD be a contour edgebander of some kind
+            //    box.EnterProduction(travelerManager);
+            //    travelerManager.GetTravelers.Add(box);
+            //}
+
+            // advance the item to the next station
             item.Station = GetNextStation(ID);
-            // Queue box after table leaves vector
-            if (travelerManager != null && item.Station.Type == "tablePack" && ChildTravelers.Count == 0)
+        }
+        public override void Advance(StationClass station, ITravelerManager travelerManager = null)
+        {
+            if (station.Type == "heian" && travelerManager != null)
             {
+                int qtyToAdvance = Items.Count(i => i.Station == station && i.IsComplete());
+                // Create a box traveler for these items
                 TableBox box = CreateBoxTraveler();
-                box.Quantity = Items.Where(i => !i.Scrapped).Count();
+                box.Quantity = qtyToAdvance;
                 box.EnterProduction(travelerManager);
                 travelerManager.GetTravelers.Add(box);
             }
+            base.Advance(station, travelerManager);
         }
         public override void FinishItem(ushort ID)
         {
@@ -487,18 +505,20 @@ namespace Efficient_Automatic_Traveler_System
             // open the table ref csv file
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, "Table Reference.csv"));
-            tableRef.ReadLine(); // read past the header
+            // read past the header
+            List<string> header = tableRef.ReadLine().Split(',').ToList();
             string line = tableRef.ReadLine();
             while (line != "" && line != null)
             {
                 string[] row = line.Split(',');
-                if (Part.BillNo.Contains(row[0]))
+                if (Part.BillNo.Contains(row[header.IndexOf("Table")]))
                 {
                     //--------------------------------------------
                     // PACK & BOX INFO
                     //--------------------------------------------
-                    SupPack = row[8];
-                    RegPack = row[9];
+                    SupPack = row[header.IndexOf("Super Pack")];
+                    RegPack = row[header.IndexOf("Regular Pack")];
+                    m_pads = Convert.ToInt32(row[header.IndexOf("Pads")]);
                     foreach (string orderNo in ParentOrderNums)
                     {
                         Order order = orderManager.FindOrder(orderNo);
@@ -738,6 +758,7 @@ namespace Efficient_Automatic_Traveler_System
         private int m_supPackQty = 0;
         private int m_packLabelQty = 2;
         private int m_boxPieceQty = 1;
+        private int m_pads = 0;
         // Blank
         private string m_sheetSize = "";
         private string m_blankNo = "";

@@ -56,8 +56,19 @@ function Traveler(obj) {
 		DOMqueueItem.innerHTML = pad(self.type == "TableBox" ? self.parentTravelers[0] : self.ID,6) + "<br>";
 		// QTY -------------------------------------------
 		var qty = document.createElement("DIV");
-		qty.className = "queue__item__qty blue";
-		qty.innerHTML = stationSpecific.qtyPending;
+		qty.className = "list--horizontal justify-center";
+		var qtyPending = document.createElement("DIV");
+		qtyPending.className = "queue__item__qty lime";
+		qtyPending.innerHTML = stationSpecific.qtyPending;
+		qty.appendChild(qtyPending);
+		var qtySlash = document.createElement("DIV");
+		qtySlash.className = "queue__item__qty silver";
+		qtySlash.innerHTML = "&nbsp/&nbsp";
+		qty.appendChild(qtySlash);
+		var qtyPending = document.createElement("DIV");
+		qtyPending.className = "queue__item__qty orange";
+		qtyPending.innerHTML = self.quantity;
+		qty.appendChild(qtyPending);
 		DOMqueueItem.appendChild(qty);
 		// Icon -------------------------------------------
 		var path = "./img/";

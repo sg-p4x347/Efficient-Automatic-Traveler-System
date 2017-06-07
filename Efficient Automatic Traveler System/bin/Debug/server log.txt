@@ -2,7 +2,7 @@ Configuration settings loaded from current
 Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
 
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	06/06/2017 @ 05:30
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	06/07/2017 @ 05:43
 
 EATS inventory loaded from backup
 Kanban Monitor loaded from backup
@@ -11,43 +11,1016 @@ Users loaded from backup
 Connecting to MAS...Connecting to MAS...Connected
 > Updating in Online mode
 Loading orders from backup...Loading orders from backup...Finished
-Importing orders...MAS inventory inconsistency for 843-20-900C : 720 0[5036161,5036160]
-MAS inventory inconsistency for 75309-BBLK : 979 981[OD04124,OD04123,OD04122,OD04121,OD04120,5038777,5038803,5038809,5038354,5038866,5038865,OD04135,5038929,5038776,5038774,5038774,5038773,5038770,5038769,5038769,5038930,5038776,5038776,5038930,5038769,5038776,WF00845,WF00846,5038753,5038790,5038754,5038794,5038856,5038904,5036827,5038857,5038928,5038927,5038926,5038925,5038923,5038924,5038921,5038907,5038922,5038397,5037003,5037003,5037003,5037003,5037003,5037003,5037003,5037003,5038310,5038310,5038259,5038096]
-MAS inventory inconsistency for 75320-BLK : 352 368[WF00835,5038709,WF00838,5038801,5038862,5038911,5038792,OV00317,5036852,5036852,5038397,5038886,5038886,5038133,5038133,5037189,5038064]
-MAS inventory inconsistency for MG1607-101-149 : 1275 1281[5038888,5038884,5038095,5038259,5038149,5038150,5038096,5037301]
-MAS inventory inconsistency for 615-20-243-04 : 5 0[5037342]
-MAS inventory inconsistency for 75309-BBLU : 127 128[5038777,5038812,5038729,5038729,5038776,5038462,5038858,5038906,5038908,5038706]
-MAS inventory inconsistency for SEAT-108-040 : 100 0[5038757]
-MAS inventory inconsistency for BACK-108-040 : 15 0[5038757]
-MAS inventory inconsistency for GLIDE-108-B : 100 0[5038757]
-MAS inventory inconsistency for GASLIFT-870 : 1 0[5038765]
-MAS inventory inconsistency for 38-2284-49 : 16 32[5038792]
-MAS inventory inconsistency for MG2266-50 : 4 5[5038809]
-MAS inventory inconsistency for 715-20-245-04 : 5 0[5038817]
-MAS inventory inconsistency for ARMCAP-146-394 : 100 0[5038909]
-MAS inventory inconsistency for SEAT-146-394 : 20 0[5038909]
-MAS inventory inconsistency for BACK-146-394 : 20 0[5038909]
-MAS inventory inconsistency for GLIDE-146 : 8 0[5038918]
-MAS inventory inconsistency for 510-20-067 : 576 0[CC00390,CC00391,CC00392,CC00393]
-MAS inventory inconsistency for 13201 : 2 3[FS06570,PC34300]
-MAS inventory inconsistency for 702-20-266 : 96 0[OD04125,OD04128,OD04133,OD04134]
-MAS inventory inconsistency for 701-20-655 : 192 0[OD04127,OD04130,OD04131,OD04132,OD04133,OD04136]
-MAS inventory inconsistency for 705-20-212-04 : 36 0[ST01389,ST01393,ST01394,ST01395]
-MAS inventory inconsistency for 702-20-266-04 : 18 6[ST01389,ST01391,ST01395]
-MAS inventory inconsistency for 608-01-040-04 : 80 0[ST01390,ST01392,ST01393,ST01394,ST01396]
-MAS inventory inconsistency for 870-01-266 : 90 0[ST01393,ST01394]
-MAS inventory inconsistency for 502-20-040-04 : 6 0[ST01397]
-MAS inventory inconsistency for 108-040 : 4128 0[WM15854,WM15853,WM15855,WM15856,WM15857,WM15859,WM15902,WM15903,WM15904,WM15905,WM15906,WM15907,WM15908,WM15909,WM15910]
-MAS inventory inconsistency for 746-40-243 : 600 0[WM15854,WM15853,WM15856,WM15858,WM15859,WM15905,WM15906,WM15907,WM15908,WM15909]
-MAS inventory inconsistency for 505-40-394 : 1584 0[WM15853,WM15856,WM15857,WM15858,WM15859,WM15903,WM15904,WM15905,WM15906,WM15907,WM15908,WM15909]
-MAS inventory inconsistency for 746-40-243-24 : 1 0[WM15888]
-MAS inventory inconsistency for 746-40-243-04 : 7 0[WM15911,WM15912,WM15914,WM15915]
-MAS inventory inconsistency for 108-20-040-04 : 1 0[WM15913]
+Importing orders...MAS inventory inconsistency for 38-2284-49 : 16 32[5038792 16]
+MAS inventory inconsistency for 75320-BLK : 338 354[5038801 1,5038862 44,5038911 75,WF00849 1,5038792 16,OV00317 1,5036852 2,5036852 1,5038949 5,5038397 6,5038886 50,5038886 30,5038133 4,5038133 8,5037189 1,5038064 93]
+MAS inventory inconsistency for 75309-BBLK : 970 972[OD04124 1,OD04123 5,OD04122 1,OD04121 1,OD04120 2,5038809 4,5038803 3,5038777 2,OD04135 2,5038865 2,5038776 1,5038776 147,5038774 3,5038774 7,5038773 11,5038770 7,5038776 1,5038769 6,5038769 5,5038776 1,5038929 14,5038930 28,5038930 14,5038769 1,WF00845 8,5038790 1,5038794 1,5036827 450,5038857 1,5038904 1,5038956 1,5038928 1,5038927 1,5038925 1,5038924 1,5038923 1,5038926 1,5038921 1,5038907 1,5038922 1,5038397 12,5037003 21,5037003 23,5037003 5,5037003 43,5037003 3,5037003 28,5037003 2,5037003 64,5038310 2,5038310 15,5038259 2,5038096 9]
+MAS inventory inconsistency for MG1607-101-149 : 1225 1231[5038888 10,5038095 600,5038259 28,5038149 60,5038150 34,5038096 293,5037301 200]
+MAS inventory inconsistency for MG2266-50 : 4 5[5038809 4]
+MAS inventory inconsistency for 75309-BBLU : 126 127[5038777 1,5038729 20,5038729 90,5038776 9,5038943 1,5038954 1,5038906 2,5038908 1,5038706 1]
+MAS inventory inconsistency for 13201 : 1 2[PC34318 1]
 Importing orders...Finished
 Loading travelers from backup...Loading travelers from backup...Finished
-Compiling Travelers...2%Compiling Travelers...2%Compiling Travelers...2%Compiling Travelers...5%Compiling Travelers...7%Compiling Travelers...7%Compiling Travelers...9%Compiling Travelers...9%Compiling Travelers...9%Compiling Travelers...9%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...12%Compiling Travelers...12%Compiling Travelers...12%Compiling Travelers...13%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...14%Compiling Travelers...15%Compiling Travelers...15%Compiling Travelers...15%Compiling Travelers...15%Compiling Travelers...17%Compiling Travelers...17%Compiling Travelers...17%Compiling Travelers...17%Compiling Travelers...18%Compiling Travelers...19%Compiling Travelers...19%Compiling Travelers...19%Compiling Travelers...23%Compiling Travelers...23%Compiling Travelers...24%Compiling Travelers...24%Compiling Travelers...24%Compiling Travelers...27%Compiling Travelers...27%Compiling Travelers...27%Compiling Travelers...28%Compiling Travelers...28%Compiling Travelers...29%Compiling Travelers...29%Compiling Travelers...29%Compiling Travelers...29%Compiling Travelers...30%Compiling Travelers...30%Compiling Travelers...32%Compiling Travelers...33%Compiling Travelers...34%Compiling Travelers...34%Compiling Travelers...42%Compiling Travelers...42%Compiling Travelers...42%Compiling Travelers...43%Compiling Travelers...43%Compiling Travelers...43%Compiling Travelers...43%Compiling Travelers...43%Compiling Travelers...44%Compiling Travelers...79%Compiling Travelers...80%Compiling Travelers...Finished
-Gathering Info...1%Gathering Info...2%Gathering Info...4%Gathering Info...5%Gathering Info...6%Gathering Info...7%Gathering Info...8%Gathering Info...9%Gathering Info...11%Gathering Info...12%Gathering Info...13%Gathering Info...14%Gathering Info...15%Gathering Info...16%Gathering Info...18%Gathering Info...19%Gathering Info...20%Gathering Info...21%Gathering Info...22%Gathering Info...24%Gathering Info...25%Gathering Info...26%Gathering Info...27%Gathering Info...28%Gathering Info...29%Gathering Info...31%Gathering Info...32%Gathering Info...33%Gathering Info...34%Gathering Info...35%Gathering Info...36%Gathering Info...38%Gathering Info...39%Gathering Info...40%Gathering Info...41%Gathering Info...42%Gathering Info...44%Gathering Info...45%Gathering Info...46%Gathering Info...47%Gathering Info...48%Gathering Info...49%Gathering Info...51%Gathering Info...52%Gathering Info...53%Gathering Info...54%Gathering Info...55%Gathering Info...56%Gathering Info...58%Gathering Info...59%Gathering Info...60%Gathering Info...61%Gathering Info...62%Gathering Info...64%Gathering Info...65%Gathering Info...66%Gathering Info...67%Gathering Info...68%Gathering Info...69%Gathering Info...71%Gathering Info...72%Gathering Info...73%Gathering Info...74%Gathering Info...75%Gathering Info...76%Gathering Info...78%Gathering Info...79%Gathering Info...80%Gathering Info...81%Gathering Info...82%Gathering Info...84%Gathering Info...85%Gathering Info...86%Gathering Info...87%Gathering Info...88%Gathering Info...89%Gathering Info...91%Gathering Info...92%Gathering Info...93%Gathering Info...94%Gathering Info...95%Gathering Info...96%Gathering Info...98%Gathering Info...99%Gathering Info...100%Gathering Info...Finished
+Compiling Travelers...3%Compiling Travelers...3%Compiling Travelers...3%Compiling Travelers...6%Compiling Travelers...9%Compiling Travelers...9%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...11%Compiling Travelers...13%Compiling Travelers...13%Compiling Travelers...13%Compiling Travelers...13%Compiling Travelers...13%Compiling Travelers...15%Compiling Travelers...15%Compiling Travelers...15%Compiling Travelers...17%Compiling Travelers...17%Compiling Travelers...17%Compiling Travelers...18%Compiling Travelers...18%Compiling Travelers...18%Compiling Travelers...18%Compiling Travelers...18%Compiling Travelers...18%Compiling Travelers...20%Compiling Travelers...20%Compiling Travelers...20%Compiling Travelers...20%Compiling Travelers...22%Compiling Travelers...23%Compiling Travelers...26%Compiling Travelers...27%Compiling Travelers...27%Compiling Travelers...27%Compiling Travelers...27%Compiling Travelers...31%Compiling Travelers...31%Compiling Travelers...32%Compiling Travelers...32%Compiling Travelers...34%Compiling Travelers...35%Compiling Travelers...39%Compiling Travelers...39%Compiling Travelers...40%Compiling Travelers...40%Compiling Travelers...40%Compiling Travelers...40%Compiling Travelers...40%Compiling Travelers...41%Compiling Travelers...41%Compiling Travelers...51%Compiling Travelers...51%Compiling Travelers...52%Compiling Travelers...52%Compiling Travelers...52%Compiling Travelers...52%Compiling Travelers...54%Compiling Travelers...55%Compiling Travelers...58%Compiling Travelers...58%Compiling Travelers...Finished
+Gathering Info...1%Gathering Info...2%Gathering Info...4%Gathering Info...5%Gathering Info...6%Gathering Info...7%Gathering Info...9%Gathering Info...10%Gathering Info...11%Gathering Info...12%Gathering Info...14%Gathering Info...15%Gathering Info...16%Gathering Info...17%Gathering Info...19%Gathering Info...20%Gathering Info...21%Gathering Info...22%Gathering Info...23%Gathering Info...25%Gathering Info...26%Gathering Info...27%Gathering Info...28%Gathering Info...30%Gathering Info...31%Gathering Info...32%Gathering Info...33%Gathering Info...35%Gathering Info...36%Gathering Info...37%Gathering Info...38%Gathering Info...40%Gathering Info...41%Gathering Info...42%Gathering Info...43%Gathering Info...44%Gathering Info...46%Gathering Info...47%Gathering Info...48%Gathering Info...49%Gathering Info...51%Gathering Info...52%Gathering Info...53%Gathering Info...54%Gathering Info...56%Gathering Info...57%Gathering Info...58%Gathering Info...59%Gathering Info...60%Gathering Info...62%Gathering Info...63%Gathering Info...64%Gathering Info...65%Gathering Info...67%Gathering Info...68%Gathering Info...69%Gathering Info...70%Gathering Info...72%Gathering Info...73%Gathering Info...74%Gathering Info...75%Gathering Info...77%Gathering Info...78%Gathering Info...79%Gathering Info...80%Gathering Info...81%Gathering Info...83%Gathering Info...84%Gathering Info...85%Gathering Info...86%Gathering Info...88%Gathering Info...89%Gathering Info...90%Gathering Info...91%Gathering Info...93%Gathering Info...94%Gathering Info...95%Gathering Info...96%Gathering Info...98%Gathering Info...99%Gathering Info...100%Gathering Info...Finished
 Disconnected from MAS
 
 <<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Input string was not in a correct format.
+ Stack Trace:    at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)
+   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToInt32(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 755
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Value was either too large or too small for a UInt16.
+ Stack Trace:    at System.UInt16.Parse(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToUInt16(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 756
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Value was either too large or too small for a UInt16.
+ Stack Trace:    at System.UInt16.Parse(String s, NumberStyles style, NumberFormatInfo info)
+   at System.Convert.ToUInt16(String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.SearchSubmitted(String json) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Client Manager\SupervisorClient.cs:line 756
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

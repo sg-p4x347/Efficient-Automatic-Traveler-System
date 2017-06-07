@@ -60,9 +60,15 @@ namespace Efficient_Automatic_Traveler_System
             m_fields.Add(Basic(name,title, "text",value.Quotate()));
         }
         
-        public void Integer(string name, string title, int value = 0)
+        public void Integer(string name, string title, int min = int.MinValue, int max = int.MaxValue, int value = 0)
         {
-            m_fields.Add(Basic(name,title, "number",value.ToString()));
+            string basic = Basic(name, title, "number", value.ToString());
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"min",min.ToString() },
+                {"max",max.ToString() }
+            };
+            m_fields.Add(basic.MergeJSON(obj.Stringify()));
         }
         public void Checkbox(string name,string title, bool value = false)
         {

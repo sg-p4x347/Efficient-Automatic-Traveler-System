@@ -106,3 +106,7 @@
 	border-left: 2px solid black;
 	border-right: 2px solid black;
 }
+.blackout__popup__controlPanel__list {
+	max-height: 3em;
+	overflow-y: auto;
+}

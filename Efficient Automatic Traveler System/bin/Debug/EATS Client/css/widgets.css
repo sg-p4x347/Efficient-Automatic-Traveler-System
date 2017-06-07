@@ -145,6 +145,9 @@ div.percentContainer {
 .justify-space-between {
 	justify-content: space-between;
 }
+.justify-center {
+	justify-content: center;
+}
 /*access modifiers*/
 .button.disabled {
 	background-color: rgba(230,230,230,0.2);
@@ -163,6 +166,18 @@ div.percentContainer {
 .white {
 	color: white;
 }
+.lightGrey {
+	color: rgb(225,225,225);
+}
+.silver {
+	color: silver;
+}
+.grey {
+	color: grey;
+}
+.darkGrey {
+	color: rgb(32,32,32);
+}
 .beige {
 	color: #e9e9af;
 }
@@ -177,6 +192,9 @@ div.percentContainer {
 }
 .green {
 	color: green;
+}
+.lime {
+	color: lime;
 }
 .yellow {
 	color: yellow;
@@ -376,13 +394,15 @@ div.queue__item__desc {
 	text-shadow: 1px 1px 1px black;
 }
 div.queue__item__qty {
-	color: lime;
+	display: flex;
 }
 /* border */
 .inset {
 	border-style: inset;
 }
-
+.mediumBorder {
+	border: 2px solid black;
+}
 /* Tooltip text */
 .tooltip .tooltiptext {
     visibility: hidden;

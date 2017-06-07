@@ -420,7 +420,7 @@ namespace Efficient_Automatic_Traveler_System
         private TimeSpan m_updateInterval;
         private Timer m_timer;
         private static TravelerManager m_travelerManager;
-        private OrderManager m_orderManager;
+        private static OrderManager m_orderManager;
         private OdbcConnection m_MAS;
         private static StreamWriter m_outputLog = new StreamWriter(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "server log.txt"));
 
@@ -523,6 +523,14 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_travelerManager as ITravelerManager;
+            }
+        }
+
+        internal static OrderManager OrderManager
+        {
+            get
+            {
+                return m_orderManager;
             }
         }
     }
