@@ -392,8 +392,10 @@ namespace Efficient_Automatic_Traveler_System
                     // Header
                     NodeList header = new NodeList( DOMtype: "tr");
                     header.Add(new TextNode("Item Code", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
-                    header.Add(new TextNode("Qty. Ordered", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("Ordered", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("On Hand", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
                     header.Add(new TextNode("Traveler", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("Shipped", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
                     lineItems.Add(header);
                     foreach (OrderItem item in order.Items)
                     {
@@ -401,6 +403,7 @@ namespace Efficient_Automatic_Traveler_System
                         NodeList row = new NodeList(DOMtype: "tr");
                         row.Add(new TextNode(item.ItemCode, styleClasses: new Style("mediumBorder"), DOMtype: "td"));
                         row.Add(new TextNode(item.QtyOrdered.ToString(), styleClasses: new Style("mediumBorder"), DOMtype: "td"));
+                        row.Add(new TextNode(item.QtyOnHand.ToString(), styleClasses: new Style("mediumBorder"), DOMtype: "td"));
                         if (item.ChildTraveler >= 0)
                         {
                             row.Add(new Button(item.ChildTraveler.ToString("D6"), "LoadTraveler", @"{""travelerID"":" + item.ChildTraveler + "}"));
@@ -408,6 +411,7 @@ namespace Efficient_Automatic_Traveler_System
                         {
                             row.Add(new Node(styleClasses: new Style("mediumBorder"), DOMtype: "td")); // blank if no child traveler
                         }
+                        row.Add(new TextNode(item.QtyShipped.ToString(), styleClasses: new Style("mediumBorder"), DOMtype: "td"));
                         lineItems.Add(row);
                     }
                     orderPopup.Add(lineItems);
@@ -472,11 +476,10 @@ namespace Efficient_Automatic_Traveler_System
                 Column download = new Column(style: flexStart)
                 {
                     new TextNode("Download"),
-
                     new Button("Pre-Process Tables","DownloadSummary",@"{""sort"":""PreProcess"",""type"":""Table""}"),
                     new Button("Production", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("Scrap", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}"),
-                    new Button("Users", "DownloadUserSummary")
+                    new Button("Users", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}")
                 };
                 Column manage = new Column(style: flexStart)
                 {
@@ -490,7 +493,8 @@ namespace Efficient_Automatic_Traveler_System
                 Column view = new Column(style: flexStart)
                 {
                     new TextNode("View"),
-                    new Button("View Summary","CreateSummary",@"{""sort"":""Active"",""type"":""Table"",""from"":"""",""to"":""""}")
+                    new Button("View Summary","CreateSummary",@"{""sort"":""Active"",""type"":""Table"",""from"":"""",""to"":""""}"),
+                    new Button("View Orders","OrderListPopup")
                 };
                 ControlPanel panel = new ControlPanel("Options", new Row() { download , manage, view});
                 return new ClientMessage("ControlPanel", panel.ToString());
@@ -539,12 +543,44 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                return new ClientMessage("Redirect", Summary.UserCSV().Quotate());
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                DateTime A = DateTime.Parse(obj["A"]);
+                DateTime B = DateTime.Parse(obj["B"]);
+                return new ClientMessage("Redirect", new Summary(A,B).UserCSV().Quotate());
             }
             catch (Exception ex)
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error generating User summary");
+            }
+        }
+        public ClientMessage DateRangePopup(string json)
+        {
+            try
+            {
+                return new ClientMessage("DateRangePopup", json);
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error creating date range popup");
+            }
+        }
+        public ClientMessage OrderListPopup(string json)
+        {
+            try
+            {
+                Column list = new Column(true,styleClasses: new Style("scrollY"));
+                foreach (Order order in Server.OrderManager.GetOrders)
+                {
+                    list.Add(new Button(order.SalesOrderNo, "OrderPopup", @"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"));
+                }
+                return new ClientMessage("ControlPanel",new ControlPanel("Orders",list).ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error creating order list popup");
             }
         }
         public ClientMessage LabelPopup(string json)
@@ -683,11 +719,11 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Form form = new Form(json);
                 User newUser = new User(form);
-                User existingUser = UserManager.Find(newUser.UID);
+                User existingUser = Server.UserManager.Find(newUser.UID);
                 if (existingUser == null)
                 {
                     // This is a brand spanking new user!
-                    UserManager.AddUser(newUser);
+                    Server.UserManager.AddUser(newUser);
                     return new ClientMessage("Info", newUser.Name + " has been added!");
                 } else
                 {
@@ -707,7 +743,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Form form = new Form(json);
                 User newUser = new User(form);
-                User existingUser = UserManager.Find(newUser.UID);
+                User existingUser = Server.UserManager.Find(newUser.UID);
                 if (existingUser != null)
                 {
                     // User exists, lets try to update some information
@@ -730,7 +766,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                User user = UserManager.Find(obj["searchPhrase"]);
+                User user = Server.UserManager.Find(obj["searchPhrase"]);
                 if (user != null)
                 {
                     return new ClientMessage("EditUserForm",user.CreateFilledForm().ToString());
@@ -750,11 +786,12 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 string[] parts = obj["searchPhrase"].Split('-');
-                if (parts.Length > 1 || parts[0].Length <= 6)
+                Traveler traveler = null;
+                if (parts.Length > 1)
                 {
                     int travelerID = Convert.ToInt32(parts[0]);
                     ushort itemID = Convert.ToUInt16(parts[1]);
-                    Traveler traveler = m_travelerManager.FindTraveler(travelerID);
+                    traveler = m_travelerManager.FindTraveler(travelerID);
                     if (traveler != null)
                     {
                         TravelerItem item = traveler.FindItem(itemID);
@@ -769,6 +806,16 @@ namespace Efficient_Automatic_Traveler_System
                     } else
                     {
                         return new ClientMessage("Info", "Traveler " + travelerID.ToString("D6") + " could not be found");
+                    }
+                } else if (parts[0].Length <= 6) {
+                    traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parts[0]));
+                    if (traveler != null)
+                    {
+                        return LoadTraveler(@"{""travelerID"":" + traveler.ID + "}");
+                    }
+                    else
+                    {
+                        return new ClientMessage("Info", "Traveler " + parts[0] + " could not be found");
                     }
                 } else if (parts[0].Length == 7)
                 {

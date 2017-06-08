@@ -67,7 +67,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (m_accessLevel >= client.AccessLevel)
                 {
                     m_history.Add(new LogEvent(this, LogType.Login, station: station, client: client.GetType().Name));
-                    UserManager.Backup();
+                    Server.UserManager.Backup();
                 } else
                 {
                     return "Permission is denied; you must at least be a(n) " + client.AccessLevel.ToString();
@@ -84,7 +84,7 @@ namespace Efficient_Automatic_Traveler_System
             if (logEvents.Count > 0 && logEvents.Exists(x => x.LogType == LogType.Login))
             {
                 m_history.Add(new LogEvent(this, LogType.Logout, logEvents.Last().Station, logEvents.Last().Client));
-                UserManager.Backup();
+                Server.UserManager.Backup();
             }
         }
 
@@ -112,21 +112,22 @@ namespace Efficient_Automatic_Traveler_System
             return form;
         }
 
-        public Dictionary<string, string> ExportCSV()
+        public Dictionary<string, string> ExportCSV(object param)
         {
+            List<Traveler> travelers = (List<Traveler>)param;
             Dictionary<string,string> detail = new Dictionary<string, string>() {
                 {"Name", m_name},
                 {"UID", m_UID },
                 {"Access Level", m_accessLevel.ToString() }
             };
             // parts scrapped
-            detail.Add("Scrapped parts", Server.TravelerManager.GetTravelers.Sum(t => t.Items.Sum(i => i.History.OfType<ScrapEvent>().Where(e => e.User == this).Count())).ToString());
+            detail.Add("Scrapped parts", travelers.Sum(t => t.Items.Sum(i => i.History.OfType<ScrapEvent>().Where(e => e.User.UID == UID).Count())).ToString());
             // parts completed
-            detail.Add("Completed parts", Server.TravelerManager.GetTravelers.Sum(t => t.Items.Sum(i => i.History.OfType<ProcessEvent>().Where(e => e.Process == ProcessType.Completed && e.User == this).Count())).ToString());
+            detail.Add("Completed parts", travelers.Sum(t => t.Items.Sum(i => i.History.OfType<ProcessEvent>().Count(e => e.Process == ProcessType.Completed && e.User.UID == UID))).ToString());
             // sum up work minutes at each station
             foreach (StationClass station in StationClass.GetStations())
             {
-                double minutes = Server.TravelerManager.GetTravelers.Sum(t => t.Items.Sum(i => i.History.OfType<ProcessEvent>().Where(e => e.Station == station && e.User == this).Sum(h => h.Duration)));
+                double minutes = travelers.Sum(t => t.Items.Sum(i => i.History.OfType<ProcessEvent>().Where(e => e.Station == station && e.User.UID == UID).Sum(h => h.Duration)));
                 if (minutes > 0) detail.Add(station.Name + "(min)", minutes.ToString());
             }
            

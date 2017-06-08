@@ -118,7 +118,7 @@ function Application () {
 		
 	}
 	this.StartAutofocus = function () {
-		window.addEventListener("keydown",this.Autofocus);
+		//window.addEventListener("keydown",this.Autofocus);
 	}
 	this.StopAutofocus = function () {
 		window.removeEventListener("keydown",this.Autofocus);
@@ -401,6 +401,37 @@ function Application () {
 			self.popupManager.CloseAll();
 			self.popupManager.Info("There are no items to display");
 		}
+	}
+	this.DateRangePopup = function (params) {
+		var self = this;
+		self.popupManager.CloseAll();
+		
+		var popup = self.popupManager.CreatePopup("Date Range");
+		
+		var rowA = self.popupManager.CreateHorizontalList();
+		rowA.className = "justify-space-between";
+		rowA.appendChild(self.popupManager.CreateP("From"));
+		var dateA = self.popupManager.CreateDateInput();
+		rowA.appendChild(dateA);
+		popup.appendChild(rowA);
+		
+		var rowB = self.popupManager.CreateHorizontalList();
+		rowB.className = "justify-space-between";
+		rowB.appendChild(self.popupManager.CreateP("To"));
+		var dateB = self.popupManager.CreateDateInput();
+		rowB.appendChild(dateB);
+		popup.appendChild(rowB);
+		
+		var submit = self.popupManager.CreateButton("Submit");
+		popup.appendChild(submit);
+		submit.onclick = function () {
+			params.A = dateA.value;
+			params.B = dateB.value;
+			new InterfaceCall(params.innerCallback,params);
+			self.StartAutofocus();
+		}
+		
+		self.popupManager.AddCustom(popup);
 	}
 	// Utility
 	this.GetSelectedIDs = function () {

@@ -68,11 +68,11 @@ namespace Efficient_Automatic_Traveler_System
                             // create a new order
                             order = new Order();
                             order.SalesOrderNo = salesOrderNo;
-                            order.CustomerNo = reader["CustomerNo"].ToString();
-                            order.OrderDate = Convert.ToDateTime(reader["OrderDate"]);
                             m_orders.Add(order);
                         }
                         // Update information for existing order
+                        order.CustomerNo = reader["CustomerNo"].ToString();
+                        order.OrderDate = Convert.ToDateTime(reader["OrderDate"]);
                         order.ShipVia = reader["ShipVia"].ToString();
                         if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
                         order.ShipDate = Convert.ToDateTime(reader["ShipExpireDate"]);
@@ -310,12 +310,9 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Order order = FindOrder(orderNo);
                 // for each item in the order
-                foreach (OrderItem item in order.Items)
+                foreach (OrderItem item in order.FindItems(traveler.ID))
                 {
-                    if (item.ChildTraveler == traveler.ID)
-                    {
-                        item.ChildTraveler = -1;
-                    }
+                    item.ChildTraveler = -1;
                 }
             }
         }
@@ -353,8 +350,8 @@ namespace Efficient_Automatic_Traveler_System
                     List<OrderItem> items = new List<OrderItem>();
                     foreach(OrderItem item in order.Items)
                     {
-                        // only import items that need production
-                        if (item.QtyOnHand < item.QtyOrdered)
+                        // only import items that have a child traveler
+                        if (item.ChildTraveler >= 0 && item.QtyOnHand < item.QtyNeeded)
                         {
                             items.Add(item);
                         }

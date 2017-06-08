@@ -148,7 +148,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
         }
-        internal static string ToCSV(this List<ICSV> list)
+        internal static string ToCSV(this List<ICSV> list, object param = null)
         {
             string csv = "";
            
@@ -156,7 +156,7 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, List<string>> columns = new Dictionary<string, List<string>>();
                 foreach (ICSV item in list)
                 {
-                    Dictionary<string,string> detail = item.ExportCSV();
+                    Dictionary<string,string> detail = item.ExportCSV(param);
                     // add to the header
                     int column = 0;
                     foreach (string heading in detail.Keys)
@@ -187,6 +187,12 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
             return csv;
+        }
+        // starts enumerating at the latest(second) date, going backwards to the first date
+        public static IEnumerable<DateTime> DaysSince(this DateTime second, DateTime first)
+        {
+            for (var day = second.Date; day.Date >= first.Date; day = day.AddDays(-1))
+                yield return day;
         }
     }
 }

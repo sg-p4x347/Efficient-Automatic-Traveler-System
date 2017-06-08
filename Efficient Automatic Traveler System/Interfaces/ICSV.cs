@@ -8,6 +8,6 @@ namespace Efficient_Automatic_Traveler_System
 {
     interface ICSV
     {
-        Dictionary<string, string> ExportCSV();
+        Dictionary<string, string> ExportCSV(object parameter = null);
     }
 }

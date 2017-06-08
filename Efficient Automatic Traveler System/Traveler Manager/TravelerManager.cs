@@ -66,42 +66,48 @@ namespace Efficient_Automatic_Traveler_System
             int index = 0;
             foreach (Order order in m_orderManager.GetOrders)
             {
-                foreach (OrderItem item in order.Items)
+                if (order.Status == OrderStatus.Open)
                 {
-                    // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
-                    if (item.ChildTraveler < 0 && (Traveler.IsTable(item.ItemCode) || Traveler.IsChair(item.ItemCode)))
+                    foreach (OrderItem item in order.Items)
                     {
-                        Server.Write("\r{0}%", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orderManager.GetOrders.Count)) * 100));
-
-                        // search for existing traveler
-                        // can only combine if same itemCode, hasn't started, and has no parents
-                        Traveler traveler = m_travelers.Find(x => x.CombinesWith(new object[] { item.ItemCode}));
-                        int quantity = item.QtyOrdered - item.QtyOnHand;
-                        if (traveler != null)
+                        // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
+                        if (item.ChildTraveler < 0 && (Traveler.IsTable(item.ItemCode) || Traveler.IsChair(item.ItemCode)))
                         {
-                            // add to existing traveler
-                            traveler.Quantity += quantity;
+                            Server.Write("\r{0}%", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orderManager.GetOrders.Count)) * 100));
 
-                            // RELATIONAL =============================================================
-                            item.ChildTraveler = traveler.ID;
-                            traveler.ParentOrderNums.Add(order.SalesOrderNo);
-                            //=========================================================================
-                        }
-                        else
-                        {
-                            // TEMP
-                            if (Traveler.IsTable(item.ItemCode))
+                            // search for existing traveler
+                            // can only combine if same itemCode, hasn't started, and has no parents
+                            Traveler traveler = m_travelers.Find(x => x.CombinesWith(new object[] { item.ItemCode }));
+                            int quantity = item.QtyOrdered - item.QtyOnHand;
+                            if (traveler != null)
                             {
-                                // create a new traveler from the new item
-                                Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, quantity) : null /*(Traveler)new Chair(item.ItemCode, quantity)*/);
+                                if (!traveler.ParentOrderNums.Contains(order.SalesOrderNo))
+                                {
+                                    // add to existing traveler
+                                    traveler.Quantity += quantity;
 
-                                // RELATIONAL =============================================================
-                                item.ChildTraveler = newTraveler.ID;
-                                newTraveler.ParentOrderNums.Add(order.SalesOrderNo);
+                                    // RELATIONAL =============================================================
+                                    traveler.ParentOrderNums.Add(order.SalesOrderNo);
+                                }
+                                item.ChildTraveler = traveler.ID;
                                 //=========================================================================
+                            }
+                            else
+                            {
+                                // TEMP
+                                if (Traveler.IsTable(item.ItemCode))
+                                {
+                                    // create a new traveler from the new item
+                                    Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, quantity) : null /*(Traveler)new Chair(item.ItemCode, quantity)*/);
 
-                                // add the new traveler to the list
-                                m_travelers.Add(newTraveler);
+                                    // RELATIONAL =============================================================
+                                    item.ChildTraveler = newTraveler.ID;
+                                    newTraveler.ParentOrderNums.Add(order.SalesOrderNo);
+                                    //=========================================================================
+
+                                    // add the new traveler to the list
+                                    m_travelers.Add(newTraveler);
+                                }
                             }
                         }
                     }
@@ -117,6 +123,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 try
                 {
+
                     // link with orders
                     foreach (string orderNum in traveler.ParentOrderNums)
                     {
@@ -148,7 +155,8 @@ namespace Efficient_Automatic_Traveler_System
                     traveler.ImportInfo(this as ITravelerManager, orderManager, MAS);
                     index++;
                     Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Server.LogException(ex);
                 }

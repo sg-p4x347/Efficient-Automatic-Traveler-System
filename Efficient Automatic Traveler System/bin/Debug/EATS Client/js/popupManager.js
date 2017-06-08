@@ -111,6 +111,8 @@ function PopupManager(blackout) {
 		format.fields.forEach(function (field) {
 			// for each field in the form
 			var row = self.CreateHorizontalList();
+			row.className = "list--horizontal";
+			row.className = "justify-space-between";
 			var fieldTitle = self.CreateP(field.title);
 			row.appendChild(fieldTitle);
 			//------
@@ -413,6 +415,11 @@ function PopupManager(blackout) {
 			}
 		}
 		return table;
+	}
+	this.CreateDateInput = function () {
+		var input = document.createElement("INPUT");
+		input.type = "date";
+		return input;
 	}
 	//=========================================
 	

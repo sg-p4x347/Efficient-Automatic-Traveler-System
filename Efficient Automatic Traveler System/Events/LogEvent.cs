@@ -27,7 +27,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                m_user = UserManager.Find(obj["user"]);
+                m_user = Server.UserManager.Find(obj["user"]);
                 m_station = StationClass.GetStation(obj["station"]);
                 m_client = obj["client"];
                 m_logType = (LogType)Enum.Parse(typeof(LogType), obj["logType"]);

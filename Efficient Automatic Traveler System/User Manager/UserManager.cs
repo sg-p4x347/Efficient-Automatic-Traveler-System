@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    static class UserManager
+    class UserManager : IManager
     {
         #region Public Methods
         // initializes the user manager from a json file
-        static public void Import(DateTime? date = null)
+        public void Import(DateTime? date = null)
         {
             try
             {
@@ -33,7 +33,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
         }
-        static public void ImportPast()
+        public void ImportPast()
         {
             try
             {
@@ -53,7 +53,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // writes the stored config string back to the config file
-        static public void Backup()
+        public void Backup()
         {
             try
             {
@@ -64,18 +64,18 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
         }
-        static public string Export()
+        public string Export()
         {
             return m_users.Stringify<User>();
         }
-        static public void AddUser(User user)
+        public void AddUser(User user)
         {
             m_users.Add(user);
             Backup();
         }
         
         // returns the user that is requested
-        static public User Find(string searchPhrase)
+        public User Find(string searchPhrase)
         {
             return m_users.Find(x => x.UID == searchPhrase || x.Name.ToLower() == searchPhrase.ToLower());
         }
@@ -83,9 +83,9 @@ namespace Efficient_Automatic_Traveler_System
         #region Private Methods
         #endregion
         #region Properties
-        static private List<User> m_users = new List<User>();
+        private List<User> m_users = new List<User>();
 
-        internal static List<User> Users
+        internal List<User> Users
         {
             get
             {

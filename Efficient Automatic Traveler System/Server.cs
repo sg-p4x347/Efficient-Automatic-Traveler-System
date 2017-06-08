@@ -40,6 +40,8 @@ namespace Efficient_Automatic_Traveler_System
                 m_clientManagerThread = new Thread(m_clientManager.Start);
                 m_clientManagerThread.Name = "Client Manager";
                 m_updateInterval = new TimeSpan(24, 0, 0);
+
+                m_userManager = new UserManager();
                 // HTTP file serving
             } catch (Exception ex)
             {
@@ -184,12 +186,13 @@ namespace Efficient_Automatic_Traveler_System
         private void Update()
         {
             Server.WriteLine("\n<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>" + DateTime.Now.ToString("\tMM/dd/yyy @ hh:mm") + "\n");
-
+            // Refresh the static managers
             BackupManager.Initialize();
             InventoryManager.Import();
             KanbanManager.Import();
-            // Refresh the static managers
+            
             Configure();
+            
             UserManager.Import();
 
             // open the MAS connection
@@ -421,6 +424,7 @@ namespace Efficient_Automatic_Traveler_System
         private Timer m_timer;
         private static TravelerManager m_travelerManager;
         private static OrderManager m_orderManager;
+        private static UserManager m_userManager;
         private OdbcConnection m_MAS;
         private static StreamWriter m_outputLog = new StreamWriter(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "server log.txt"));
 
@@ -531,6 +535,14 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_orderManager;
+            }
+        }
+
+        internal static UserManager UserManager
+        {
+            get
+            {
+                return m_userManager;
             }
         }
     }

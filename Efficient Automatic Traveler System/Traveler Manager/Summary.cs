@@ -20,7 +20,12 @@ namespace Efficient_Automatic_Traveler_System
     class Summary
     {
         #region Public methods
-        public Summary(ITravelerManager travelerManager,string travelerType, SummarySort sortType = SummarySort.Active)
+        public Summary()
+        {
+            m_travelers = new List<Traveler>();
+            m_users = new List<User>();
+        }
+        public Summary(ITravelerManager travelerManager,string travelerType = "traveler", SummarySort sortType = SummarySort.Active) : this()
         {
             m_sort = sortType;
             m_travelerType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + travelerType);
@@ -32,7 +37,6 @@ namespace Efficient_Automatic_Traveler_System
                 case SummarySort.PreProcess: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Quantity > 0).ToList(); break;
 
                 default:
-                    m_travelers = new List<Traveler>();
                     break;
             }
         }
@@ -42,7 +46,7 @@ namespace Efficient_Automatic_Traveler_System
          These two summaries are then compared to yield the final summary which includes
          Delta totals between the time frames.
         */
-        public Summary(DateTime A, DateTime B, string travelerType, SummarySort sortType = SummarySort.Active)
+        public Summary(DateTime A, DateTime B, string travelerType = "traveler", SummarySort sortType = SummarySort.Active) : this()
         {
             // starting state
             OrderManager orderManagerA = new OrderManager();
@@ -59,6 +63,34 @@ namespace Efficient_Automatic_Traveler_System
 
             // Delta state (B's state - A's state)
             m_travelers = (summaryB - summaryA).Travelers;
+        }
+        public Summary(DateTime A, DateTime B) : this()
+        {
+            List<DateTime> datesDescending = new List<DateTime>(BackupManager.BackupDates);
+            datesDescending.Sort((a, b) => b.CompareTo(a));
+            int indexA = datesDescending.IndexOf(datesDescending.First(d => d <= B));
+            int indexB = datesDescending.IndexOf(datesDescending.Last(d => d >= A));
+            for (int index = indexA; index < indexB; index++)
+            {
+                DateTime day = datesDescending[index];
+
+                OrderManager orderManager = new OrderManager();
+                orderManager.Import(day);
+                TravelerManager travelerManager = new TravelerManager(orderManager as IOrderManager);
+                travelerManager.Import(day);
+                // only add travelers with IDs that are not currently in the list
+                m_travelers.AddRange(travelerManager.GetTravelers.Where(t => !m_travelers.Exists(s => s.ID == t.ID)));
+
+                // Users
+                m_users = new List<User>();
+                UserManager userManager = new UserManager();
+                userManager.Import(day);
+                m_users.AddRange(userManager.Users.Where(u => !m_users.Exists(v => v.UID == u.UID)));
+                foreach (User user in m_users)
+                {
+                    user.History.AddRange(userManager.Users.Find(u => u.UID == user.UID).History);
+                }
+            }
         }
         public override string ToString()
         {
@@ -95,10 +127,10 @@ namespace Efficient_Automatic_Traveler_System
             }
             return B;
         }
-        public static string UserCSV()
+        public string UserCSV()
         {
             string webLocation = "./summary.csv";
-            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "summary.csv"), UserManager.Users.ToList<ICSV>().ToCSV());
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "summary.csv"), m_users.ToList<ICSV>().ToCSV((object)m_travelers));
             return webLocation;
         }
         public string MakeCSV()
@@ -276,6 +308,7 @@ namespace Efficient_Automatic_Traveler_System
         private SummarySort m_sort;
         private Type m_travelerType;
         private List<Traveler> m_travelers;
+        private List<User> m_users;
         #endregion
         #region Interface
         internal List<Traveler> Travelers
@@ -283,6 +316,14 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_travelers;
+            }
+        }
+
+        internal List<User> Users
+        {
+            get
+            {
+                return m_users;
             }
         }
         #endregion

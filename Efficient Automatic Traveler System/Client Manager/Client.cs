@@ -350,7 +350,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 // check to see if user exists
-                User user = UserManager.Find(obj["UID"]);
+                User user = Server.UserManager.Find(obj["UID"]);
                 if (user != null)
                 {
                     m_user = user;
@@ -380,7 +380,7 @@ namespace Efficient_Automatic_Traveler_System
             if (m_user != null)
             {
                 m_user.Logout();
-                UserManager.Backup();
+                Server.UserManager.Backup();
                 m_user = null;
             }
             return new ClientMessage();

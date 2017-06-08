@@ -135,6 +135,14 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         #region Static Properties
         private static List<DateTime> m_backupDates;
+
+        public static List<DateTime> BackupDates
+        {
+            get
+            {
+                return m_backupDates;
+            }
+        }
         #endregion
     }
 }

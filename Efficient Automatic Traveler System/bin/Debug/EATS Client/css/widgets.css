@@ -61,6 +61,7 @@ input[type=checkbox] {
 }
 .button {
 	display: flex;
+	box-sizing: border-box;
 	justify-content: center;
 	flex-direction: column;
 	font-family: Verdana, Geneva, sans-serif;
@@ -143,9 +144,11 @@ div.percentContainer {
 
 /*flex modifiers*/
 .justify-space-between {
+	display: flex;
 	justify-content: space-between;
 }
 .justify-center {
+	display: flex;
 	justify-content: center;
 }
 /*access modifiers*/
@@ -360,6 +363,12 @@ div.percentContainer {
 }
 .noPadding {
 	padding: 0px;
+}
+.scrollY {
+	overflow-y: auto;
+}
+.scrollX {
+	overflow-x: auto;
 }
 div.queue__item {
 	transition-duration: 0.25s;

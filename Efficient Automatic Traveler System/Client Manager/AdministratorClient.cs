@@ -47,7 +47,7 @@ namespace Efficient_Automatic_Traveler_System
         //}
         public ClientMessage LoadUsers(string json)
         {
-            return new ClientMessage("LoadUsers", UserManager.Export());
+            return new ClientMessage("LoadUsers", Server.UserManager.Export());
         }
         public ClientMessage LoadConfig(string json)
         {
