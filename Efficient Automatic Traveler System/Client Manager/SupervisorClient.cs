@@ -222,6 +222,12 @@ namespace Efficient_Automatic_Traveler_System
                 List<string> white = new List<string>() { "white" };
                 //=================================
                 Column fields = new Column(dividers: true);
+                if (traveler.Comment != "")
+                {
+                    fields.Add(
+                        new TextNode(traveler.Comment,styleClasses: new Style("red","shadow"))
+                    );
+                }
                 fields.Add(new Row(style: spaceBetween)
                     {
                         new TextNode("ID",styleClasses: new Style("leftAlign")), new TextNode(traveler.ID.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
@@ -571,7 +577,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Column list = new Column(true,styleClasses: new Style("scrollY"));
-                foreach (Order order in Server.OrderManager.GetOrders)
+                foreach (Order order in Server.OrderManager.GetOrders.Where( o => o.Items.Exists( i => i.ChildTraveler >= 0)))
                 {
                     list.Add(new Button(order.SalesOrderNo, "OrderPopup", @"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"));
                 }

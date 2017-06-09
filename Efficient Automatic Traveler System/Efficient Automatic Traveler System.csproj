@@ -98,6 +98,7 @@
     <Compile Include="Order Manager\OrderItem.cs" />
     <Compile Include="Order Manager\OrderManager.cs" />
     <Compile Include="Events\ScrapEvent.cs" />
+    <Compile Include="Part.cs" />
     <Compile Include="StringStream.cs" />
     <Compile Include="SummaryColumn.cs" />
     <Compile Include="Traveler Manager\TableBox.cs" />

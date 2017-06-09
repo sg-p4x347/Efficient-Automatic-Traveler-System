@@ -23,7 +23,7 @@ namespace Efficient_Automatic_Traveler_System
         void AdvanceTravelerItem(int travelerID, ushort itemID);
         void ScrapTravelerItem(int travelerID, ushort itemID);
         void RemoveTraveler(int travelerID);
-        void AddTraveler(string itemCode, int quantity);
+        Traveler AddTraveler(string itemCode, int quantity);
         List<Traveler> GetTravelers
         {
             get;
@@ -71,7 +71,7 @@ namespace Efficient_Automatic_Traveler_System
                     foreach (OrderItem item in order.Items)
                     {
                         // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
-                        if (item.ChildTraveler < 0 && (Traveler.IsTable(item.ItemCode) || Traveler.IsChair(item.ItemCode)))
+                        if (item.ChildTraveler < 0)
                         {
                             Server.Write("\r{0}%", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orderManager.GetOrders.Count)) * 100));
 
@@ -94,12 +94,15 @@ namespace Efficient_Automatic_Traveler_System
                             }
                             else
                             {
-                                // TEMP
-                                if (Traveler.IsTable(item.ItemCode))
+                                // create a new traveler from the new item
+                                Traveler newTraveler = null;
+                                if (Traveler.IsTable(item.ItemCode)) {
+                                    newTraveler = (Traveler)new Table(item.ItemCode, quantity);
+                                } else if (Traveler.IsChair(item.ItemCode)) {
+                                    newTraveler = (Traveler)new Chair(item.ItemCode, quantity);
+                                }
+                                if (traveler != null)
                                 {
-                                    // create a new traveler from the new item
-                                    Traveler newTraveler = (Traveler.IsTable(item.ItemCode) ? (Traveler)new Table(item.ItemCode, quantity) : null /*(Traveler)new Chair(item.ItemCode, quantity)*/);
-
                                     // RELATIONAL =============================================================
                                     item.ChildTraveler = newTraveler.ID;
                                     newTraveler.ParentOrderNums.Add(order.SalesOrderNo);
@@ -256,7 +259,7 @@ namespace Efficient_Automatic_Traveler_System
             // finally... remove THIS traveler
             m_travelers.RemoveAll(x => x.ID == ID);
         }
-        public void AddTraveler(string itemCode, int quantity)
+        public Traveler AddTraveler(string itemCode, int quantity)
         {
             OdbcConnection MAS = Server.GetMasConnection();
             // create a new traveler from the itemcode and quantity
@@ -265,6 +268,7 @@ namespace Efficient_Automatic_Traveler_System
             newTraveler.ImportInfo(this as ITravelerManager, m_orderManager, MAS);
             m_travelers.Add(newTraveler);
             OnTravelersChanged(m_travelers);
+            return newTraveler;
         }
         public List<Traveler> GetTravelers
         {

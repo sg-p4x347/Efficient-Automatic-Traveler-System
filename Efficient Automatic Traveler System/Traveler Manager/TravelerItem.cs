@@ -36,6 +36,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_replacement = obj.ContainsKey("replacement") ? Convert.ToBoolean(obj["replacement"]) : false;
                 m_scrapped = Convert.ToBoolean(obj["scrapped"]);
                 m_station = StationClass.GetStation(obj["station"]);
+                m_itemCode = obj["itemCode"];
                 m_lastStation = StationClass.GetStation(obj["lastStation"]);
                 m_history = new List<Event>();
                 m_order = obj["order"];
@@ -59,6 +60,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"replacement", m_replacement.ToString().ToLower() },
                 {"scrapped", m_scrapped.ToString().ToLower()},
                 {"station",Station.Name.Quotate() },
+                {"itemCode",m_itemCode.Quotate() },
                 {"lastStation",m_lastStation.Name.Quotate() },
                 {"history",m_history.ToList<Event>().Stringify<Event>() },
                 {"order",m_order.Quotate() },
@@ -76,6 +78,7 @@ namespace Efficient_Automatic_Traveler_System
         private bool m_replacement;
         private bool m_scrapped;
         private StationClass m_station;
+        private string m_itemCode;
         private StationClass m_lastStation;
         private List<Event> m_history;
         private string m_order;
@@ -191,6 +194,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_replacement = value;
+            }
+        }
+
+        public string ItemCode
+        {
+            get
+            {
+                return m_itemCode;
+            }
+
+            set
+            {
+                m_itemCode = value;
             }
         }
 

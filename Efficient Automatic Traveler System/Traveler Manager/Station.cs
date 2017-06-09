@@ -55,6 +55,19 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_stations;
         }
+        public static List<StationClass> StationsInBill(Bill bill)
+        {
+            List<StationClass> stations = new List<StationClass>();
+            foreach (Item componentItem in bill.ComponentItems)
+            {
+                StationClass station = m_stations.Find(s => s.LaborCodes.Contains(componentItem.ItemCode));
+                if (station != null)
+                {
+                    stations.Add(station);   
+                }
+            }
+            return stations;
+        }
         // Equality
         public override int GetHashCode()
         {

@@ -28,11 +28,12 @@ namespace Efficient_Automatic_Traveler_System
             m_quantityPerBill = quantityPerBill;
             m_totalQuantity = parentQuantity * m_quantityPerBill;
         }
-        public Bill(string billNo, double quantityPerBill, double parentQuantity,OdbcConnection MAS)
+        public Bill(string billNo, double quantityPerBill, double parentQuantity,OdbcConnection MAS,Bill parent)
         {
             m_billNo = billNo;
             m_quantityPerBill = quantityPerBill;
             m_totalQuantity = parentQuantity * m_quantityPerBill;
+            m_parent = parent;
             Import(MAS);
         }
         public async Task Import(OdbcConnection MAS)
@@ -83,7 +84,7 @@ namespace Efficient_Automatic_Traveler_System
                                 if (!reader.IsDBNull(1))
                                 {
                                     // Component has a bill
-                                    m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), m_totalQuantity,  MAS));
+                                    m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), m_totalQuantity,  MAS,this));
                                 }
                                 else
                                 {
@@ -129,7 +130,8 @@ namespace Efficient_Automatic_Traveler_System
         // components
         private List<Item> m_componentItems = new List<Item>();
         private List<Bill> m_componentBills = new List<Bill>();
-
+        // parent bill
+        private Bill m_parent = null;
         public string Unit
         {
             get
@@ -283,6 +285,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_totalQuantity = value;
+            }
+        }
+
+        internal Bill Parent
+        {
+            get
+            {
+                return m_parent;
+            }
+
+            set
+            {
+                m_parent = value;
             }
         }
     }

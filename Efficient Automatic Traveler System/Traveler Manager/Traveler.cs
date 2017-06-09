@@ -50,7 +50,7 @@ namespace Efficient_Automatic_Traveler_System
         public qtyType Qty;
     }
     
-    abstract internal class Traveler : IForm
+    abstract internal class Traveler : IForm, IPart
     {
         #region Public Methods
         public Traveler() {
@@ -98,6 +98,7 @@ namespace Efficient_Automatic_Traveler_System
             m_station = StationClass.GetStation(obj["station"]);
             m_state = (ItemState)Enum.Parse(typeof(ItemState), obj["state"]);
             m_dateStarted = obj["dateStarted"];
+            m_comment = obj["comment"];
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
         //public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
@@ -178,7 +179,8 @@ namespace Efficient_Automatic_Traveler_System
                 {"station",m_station.Name.Quotate() },
                 {"state",m_state.ToString().Quotate() },
                 {"type",this.GetType().Name.Quotate()},
-                {"dateStarted",DateStarted.Quotate() }
+                {"dateStarted",DateStarted.Quotate() },
+                {"comment",Comment.Quotate() }
             };
             return obj.Stringify();
         }
@@ -648,7 +650,7 @@ namespace Efficient_Automatic_Traveler_System
 
         // general
         protected int m_ID;
-        
+        private string m_itemCode;
         protected int m_quantity;
         private List<TravelerItem> items;
         private string m_comment;
@@ -855,6 +857,22 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_comment = value;
+            }
+        }
+
+        public virtual Bill Part
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public string ItemCode
+        {
+            get
+            {
+                return m_itemCode;
             }
         }
         #endregion
