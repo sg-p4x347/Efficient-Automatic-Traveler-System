@@ -24,7 +24,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_bill = new Bill(obj["itemCode"], 1, m_quantity);
             }
         }
-        public Part(string itemCode, int quantity) : base(quantity) {
+        public Part(string itemCode, int quantity) : base(itemCode, quantity) {
             m_bill = new Bill(itemCode, 1, quantity);
         }
         public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
@@ -35,12 +35,12 @@ namespace Efficient_Automatic_Traveler_System
 
         public override bool CombinesWith(object[] args)
         {
-            throw new NotImplementedException();
+            return ItemCode == (string)args[0];
         }
 
-        public override string ExportTableRows(string clientType, StationClass station)
+        public override string ExportTableRows(StationClass station)
         {
-            throw new NotImplementedException();
+            return base.ExportTableRows(station);
         }
 
         public override double GetCurrentLabor(StationClass station = null)

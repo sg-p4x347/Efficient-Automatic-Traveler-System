@@ -17,7 +17,10 @@ namespace Efficient_Automatic_Traveler_System
         Scrap,
         Pack,
         Table,
-        Test
+        Chair,
+        ChairCarton,
+        MixedCarton,
+        Box
     }
     
     
@@ -50,11 +53,12 @@ namespace Efficient_Automatic_Traveler_System
         public qtyType Qty;
     }
     
-    abstract internal class Traveler : IForm, IPart
+    abstract internal class Traveler : IForm
     {
         #region Public Methods
         public Traveler() {
             NewID();
+            m_itemCode = "";
             m_quantity = 0;
             items = new List<TravelerItem>();
             m_parentOrderNums = new List<string>();
@@ -70,6 +74,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public Traveler(Form form) : this()
         {
+            ItemCode = form.ValueOf("itemCode");
             Update(form);
         }
         // Gets the base properties and orders of the traveler from a json string
@@ -77,7 +82,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
             m_ID = Convert.ToInt32(obj["ID"]);
-            
+            m_itemCode = obj["itemCode"];
             m_quantity = Convert.ToInt32(obj["quantity"]);
             
             foreach (string item in (new StringStream(obj["items"])).ParseJSONarray())
@@ -111,10 +116,9 @@ namespace Efficient_Automatic_Traveler_System
         //    // Import the part
         //    ImportPart(ref MAS);
         //}
-        public Traveler(int quantity) : this()
+        public Traveler(string itemCode, int quantity) : this()
         {
-            // set META information
-           
+            m_itemCode = itemCode;
             m_quantity = quantity;
             m_station = StationClass.GetStation("Start");
             NewID();
@@ -170,7 +174,7 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"ID",m_ID.ToString() },
-                
+                {"itemCode",m_itemCode.Quotate() },
                 {"quantity",m_quantity.ToString() },
                 {"items",Items.Stringify<TravelerItem>() },
                 {"parentOrders",m_parentOrderNums.Stringify<string>() },
@@ -203,11 +207,13 @@ namespace Efficient_Automatic_Traveler_System
                     string size = "";
                     switch (type)
                     {
-                        case LabelType.Tracking:    template = "4x2 Table Travel1";              break; // 4x2Pack --> in hall
-                        case LabelType.Scrap:       template = "4x2 Table Scrap1";               break;
-                        case LabelType.Pack:        template = "4x2 Table Carton EATS";          break;
-                        case LabelType.Table:       template = "4x6 Table EATS";                 break;
-                        case LabelType.Test:        template = "4x2 Table Carton EATS logo";     break;
+                        case LabelType.Tracking:    template = "4x2 Table Travel1";             break; // 4x2Pack --> in hall
+                        case LabelType.Scrap:       template = "4x2 Table Scrap1";              break;
+                        case LabelType.Pack:        template = "4x2 Table Carton EATS";         break;
+                        case LabelType.Table:       template = "4x6 Table EATS";                break;
+                        case LabelType.Chair:       template = "4x2 EdChair EATS";              break;
+                        case LabelType.ChairCarton: template = "4x6 EdChair Pack Carton EATS";  break;
+                        case LabelType.Box:         template = "4x2 Table Travel Box";          break;
                     }
                     size = template.Substring(0, 3).ToLower();
                     printer = item.Station.Printers.Find(x => x.ToLower().Contains(size));
@@ -441,7 +447,7 @@ namespace Efficient_Automatic_Traveler_System
                 obj.Add("qtyScrapped", QuantityScrapped().ToString());
                 obj.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
                 obj.Add("totalLabor",Math.Round(GetTotalLabor()).ToString());
-                obj.Add("members", '[' + ExportTableRows(clientType, station) + ']');
+                obj.Add("members", '[' + ExportTableRows( station) + ']');
             }
 
             if (clientType == "SupervisorClient") {
@@ -498,13 +504,18 @@ namespace Efficient_Automatic_Traveler_System
         // export for JSON viewer
         public virtual string ExportHuman()
         {
+            List<string> items = new List<string>();
+            foreach (TravelerItem item in Items)
+            {
+                items.Add(item.ExportHuman());
+            }
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"Date started", m_dateStarted.Quotate() },
                 {"ID",m_ID.ToString() },
                 {"Qty on traveler",m_quantity.ToString() },
                 {"Orders",m_parentOrderNums.Stringify() },
-                {"Items",Items.Stringify() },
+                {"Items",items.Stringify(false) },
                 {"Starting station",m_station.Name.Quotate() }
             };
             return obj.Stringify();
@@ -548,9 +559,24 @@ namespace Efficient_Automatic_Traveler_System
             detail.Add(m_station.Name);
             return detail.Stringify<string>().Trim('[').Trim(']');
         }
+        // export for operator view information
+        public virtual string ExportTableRows(StationClass station)
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            List<string> members = new List<string>();
+            members.Add(new NameValueQty<string, int>("Part", ItemCode, Quantity).ToString());
+            if (this is Part)
+            {
+                members.Add(new NameValueQty<string, string>("Description", (this as Part).Bill.BillDesc, "").ToString());
+            }
+            obj.Add("members", members.Stringify(false));
+            return obj.Stringify();
+        }
 
         public virtual void Update(Form form)
         {
+
+            // cannot update itemcode
             Quantity = Convert.ToInt32(form.ValueOf("quantity"));
             Comment = form.ValueOf("comment");
             Station = StationClass.GetStation(form.ValueOf("station"));
@@ -591,7 +617,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         // returns true if the specified traveler can combine with this one
         public abstract bool CombinesWith(object[] args);
-        public abstract string ExportTableRows(string clientType, StationClass station);
+        
         // advances the item to the next station
         public abstract void AdvanceItem(ushort ID, ITravelerManager travelerManager = null);
         // gets the next station for the given item
@@ -611,6 +637,34 @@ namespace Efficient_Automatic_Traveler_System
         }
         // pre
         public abstract Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS);
+        // get a list of fields from the label DB
+        protected string GetLabelFields(List<string> fieldNames)
+        {
+            string json = "";
+            // open the pack label database
+            System.IO.StreamReader labelRef = new StreamReader(@"\\MGFS01\ZebraPrinter\data\databases\production.csv");
+            string[] headerArray = labelRef.ReadLine().Split(',');
+
+            string line = labelRef.ReadLine();
+            while (line != "" && line != null)
+            {
+                string[] rowArray = line.Split(',');
+                if (ItemCode.Contains(rowArray[0]))
+                {
+                    for (int index = 0; index < headerArray.Count(); index++)
+                    {
+                        if (fieldNames.Contains(headerArray[index]))
+                        {
+                            json += ',' + headerArray[index].Quotate() + ':' + rowArray[index].Quotate();
+                        }
+                    }
+                    break;
+                }
+
+                line = labelRef.ReadLine();
+            }
+            return json;
+        }
         #endregion
         //--------------------------------------------------------
         #region Private Methods
@@ -860,19 +914,16 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public virtual Bill Part
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
 
         public string ItemCode
         {
             get
             {
                 return m_itemCode;
+            }
+            protected set
+            {
+                m_itemCode = value;
             }
         }
         #endregion

@@ -35,18 +35,18 @@ p {
 }
 /*Organizational divs*/
 div.queueArray {
+	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	flex-wrap: wrap;
 	justify-content: space-around;
 	width: 100%;
-	height: 100%;
 	overflow-y: hidden;
-	overflow-x: scroll;
+	overflow-x: auto;
 	background-color: #505050;
-	border: 4px inset #909090;
 }
 div.header {
+	box-sizing: border-box;
 	display: flex;
 	align-items: baseline;
 	width: 100%;
@@ -54,6 +54,24 @@ div.header {
 	vertical-align: baseline;
 	color: red;
 	text-shadow: 1px 1px 2px black;
+	border-bottom: 1px solid silver;
+}
+div.ribbonBar {
+	display: flex;
+	align-items: stretch;
+	padding-bottom: 8px;
+	padding-top: 8px;
+	
+}
+.ribbonItem {
+	display: flex;
+	flex-grow: 1;
+	padding: 8px;
+	align-items: center;
+	border-width: 1px;
+	border-style: solid;
+	border-image:
+      linear-gradient(to bottom,transparent, silver, transparent) 1 100%;
 }
 div.body {
 	display: flex;
@@ -99,38 +117,47 @@ div.summaryPopup table tr td,th {
 }
 #optionsBtn {
 	
-	float: right;
+	float: right
 }
-
+#searchBox {
+	width: 100%;
+}
+#searchForm{
+	width: 50%;
+}
+#viewForm {
+	min-width: 0px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-around;
+	width: 100%;
+}
+#logoutBtn {
+}
 /*Traveler Queue*/
 div.queueContainer {
-	padding: 4px;
 	box-sizing: border-box;
 	text-align: center;
 	display: flex;
 	flex-direction: column;
-	width: 200px;
-	height: 50%;
-	border: 2px inset gray;
+	width: 50%;
+	height: 100%;
+	border: 4px inset gray;
 }
 div.queueContainer--tall {
-	padding: 4px;
-	box-sizing: border-box;
-	text-align: center;
-	display: flex;
-	flex-direction: column;
 	width: 20%;
 	height: 100%;
-	border: 2px inset gray;
 }
 div.queue {
+	box-sizing: border-box;
 	font-size: 0.5em;
 	display: flex;
 	flex-direction: column-reverse;
-	border: 4px inset gray;
+	border: 2px solid black;
 	background-color: #404040;
 	overflow-y: auto;
-	width: 95%;
+	width: 100%;
 	height: 90%;
 }
 #travelerPopup {

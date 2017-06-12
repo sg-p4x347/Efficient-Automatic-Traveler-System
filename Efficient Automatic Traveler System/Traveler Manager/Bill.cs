@@ -116,6 +116,18 @@ namespace Efficient_Automatic_Traveler_System
             }
             return false;
         }
+        // return the labor(min) at the station as a double 
+        public double LaborAt(StationClass station)
+        {
+            Item item = ComponentItems.Find(i => station.LaborCodes.Contains(i.ItemCode));
+            if (item != null)
+            {
+                return item.QuantityPerBill;
+            } else
+            {
+                return 0.0;
+            }
+        }
         // Properties
         private bool m_imported = false;
         private string m_billNo = "";

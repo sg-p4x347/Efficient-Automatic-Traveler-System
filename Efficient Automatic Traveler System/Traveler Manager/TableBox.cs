@@ -50,22 +50,18 @@ namespace Efficient_Automatic_Traveler_System
             return obj.Stringify();
         }
         // returns a JSON formatted string to be sent to a client
-        public override string ExportTableRows(string clientType, StationClass station)
+        public override string ExportTableRows(StationClass station)
         {
             try
             {
+                Dictionary<string, string> obj = new StringStream(base.ExportTableRows(station)).ParseJSON(false);
+                List<string> members = new StringStream(obj["members"]).ParseJSONarray(false);
                 Table parentTable = ((Table)ParentTravelers[0]);
-                List<string> rows = new List<string>()
-                {
-                    new NameValueQty<string,string>("Table", parentTable.ItemCode,"").ToString(),
-                    new NameValueQty<string,string>("Table Shape",parentTable.Shape,"").ToString(),
-                    new NameValueQty<string, string>("Table Size", m_tableSize,"").ToString()
-                };
-                rows.AddRange(new StringStream(base.ExportTableRows(clientType, station)).ParseJSONarray(false));
-                Dictionary<string, string> obj = new Dictionary<string, string>()
-                {
-                    {"members",rows.Stringify(false) }
-                };
+                members.Add(new NameValueQty<string, string>("Table", parentTable.ItemCode, "").ToString());
+                members.Add(new NameValueQty<string, string>("Table Shape", parentTable.Shape, "").ToString());
+                members.Add(new NameValueQty<string, string>("Table Size", m_tableSize, "").ToString());
+
+                obj["members"] = members.Stringify(false);
                 return obj.Stringify();
             } catch (Exception ex)
             {
@@ -80,7 +76,7 @@ namespace Efficient_Automatic_Traveler_System
             string json = "\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
             switch (type)
             {
-                case LabelType.Tracking:
+                case LabelType.Box:
                     json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6") + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + ((Table)ParentTravelers[0]).ItemCode + "\"";

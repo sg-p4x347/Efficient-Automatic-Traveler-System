@@ -57,16 +57,16 @@ namespace Efficient_Automatic_Traveler_System
             return obj.Stringify();
         }
         // returns a JSON formatted string to be sent to a client
-        public override string ExportTableRows(string clientType, StationClass station)
+        public override string ExportTableRows(StationClass station)
         {
             try
             {
-                List<string> rows = new List<string>()
-            {
-                new NameValueQty<string, string>("Parent Traveler", ParentTravelers[0].ID.ToString("D6"),"").ToString(),
-                new NameValueQty<string, string>("Box Size", m_boxSize,"").ToString()
-            };
-                return rows.Stringify(false);
+                Dictionary<string, string> obj = new StringStream(base.ExportTableRows(station)).ParseJSON(false);
+                List<string> members = new StringStream(obj["members"]).ParseJSONarray(false);
+                members.Add(new NameValueQty<string, string>("Parent Traveler", ParentTravelers[0].ID.ToString("D6"), "").ToString());
+                members.Add(new NameValueQty<string, string>("Box Size", m_boxSize, "").ToString());
+                obj["members"] = members.Stringify(false);
+                return obj.Stringify();
             } catch (Exception ex)
             {
                 Server.LogException(ex);

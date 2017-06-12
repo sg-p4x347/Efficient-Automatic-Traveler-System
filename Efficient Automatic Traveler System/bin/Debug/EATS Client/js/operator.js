@@ -304,17 +304,7 @@ function Application () {
 				self.popupManager.Close(popup);
 				self.partTimer.Resume();
 				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("ChecklistSubmit",
-				{
-					travelerID: self.travelerView.traveler.ID,
-					eventType: "Scrapped",
-					time: application.partTimer.timerTime.asMinutes(),
-					itemID: (self.travelerView.item ? self.travelerView.item.ID : "undefined"),
-					
-					source: vendorRadio.checked ? "Vendor" : "Marco Group",
-					reason: scrapReasons.value,
-					startedWork: document.getElementById("startedWork").checked
-				});
+				var message = new InterfaceCall("ChecklistSubmit");
 				
 				//-----------------------------------------------
 			} else {
@@ -805,6 +795,7 @@ function TravelerView() {
 	}
 	this.LoadItem = function (traveler, item, sequenceID) {
 		var self = this;
+		self.Load(traveler);
 		//----------INTERFACE CALL-----------------------
 		/* var message = new InterfaceCall("LoadItem",
 		{

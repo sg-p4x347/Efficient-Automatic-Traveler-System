@@ -101,7 +101,7 @@ namespace Efficient_Automatic_Traveler_System
                                 } else if (Traveler.IsChair(item.ItemCode)) {
                                     newTraveler = (Traveler)new Chair(item.ItemCode, quantity);
                                 }
-                                if (traveler != null)
+                                if (newTraveler != null)
                                 {
                                     // RELATIONAL =============================================================
                                     item.ChildTraveler = newTraveler.ID;
@@ -319,7 +319,15 @@ namespace Efficient_Automatic_Traveler_System
                     //=================
                     // NEW
                     //=================
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Tracking) + " for item: " + traveler.PrintSequenceID(item));
+                    LabelType labelType = LabelType.Tracking;
+                    if (traveler is Chair)
+                    {
+                        labelType = LabelType.Chair;
+                    } else if (traveler is Box)
+                    {
+                        labelType = LabelType.Box;
+                    }
+                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, labelType) + " for item: " + traveler.PrintSequenceID(item));
                 }
                 if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
                 {

@@ -46,6 +46,15 @@ namespace Efficient_Automatic_Traveler_System
             obj["type"] = this.GetType().ToString().Quotate();
             return obj.Stringify();
         }
+        public virtual string ExportHuman()
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"Date",m_date.ToString("MM/dd/yyyy").Quotate() },
+                {"Type", this.GetType().Name.Quotate()}
+            };
+            return obj.Stringify();
+        }
         public static bool operator ==(Event A, Event B)
         {
             return (A.m_date == B.m_date);

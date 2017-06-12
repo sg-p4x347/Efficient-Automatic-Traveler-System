@@ -125,7 +125,7 @@ function Traveler(obj) {
 	}
 	obj.Select = function(state) {
 		obj.selected = state;
-		obj.checkBox.checked = state;
+		if (obj.checkBox) obj.checkBox.checked = state;
 		obj.DOMqueueItem.className = (state ? "queue__item twoEM selected " + obj.colorClass
 			: "queue__item twoEM " + obj.colorClass);
 	}

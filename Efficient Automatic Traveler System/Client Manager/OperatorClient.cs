@@ -63,11 +63,15 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> stationsObj = new Dictionary<string, string>();
             stationsObj.Add("stations", stations.Stringify());
             travelerJSON = travelerJSON.MergeJSON(stationsObj.Stringify()); // merge station properties
-            travelerJSON = travelerJSON.MergeJSON(traveler.ExportTableRows("OperatorClient", m_station));
+            travelerJSON = travelerJSON.MergeJSON(traveler.ExportTableRows(m_station));
             travelerJSON = travelerJSON.MergeJSON(traveler.ExportProperties(m_station).Stringify());
             return travelerJSON;
         }
-
+        public ClientMessage ChecklistSubmit(string json)
+        {
+            m_partStart = DateTime.Now;
+            return new ClientMessage();
+        }
         //------------------------------
         // Private members
         //------------------------------
@@ -153,7 +157,11 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                ProcessEvent evt = new ProcessEvent(m_user, m_station, traveler.GetCurrentLabor(m_station) - Convert.ToDouble(obj["time"]), (ProcessType)Enum.Parse(typeof(ProcessType), obj["eventType"]));
+                //traveler.GetCurrentLabor(m_station) - Convert.ToDouble(obj["time"])
+                DateTime now = DateTime.Now;
+                TimeSpan duration = now.Subtract(m_partStart);
+                m_partStart = now;
+                ProcessEvent evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, (ProcessType)Enum.Parse(typeof(ProcessType), obj["eventType"]));
                 
                 TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
                 return m_travelerManager.AddTravelerEvent(evt,traveler,item);
@@ -282,6 +290,10 @@ namespace Efficient_Automatic_Traveler_System
                     {"item",item.ToString() },
                     {"sequenceID",traveler.PrintSequenceID(item).Quotate() }
                 };
+                if (m_station == StationClass.GetStation("Table-Pack"))
+                {
+                    SendMessage(new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table)).ToString());
+                }
                 return new ClientMessage("LoadItem", returnParams.Stringify());
             }
             catch (Exception ex)
@@ -309,10 +321,10 @@ namespace Efficient_Automatic_Traveler_System
                                 SendMessage(LoadItem(json).ToString());
                                 // if this is Table pack station, print Table label on search submission 
                                 // (they scanned the barcode)
-                                if (m_station == StationClass.GetStation("Table-Pack"))
-                                {
-                                    return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
-                                }
+                                //if (m_station == StationClass.GetStation("Table-Pack"))
+                                //{
+                                //    return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
+                                //}
                             }
                             else
                             {

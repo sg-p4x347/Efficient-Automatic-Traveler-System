@@ -277,6 +277,13 @@ function PopupManager(blackout) {
 				selection.Initialize(self,innerParams);
 				nodeElement = selection.element;
 				break;
+			case "RadioButtons":
+				var innerParams = node.returnParam;
+				innerParams.callback = node.callback;
+				var radioButtons = new PopupRadioButtons(node.name,node.options,node.value,callback);
+				radioButtons.Initialize(self,innerParams);
+				nodeElement = radioButtons.element;
+				break;
 			case "Row":
 				var row = self.CreateHorizontalList();
 				row.className = "blackout__popup__controlPanel__row";
@@ -544,4 +551,34 @@ PopupSelection.prototype.Initialize = function (popupManager, object) {
 		object.value = self.element.value;
 		self.callback(object);
 	}
+}
+function PopupRadioButtons(name, options, value, callback) {
+	PopupControl.call(this, name, callback);
+	this.options = options;
+	this.value = value;
+}
+// calls the callback with: callback(object,value);
+PopupRadioButtons.prototype.Initialize = function (popupManager, object) {
+	var self = this;
+	self.element = document.createElement("DIV");
+	self.element.className = "dark oneEM";
+	// add the options
+	self.options.forEach(function (optionValue) {
+		var row = document.createElement("DIV");
+		row.className = "list--horizontal";
+		var radioButton = document.createElement("INPUT");
+		radioButton.type = "radio";
+		row.appendChild(radioButton);
+		var desc = document.createElement("P");
+		desc.innerHTML = optionValue;
+		row.appendChild(desc);
+		self.element.appendChild(row);
+		radioButton.onchange = function () {
+			if (!this.checked) {
+				object.value = optionValue;
+				self.callback(object);
+			}
+		}
+	});
+	
 }

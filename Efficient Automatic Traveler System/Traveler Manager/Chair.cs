@@ -25,16 +25,14 @@ namespace Efficient_Automatic_Traveler_System
         public Chair(string itemCode, int quantity) : base(itemCode,quantity) {
         }
         // returns a JSON formatted string to be sent to a client
-        public override string ExportTableRows(string clientType, StationClass station)
+        public override string ExportTableRows(StationClass station)
         {
-            string json = "";
-            return json;
+            return base.ExportTableRows(station);
         }
         public async override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
             await base.ImportInfo(travelerManager, orderManager,MAS);
         }
-        public override
         // labels
         public override string GetLabelFields(ushort itemID, LabelType type)
         {
@@ -42,18 +40,33 @@ namespace Efficient_Automatic_Traveler_System
             string json = "\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
             switch (type)
             {
-                case LabelType.Tracking:
-                    json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
-                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + Part.BillDesc + "\"";
+                case LabelType.Chair:
+                    json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
+                    json += GetLabelFields(new List<string>()
+                    {
+                        "Marco Item #",
+                        "DescriptionShort",
+                        "Color1",
+                        "Color2"
+                    });
                     break;
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
-                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
+                    json += ",\"Desc1\":\"" + Bill.BillNo + "\"";
                     json += ",\"Desc2\":\"" + "!!" + PrintSequenceID(item) + "!!" + "\"";
                     break;
                 case LabelType.Pack:
                     json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";
+                    json += GetLabelFields(new List<string>()
+                    {
+                        "Marco Item #",
+                        "DescriptionShort",
+                        "Color1",
+                        "Color2",
+                        "PcsPerCarton"
+                    });
+                    break;
+                case LabelType.MixedCarton:
                     break;
             }
             return json;
@@ -108,24 +121,17 @@ namespace Efficient_Automatic_Traveler_System
 
         public override double GetTotalLabor(StationClass station)
         {
-            throw new NotImplementedException();
-        }
-
-        public override bool CombinesWith(object[] args)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
-        {
-            throw new NotImplementedException();
+            return 0.0;
         }
 
         public override double GetCurrentLabor(StationClass station = null)
         {
-            throw new NotImplementedException();
+            return Bill.LaborAt(station);
         }
 
+        #endregion
+        #region Private Methods
+        
         #endregion
         //--------------------------------------------------------
         #region Properties

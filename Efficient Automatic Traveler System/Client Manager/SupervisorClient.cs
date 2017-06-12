@@ -21,6 +21,7 @@ namespace Efficient_Automatic_Traveler_System
             m_travelerManager = travelerManager;
             m_travelers = m_travelerManager.GetTravelers;
             m_viewState = ItemState.PreProcess;
+            m_viewType = typeof(Table);
             SendMessage((new ClientMessage("InitStations",StationClass.GetStations().Stringify())).ToString());
             SendMessage((new ClientMessage("InitLabelTypes", ExtensionMethods.Stringify<LabelType>())).ToString());
             SendMessage((new ClientMessage("InterfaceOpen")).ToString());
@@ -33,8 +34,16 @@ namespace Efficient_Automatic_Traveler_System
             travelers = m_travelerManager.GetTravelers;
             Dictionary<string, string> message = new Dictionary<string, string>();
             List<string> travelerStrings = new List<string>();
-
-            foreach (Traveler traveler in travelers.Where(x => x.State == m_viewState || x.Items.Exists(y => y.State == m_viewState)))
+            List<Traveler> filtered = new List<Traveler>(travelers);
+            if (m_filterState)
+            {
+                filtered.RemoveAll(x => (x.State != m_viewState && !x.Items.Exists(y => y.State == m_viewState)));
+            }
+            if (m_filterType)
+            {
+                filtered.RemoveAll(x => !m_viewType.IsAssignableFrom(x.GetType()));
+            }
+            foreach (Traveler traveler in filtered)
             {
                 
                 travelerStrings.Add(ExportTraveler(traveler));
@@ -88,6 +97,9 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 m_viewState = (ItemState)Enum.Parse(typeof(ItemState), obj["viewState"]);
+                m_viewType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + obj["viewType"]);
+                m_filterState = Convert.ToBoolean(obj["filterState"]);
+                m_filterType = Convert.ToBoolean(obj["filterType"]);
                 HandleTravelersChanged(m_travelerManager.GetTravelers);
             }
             catch (Exception ex)
@@ -885,6 +897,9 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------------------
         #region Properties
         private ItemState m_viewState;
+        private Type m_viewType;
+        private bool m_filterState;
+        private bool m_filterType;
         #endregion
         //----------
         // Events

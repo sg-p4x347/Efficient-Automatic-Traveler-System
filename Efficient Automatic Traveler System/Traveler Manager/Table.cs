@@ -64,7 +64,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // create a Table from partNo, quantity, and a MAS connection
-        public Table(string itemCode, int quantity) : base(quantity) {
+        public Table(string itemCode, int quantity) : base(itemCode,quantity) {
             m_part = new Bill(itemCode, 1, quantity);
         }
         public override bool CombinesWith(object[] args)
@@ -74,7 +74,7 @@ namespace Efficient_Automatic_Traveler_System
         public override string ToString()
         {
             Dictionary<string, string> obj = new StringStream(base.ToString()).ParseJSON(false);
-            obj.Add("itemCode", (m_part != null ? m_part.BillNo : "").Quotate());
+            //obj.Add("itemCode", (m_part != null ? m_part.BillNo : "").Quotate());
             return obj.Stringify();
         }
         // returns a JSON formatted string to be sent to a client
@@ -84,20 +84,18 @@ namespace Efficient_Automatic_Traveler_System
         //    obj.Add("itemCode", ItemCode);
         //    return obj.Stringify();
         //}
-        public override string ExportTableRows(string clientType, StationClass station)
+        public override string ExportTableRows(StationClass station)
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            List<string> members = new List<string>();
-            members.Add(new NameValueQty<string, int>("Part", ItemCode, Quantity).ToString());
-            members.Add(new NameValueQty<string, string>("Description", m_part.BillDesc, "").ToString());
-            if (clientType == "OperatorClient" && (station.Type == "heian" || station.Type == "weeke")) {
+            Dictionary<string, string> obj = new StringStream(base.ExportTableRows(station)).ParseJSON(false);
+            List<string> members = new StringStream(obj["members"]).ParseJSONarray(false);
+            if (station.Type == "heian" || station.Type == "weeke") {
                 members.Add(new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString());
                 members.Add(new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString());
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 members.Add(new NameValueQty<string, string>("Color", m_color, "").ToString());
                 
                 if (Comment != "") members.Add(new NameValueQty<string, string>("Comment", Comment, "").ToString());
-            } else if (clientType == "OperatorClient" && station == StationClass.GetStation("Vector")) {
+            } else if (station == StationClass.GetStation("Vector")) {
                 members.Add(new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString());
                 members.Add(new NameValueQty<string, string>("Color", m_color, "").ToString());
                 members.Add(new NameValueQty<string, string>("Edgebanding", BandingColor, "").ToString());
@@ -110,7 +108,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             double rate = GetRate(Part.ComponentBills[0], station);
             members.Add(new NameValueQty<string, string>("Rate", rate > 0 ? rate.ToString() + " min" : "No rate", "").ToString());
-            obj.Add("members", members.Stringify(false));
+            obj["members"] = members.Stringify(false);
             return obj.Stringify();
         }
         public override string ExportHuman()
@@ -204,11 +202,14 @@ namespace Efficient_Automatic_Traveler_System
             if (station.Type == "heian" && travelerManager != null)
             {
                 int qtyToAdvance = Items.Count(i => i.Station == station && i.IsComplete());
-                // Create a box traveler for these items
-                TableBox box = CreateBoxTraveler();
-                box.Quantity = qtyToAdvance;
-                box.EnterProduction(travelerManager);
-                travelerManager.GetTravelers.Add(box);
+                if (qtyToAdvance > 0)
+                {
+                    // Create a box traveler for these items
+                    TableBox box = CreateBoxTraveler();
+                    box.Quantity = qtyToAdvance;
+                    box.EnterProduction(travelerManager);
+                    travelerManager.GetTravelers.Add(box);
+                }
             }
             base.Advance(station, travelerManager);
         }
@@ -546,33 +547,33 @@ namespace Efficient_Automatic_Traveler_System
             tableRef.Close();
         }
         // get a list of fields from the label DB
-        private string GetLabelFields(List<string> fieldNames)
-        {
-            string json = "";
-            // open the pack label database
-            System.IO.StreamReader labelRef = new StreamReader(@"\\MGFS01\ZebraPrinter\data\databases\production.csv");
-            string[] headerArray = labelRef.ReadLine().Split(',');
+        //private string GetLabelFields(List<string> fieldNames)
+        //{
+        //    string json = "";
+        //    // open the pack label database
+        //    System.IO.StreamReader labelRef = new StreamReader(@"\\MGFS01\ZebraPrinter\data\databases\production.csv");
+        //    string[] headerArray = labelRef.ReadLine().Split(',');
 
-            string line = labelRef.ReadLine();
-            while (line != "" && line != null)
-            {
-                string[] rowArray = line.Split(',');
-                if (Part.BillNo.Contains(rowArray[0]))
-                {
-                    for (int index = 0; index < headerArray.Count(); index++)
-                    {
-                        if (fieldNames.Contains(headerArray[index]))
-                        {
-                            json += ',' + headerArray[index].Quotate() + ':' + rowArray[index].Quotate();
-                        }
-                    }
-                    break;
-                }
+        //    string line = labelRef.ReadLine();
+        //    while (line != "" && line != null)
+        //    {
+        //        string[] rowArray = line.Split(',');
+        //        if (Part.BillNo.Contains(rowArray[0]))
+        //        {
+        //            for (int index = 0; index < headerArray.Count(); index++)
+        //            {
+        //                if (fieldNames.Contains(headerArray[index]))
+        //                {
+        //                    json += ',' + headerArray[index].Quotate() + ':' + rowArray[index].Quotate();
+        //                }
+        //            }
+        //            break;
+        //        }
 
-                line = labelRef.ReadLine();
-            }
-            return json;
-        }
+        //        line = labelRef.ReadLine();
+        //    }
+        //    return json;
+        //}
         // Finds all the components in the top level bill, setting key components along the way
         public void FindComponents(Bill bill)
         {
@@ -781,11 +782,11 @@ namespace Efficient_Automatic_Traveler_System
                 return m_part;
             }
         }
-        public string ItemCode
+        new public string ItemCode
         {
             get
             {
-                return m_part != null ? m_part.BillNo : "";
+                return m_part != null ? m_part.BillNo : base.ItemCode;
             }
         }
         internal int ColorNo

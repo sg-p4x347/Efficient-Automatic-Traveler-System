@@ -26,7 +26,10 @@ function Application () {
 	this.travelers = [];
 	this.queues = {};
 	this.view = {
-		viewState:undefined
+		filterState: true,
+		filterType: true,
+		viewState:undefined,
+		viewType:undefined
 	}
 	// MISC
 	this.lastSelectedStation;
@@ -203,6 +206,7 @@ function Application () {
 					copy.queueIndex = self.queues[station].travelers.length;
 					self.queues[station].AddTraveler(copy);
 				}
+				self.queues[station].RePaint();
 			}
 		});
 		// update summary, if open
@@ -449,9 +453,10 @@ function Application () {
 	//----------------
 	// DOM events
 	//----------------
-	this.ViewChanged = function (viewForm) {
+
+	this.FilterChanged = function () {
 		var self = this;
-		
+		var filterType = document.getElementById("filterType").checked;
 		var viewStateRadios = document.getElementsByName("viewState");
 		for (var i = 0; i < viewStateRadios.length; i++) {
 			if (viewStateRadios[i].checked) {
@@ -459,13 +464,31 @@ function Application () {
 				break;
 			}
 		}
+		var viewTypeRadios = document.getElementsByName("viewType");
+		for (var i = 0; i < viewTypeRadios.length; i++) {
+			if (viewTypeRadios[i].checked) {
+				self.view.viewType = viewTypeRadios[i].value;
+				break;
+			}
+			
+		}
+		// disable/enable
+		for (var i = 0; i < viewTypeRadios.length; i++) {
+			if (!filterType) {
+				viewTypeRadios[i].disabled = true;
+			} else {
+				viewTypeRadios[i].disabled = false;
+			}
+		}
 		
 		//----------INTERFACE CALL-----------------------
 		var message = new InterfaceCall("SetViewFilter",
 		{
-			viewState: self.view.viewState
+			filterState: true,
+			filterType: filterType,
+			viewState: self.view.viewState,
+			viewType: self.view.viewType
 		},"This");
-		
 		//-----------------------------------------------
 	}
 	this.Redirect = function(location) {
@@ -721,7 +744,12 @@ function Application () {
 			popup.appendChild(newTravelerBtn);
 			
 			self.popupManager.AddCustom(popup); */
-		
+		//----------------
+		// View filter
+		//----------------
+		document.getElementById("viewForm").onchange = function () {
+			self.FilterChanged();
+		}
 		//----------------
 		// queueArray
 		//----------------
@@ -805,7 +833,6 @@ function TravelerQueue(station) {
 	}
 	this.AddTraveler = function (traveler) {
 		this.travelers.push(traveler);
-		this.RePaint();
 	}
 	this.UnshiftTraveler = function (traveler) {
 		this.travelers.unshift(traveler);
@@ -829,36 +856,41 @@ function TravelerQueue(station) {
 	}
 	this.RePaint = function () {
 		var self = this;
-		// clear old DOM objects
-		while (self.DOMelement.hasChildNodes()) {
-			self.DOMelement.removeChild(self.DOMelement.lastChild);
-		}
-		var totalQty = 0;
-		var totalLabor = 0;
-		// create and add the new DOM objects
-		self.travelers.forEach(function (traveler) {
-			var DOMqueueItem = traveler.CreateQueueItem(self.station.name);
-			DOMqueueItem.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("LoadTravelerAt",
-				{
-					travelerID: traveler.ID,
-					station: self.station.name
-				});
+		if (self.travelers.length > 0) {
+			self.DOMcontainer.style.display = "flex";
+			// clear old DOM objects
+			while (self.DOMelement.hasChildNodes()) {
+				self.DOMelement.removeChild(self.DOMelement.lastChild);
+			}
+			var totalQty = 0;
+			var totalLabor = 0;
+			// create and add the new DOM objects
+			self.travelers.forEach(function (traveler) {
+				var DOMqueueItem = traveler.CreateQueueItem(self.station.name);
+				DOMqueueItem.onclick = function () {
+					//----------INTERFACE CALL-----------------------
+					var message = new InterfaceCall("LoadTravelerAt",
+					{
+						travelerID: traveler.ID,
+						station: self.station.name
+					});
+					
+					//-----------------------------------------------
+				}
+				DOMqueueItem.ontouchmove = function (event) {
+					application.BeginDrag(traveler,self,event);
+				}
 				
-				//-----------------------------------------------
-			}
-			DOMqueueItem.ontouchmove = function (event) {
-				application.BeginDrag(traveler,self,event);
-			}
-			
-			//self.PromptAction(traveler);
-			self.DOMelement.appendChild(DOMqueueItem);
-			totalQty += traveler.quantity;
-			totalLabor += traveler.totalLabor;
-		});
-		self.totalQtyElem.innerHTML = totalQty;
-		self.totalLaborElem.innerHTML = totalLabor.toFixed(1);
+				//self.PromptAction(traveler);
+				self.DOMelement.appendChild(DOMqueueItem);
+				totalQty += traveler.quantity;
+				totalLabor += traveler.totalLabor;
+			});
+			self.totalQtyElem.innerHTML = totalQty;
+			self.totalLaborElem.innerHTML = totalLabor.toFixed(1);
+		} else {
+			self.DOMcontainer.style.display = "none";
+		}
 	}
 	
 	this.BalanceSliders = function(qtyMoving,qtyStaying,movingBar,stayingBar,traveler) {
@@ -872,7 +904,7 @@ function TravelerQueue(station) {
 		self.DOMcontainer = document.createElement("DIV");
 		self.DOMcontainer.className = "queueContainer";
 		if (station.name == "Start") {
-			self.DOMcontainer.className = "queueContainer--tall";
+			self.DOMcontainer.className = "queueContainer queueContainer--tall";
 		}
 		var queueTitle = document.createElement("DIV");
 		queueTitle.className = "heading";

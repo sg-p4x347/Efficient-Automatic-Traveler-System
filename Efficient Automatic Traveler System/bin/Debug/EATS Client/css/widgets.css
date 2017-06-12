@@ -141,11 +141,29 @@ div.percentContainer {
 	opacity: 1.0;
 }
 
-
+input.searchBox {
+	width: 130px;
+    box-sizing: border-box;
+    border: 2px solid gray;
+    border-radius: 4px;
+    background-image: url('../img/searchicon.png');
+    background-position: 10px 10px; 
+    background-repeat: no-repeat;
+    padding: 12px 20px 12px 40px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+input.searchBox:focus {
+	border-color: silver;
+}
 /*flex modifiers*/
 .justify-space-between {
 	display: flex;
 	justify-content: space-between;
+}
+.justify-space-around {
+	display: flex;
+	justify-content: space-around;
 }
 .justify-center {
 	display: flex;
@@ -356,6 +374,11 @@ div.percentContainer {
 .bottomAlign {
 	vertical-align: bottom;
 }
+/* flex alignment */
+.align-items-start {
+	display: flex;
+	align-items: flex-start;
+}
 /* margins */
 .stdMargin, .button {
 	margin: 4px;
@@ -371,7 +394,6 @@ div.percentContainer {
 	overflow-x: auto;
 }
 div.queue__item {
-	transition-duration: 0.25s;
 	
 	border-radius: 8px;
 	font-family: "Arial Black", Gadget, sans-serif;
@@ -411,6 +433,12 @@ div.queue__item__qty {
 }
 .mediumBorder {
 	border: 2px solid black;
+}
+.aeroBars {
+	border-width: 1px;
+	border-style: solid;
+	border-image:
+      linear-gradient(to bottom,transparent, silver, transparent) 1 100%;
 }
 /* Tooltip text */
 .tooltip .tooltiptext {

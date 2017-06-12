@@ -97,8 +97,8 @@ namespace Efficient_Automatic_Traveler_System
             Form form = new Form();
             form.Title = "Kanban Item";
             form.Textbox("itemCode", "Item Code");
-            form.Integer("minStockQty", "Minimum balance",10);
-            form.Integer("injectionQty", "Traveler quantity", 10);
+            form.Integer("minStockQty", "Minimum balance", min: 1, value:1);
+            form.Integer("injectionQty", "Traveler quantity", min: 1, value:1);
             return form;
         }
 
@@ -107,8 +107,8 @@ namespace Efficient_Automatic_Traveler_System
             Form form = new Form();
             form.Title = "Kanban Item";
             form.Textbox("itemCode", "Item Code", m_itemCode);
-            form.Integer("minStockQty", "Minimum balance", m_minStockQty);
-            form.Integer("injectionQty", "Traveler quantity", m_injectionQty);
+            form.Integer("minStockQty", "Minimum balance", min: 1, value: m_minStockQty);
+            form.Integer("injectionQty", "Traveler quantity", min: 1, value: m_injectionQty);
             return form;
         }
 

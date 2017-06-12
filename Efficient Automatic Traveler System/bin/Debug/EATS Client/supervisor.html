@@ -69,23 +69,40 @@
 		<div class = "header twoEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
 			<span style = "color: #001a66;">Supervisor</span>
 		</div>
-		<div class = "list--horizontal">
+		<div class = "ribbonBar justify-space-between list--horizontal">
 			<!-- SEARCH FORM -->
-			<form id = "searchForm" class = "list--horizontal">
-				<p>Search</p>
-				<input id = "searchBox" class = "dark inset twoEM" type = "search" pattern = "\d*|(\d*-\d*)|([a-zA-Z0-9_-]){7}$"><!---->
+			<form id = "searchForm" class = "ribbonItem list--horizontal">
+				<input id = "searchBox" class = "twoEM dark white searchBox" type = "text" pattern = "\d*|(\d*-\d*)|([a-zA-Z0-9_-]){7}$" placeholder="Search.."><!---->
 			</form>
 			<!-- VIEW FORM -->
-			<form id = "viewForm" style = "white-space: nowrap;" onchange = "application.ViewChanged(this)">
-				<p>View</p><br>
-				<input 	id = "viewPreProcess"	 type = "radio" name = "viewState" value = "PreProcess" checked>Pre-Process<br>
-				<input 	id = "viewInProcess" 	type = "radio" name = "viewState" value = "InProcess">In-Process<br>
-				<input 	id = "viewPostProcess" 	type = "radio" name = "viewState" value = "PostProcess">Post-Process
+			<form id = "viewForm" class = "ribbonItem" style = "white-space: nowrap;" onchange = "application.ViewChanged(this)">
+				<p class = "bold darkGrey">Filter</p>
+				<div class = "list--horizontal justify-space-around">
+					<div>
+					<p class = "bold">State</p><br>
+					<input 	id = "viewPreProcess"	 type = "radio" name = "viewState" value = "PreProcess" checked>Pre-Process<br>
+					<input 	id = "viewInProcess" 	type = "radio" name = "viewState" value = "InProcess">In-Process<br>
+					<input 	id = "viewPostProcess" 	type = "radio" name = "viewState" value = "PostProcess">Post-Process
+					</div>
+					<div>
+					
+					<input id = "filterType" type = "checkbox" checked>
+					<p class = "bold">Type</p><br>
+					<input 	id = "viewTables"	 type = "radio" name = "viewType" value = "Table" checked>Table<br>
+					<input 	id = "viewChairs" 	type = "radio" name = "viewType" value = "Chair">Chair<br>
+					<input 	id = "viewParts" 	type = "radio" name = "viewType" value = "Part">Part<br>
+					<input 	id = "viewChairs" 	type = "radio" name = "viewType" value = "Box">Box
+					</div>
+				</div>
 			</form>
 			<!-- LOGOUT BUTTON -->
-			<div id = "logoutBtn" class = "dark button oneEM disabled">Logout</div>
+			<div class = "ribbonItem">
+				<div id = "logoutBtn" class = "dark button oneEM disabled">Logout</div>
+			</div>
 			<!-- OPTIONS BUTTON -->
-			<img id = "superOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
+			<div class = "ribbonItem middleAlign">
+				<img id = "superOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
+			</div>
 		</div>
 		<div class = "body">
 			<div id = "queueArray" class = "queueArray"></div> 

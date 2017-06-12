@@ -68,6 +68,28 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
+        public string ExportHuman()
+        {
+            List<string> history = new List<string>();
+            foreach (Event evt in m_history)
+            {
+                history.Add(evt.ExportHuman());
+            }
+            Dictionary<string, string> obj = new Dictionary<string, string>()
+            {
+                {"ID",m_ID.ToString()},
+                {"Sequence No",m_sequenceNo.ToString() },
+                {"Replacement", m_replacement.ToString().ToLower() },
+                {"Scrapped", m_scrapped.ToString().ToLower()},
+                {"Station",Station.Name.Quotate() },
+                {"ItemCode",m_itemCode.Quotate() },
+                {"Last station",m_lastStation.Name.Quotate() },
+                {"History",history.Stringify(false) },
+                {"Order",m_order.Quotate() },
+                {"State",m_state.ToString().Quotate() }
+            };
+            return obj.Stringify();
+        }
         public double ProcessTimeAt(StationClass station)
         {
             return m_history.OfType<ProcessEvent>().ToList().Where(evt => evt.Station == station).Sum(e => e.Duration);
