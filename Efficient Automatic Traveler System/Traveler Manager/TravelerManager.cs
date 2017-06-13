@@ -28,6 +28,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             get;
         }
+        void OnTravelersChanged(List<Traveler> travelers);
     }
     interface IOperatorActions
     {
@@ -238,6 +239,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void RemoveTraveler(int ID)
         {
+            Traveler toRemove = FindTraveler(ID);
             // remove itself from order items
             foreach (string orderNo in FindTraveler(ID).ParentOrderNums)
             {
@@ -245,6 +247,11 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     item.ChildTraveler = -1;
                 }
+            }
+            foreach (Traveler traveler in m_travelers)
+            {
+                traveler.ChildTravelers.Remove(toRemove);
+                traveler.ChildIDs.Remove(toRemove.ID);
             }
             //// remove itself from parents
             //foreach (int parentID in traveler.Parents)
@@ -713,7 +720,7 @@ namespace Efficient_Automatic_Traveler_System
                 return false;
             }
         }
-        private void OnTravelersChanged(List<Traveler> travelers)
+        public void OnTravelersChanged(List<Traveler> travelers)
         {
             // Update the travelers.json file with all the current travelers
             Backup();

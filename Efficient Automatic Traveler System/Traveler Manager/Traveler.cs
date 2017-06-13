@@ -121,7 +121,6 @@ namespace Efficient_Automatic_Traveler_System
             m_itemCode = itemCode;
             m_quantity = quantity;
             m_station = StationClass.GetStation("Start");
-            NewID();
             m_state = ItemState.PreProcess;
         }
         
@@ -332,15 +331,15 @@ namespace Efficient_Automatic_Traveler_System
         // advances all completed items at the specified station
         public virtual void Advance(StationClass station, ITravelerManager travelerManager = null)
         {
-            foreach (TravelerItem item in Items)
+            foreach (TravelerItem item in CompletedItems(station))
             {
-                if (item.Station == station && item.IsComplete())
-                {
-                    AdvanceItem(item.ID, travelerManager);
-                }
+                AdvanceItem(item.ID, travelerManager);
             }
         }
-
+        public List<TravelerItem> CompletedItems(StationClass station)
+        {
+            return Items.Where(item => item.Station == station && item.IsComplete()).ToList();
+        }
         public TravelerItem AddItem(StationClass station)
         {
             // find the highest id

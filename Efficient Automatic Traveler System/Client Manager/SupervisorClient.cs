@@ -210,7 +210,8 @@ namespace Efficient_Automatic_Traveler_System
 
         public ClientMessage LoadItem(string json)
         {
-            return m_travelerManager.LoadItem(json);
+            return ItemPopup(json);
+            //return m_travelerManager.LoadItem(json);
         }
         // the fields that are visible in the traveler popup
         public ClientMessage TravelerPopup(string json)
@@ -357,6 +358,20 @@ namespace Efficient_Automatic_Traveler_System
                         );
                     }
                 }
+                if (traveler.Items.Count > 0)
+                {
+                    Column items = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
+                    foreach (TravelerItem item in traveler.Items)
+                    {
+                        items.Add(new Button(traveler.PrintSequenceID(item), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}"));
+                    }
+                    fields.Add(
+                        new Row(style: spaceBetween)
+                        {
+                            new TextNode("Items",styleClasses: new Style("leftAlign")), items
+                        }
+                    );
+                }
 
                 Column controls = new Column()
                 {
@@ -444,6 +459,172 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error loading order popup");
+            }
+        }
+        // the item popup
+        public ClientMessage ItemPopup(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+
+                Column fields = new Column(true);
+                fields.Add(
+                    new Row(styleClasses: new Style("justify-space-between"))
+                    {
+                        new TextNode("Traveler",styleClasses: new Style("leftAlign")), new Button(traveler.ID.ToString(),"LoadTraveler",json)
+                    }
+                );
+                fields.Add(
+                    new Row(styleClasses: new Style("justify-space-between"))
+                    {
+                        new TextNode("Station",styleClasses: new Style("leftAlign")), new Selection("Station","MoveItem",StationClass.GetStations().Select(s => s.Name).ToList(),item.Station.Name,json)
+                    }
+                );
+                fields.Add(
+                    new Row(styleClasses: new Style("justify-space-between"))
+                    {
+                        new TextNode("ItemCode",styleClasses: new Style("leftAlign")), new TextNode(item.ItemCode,styleClasses: new Style("white","rightAlign","shadow"))
+                    }
+                );
+                fields.Add(
+                    new Row(styleClasses: new Style("justify-space-between"))
+                    {
+                        new TextNode("State",styleClasses: new Style("leftAlign")), new TextNode(item.State.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                    }
+                );
+                if (item.History.Count > 0)
+                {
+                    Column history = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
+                    int index = 0;
+                    foreach (Event evt in item.History)
+                    {
+                        history.Add(new Button(evt.Date.ToString("MM/dd/yyyy") + " " + (evt is ScrapEvent ? "Scrapped" : evt is ProcessEvent ? ((ProcessEvent)evt).Process.ToString(): evt is LogEvent ? ((LogEvent)evt).LogType.ToString() : "Event"), "EventPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + ",\"eventIndex\":" + index + "}"));
+                        index++;
+                    }
+                    fields.Add(
+                        new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                            new TextNode("History",styleClasses: new Style("leftAlign")), history
+                        }
+                    );
+                }
+                Column controls = new Column()
+                {
+
+                };
+                
+                return new ClientMessage("ControlPanel", new ControlPanel(traveler.PrintSequenceID(item), new Row() { fields, controls }).ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading item popup");
+            }
+        }
+        public string MoveItem(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                StationClass station = StationClass.GetStation(obj["value"]);
+                List<string> travelerIDs = new List<string>();
+                if (obj.ContainsKey("travelerIDs")) travelerIDs = new StringStream(obj["travelerIDs"]).ParseJSONarray();
+                if (obj.ContainsKey("travelerID")) travelerIDs.Add(obj["travelerID"]);
+                foreach (string ID in travelerIDs)
+                {
+                    Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(ID));
+                    if (traveler != null && station != null)
+                    {
+                        TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+                        if (item != null)
+                        {
+                            item.Station = station;
+                        }
+                    }
+                }
+                m_travelerManager.OnTravelersChanged(m_travelerManager.GetTravelers);
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage.ToString();
+        }
+        public ClientMessage EventPopup(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+                Event evt = item.History[Convert.ToInt32(obj["eventIndex"])];
+
+                Column fields = new Column(true);
+                fields.Add(
+                    new Row(styleClasses: new Style("justify-space-between"))
+                    {
+                        new TextNode("Item",styleClasses: new Style("leftAlign")), new Button(traveler.PrintSequenceID(item),"ItemPopup",json)
+                    }
+                );
+                fields.Add(
+                    new Row(styleClasses: new Style("justify-space-between"))
+                    {
+                        new TextNode("Date",styleClasses: new Style("leftAlign")), new TextNode(evt.Date.ToString("MM/dd/yyyy @ hh:mm tt"),styleClasses: new Style("white","rightAlign","shadow"))
+                    }
+                );
+                if (evt is ProcessEvent) {
+                    ProcessEvent process = (ProcessEvent)evt;
+                    fields.Add(
+                        new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                        new TextNode("Station",styleClasses: new Style("leftAlign")), new TextNode(process.Station.Name,styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                    fields.Add(
+                        new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                        new TextNode("Process",styleClasses: new Style("leftAlign")), new TextNode(process.Process.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                    fields.Add(
+                        new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                        new TextNode("Duration",styleClasses: new Style("leftAlign")), new TextNode(Math.Round(process.Duration,2).ToString() + " min",styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                    fields.Add(
+                        new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                        new TextNode("User",styleClasses: new Style("leftAlign")), new TextNode(process.User.Name,styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                } else
+                {
+                    LogEvent log = (LogEvent)evt;
+                    fields.Add(
+                        new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                        new TextNode("Station",styleClasses: new Style("leftAlign")), new TextNode(log.Station.Name,styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                    fields.Add(
+                        new Row(styleClasses: new Style("justify-space-between"))
+                        {
+                        new TextNode("Log type",styleClasses: new Style("leftAlign")), new TextNode(log.LogType.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                        }
+                    );
+                }
+                return new ClientMessage("ControlPanel", new ControlPanel(traveler.PrintSequenceID(item) + " Event", fields).ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading item popup");
             }
         }
         public ClientMessage MultiTravelerOptions(string json)

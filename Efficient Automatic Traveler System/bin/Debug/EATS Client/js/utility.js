@@ -183,7 +183,7 @@ function Timer(DOMelement) {
 	
 	this.Clear = function () {
 		this.Stop();
-		this.DOMelement.className = "silver";
+		this.DOMelement.className = "bold white shadow";
 		this.DOMelement.innerHTML = "--:--:--";
 	}
 	this.Start = function (time) {
@@ -207,13 +207,13 @@ function Timer(DOMelement) {
 			self.timerTime = moment.duration(self.timerTime - 1000, 'milliseconds');
 			if (self.timerTime.hours() < 0 || self.timerTime.minutes() < 0 || self.timerTime.seconds() < 0 ? "-" : "") {
 				self.DOMelement.innerHTML = "-";
-				self.DOMelement.className = "red shadow";
+				self.DOMelement.className = "bold red shadow";
 			} else {
 				self.DOMelement.innerHTML = "";
 				if (self.timerTime.hours() == 0 && self.timerTime.minutes() == 0 && self.timerTime.seconds() < 30) {
-					self.DOMelement.className = "yellow";
+					self.DOMelement.className = "bold yellow shadow";
 				} else {
-					self.DOMelement.className = "white";
+					self.DOMelement.className = "bold white shadow";
 				}
 			}
 			self.DOMelement.innerHTML += pad(Math.abs(self.timerTime.hours()),2) + ":" + pad(Math.abs(self.timerTime.minutes()),2) + ":" + pad(Math.abs(self.timerTime.seconds()),2);

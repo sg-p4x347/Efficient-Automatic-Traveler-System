@@ -51,17 +51,19 @@
 		<div class = "header">
 			<div class = "list--horizontal justify-space-between">
 				<!-- STATION TIMER -->
-				<div class = "timer twoEM">
+				<div class = "black bold timer twoEM">
 					<p>Time @</p> &nbsp <p id = "stationName"></p>&nbsp
 					<p id = "stationTime">00:00:00</p>
 				</div>
-				<div class = "timer twoEM">
+				<div class = "black bold timer twoEM">
 					<p>This part &nbsp</p>
 					<p id = "partTime">00:00:00</p>
 				</div>
 				<!-- Logout button -->
 				<div id = "logoutBtn" class = "dark button twoEM disabled">Logout</div>
+				<!-- More info -->
 				<div id = "moreInfoBtn" class = "dark button twoEM disabled">More Info</div>
+				<!-- View Drawing -->
 				<div id = "viewDrawingBtn" class = "dark button twoEM disabled">Drawing</div>
 				<!-- OPTIONS BUTTON -->
 				<img id = "optionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
@@ -74,10 +76,8 @@
 			</div>
 			<div id = "queueContainer" class = "queueContainer center twoEM">
 				<!-- TRAVELER QUEUE -->
-				<p>Travelers</p>
 				<form id = "travelerSearch">
-					<p class = "halfEM white" >traveler#-item#</p>
-					<input type="search" id = "travelerSearchBox" class = "dark inset twoEM" pattern="\d*|(\d*-\d*)">
+					<input type="search" id = "travelerSearchBox" class = "dark white searchBox" placeholder = "Search..." pattern="\d*|(\d*-\d*)">
 				</form>
 				<div id = "travelerQueue" class = "queue"></div>
 				<!-- ITEM QUEUE -->
@@ -88,33 +88,33 @@
 			</div>
 			<div id = "interfaceContainer" class = "interfaceContainer twoEM">
 				<!-- QTY LEFT -->
-				<div class = "list--horizontal justify-space-between">
+				<div class = "list--horizontal justify-end">
 					<p>Quantity left:</p>
-					<p id = "qtyPending" class = "blue shadow stdMargin whiteBack twoEM"></p>
+					<p id = "qtyPending" class = "blue shadow stdMargin whiteBack twoEM">-</p>
 					<!--<div class = "percentContainer"><div id = "qtyPendingPercent" class = "percentBar"></div></div> -->
 				</div>
 				<!-- COMPLETE BUTTON -->
-				<div id = "completeItemBtn" class = "dark button twoEM">Complete item</div>
+				<div id = "completeItemBtn" class = "dark button twoEM largeBorder bold">Complete item</div>
 				
 				
 				<!-- QTY SCRAPPED -->
-				<div class = "list--horizontal justify-space-between">
+				<!-- <div class = "list--horizontal justify-end">
 					<p>Total qty scrapped (for this traveler):</p>
-					<p id = "qtyScrapped" class = "red shadow stdMargin whiteBack twoEM"></p>
-					<!--<div class = "percentContainer"><div id = "qtyScrappedPercent" class = "percentBar redBack"></div></div>-->
-				</div>
+					<p id = "qtyScrapped" class = "red shadow stdMargin whiteBack twoEM">-</p>
+					<!--<div class = "percentContainer"><div id = "qtyScrappedPercent" class = "percentBar redBack"></div></div>
+				</div> -->
 				<!-- SCRAP BUTTON -->
-				<div id = "scrapItemBtn" class = "dark button twoEM">Scrap item</div>
+				<div id = "scrapItemBtn" class = "dark button twoEM largeBorder bold">Scrap item</div>
 				
 				
 				<!-- QTY COMPLETED -->
-				<div class = "list--horizontal justify-space-between">
+				<div id = "qtyCompletedRow" class = "list--horizontal justify-end">
 					<p>Quantity to be submitted:</p>
-					<p id = "qtyCompleted" class = "green shadow stdMargin whiteBack twoEM"></p>
+					<p id = "qtyCompleted" class = "green shadow stdMargin whiteBack twoEM">-</p>
 					<!--<div class = "percentContainer"><div id = "qtyMadePercent" class = "percentBar"></div></div>-->
 				</div>
 				<!-- SUBMIT BUTTON -->
-				<div id = "submitTravelerBtn" class = "dark button twoEM">Submit completed items</div>
+				<div id = "submitTravelerBtn" class = "dark button twoEM largeBorder bold">Submit completed items</div>
 				
 				
 			</div>

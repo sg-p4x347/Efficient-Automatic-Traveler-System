@@ -81,16 +81,18 @@ function PopupManager(blackout) {
 	// displays an error message with no ability to close
 	this.Error = function (message) {
 		var self = this;
-		self.CloseAll();
+		
 		
 		var popup = self.CreatePopup();
 		popup.title = "error";
 		// the message
 		var infoP = self.CreateP(message);
+		infoP.classList.add("leftAlign");
 		popup.appendChild(infoP);
 		
 		self.Lock(popup);
 		self.Open(popup);
+		self.CloseAll();
 	}
 	// test if a specific popup is open
 	this.Exists = function(DOMid) {

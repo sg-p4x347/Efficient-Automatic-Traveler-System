@@ -12,9 +12,20 @@ using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    public struct UserAction
+    {
+        public UserAction(string method, Dictionary<string,object> parameters)
+        {
+            Method = method;
+            Parameters = parameters;
+        }
+        public string Method;
+        public Dictionary<string,object> Parameters;
+    }
     public struct ClientMessage
     {
         public ClientMessage(string type, string message)
@@ -71,7 +82,7 @@ namespace Efficient_Automatic_Traveler_System
             m_stream = m_TcpClient.GetStream();
             m_cts = new CancellationTokenSource();
             m_connected = true;
-
+            m_history = new List<UserAction>();
 
         }
 
@@ -314,6 +325,8 @@ namespace Efficient_Automatic_Traveler_System
         protected CancellationTokenSource m_cts;
         protected bool m_connected;
         protected User m_user;
+
+        protected List<UserAction> m_history;
         private AccessLevel m_accessLevel;
         public bool Connected
         {
@@ -386,6 +399,13 @@ namespace Efficient_Automatic_Traveler_System
             return new ClientMessage();
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void AddHistory(Dictionary<string,object> parameters)
+        {
+            StackTrace st = new StackTrace();
+            StackFrame sf = st.GetFrame(1);
+            m_history.Add(new UserAction(sf.GetMethod().Name, parameters));
+        }
         // Query the client, callback is determined by result
         public void QueryClient(string condition, string trueCallback, string falseCallback = null)
         {

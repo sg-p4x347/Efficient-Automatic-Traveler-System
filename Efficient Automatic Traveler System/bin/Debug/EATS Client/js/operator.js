@@ -152,7 +152,7 @@ function Application () {
 			var message = new InterfaceCall("Logout",{},"This");
 			
 			//-----------------------------------------------
-			self.travelerView.Clear();
+			
 			self.LoginPopup();
 			
 		}
@@ -273,7 +273,11 @@ function Application () {
 	this.StopAutofocus = function () {
 		window.removeEventListener("keydown",this.Autofocus);
 	}
+	this.CloseAll = function () {
+		this.popupManager.CloseAll();
+	}
 	// displays a station checklist
+	this.checklistSubmits = 0;
 	this.DisplayChecklist = function (list) {
 		var self = this;
 		self.partTimer.Stop();
@@ -290,8 +294,21 @@ function Application () {
 			popup.appendChild(check);
 		});
 		var submit = self.popupManager.CreateButton("Submit");
+		var submitMessages = [
+			"Please verify all items",
+			"PLEASE verify all items",
+			"PLEASE verify ALL of the items",
+			"You really should verify them",
+			"This isn't difficult",
+			"Don't make this difficult",
+			"Ok, now you are just doing this for fun",
+			"One more time and your supervisors will be notified",
+			"You don't believe me?",
+			"STOP",
+			"Im serious, get back to work"
+		];
 		submit.onclick = function () {
-			
+			self.checklistSubmits++;
 			var nodes = popup.getElementsByTagName("INPUT");
 			var allSelected = true;
 			for (var i=0; i<nodes.length; i++) {
@@ -308,7 +325,7 @@ function Application () {
 				
 				//-----------------------------------------------
 			} else {
-				info.innerHTML = "Please verify all items";
+				info.innerHTML = submitMessages[Math.min(submitMessages.length,self.checklistSubmits)-1];
 			}
 		}
 		popup.appendChild(submit);
@@ -424,6 +441,12 @@ function Application () {
 		//----------------
 		self.travelerView = new TravelerView();
 		self.travelerView.Initialize();
+		self.travelerView.Clear();
+		// message
+		var p = document.createElement("P");
+		p.className = "fourEM";
+		p.innerHTML = "Select a traveler to work on"
+		self.travelerView.DOMcontainer.appendChild(p);
 		//----------------
 		// traveler queue
 		//----------------
@@ -462,7 +485,7 @@ function Application () {
 			//-----------------------------------------------
 		}
 		document.getElementById("optionsBtn").onclick = function () {
-			new InterfaceCall("OptionsMenu",{travelerID:self.travelerView.traveler.ID});
+			new InterfaceCall("OptionsMenu");
 		}
 		//----------------
 		// Websocket
@@ -507,7 +530,12 @@ function Application () {
 			};
 			// websocket is closed.
 			self.websocket.onclose = function() {
-				self.popupManager.Error("You are not connected to the server;<br> either refresh the page, or inform your supervisor");
+				var message = "You are not connected to the server;";
+				message += "<br>1.) Refresh the page";
+				message += "<br>2.) If problem persists, Inform your supervisor";
+				message += "<br>3.) Do not harm this computer";
+				message += "<br>4.) Keep calm";
+				self.popupManager.Error(message);
 				console.log("Connection is closed..."); 
 			};
 		} else {
@@ -709,18 +737,18 @@ function TravelerView() {
 		application.stationTimer.Stop();
 	}
 	this.DisableUI = function () {
-		document.getElementById("completeItemBtn").className = "dark button twoEM disabled";
-		document.getElementById("scrapItemBtn").className = "dark button twoEM disabled";
+		document.getElementById("completeItemBtn").classList.add("disabled");
+		document.getElementById("scrapItemBtn").classList.add("disabled");
 	}
 	this.EnableUI = function () {
-		document.getElementById("completeItemBtn").className = "dark button twoEM";
-		document.getElementById("scrapItemBtn").className = "dark button twoEM";
+		document.getElementById("completeItemBtn").classList.remove("disabled");
+		document.getElementById("scrapItemBtn").classList.remove("disabled");
 	}
 	this.UpdateSubmitBtn = function () {
 		if (this.traveler && this.traveler.stations[application.station.name].qtyCompleted > 0) {
-			document.getElementById("submitTravelerBtn").className = "dark button twoEM";
+			document.getElementById("submitTravelerBtn").classList.remove("disabled");
 		} else {
-			document.getElementById("submitTravelerBtn").className = "dark button twoEM disabled";
+			document.getElementById("submitTravelerBtn").classList.add("disabled");
 		}
 	}
 	
@@ -761,11 +789,12 @@ function TravelerView() {
 			row.appendChild(propValue);
 			// Property quantity (if it has a quantity)
 			var propQty = document.createElement("TD");
+			propQty.className = "view__item center lime bold shadow";
 			if (property.qty != "" || property.name == "Part") {
-				propQty.className = "view__item center green shadow";
+				
 				propQty.innerHTML = property.qty;
 			} else {
-				propQty.className = "view__item--null";
+				//propQty.className = "view__item--null";
 			}
 			row.appendChild(propQty);
 			// add the row to the table
@@ -848,6 +877,7 @@ function TravelerView() {
 			//=================================
 			// CLIENTS THAT CAN CREATE ITEMS
 			//=================================
+			
 			self.item = undefined;
 			self.LoadTable();
 			// enable the buttons
@@ -900,10 +930,10 @@ function TravelerView() {
 	}
 	this.ResetSliders = function () {
 		var qtyMade = document.getElementById("qtyCompleted");
-		var qtyScrapped = document.getElementById("qtyScrapped");
+		//var qtyScrapped = document.getElementById("qtyScrapped");
 		var qtyPending = document.getElementById("qtyPending");
 		qtyMade.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyCompleted : '-';
-		qtyScrapped.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyScrapped : '-';
+		//qtyScrapped.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyScrapped : '-';
 		qtyPending.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyPending : '-';
 		
 		
@@ -932,7 +962,7 @@ function TravelerView() {
 		
 		// Configure the finalize ui
 		var qtyMade = document.getElementById("qtyMade");
-		var qtyScrapped = document.getElementById("qtyScrapped");
+		//var qtyScrapped = document.getElementById("qtyScrapped");
 		var qtyPending = document.getElementById("qtyPending");
 		/* qtyMade.onchange = function () {
 			this.value = Math.min(self.traveler.quantity-parseInt(qtyScrapped.value), this.value);
@@ -992,12 +1022,12 @@ function TravelerView() {
 		document.getElementById("submitTravelerBtn").onclick = function () {
 			/* this is just for responsiveness, 
 			the server will soon confirm traveler positions in an update*/
-			var completedTraveler;
-			if (parseInt(qtyScrapped.value) < self.traveler.quantity && parseInt(qtyMade) < self.traveler.quantity) {
-				completedTraveler = self.traveler;
-			} else {
-				completedTraveler = self.traveler;
-			}
+			var completedTraveler = self.traveler;
+			// if (parseInt(qtyScrapped.value) < self.traveler.quantity && parseInt(qtyMade) < self.traveler.quantity) {
+				// completedTraveler = self.traveler;
+			// } else {
+				// completedTraveler = self.traveler;
+			// }
 			self.lastTravelerID = completedTraveler.ID;
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("SubmitTraveler",

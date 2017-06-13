@@ -5,7 +5,7 @@ body {
 	flex-direction: column;
 	align-items: stretch;
 	justify-content: space-around;
-	background-color: #303030;
+	background-color: #A0A0A0;
 	font-size: 1em;
 	color: white;
 	font-family: "Arial", Arial, sans-serif;
@@ -41,7 +41,6 @@ p {
 	margin: 8px;
 }
 #stationName {
-	text-shadow: 1px 1px 2px black;
 }
 #travelerID {
 	font-size: 0.5em;
@@ -210,7 +209,6 @@ div.view__header {
 table.view {
 	width: 100%;
 	font-size: 2em;
-	border: 2px solid darkGray;
 	border-collapse: collapse;
 }
 tr.view__row {
@@ -218,14 +216,15 @@ tr.view__row {
 }
 tr.view__row--header {
 	text-align: center;
-	border: none;
 }
 
 td.view__item {
 	border: inherit;
 	padding: 0.25em;
-	border: 2px solid darkGray;
+	border-top: 2px solid dimGray;
+	border-bottom: 2px solid dimGray;
+	border-left: 2px solid rgba(0,0,0,0.5);
+	border-right: 2px solid rgba(0,0,0,0.5);
 }
 td.view__item--null {
-	background-color: dimGray;
 }

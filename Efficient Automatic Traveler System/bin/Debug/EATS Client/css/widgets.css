@@ -76,6 +76,7 @@ input[type=checkbox] {
 	border-color: white;
 	color: black;
 	text-shadow: none;
+	cursor: pointer;
 }
 .numberBox {
 	font-size: inherit;
@@ -147,8 +148,8 @@ input.searchBox {
     border: 2px solid gray;
     border-radius: 4px;
     background-image: url('../img/searchicon.png');
-    background-position: 10px 10px; 
     background-repeat: no-repeat;
+	background-position: 8px center;
     padding: 12px 20px 12px 40px;
     -webkit-transition: width 0.4s ease-in-out;
     transition: width 0.4s ease-in-out;
@@ -156,19 +157,7 @@ input.searchBox {
 input.searchBox:focus {
 	border-color: silver;
 }
-/*flex modifiers*/
-.justify-space-between {
-	display: flex;
-	justify-content: space-between;
-}
-.justify-space-around {
-	display: flex;
-	justify-content: space-around;
-}
-.justify-center {
-	display: flex;
-	justify-content: center;
-}
+
 /*access modifiers*/
 .button.disabled {
 	background-color: rgba(230,230,230,0.2);
@@ -325,6 +314,9 @@ input.searchBox:focus {
 .glow {
 	text-shadow: 0px 0px 16px white;
 }
+.bold {
+	font-weight: bold;
+}
 .italics {
 	font-style: italic;
 }
@@ -374,10 +366,50 @@ input.searchBox:focus {
 .bottomAlign {
 	vertical-align: bottom;
 }
-/* flex alignment */
+/*flex modifiers*/
 .align-items-start {
 	display: flex;
 	align-items: flex-start;
+}
+.align-items-end {
+	display: flex;
+	align-items: flex-end;
+}
+.align-items-center {
+	display: flex;
+	align-items: center;
+}
+.flex-direction-row {
+	display: flex;
+	flex-direction: row;
+}
+.flex-direction-row-reverse {
+	display: flex;
+	flex-direction: row-reverse;
+}
+.flex-direction-column {
+	display: flex;
+	flex-direction: column;
+}
+.flex-direction-column-reverse {
+	display: flex;
+	flex-direction: column-reverse;
+}
+.justify-space-between {
+	display: flex;
+	justify-content: space-between;
+}
+.justify-space-around {
+	display: flex;
+	justify-content: space-around;
+}
+.justify-center {
+	display: flex;
+	justify-content: center;
+}
+.justify-end {
+	display: flex;
+	justify-content: flex-end;
 }
 /* margins */
 .stdMargin, .button {
@@ -434,6 +466,10 @@ div.queue__item__qty {
 .mediumBorder {
 	border: 2px solid black;
 }
+.largeBorder {
+	border-width: 32px;
+	border-radius: 48px;
+}
 .aeroBars {
 	border-width: 1px;
 	border-style: solid;
@@ -486,4 +522,30 @@ div.queue__item__qty {
 }
 .editBtn:hover, .deleteBtn:hover {
 	background-color: silver;
+}
+/* Unique Styles */
+.chrome {
+	color: grey;
+	text-shadow: 1px 1px 0px white, -1px -1px 0px black;
+	background: linear-gradient(to right bottom, white, silver, white, grey, grey);
+	
+	transition-duration: 0.5s;
+	
+	border: 4px outset white;
+	border-radius: 6px;
+	
+	padding: 4px;
+	margin: 4px;
+}
+.chrome:hover {
+	color: black;
+	text-shadow: 1px 1px 0px white, -1px -1px 0px grey;
+	background: linear-gradient(to right bottom, white, grey);
+}
+/* image backgrounds */
+.undoImg {
+	background-image: url("../img/undo.ico");
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: contain;
 }

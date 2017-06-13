@@ -811,7 +811,7 @@ function Application () {
 			};
 			// websocket is closed.
 			self.websocket.onclose = function() {
-				self.popupManager.Error("You are not connected to the server;<br> either refresh the page, or inform Gage Coates");
+				self.popupManager.Error("You are not connected to the server;<br> 1.) Refresh the page<br>2.) If problem persists, Inform an EATS administrator");
 				console.log("Connection is closed..."); 
 			};
 		} else {

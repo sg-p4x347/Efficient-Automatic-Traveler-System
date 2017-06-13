@@ -70,6 +70,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             return ch + s + ch;
         }
+        public static string DeQuote(this string s)
+        {
+            return s.Trim('"');
+        }
         // returns a JSON string representing the collection of enumeration values
         public static string Stringify<T>()
         {

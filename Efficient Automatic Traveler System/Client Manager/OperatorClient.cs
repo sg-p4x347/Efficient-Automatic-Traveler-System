@@ -180,7 +180,26 @@ namespace Efficient_Automatic_Traveler_System
                 ScrapEvent evt = new ScrapEvent(m_user, m_station, traveler.GetCurrentLabor(m_station) - Convert.ToDouble(obj["time"]), Convert.ToBoolean(obj["startedWork"].ToLower()),obj["source"],obj["reason"]);
 
                 TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
-                return m_travelerManager.AddTravelerEvent(evt, traveler, item);
+                ClientMessage message =  m_travelerManager.AddTravelerEvent(evt, traveler, item);
+                int userScrapQty = m_travelerManager.GetTravelers.Sum(t => t.Items.Count(i => i.History.OfType<ScrapEvent>().ToList().Exists(e => e.User.UID == m_user.UID && e.Date >= DateTime.Today)));
+                if (userScrapQty >= 5)
+                {
+                    if (userScrapQty >= 10)
+                    {
+                        if (userScrapQty >= 15)
+                        {
+                            message.Parameters = (message.Parameters.DeQuote() +  "<br>You have scrapped " + userScrapQty + " items today, STOP doing that").Quotate();
+                        } else
+                        {
+                            message.Parameters = (message.Parameters.DeQuote() + "<br>Please stop scrapping so many items!").Quotate();
+                        }
+                    } else
+                    {
+                        message.Parameters = (message.Parameters.DeQuote() + "<br>You should think about not scrapping so much").Quotate();
+                    }
+                }
+                
+                return message;
             }
             catch (Exception ex)
             {
@@ -205,9 +224,10 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                AddHistory(new Dictionary<string, object>() { { "traveler", traveler }, { "items", traveler.CompletedItems(m_station) } });
                 return m_travelerManager.SubmitTraveler(
-                    m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"])),
+                    traveler,
                     m_station
                 );
             }
@@ -392,17 +412,23 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                // the parameter that returns with all the control events
-                string returnParam = new Dictionary<string, string>()
-                {
-                    {"travelerID", m_current.ID.ToString() }
-                }.Stringify();
+               
 
                 Column options = new Column()
                 {
-                    new Button("Print Labels","LabelPopup",returnParam)
+                    new Button("Undo", "Undo",styleClasses: new Style("undoImg"))
                 };
+                // options that require a traveler
+                if (m_current != null)
+                {
+                    // the parameter that returns with all the control events
+                    string returnParam = new Dictionary<string, string>()
+                    {
+                        {"travelerID", m_current.ID.ToString() }
+                    }.Stringify();
+                    options.Add(new Button("Print Labels", "LabelPopup", returnParam));
 
+                }
                 ControlPanel panel = new ControlPanel("Options", options);
                 return new ClientMessage("ControlPanel", panel.ToString());
             }
@@ -410,6 +436,42 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error opening options menu");
+            }
+        }
+        public ClientMessage Undo(string json)
+        {
+            try
+            {
+                UserAction lastAction = m_history.Last();
+                m_history.Remove(lastAction);
+                if (lastAction.Method == "SubmitTraveler")
+                {
+                    Traveler traveler = (Traveler)lastAction.Parameters["traveler"];
+                    List<TravelerItem> items = (List<TravelerItem>)lastAction.Parameters["items"];
+                    foreach (TravelerItem item in items)
+                    {
+                        item.Station = m_station;
+                        if (traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
+                        {
+                            item.History.Remove(item.History.Last());
+                        }
+                    }
+                    if (traveler is Table && m_station.CreatesThis(traveler))
+                    {
+                        if (traveler.ChildTravelers.Count > 0)
+                        {
+                            m_travelerManager.RemoveTraveler(traveler.ChildTravelers.Last().ID);
+                        }
+                    }
+                    m_travelerManager.OnTravelersChanged(new List<Traveler>() { traveler });
+                }
+
+                return new ClientMessage("CloseAll");
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Can't undo..");
             }
         }
         public override ClientMessage Logout(string json)
