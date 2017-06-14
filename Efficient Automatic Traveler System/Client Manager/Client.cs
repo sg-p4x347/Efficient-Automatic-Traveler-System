@@ -296,14 +296,15 @@ namespace Efficient_Automatic_Traveler_System
             else
             {
                 header.Add(127); // 64 bit length
-                header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 56));
-                header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 48));
-                header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 40));
-                header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 32));
-                header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 24));
-                header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 16));
-                header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 8));
-                header.Add(Convert.ToByte(message.Length & 0xFF));
+                header.AddRange(BitConverter.GetBytes(Convert.ToUInt64(message.Length)).Reverse());
+                //header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 56));
+                //header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 48));
+                //header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 40));
+                //header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 32));
+                //header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 24));
+                //header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 16));
+                //header.Add(Convert.ToByte(Convert.ToUInt64(message.Length) >> 8));
+                //header.Add(Convert.ToByte(message.Length & 0xFF));
             }
             Byte[] headerArray = new Byte[header.Count];
             for (int i = 0; i < header.Count; i++)

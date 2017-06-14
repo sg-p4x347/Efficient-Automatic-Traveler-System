@@ -90,9 +90,8 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //----------------------------------
         // JS client interface (these are the properties visible to the js interface calling system)
-        public string SetViewFilter(string json)
+        public ClientMessage SetViewFilter(string json)
         {
-            ClientMessage returnMessage = new ClientMessage();
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
@@ -101,13 +100,13 @@ namespace Efficient_Automatic_Traveler_System
                 m_filterState = Convert.ToBoolean(obj["filterState"]);
                 m_filterType = Convert.ToBoolean(obj["filterType"]);
                 HandleTravelersChanged(m_travelerManager.GetTravelers);
+                return new ClientMessage();
             }
             catch (Exception ex)
             {
                 Server.LogException(ex);
-                returnMessage = new ClientMessage("Info","Error configuring view settings");
+                return new ClientMessage("Info","Error configuring view settings");
             }
-            return returnMessage.ToString();
         }
         #region ISupervisor
         public string MoveTravelerStart(string json)
