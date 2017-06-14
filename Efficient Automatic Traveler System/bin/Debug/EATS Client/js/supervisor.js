@@ -178,26 +178,35 @@ function Application () {
 	this.HandleTravelersChanged = function (message) {
 		var self = this;
 		if (message.mirror) {
-			self.travelers = [];
+			/* self.travelers = [];
 			message.travelers.forEach(function (obj) {
 				var traveler = new Traveler(obj);
 				self.travelers.push(traveler);
-			});
+			}); */
 		} else {
-			message.travelers.forEach(function (obj) {
+			/* message.travelers.forEach(function (obj) {
 				self.travelers.forEach(function (traveler, index) {
 					if (traveler.ID == obj.ID) {
 						self.travelers[index] = new Traveler(obj);
 					}
 				});
-			});
+			}); */
 		}
 		// clear the queues
 		for (var station in self.queues) {
 			self.queues[station].Clear();
 		}
+		for (var station in message.stations) {
+			message.stations[station].travelers.forEach(function (traveler) {
+				var copy = new Traveler(JSON.parse(JSON.stringify(traveler)));
+				copy.stationQueue = station;
+				copy.queueIndex = self.queues[station].travelers.length;
+				self.queues[station].AddTraveler(copy);
+			});
+			self.queues[station].RePaint();
+		};
 		// add all the travelers back
-		self.travelers.forEach(function (traveler) {
+		/* self.travelers.forEach(function (traveler) {
 			for (var station in traveler.stations) {
 				if (self.view.viewState == "InProcess" && (traveler.stations[station].qtyPending > 0 && station != "Finished" && station != "Start" && station != "Scrapped") || (traveler.state == "PreProcess" && self.view.viewState == "PreProcess") || (self.view.viewState == "PostProcess" && (station == "Finished" || station == "Scrapped"))) {
 					// QTY pending is sent based on the starting station for the traveler from the Export function on Traveler.cs
@@ -208,7 +217,7 @@ function Application () {
 				}
 				self.queues[station].RePaint();
 			}
-		});
+		}); */
 		// update summary, if open
 		if (self.popupManager.Exists("summaryPopup")) {
 			//----------INTERFACE CALL-----------------------
@@ -361,9 +370,13 @@ function Application () {
 		var self = this;
 		//self.popupManager.CloseAll();
 		self.StopAutofocus();
-		self.popupManager.Form(params.format, function (filledForm) {
+		self.popupManager.Form(params.form, function (filledForm) {
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall(params.callback,filledForm);
+			var message = new InterfaceCall(params.callback,
+			{
+				form:filledForm,
+				parameters:params.parameters
+			});
 			//-----------------------------------------------
 			self.StartAutofocus();
 		});
@@ -501,7 +514,7 @@ function Application () {
 		// configure the default view settings with the server
 		document.getElementById("viewForm").onchange();
 	}
-	this.PrintLabelPopup = function (traveler) {
+	this.PrintLabelPopup = function (params) {
 		var self = this;
 		self.popupManager.AddSpecific("labelPopup");
 		var labelSelect = document.getElementById("labelSelect");
@@ -513,20 +526,20 @@ function Application () {
 			labelSelect.appendChild(option);
 		});
 		
-		var itemSelect = document.getElementById("itemSelect");
+		/* var itemSelect = document.getElementById("itemSelect");
 		ClearChildren(itemSelect);
 		traveler.items.forEach(function (item) {
 			var option = document.createElement("OPTION");
 			option.value = item.ID;
 			option.innerHTML = item.ID;
 			itemSelect.appendChild(option);
-		});
+		}); */
 		
 		document.getElementById("printLabelBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("PrintLabel",{
-				travelerID: traveler.ID,
-				itemID: document.getElementById("itemSelect").value,
+				travelerID: params.travelerID,
+				itemID: params.itemID,
 				labelType: document.getElementById("labelSelect").value,
 				quantity: 1
 			});

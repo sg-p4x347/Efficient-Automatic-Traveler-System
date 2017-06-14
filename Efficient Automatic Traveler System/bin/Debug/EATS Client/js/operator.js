@@ -533,8 +533,8 @@ function Application () {
 				var message = "You are not connected to the server;";
 				message += "<br>1.) Refresh the page";
 				message += "<br>2.) If problem persists, Inform your supervisor";
-				message += "<br>3.) Do not harm this computer";
-				message += "<br>4.) Keep calm";
+				/* message += "<br>3.) Do not harm this computer";
+				message += "<br>4.) Keep calm"; */
 				self.popupManager.Error(message);
 				console.log("Connection is closed..."); 
 			};
@@ -745,7 +745,7 @@ function TravelerView() {
 		document.getElementById("scrapItemBtn").classList.remove("disabled");
 	}
 	this.UpdateSubmitBtn = function () {
-		if (this.traveler && this.traveler.stations[application.station.name].qtyCompleted > 0) {
+		if (this.traveler && this.traveler.queueItem.qtyCompleted > 0) {
 			document.getElementById("submitTravelerBtn").classList.remove("disabled");
 		} else {
 			document.getElementById("submitTravelerBtn").classList.add("disabled");
@@ -932,9 +932,9 @@ function TravelerView() {
 		var qtyMade = document.getElementById("qtyCompleted");
 		//var qtyScrapped = document.getElementById("qtyScrapped");
 		var qtyPending = document.getElementById("qtyPending");
-		qtyMade.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyCompleted : '-';
+		qtyMade.innerHTML = this.traveler ? this.traveler.queueItem.qtyCompleted : '-';
 		//qtyScrapped.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyScrapped : '-';
-		qtyPending.innerHTML = this.traveler ? this.traveler.stations[application.station.name].qtyPending : '-';
+		qtyPending.innerHTML = this.traveler ? this.traveler.queueItem.qtyPending : '-';
 		
 		
 		

@@ -29,8 +29,6 @@ function Traveler(obj) {
 	}
 	obj.CreateQueueItem = function (station) {
 		var self = this;
-		
-		var stationSpecific = self.stations[station];
 		var DOMqueueItem = document.createElement("DIV");
 		self.colorClass = "blueBack";
 		switch (application.view.viewState) {
@@ -59,7 +57,7 @@ function Traveler(obj) {
 		qty.className = "list--horizontal justify-center";
 		var qtyPending = document.createElement("DIV");
 		qtyPending.className = "queue__item__qty lime";
-		qtyPending.innerHTML = stationSpecific.qtyPending;
+		qtyPending.innerHTML = self.queueItem.qtyPending;
 		qty.appendChild(qtyPending);
 		var qtySlash = document.createElement("DIV");
 		qtySlash.className = "queue__item__qty silver";

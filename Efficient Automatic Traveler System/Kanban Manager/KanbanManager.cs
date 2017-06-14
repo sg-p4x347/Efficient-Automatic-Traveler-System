@@ -133,6 +133,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Form form = new Form(json);
                 KanbanItem newItem = new KanbanItem(form);
                 if (m_items.Exists(i => i.ItemCode == newItem.ItemCode)) return new ClientMessage("Info", "A Kanban item for " + newItem.ItemCode + " already exists");
@@ -165,6 +166,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Form form = new Form(json);
                 KanbanItem newItem = new KanbanItem(form);
                 m_items.Find(i => i.ItemCode == newItem.ItemCode).Update(form);

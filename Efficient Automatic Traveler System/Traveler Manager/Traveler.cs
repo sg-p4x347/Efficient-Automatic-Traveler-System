@@ -233,8 +233,9 @@ namespace Efficient_Automatic_Traveler_System
                     //    case LabelType.Test: template = "4x2 Table Carton EATS logo"; printer = "4x2IT"; break;
                     //}
                     // piecing it together
-                    json += fields.Trim(',');
-                    json += ",\"printer\":\"" + printer + "\"";
+
+                    if (fields.Length > 0) { json += fields.Trim(',') + ','; }
+                    json += "\"printer\":\"" + printer + "\"";
                     json += ",\"template\":\"" + template + "\"";
                     json += ",\"qty\":" + qty;
                     json += '}';
@@ -365,7 +366,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
             // use the next id (highest + 1)
-            TravelerItem newItem = new TravelerItem((ushort)(highestID + 1), sequenceNo,replacement);
+            TravelerItem newItem = new TravelerItem(ItemCode,(ushort)(highestID + 1), sequenceNo,replacement);
             newItem.Station = station;
             Items.Add(newItem);
             return newItem;
@@ -411,13 +412,16 @@ namespace Efficient_Automatic_Traveler_System
             if (station == StationClass.GetStation("Start"))
             {
                 detail.Add("qtyPending", m_quantity.ToString());
-            } else if (station == StationClass.GetStation("Finished"))
+            }
+            else if (station == StationClass.GetStation("Finished"))
             {
                 detail.Add("qtyPending", QuantityAt(station).ToString());
-            } else
+            }
+            else
             {
                 detail.Add("qtyPending", QuantityPendingAt(station).ToString());
             }
+            
             
             detail.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
             detail.Add("qtyScrapped", QuantityScrappedAt(station).ToString());
@@ -433,6 +437,17 @@ namespace Efficient_Automatic_Traveler_System
             if (Station == StationClass.GetStation("Start")) stations.Add(Station);
             return stations;
         }
+        public List<StationClass> CurrentStations(ItemState viewState)
+        {
+            List<StationClass> stations = new List<StationClass>();
+            foreach (StationClass station in StationClass.GetStations())
+            {
+                if (Items.Exists(i => i.State == viewState && i.Station == station)) stations.Add(station);
+            }
+            if (State == ItemState.PreProcess || State == ItemState.InProcess) stations.Add(Station);
+            return stations;
+        }
+        
         // export for clients to display
         public virtual string Export(string clientType, StationClass station)
         {
@@ -545,6 +560,7 @@ namespace Efficient_Automatic_Traveler_System
             header.Add("Quantity");
             header.Add("Soonest Ship");
             header.Add("Station");
+            header.Add("Comment");
             return header.Stringify<string>().Trim('[').Trim(']');
         }
         // export for csv detail
@@ -556,6 +572,7 @@ namespace Efficient_Automatic_Traveler_System
             DateTime? soonestShipDate = SoonestShipDate;
             detail.Add(soonestShipDate.HasValue ? soonestShipDate.Value.ToString("MM/dd/yyyy") : "Make to stock");
             detail.Add(m_station.Name);
+            detail.Add(m_comment);
             return detail.Stringify<string>().Trim('[').Trim(']');
         }
         // export for operator view information

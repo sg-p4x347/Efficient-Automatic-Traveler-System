@@ -280,6 +280,68 @@ namespace Efficient_Automatic_Traveler_System
 
             return webLocation;
         }
+        public string ReworkCSV()
+        {
+            string webLocation = "./rework.csv";
+            List<string> contents = new List<string>();
+            // add the header
+            //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
+            // add each detail for each traveler
+            List<string> fields = new List<string>() { "Part", "Quantity", "Date" };
+            List<Dictionary<string, string>> finished = new List<Dictionary<string, string>>();
+            foreach (Traveler traveler in m_travelers.Where(t => t.Items.Exists(i => i.Replacement)))
+            {
+                foreach (TravelerItem item in traveler.Items.Where(i => i.Replacement))
+                {
+                        if (item != null)
+                        {
+                            item["Quantity"] = (Convert.ToInt32(item["Quantity"]) + quantity).ToString();
+                        }
+                        else
+                        {
+                            item = new Dictionary<string, string>();
+                            item.Add("Part", table.ItemCode);
+                            item.Add("Quantity", quantity.ToString());
+                            foreach (string stationName in StationClass.StationNames())
+                            {
+                                double sum = m_travelers.Where(t => t is Table && (t as IPart).ItemCode == table.ItemCode).Sum(j => j.Items.Sum(i => i.ProcessTimeAt(StationClass.GetStation(stationName))));
+
+                                if (sum > 0)
+                                {
+                                    string field = stationName + " (min)";
+                                    if (!fields.Exists(x => x == field)) fields.Add(field);
+                                    item.Add(field, sum.ToString());
+                                }
+                            }
+                            item.Add("Date", DateTime.Today.Date.ToString("MM/dd/yyyy"));
+                        }
+                        finished.Add(item);
+                }
+            }
+            // add the header
+            contents.Add(fields.Stringify<string>().Trim('[').Trim(']'));
+
+            foreach (Dictionary<string, string> detail in finished)
+            {
+                List<string> row = new List<string>();
+                foreach (string field in fields)
+                {
+                    if (detail.ContainsKey(field))
+                    {
+                        row.Add(detail[field]);
+                    }
+                    else
+                    {
+                        row.Add("");
+                    }
+                }
+                contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
+            }
+
+            File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "production.csv"), contents.ToArray<string>());
+
+            return webLocation;
+        }
         public string CSV(string path, List<SummaryColumn> columns)
         {
             List<string> rows = new List<string>();

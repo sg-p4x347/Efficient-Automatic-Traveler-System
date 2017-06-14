@@ -619,6 +619,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 OdbcConnection MAS = Server.GetMasConnection();
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Form form = new Form(json);
                 Type type = Type.GetType("Efficient_Automatic_Traveler_System." + form.Name);
                 Traveler traveler = traveler = (Traveler)Activator.CreateInstance(type, form);

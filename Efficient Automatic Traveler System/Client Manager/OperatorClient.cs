@@ -58,11 +58,9 @@ namespace Efficient_Automatic_Traveler_System
         private string ExportTraveler(Traveler traveler)
         {
             string travelerJSON = traveler.ToString();
-            Dictionary<string, string> stations = new Dictionary<string, string>();
-            stations.Add(m_station.Name, traveler.ExportStationSummary(m_station));
-            Dictionary<string, string> stationsObj = new Dictionary<string, string>();
-            stationsObj.Add("stations", stations.Stringify());
-            travelerJSON = travelerJSON.MergeJSON(stationsObj.Stringify()); // merge station properties
+            Dictionary<string, string> queueItem = new Dictionary<string, string>();
+            queueItem.Add("queueItem", traveler.ExportStationSummary(m_station));
+            travelerJSON = travelerJSON.MergeJSON(queueItem.Stringify()); // merge station properties
             travelerJSON = travelerJSON.MergeJSON(traveler.ExportTableRows(m_station));
             travelerJSON = travelerJSON.MergeJSON(traveler.ExportProperties(m_station).Stringify());
             return travelerJSON;

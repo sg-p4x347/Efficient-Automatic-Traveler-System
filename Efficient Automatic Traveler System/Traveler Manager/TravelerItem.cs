@@ -14,9 +14,10 @@ namespace Efficient_Automatic_Traveler_System
     }
     class TravelerItem
     {
-        public TravelerItem(UInt16 ID, UInt16 sequenceNo, bool replacement = false)
+        public TravelerItem(string itemCode, UInt16 ID, UInt16 sequenceNo, bool replacement = false)
         {
             m_ID = ID;
+            m_itemCode = itemCode;
             m_sequenceNo = sequenceNo;
             m_replacement = replacement;
             m_scrapped = false;

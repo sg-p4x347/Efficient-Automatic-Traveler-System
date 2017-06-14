@@ -33,7 +33,6 @@ namespace Efficient_Automatic_Traveler_System
             bool mirror = true; // travelers.Count == m_travelerManager.GetTravelers.Count;
             travelers = m_travelerManager.GetTravelers;
             Dictionary<string, string> message = new Dictionary<string, string>();
-            List<string> travelerStrings = new List<string>();
             List<Traveler> filtered = new List<Traveler>(travelers);
             if (m_filterState)
             {
@@ -43,13 +42,23 @@ namespace Efficient_Automatic_Traveler_System
             {
                 filtered.RemoveAll(x => !m_viewType.IsAssignableFrom(x.GetType()));
             }
-            foreach (Traveler traveler in filtered)
+            // the package send to the client, contains all the stations and their respective traveler queue items
+            Dictionary<string, string> stations = new Dictionary<string, string>();
+            List<StationClass> visibleStations = filtered.SelectMany(f => f.CurrentStations(m_viewState)).Distinct().ToList();
+            foreach (StationClass station in visibleStations)
             {
-                
-                travelerStrings.Add(ExportTraveler(traveler));
-                //travelerStrings.Add(traveler.Export(this.GetType().Name, traveler.Station));
+                List<string> travelerStrings = new List<string>();
+                foreach (Traveler traveler in filtered.Where(f => f.CurrentStations(m_viewState).Contains(station)))
+                {
+                    travelerStrings.Add(ExportTraveler(traveler, station));
+                }
+                Dictionary<string, string> stationObj = new Dictionary<string, string>()
+                {
+                    {"travelers", travelerStrings.Stringify(false)}
+                };
+                stations.Add(station.Name, stationObj.Stringify());
             }
-            message.Add("travelers", travelerStrings.Stringify(false));
+            message.Add("stations", stations.Stringify(false));
             message.Add("mirror", mirror.ToString().ToLower());
             SendMessage(new ClientMessage("HandleTravelersChanged",message.Stringify()).ToString());
         }
@@ -66,19 +75,14 @@ namespace Efficient_Automatic_Traveler_System
         //----------------------------------
         #region Private Methods
         // standard export for supervisor travelers
-        private string ExportTraveler(Traveler traveler)
+        private string ExportTraveler(Traveler traveler, StationClass station)
         {
             Dictionary<string, string> travelerJSON = new StringStream(traveler.ToString()).ParseJSON(false);
-            Dictionary<string, string> stations = new Dictionary<string, string>();
             List<StationClass> stationsToDisplay = traveler.CurrentStations();
             //if (m_viewState == ItemState.PreProcess) stationsToDisplay.Add(StationClass.GetStation("Start"));
-            foreach (StationClass station in stationsToDisplay)
-            {
-                stations.Add(station.Name, traveler.ExportStationSummary(station));
-            }
-            Dictionary<string, string> stationsObj = new Dictionary<string, string>();
-            stationsObj.Add("stations", stations.Stringify());
-            travelerJSON.Merge(stationsObj);
+            Dictionary<string, string> queueItem = new Dictionary<string, string>();
+            queueItem.Add("queueItem", traveler.ExportStationSummary(station));
+            travelerJSON.Merge(queueItem);
             travelerJSON.Merge(traveler.ExportProperties());
             return travelerJSON.Stringify();
         }
@@ -187,7 +191,7 @@ namespace Efficient_Automatic_Traveler_System
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
 
 
-                Dictionary<string, string> exportedProps = new StringStream(ExportTraveler(traveler)).ParseJSON(false);
+                Dictionary<string, string> exportedProps = new StringStream(ExportTraveler(traveler,StationClass.GetStation(obj["station"]))).ParseJSON(false);
                 exportedProps["station"] = obj["station"].Quotate();
                 if (traveler != null)
                 {
@@ -376,8 +380,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     new Button("More Info","LoadTravelerJSON",returnParam),
                     new Button("Disintegrate","DisintegrateTraveler",returnParam),
-                    new Button("Enter Production","EnterProduction",returnParam),
-                    new Button("Print Labels","LabelPopup",returnParam)
+                    new Button("Enter Production","EnterProduction",returnParam)
                 };
                 
                 ControlPanel panel = new ControlPanel(traveler.GetType().Name, new Row() { fields, controls });
@@ -512,7 +515,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 Column controls = new Column()
                 {
-
+                    new Button("Print Labels","LabelPopup",json)
                 };
                 
                 return new ClientMessage("ControlPanel", new ControlPanel(traveler.PrintSequenceID(item), new Row() { fields, controls }).ToString());
@@ -675,9 +678,10 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     new TextNode("Download"),
                     new Button("Pre-Process Tables","DownloadSummary",@"{""sort"":""PreProcess"",""type"":""Table""}"),
-                    new Button("Production", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
-                    new Button("Scrap", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}"),
-                    new Button("Users", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}")
+                    new Button("Production Report", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Scrap Report", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("User Report", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}"),
+                    new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}")
                 };
                 Column manage = new Column(style: flexStart)
                 {
@@ -786,8 +790,13 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                return new ClientMessage("PrintLabelPopup", traveler.ToString());
+                //Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                Form form = new Form();
+                form.Name = "Print Labels";
+                form.Selection("labelType", "Label Type", ExtensionMethods.GetNames<LabelType>());
+                form.Integer("quantity", "Quantity", 1, 100, 1);
+                form.Selection("printer", "Printer", new StringStream(ConfigManager.Get("printers")).ParseJSONarray());
+                return form.Dispatch("PrintLabel", json);
             }
             catch (Exception ex)
             {
@@ -800,9 +809,11 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                int qty = Convert.ToInt32(obj["quantity"]);
-                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                return new ClientMessage("Info",traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), obj["labelType"]),qty > 0 ? qty : 1,true));
+                Form form = new Form(obj["form"]);
+                Dictionary<string, string> parameters = new StringStream(obj["parameters"]).ParseJSON();
+                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parameters["travelerID"]));
+                int qty = Convert.ToInt32(form.ValueOf("quantity"));
+                return new ClientMessage("Info",traveler.PrintLabel(Convert.ToUInt16(parameters["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), form.ValueOf("labelType")),qty > 0 ? qty : 1,true));
                 
             } catch (Exception ex)
             {
@@ -881,6 +892,21 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
+        public ClientMessage ExportRework(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                string downloadLocation = summary.ReworkCSV();
+                return new ClientMessage("Redirect", downloadLocation.Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                return new ClientMessage("Info", "Error exporting rework report");
+            }
+        }
         public ClientMessage QuantityAt(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
@@ -915,6 +941,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Form form = new Form(json);
                 User newUser = new User(form);
                 User existingUser = Server.UserManager.Find(newUser.UID);
@@ -939,6 +966,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Form form = new Form(json);
                 User newUser = new User(form);
                 User existingUser = Server.UserManager.Find(newUser.UID);

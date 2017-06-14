@@ -201,7 +201,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             if (station.Type == "heian" && travelerManager != null)
             {
-                int qtyToAdvance = Items.Count(i => i.Station == station && i.IsComplete());
+                int qtyToAdvance = Items.Count(i => i.Station == station && i.IsComplete() && !i.Replacement);
                 if (qtyToAdvance > 0)
                 {
                     // Create a box traveler for these items

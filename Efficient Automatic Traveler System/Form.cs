@@ -30,12 +30,13 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
-        public ClientMessage Dispatch(string callback)
+        public ClientMessage Dispatch(string callback, string parameters = "{}")
         {
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
-                {"format",ToString() },
-                {"callback",callback.Quotate() }
+                {"form",ToString() },
+                {"callback",callback.Quotate() },
+                {"parameters",parameters }
             };
             return new ClientMessage("Form", obj.Stringify());
         }
@@ -155,6 +156,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_title = value;
             }
         }
+
         #endregion
     }
 }
