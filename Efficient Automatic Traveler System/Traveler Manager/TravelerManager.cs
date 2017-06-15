@@ -321,6 +321,9 @@ namespace Efficient_Automatic_Traveler_System
                     traveler.ScrapItem(item.ID);
                     returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.PrintSequenceID(item));
                     item.Station = StationClass.GetStation("Scrapped");
+
+                    // Notify everyone who wants to be notified
+                    Server.NotificationManager.PushNotification("Scrap", Summary.HumanizeDictionary(Summary.ScrapDetail(traveler, item)));
                 } else if (newItem)
                 {
                     //=================

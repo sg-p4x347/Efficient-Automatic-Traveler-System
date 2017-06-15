@@ -71,6 +71,7 @@ namespace Efficient_Automatic_Traveler_System
             m_state = 0;
             m_dateStarted = "";
             m_comment = "";
+            m_lastReworkAccountedFor = 0;
         }
         public Traveler(Form form) : this()
         {
@@ -104,6 +105,7 @@ namespace Efficient_Automatic_Traveler_System
             m_state = (ItemState)Enum.Parse(typeof(ItemState), obj["state"]);
             m_dateStarted = obj["dateStarted"];
             m_comment = obj["comment"];
+            m_lastReworkAccountedFor = (ushort)(obj.ContainsKey("lastReworkAccountedFor") ? Convert.ToUInt16(obj["lastReworkAccountedFor"]) : 0);
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
         //public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
@@ -183,12 +185,13 @@ namespace Efficient_Automatic_Traveler_System
                 {"state",m_state.ToString().Quotate() },
                 {"type",this.GetType().Name.Quotate()},
                 {"dateStarted",DateStarted.Quotate() },
-                {"comment",Comment.Quotate() }
+                {"comment",Comment.Quotate() },
+                {"lastReworkAccountedFor",m_lastReworkAccountedFor.ToString() }
             };
             return obj.Stringify();
         }
         // print a label for this traveler
-        public virtual string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false)
+        public virtual string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false, StationClass station = null)
         {
             string result = "";
             try
@@ -215,7 +218,8 @@ namespace Efficient_Automatic_Traveler_System
                         case LabelType.Box:         template = "4x2 Table Travel Box";          break;
                     }
                     size = template.Substring(0, 3).ToLower();
-                    printer = item.Station.Printers.Find(x => x.ToLower().Contains(size));
+                    if (station == null) station = item.Station;
+                    printer = station.Printers.Find(x => x.ToLower().Contains(size));
                     if (printer == "")
                     {
                         throw new Exception("Could not find a " + size + " printer for this station when printing a [" + template + "] , check the config.json file for a printer listing on this station");
@@ -345,12 +349,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             // find the highest id
             // and find the smallest available sequence number
-            ushort highestID = 0;
+            ushort highestID = Items.Count > 0 ? Items.Max(i => i.ID) : (ushort)0;
             int maxSeqNo = (Items.Count > 0 ? Items.Max(x => x.SequenceNo) : 0);
             bool[] sequenceSlots = new bool[maxSeqNo+1];
             foreach (TravelerItem item in Items)
             {
-                highestID = Math.Max(highestID, item.ID);
                 if (!item.Scrapped) sequenceSlots[item.SequenceNo] = true;
             }
             ushort sequenceNo = (ushort)(maxSeqNo + 1);
@@ -444,7 +447,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (Items.Exists(i => i.State == viewState && i.Station == station)) stations.Add(station);
             }
-            if (State == ItemState.PreProcess || State == ItemState.InProcess) stations.Add(Station);
+            if ((viewState == ItemState.PreProcess && State == ItemState.PreProcess) 
+                || (viewState == ItemState.InProcess && State == ItemState.InProcess)) stations.Add(Station);
             return stations;
         }
         
@@ -738,7 +742,7 @@ namespace Efficient_Automatic_Traveler_System
         private ItemState m_state;
         private string m_dateStarted;
         private int m_priority;
-
+        private ushort m_lastReworkAccountedFor;
         #endregion
         //--------------------------------------------------------
         #region Interface
@@ -940,6 +944,19 @@ namespace Efficient_Automatic_Traveler_System
             protected set
             {
                 m_itemCode = value;
+            }
+        }
+
+        public ushort LastReworkAccountedFor
+        {
+            get
+            {
+                return m_lastReworkAccountedFor;
+            }
+
+            set
+            {
+                m_lastReworkAccountedFor = value;
             }
         }
         #endregion

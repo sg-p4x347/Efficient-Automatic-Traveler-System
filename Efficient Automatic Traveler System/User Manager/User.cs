@@ -31,13 +31,12 @@ namespace Efficient_Automatic_Traveler_System
                     m_history.Add(evtObj);
                 }
             }
+            m_mailAddress = obj.ContainsKey("mailAddress") ? obj["mailAddress"] : "";
+            Notify = obj.ContainsKey("notify") ? Convert.ToBoolean(obj["notify"]) : false;
         }
         public User(Form form)
         {
-            m_name = form.ValueOf("name");
-            m_UID = form.ValueOf("UID");
-            m_PWD = form.ValueOf("PWD");
-            m_accessLevel = (AccessLevel)Enum.Parse(typeof(AccessLevel), form.ValueOf("accessLevel"));
+            Update(form);
             m_history = new List<Event>();
         }
         public void Update(Form form)
@@ -46,6 +45,8 @@ namespace Efficient_Automatic_Traveler_System
             m_UID = form.ValueOf("UID");
             m_PWD = form.ValueOf("PWD");
             m_accessLevel = (AccessLevel)Enum.Parse(typeof(AccessLevel), form.ValueOf("accessLevel"));
+            m_mailAddress = form.ValueOf("mailAddress");
+            Notify = Convert.ToBoolean(form.ValueOf("notify"));
         }
         public override string ToString()
         {
@@ -55,7 +56,9 @@ namespace Efficient_Automatic_Traveler_System
                 {"UID",m_UID.Quotate() },
                 {"PWD",m_PWD.Quotate() },
                 {"accessLevel",m_accessLevel.ToString().Quotate() },
-                {"history",m_history.Stringify<Event>() }
+                {"history",m_history.Stringify<Event>() },
+                {"mailAddress",m_mailAddress.Quotate() },
+                {"notify",Notify.ToString().ToLower() }
             };
             return obj.Stringify();
         }
@@ -98,6 +101,8 @@ namespace Efficient_Automatic_Traveler_System
             form.Textbox("PWD", "Password");
             //form.Selection<AccessLevel>("accessLevel", "Access Level");
             form.Selection("accessLevel", "Access level", ExtensionMethods.GetNamesLessThanOrEqual<AccessLevel>(m_accessLevel));
+            form.Textbox("mailAddress", "Mail Address");
+            form.Checkbox("notify", "Notifications", false);
             return form;
         }
         public Form CreateFilledForm()
@@ -109,6 +114,8 @@ namespace Efficient_Automatic_Traveler_System
             form.Textbox("PWD", "Password",m_PWD);
             //form.Selection<AccessLevel>("accessLevel", "Access Level");
             form.Selection("accessLevel", "Access level", ExtensionMethods.GetNamesLessThanOrEqual<AccessLevel>(m_accessLevel),m_accessLevel.ToString());
+            form.Textbox("mailAddress", "Mail Address", m_mailAddress);
+            form.Checkbox("notify", "Notifications", Notify);
             return form;
         }
 
@@ -140,6 +147,8 @@ namespace Efficient_Automatic_Traveler_System
         private string m_PWD;
         private AccessLevel m_accessLevel;
         private List<Event> m_history;
+        private string m_mailAddress;
+        private bool m_notify;
         #endregion
         #region Interface
         internal string UID
@@ -204,6 +213,39 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_accessLevel = value;
+            }
+        }
+
+        public string MailAddress
+        {
+            get
+            {
+                return m_mailAddress;
+            }
+
+            set
+            {
+                m_mailAddress = value;
+            }
+        }
+
+        public bool Notify
+        {
+            get
+            {
+                return m_notify;
+            }
+
+            set
+            {
+                m_notify = value;
+                if (m_notify && m_mailAddress != "")
+                {
+                    Server.NotificationManager.AddSubscriber(m_mailAddress);
+                } else
+                {
+                    Server.NotificationManager.RemoveSubscriber(m_mailAddress);
+                }
             }
         }
         #endregion

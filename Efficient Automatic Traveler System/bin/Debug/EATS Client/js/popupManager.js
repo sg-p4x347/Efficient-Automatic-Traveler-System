@@ -135,7 +135,14 @@ function PopupManager(blackout) {
 					input.appendChild(option);
 				});
 			}
-			input.value = field.value;
+			if (field.type != "checkbox") {
+				input.value = field.value;
+			} else {
+				input.checked = field.value;
+				input.onclick = function (evt) {
+					evt.stopPropagation();
+				}
+			}
 			row.appendChild(input);
 			inputs.push(input);
 			//------
@@ -145,7 +152,11 @@ function PopupManager(blackout) {
 		submit.onclick = function () {
 			format.fields.forEach(function (field,i) {
 				self.Close(popup);
-				format.fields[i].value = inputs[i].value;
+				if (inputs[i].type != "checkbox") {
+					format.fields[i].value = inputs[i].value;
+				} else {
+					format.fields[i].value = inputs[i].checked;
+				}
 			});
 			submitCallback(format);
 		}

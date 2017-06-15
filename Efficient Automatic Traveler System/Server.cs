@@ -30,6 +30,7 @@ namespace Efficient_Automatic_Traveler_System
 
                 BackupManager.Initialize();
                 Configure();
+                m_notificationManager = new NotificationManager(ConfigManager.Get("notificationManager"));
 
                 m_orderManager = new OrderManager();
                 m_travelerManager = new TravelerManager(m_orderManager as IOrderManager);
@@ -204,7 +205,8 @@ namespace Efficient_Automatic_Traveler_System
             Server.WriteLine("> Updating in Online mode");
             // Import stored orders from json file and MAS
             m_orderManager.ImportOrders(ref m_MAS);
-            
+            m_orderManager.NotifyShipDates();
+
             // Load, Create, and combine all travelers
             m_travelerManager.CompileTravelers();
 
@@ -425,6 +427,7 @@ namespace Efficient_Automatic_Traveler_System
         private static TravelerManager m_travelerManager;
         private static OrderManager m_orderManager;
         private static UserManager m_userManager;
+        private static NotificationManager m_notificationManager;
         private OdbcConnection m_MAS;
         private static StreamWriter m_outputLog = new StreamWriter(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "server log.txt"));
 
@@ -543,6 +546,19 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_userManager;
+            }
+        }
+
+        internal static NotificationManager NotificationManager
+        {
+            get
+            {
+                return m_notificationManager;
+            }
+
+            set
+            {
+                m_notificationManager = value;
             }
         }
     }

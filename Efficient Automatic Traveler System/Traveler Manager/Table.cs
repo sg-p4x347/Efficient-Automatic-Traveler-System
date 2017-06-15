@@ -201,7 +201,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             if (station.Type == "heian" && travelerManager != null)
             {
-                int qtyToAdvance = Items.Count(i => i.Station == station && i.IsComplete() && !i.Replacement);
+                int qtyToAdvance = Items.Count(i => i.Station == station && i.IsComplete()) - Items.Count(i => i.History.OfType<ScrapEvent>().ToList().Exists(e => e.Station.Type != "heian"));
                 if (qtyToAdvance > 0)
                 {
                     // Create a box traveler for these items
@@ -348,9 +348,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             base.EnterProduction(travelerManager);
         }
-        public override string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false)
+        public override string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false,StationClass station = null)
         {
-            return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint);
+            return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint,station);
         }
 
         // IForm -------------------

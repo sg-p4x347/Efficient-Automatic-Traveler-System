@@ -688,7 +688,6 @@ namespace Efficient_Automatic_Traveler_System
                     new TextNode("Manage"),
                     new Button("New User","UserForm"),
                     new Button("Edit User","SearchPopup",@"{""interfaceCall"":""EditUserForm"",""message"":""Search for a user by name or ID""}"),
-                    new TextNode(""),
                     new Button("New Traveler","TravelerForm"),
                     new Button("Kanban Monitor", "KanbanMonitor")
                 };

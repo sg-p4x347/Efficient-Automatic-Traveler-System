@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Net.Mail;
 
 namespace Efficient_Automatic_Traveler_System
 {

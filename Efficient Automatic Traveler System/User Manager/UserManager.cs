@@ -20,7 +20,8 @@ namespace Efficient_Automatic_Traveler_System
                     List<string> userArray = (new StringStream(BackupManager.Import("users.json", date))).ParseJSONarray();
                     foreach (string userJSON in userArray)
                     {
-                        m_users.Add(new User(userJSON));
+                        User user = new User(userJSON);
+                        m_users.Add(user);
                     }
                     Server.WriteLine("Users loaded from backup");
                 } else
