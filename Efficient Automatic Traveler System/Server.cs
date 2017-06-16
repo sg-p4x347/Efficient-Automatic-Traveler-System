@@ -43,6 +43,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_updateInterval = new TimeSpan(24, 0, 0);
 
                 m_userManager = new UserManager();
+
                 // HTTP file serving
             } catch (Exception ex)
             {

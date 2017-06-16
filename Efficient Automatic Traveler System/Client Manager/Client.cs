@@ -28,16 +28,11 @@ namespace Efficient_Automatic_Traveler_System
     }
     public struct ClientMessage
     {
-        public ClientMessage(string type, string message)
+        public ClientMessage(string method, string message = "",string callback = "")
         {
-            Method = type;
-            Parameters = (type == "Info" ? message.Quotate() : message);
-            CallID = 0;
-        }
-        public ClientMessage(string type)
-        {
-            Method = type;
-            Parameters = "";
+            Method = method;
+            Parameters = (method == "Info" ? message.Quotate() : message);
+            Callback = callback;
             CallID = 0;
         }
         public override string ToString()
@@ -47,7 +42,8 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new Dictionary<string, string>()
                 {
                     {"method", Method.Quotate() },
-                    {"parameters", (Parameters != "" ? Parameters : "".Quotate())}
+                    {"parameters", (Parameters != "" ? Parameters : "".Quotate())},
+                    {"callback",Callback.Quotate() }
                 };
                 return obj.Stringify();
             } else
@@ -57,6 +53,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string Method;
         public string Parameters;
+        public string Callback;
         public int CallID;
     }
     /* all derived classes that use ITravelers 

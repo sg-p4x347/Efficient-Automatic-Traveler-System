@@ -412,13 +412,14 @@ function Application () {
 			}
 		} */
 		// try and load the old traveler
-		self.travelerQueue.travelers.forEach(function (traveler) {
+		/* self.travelerQueue.travelers.forEach(function (traveler) {
 			if (traveler.ID == self.travelerView.lastTravelerID) {
 				application.LoadTraveler(self.travelerQueue.FindTraveler(traveler.ID));
 				//self.travelerQueue.SelectTraveler();
 				//self.travelerView.Load(traveler);
 			}
-		});
+		}); */
+		return "{}";
 	}
 	// initialize html and application components
 	this.Initialize = function () {
@@ -520,7 +521,14 @@ function Application () {
 						if (object.hasOwnProperty("method")) {
 							if (self.hasOwnProperty(object.method) && object.hasOwnProperty("parameters")) {
 								// The server is invoking a client method
-								self[object.method](object.parameters);
+								if (object.callback == "") {
+									// Inovkes a client function, with the parameters passed
+									self[object.method](object.parameters);
+								} else {
+									// Invokes a callback function on the server, passing the object that was returned
+									// by the client function as the parameter
+									new InterfaceCall(object.callback,self[object.method](object.parameters));
+								}
 							}
 						}
 					}

@@ -13,6 +13,10 @@ namespace Efficient_Automatic_Traveler_System
             m_string = s;
             m_position = -1;
         }
+        public static char operator>>(StringStream s, int shift)
+        {
+            return s.m_string[s.m_position++];
+        }
         public Dictionary<string,string> ParseJSON(bool dequote = true)
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();

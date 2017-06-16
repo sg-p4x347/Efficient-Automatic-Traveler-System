@@ -53,7 +53,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             message.Add("travelers", travelerStrings.Stringify(false));
             message.Add("mirror", mirror.ToString().ToLower());
-            SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify()).ToString());
+            SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify(), "LoadCurrent").ToString());
         }
         private string ExportTraveler(Traveler traveler)
         {
@@ -95,6 +95,7 @@ namespace Efficient_Automatic_Traveler_System
         protected ITravelerManager m_travelerManager;
         protected StationClass m_station;
         protected Traveler m_current;
+        protected TravelerItem m_item;
         protected DateTime m_partStart;
         internal StationClass Station
         {
@@ -301,17 +302,18 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+                m_item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
                 LoadTraveler(json);
+                 
                 Dictionary<string, string> returnParams = new Dictionary<string, string>()
                 {
                     {"traveler", ExportTraveler(traveler)},
-                    {"item",item.ToString() },
-                    {"sequenceID",traveler.PrintSequenceID(item).Quotate() }
+                    {"item",m_item.ToString() },
+                    {"sequenceID",traveler.PrintSequenceID(m_item).Quotate() }
                 };
                 if (m_station == StationClass.GetStation("Table-Pack"))
                 {
-                    SendMessage(new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table)).ToString());
+                    SendMessage(new ClientMessage("Info", traveler.PrintLabel(m_item.ID, LabelType.Table)).ToString());
                 }
                 return new ClientMessage("LoadItem", returnParams.Stringify());
             }
@@ -319,6 +321,32 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error loading item");
+            }
+        }
+        public ClientMessage LoadCurrent(string json)
+        {
+            try
+            {
+                if (m_current != null) {
+                    if (m_item != null) {
+                        Dictionary<string, string> returnParams = new Dictionary<string, string>()
+                        {
+                            {"traveler", ExportTraveler(m_current)},
+                            {"item", m_item.ToString() },
+                            {"sequenceID",m_current.PrintSequenceID(m_item).Quotate() }
+                        };
+                        return new ClientMessage("LoadItem", returnParams.Stringify());
+                    } else
+                    {
+                        return new ClientMessage("LoadTraveler", ExportTraveler(m_current));
+                    }
+                }
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading current");
             }
         }
         public ClientMessage SearchSubmitted(string json)

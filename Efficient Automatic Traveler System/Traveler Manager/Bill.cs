@@ -43,6 +43,7 @@ namespace Efficient_Automatic_Traveler_System
                 try
                 {
                     // get bill information from MAS
+                    try
                     {
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand command = MAS.CreateCommand();
@@ -67,8 +68,12 @@ namespace Efficient_Automatic_Traveler_System
                             }
                         }
                         reader.Close();
+                    } catch (Exception ex)
+                    {
+                        Server.LogException(ex);
                     }
                     // add the components from MAS
+                    try
                     {
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand command = MAS.CreateCommand();
@@ -94,6 +99,10 @@ namespace Efficient_Automatic_Traveler_System
                             }
                         }
                         reader.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Server.LogException(ex);
                     }
                     // success
                     m_imported = true;

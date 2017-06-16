@@ -93,6 +93,14 @@
     <Compile Include="Interfaces\ISupervisor.cs" />
     <Compile Include="Interfaces\ISupervisorClient.cs" />
     <Compile Include="InventoryManager.cs" />
+    <Compile Include="JsonParser\JSON.cs" />
+    <Compile Include="JsonParser\JsonArray.cs" />
+    <Compile Include="JsonParser\JsonBool.cs" />
+    <Compile Include="JsonParser\JsonDouble.cs" />
+    <Compile Include="JsonParser\JsonInt.cs" />
+    <Compile Include="JsonParser\JsonNull.cs" />
+    <Compile Include="JsonParser\JsonObject.cs" />
+    <Compile Include="JsonParser\JsonString.cs" />
     <Compile Include="Kanban Manager\KanbanManager.cs" />
     <Compile Include="Kanban Manager\KanbanItem.cs" />
     <Compile Include="NotificationManager.cs" />
