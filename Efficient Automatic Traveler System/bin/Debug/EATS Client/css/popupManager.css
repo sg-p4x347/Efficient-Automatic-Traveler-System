@@ -87,8 +87,6 @@
 	margin: 1px;
 	padding: 1px;
 	flex-shrink: 0;
-	overflow-x: auto;
-	overflow-y: auto;
 }
 .blackout__popup__controlPanel__column {
 	display: flex;

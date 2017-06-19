@@ -174,7 +174,14 @@ namespace Efficient_Automatic_Traveler_System
             await m_part.Import(MAS);
             m_part.BillDesc = Regex.Replace(m_part.BillDesc,"TableTopAsm,", "", RegexOptions.IgnoreCase); // tabletopasm is pretty obvious and therefore extraneous
             m_part.BillDesc = Regex.Replace(m_part.BillDesc, "TableTop,", "", RegexOptions.IgnoreCase);
-            m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
+            //m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
+            string[] parts = ItemCode.Split('-');
+            string colorNo = "";
+            foreach (char ch in parts[2])
+            {
+                if (Char.IsNumber(ch)) colorNo += ch;
+            }
+            m_colorNo = Convert.ToInt32(colorNo);
             // Table info in the table csv
             GetColorInfo();
             GetBlankInfo(MAS);

@@ -235,10 +235,17 @@ function PopupManager(blackout) {
 		self.Open(popup);
 	}
 	// displays a procedurally generated control panel from the format provided by the server
-	this.ControlPanel = function (format) {
+	this.ControlPanel = function (format,DOMparent) {
 		var self = this;
-		var popup = self.CreatePopup(format.title,true);
-		popup.id = format.title;
+		var popup;
+		if (!DOMparent) {
+			popup = self.CreatePopup(format.title,true);
+			popup.id = format.title;
+		} else {
+			popup = DOMparent;
+			ClearChildren(DOMparent);
+		}
+		
 		self.AddControlNode(format.body,popup,function (parameters) {
 			new InterfaceCall(parameters.callback,parameters);
 		},true);
@@ -252,7 +259,7 @@ function PopupManager(blackout) {
 		});
 		horizontal.appendChild(controlDiv);
 		popup.appendChild(horizontal); */
-		self.Open(popup);
+		if (!DOMparent) {self.Open(popup);}
 	}
 	// helper for the control panel
 	this.AddControlNode = function (node,parent,callback,highestLevel) {
@@ -275,20 +282,21 @@ function PopupManager(blackout) {
 				/* if (node.color != "black") {
 					nodeElement.style.textShadow = "1px 1px 1px black";
 				} */
+				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
 			case "Button":
 				var innerParams = node.returnParam;
-				innerParams.callback = node.callback;
-				var button = new PopupButton(node.name,callback);
-				button.Initialize(self,innerParams);
-				nodeElement = button.element;
+				//innerParams.callback = node.callback;
+				//var eventListener = node.EventListeners[0];
+				nodeElement = new self.CreateButton(node.name);
+				//button.Initialize(self,innerParams);
+				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
 			case "Selection":
-				var innerParams = node.returnParam;
-				innerParams.callback = node.callback;
-				var selection = new PopupSelection(node.name,node.options,node.value,callback);
-				selection.Initialize(self,innerParams);
+				var selection = new PopupSelection(node.name,node.options,node.value);
+				selection.Initialize(self);
 				nodeElement = selection.element;
+				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
 			case "RadioButtons":
 				var innerParams = node.returnParam;
@@ -296,6 +304,7 @@ function PopupManager(blackout) {
 				var radioButtons = new PopupRadioButtons(node.name,node.options,node.value,callback);
 				radioButtons.Initialize(self,innerParams);
 				nodeElement = radioButtons.element;
+				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
 			case "Row":
 				var row = self.CreateHorizontalList();
@@ -305,6 +314,7 @@ function PopupManager(blackout) {
 					self.AddControlNode(innerNode,row,callback);
 				});
 				nodeElement = row;
+				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
 			case "Column":
 				var column = document.createElement("DIV");
@@ -314,11 +324,20 @@ function PopupManager(blackout) {
 					self.AddControlNode(innerNode,column,callback);
 				});
 				nodeElement = column;
+				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
 		}
-		nodeElement.className += " blackout__popup__controlPanel__node";
+		
 		node.styleClasses.forEach(function (styleClass) {
 			nodeElement.className += " " + styleClass;
+		});
+		node.eventListeners.forEach(function (evtListener) {
+			nodeElement.addEventListener(evtListener.type,function () {
+				if (node.type == "Selection") {
+					evtListener.returnParam.value = nodeElement.value;
+				}
+				new InterfaceCall(evtListener.callback,evtListener.returnParam);
+			});
 		});
 		if (node.style) {
 			for (var style in node.style) {
@@ -541,13 +560,13 @@ PopupCheckbox.prototype.Initialize = function (popupManager, object) {
 	}
 }
 
-function PopupSelection(name, options, value, callback) {
-	PopupControl.call(this, name, callback);
+function PopupSelection(name, options, value) {
+	PopupControl.call(this, name);
 	this.options = options;
 	this.value = value;
 }
 // calls the callback with: callback(object,value);
-PopupSelection.prototype.Initialize = function (popupManager, object) {
+PopupSelection.prototype.Initialize = function (popupManager) {
 	var self = this;
 	self.element = document.createElement("SELECT");
 	self.element.className = "dark oneEM";
@@ -560,10 +579,6 @@ PopupSelection.prototype.Initialize = function (popupManager, object) {
 		self.element.appendChild(option);
 	});
 	self.element.value = self.value;
-	self.element.onchange = function () {
-		object.value = self.element.value;
-		self.callback(object);
-	}
 }
 function PopupRadioButtons(name, options, value, callback) {
 	PopupControl.call(this, name, callback);

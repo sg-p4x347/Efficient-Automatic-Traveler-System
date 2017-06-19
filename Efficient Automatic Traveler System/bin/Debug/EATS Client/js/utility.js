@@ -16,6 +16,7 @@ function InterfaceCall(methodName, parameters, target) {
 	
 } */
 function Traveler(obj) {
+	obj.queueType = "traveler";
 	obj.selected = false;
 	obj.FindItem = function (itemID) {
 		var item;
@@ -94,6 +95,87 @@ function Traveler(obj) {
 			}
 			DOMqueueItem.appendChild(self.checkBox);
 		}
+		// ITEM CODE-------------------------------------------
+		var itemCode = document.createElement("SPAN");
+			itemCode.className = "queue__item__desc beige";
+		if (self.type == "TableBox") {
+			itemCode.innerHTML = "Table Box";
+		} else {
+			itemCode.innerHTML = self.itemCode;
+		}
+		
+		DOMqueueItem.appendChild(itemCode);
+		
+		
+		
+		/* DOMqueueItem.onclick = function () {
+			//----------INTERFACE CALL-----------------------
+			var message = new InterfaceCall("LoadTravelerAt",
+			{
+				travelerID: self.ID,
+				station: station
+			});
+			application.websocket.send(JSON.stringify(message));
+			//-----------------------------------------------
+			//self.PromptAction(traveler);
+		} */
+		self.DOMqueueItem = DOMqueueItem;
+		return DOMqueueItem;
+	}
+	obj.Select = function(state) {
+		obj.selected = state;
+		if (obj.checkBox) obj.checkBox.checked = state;
+		obj.DOMqueueItem.className = (state ? "queue__item twoEM selected " + obj.colorClass
+			: "queue__item twoEM " + obj.colorClass);
+	}
+	return obj;
+}
+function TravelerItem(obj) {
+	obj.queueType = "travelerItem";
+	obj.selected = false;
+	obj.FindItem = function (itemID) {
+		var item;
+		obj.items.some(function (i) {
+			if (i.ID == itemID) {
+				item = i;
+				return true;
+			}
+		});
+		return item;
+	}
+	obj.CreateQueueItem = function (station) {
+		var self = this;
+		var DOMqueueItem = document.createElement("DIV");
+		self.colorClass = "blueBack";
+		switch (application.view.viewState) {
+			case "PreProcess": 
+			if (self.quantity > 0) {
+				if (self.forInventory) {
+					self.colorClass = "cyanBack";
+				} else {
+					self.colorClass = "blueBack";
+				}
+			} else {
+				self.colorClass = "ghostBack";
+			}
+			break;
+			case "InProcess": self.colorClass = "redBack"; break;
+			case "PostProcess": self.colorClass = "greenBack"; break;
+		}
+		DOMqueueItem.className = "queue__item twoEM ";
+		if (self.selected) {
+			DOMqueueItem.className += " selected";
+		}
+		DOMqueueItem.className += " " + self.colorClass;
+		DOMqueueItem.innerHTML = (self.type == "TableBox" ? pad(self.parentTravelers[0],6) : self.sequenceID) + "<br>";
+		// Icon -------------------------------------------
+		var path = "./img/";
+		if (self.type == "Table") {
+			path += self.shape + ".png";
+		} else if (self.type == "TableBox") {
+			path += "box.png";
+		}
+		DOMqueueItem.style.backgroundImage = 'url("' + path + '")';
 		// ITEM CODE-------------------------------------------
 		var itemCode = document.createElement("SPAN");
 			itemCode.className = "queue__item__desc beige";

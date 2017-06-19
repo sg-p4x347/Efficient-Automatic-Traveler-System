@@ -84,6 +84,8 @@ div.timer__btn {
 
 #travelerSearchBox {
 	width: 100%;
+	padding: 0px;
+	padding-left: 32px;
 }
 #itemSelect {
 	width: 100%;
@@ -161,9 +163,9 @@ div.queueContainer {
 	
 	border: 4px inset gray;
 	background-color: #202020;
-	overflow: auto;
 	width: 20%;
 	height: 50%;
+	flex-grow: 0;
 }
 div.footer {
 	display: flex;

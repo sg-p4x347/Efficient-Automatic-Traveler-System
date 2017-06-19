@@ -11,16 +11,26 @@ namespace Efficient_Automatic_Traveler_System
         public Style()
         {
             this.ClassNames = new List<string>();
+            this.UniqueStyles = new Dictionary<string, string>();
         }
         public Style(params string[] classNames)
         {
             this.ClassNames = new List<string>(classNames);
+            this.UniqueStyles = new Dictionary<string, string>();
+        }
+        public void AddStyle(string name, string style)
+        {
+            UniqueStyles.Add(name, style.Quotate());
         }
         public static Style operator + (Style s1, Style s2)
         {
-            return new Style(s1.ClassNames.Concat(s2.ClassNames).ToArray());
+            Style style = new Style(s1.ClassNames.Concat(s2.ClassNames).ToArray());
+            style.UniqueStyles = s1.UniqueStyles;
+            style.UniqueStyles.Merge(s2.UniqueStyles);
+            return style;
         }
         public List<string> ClassNames;
+        public Dictionary<string,string> UniqueStyles;
     }
     class Node
     {
@@ -30,20 +40,22 @@ namespace Efficient_Automatic_Traveler_System
             m_style = style != null ? style : new Dictionary<string, string>();
             m_styleClasses = (styleClasses != null ? styleClasses : new Style());
             m_DOMtype = DOMtype;
+            m_eventListeners = new List<EventListener>();
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("type", this.GetType().Name.Quotate());
             obj.Add("DOMtype", m_DOMtype.Quotate());
-            obj.Add("style", m_style.Stringify());
+            obj.Add("style", m_styleClasses.UniqueStyles.Stringify());
             obj.Add("styleClasses", m_styleClasses.ClassNames.Stringify());
+            obj.Add("eventListeners", m_eventListeners.Stringify());
             return obj.Stringify();
         }
         private Dictionary<string, string> m_style;
         private Style m_styleClasses = new Style();
         private string m_DOMtype;
-
+        private List<EventListener> m_eventListeners;
         public Dictionary<string, string> Style
         {
             get
@@ -69,6 +81,20 @@ namespace Efficient_Automatic_Traveler_System
                 m_styleClasses = value;
             }
         }
+
+        internal List<EventListener> EventListeners
+        {
+            get
+            {
+                return m_eventListeners;
+            }
+
+            set
+            {
+                m_eventListeners = value;
+            }
+        }
+
         // Specialized Nodes
         public static Node Img(Style style = null)
         {
@@ -91,40 +117,35 @@ namespace Efficient_Automatic_Traveler_System
     }
     abstract class Control : Node
     {
-        public Control(string name, string callback, string returnParam, Dictionary<string, string> style = null, Style styleClasses = null) : base(style,styleClasses)
+        public Control(string type, string name, string callback, string returnParam, Dictionary<string, string> style = null, Style styleClasses = null) : base(style,styleClasses)
         {
             m_name = name;
-            m_callback = callback;
-            m_returnParam = returnParam;
+            EventListeners.Add(new EventListener(type, callback, returnParam));
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("name", m_name.Quotate());
-            obj.Add("callback", m_callback.Quotate());
-            obj.Add("returnParam", m_returnParam);
             return base.ToString().MergeJSON(obj.Stringify());
         }
         private string m_name;
-        private string m_callback;
-        private string m_returnParam;
     }
     class Button : Control
     {
-        public Button(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base(name, callback, returnParam, style, styleClasses)
+        public Button(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base("click", name, callback, returnParam, style, styleClasses)
         {
-
+            
         }
     }
     class Checkbox : Control
     {
-        public Checkbox(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base(name, callback, returnParam, style, styleClasses)
+        public Checkbox(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base("change", name, callback, returnParam, style, styleClasses)
         {
         }
     }
     class Selection : Control
     {
-        public Selection(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base (name, callback, returnParam, style, styleClasses) {
+        public Selection(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base ("change",name, callback, returnParam, style, styleClasses) {
             m_options = options;
             m_value = value;
         }
@@ -213,20 +234,47 @@ namespace Efficient_Automatic_Traveler_System
     }
     class ControlPanel
     {
-        public ControlPanel(string title, Node body)
+        public ControlPanel(string title, Node body, string id = "")
         {
             m_title = title;
             m_body = body;
+            m_ID = id;
         }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("title", m_title.Quotate());
             obj.Add("body", m_body.ToString());
+            obj.Add("ID", m_ID.Quotate());
             return obj.Stringify();
+        }
+        public ClientMessage Dispatch()
+        {
+            return new ClientMessage("ControlPanel", ToString());
         }
         private string m_title;
         private Node m_body;
+        private string m_ID;
     }
     
+    class EventListener
+    {
+        public EventListener(string type, string callback, string returnParam)
+        {
+            m_type = type;
+            m_callback = callback;
+            m_returnParam = returnParam;
+        }
+        public override string ToString()
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            obj.Add("type", m_type.Quotate());
+            obj.Add("callback", m_callback.Quotate());
+            obj.Add("returnParam", m_returnParam);
+            return obj.Stringify();
+        }
+        private string m_type;
+        private string m_callback;
+        private string m_returnParam;
+    }
 }

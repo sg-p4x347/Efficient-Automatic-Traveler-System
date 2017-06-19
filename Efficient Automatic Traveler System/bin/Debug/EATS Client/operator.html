@@ -74,17 +74,20 @@
 			<div id = "viewContainer" class = "viewContainer">
 				<table class = "view"></table>
 			</div>
-			<div id = "queueContainer" class = "queueContainer center twoEM">
+			<div id = "preProcessQueueContainer" class = "queueContainer center twoEM">
 				<!-- TRAVELER QUEUE -->
 				<form id = "travelerSearch">
 					<input type="search" id = "travelerSearchBox" class = "dark white searchBox" placeholder = "Search..." pattern="\d*|(\d*-\d*)">
 				</form>
-				<div id = "travelerQueue" class = "queue"></div>
 				<!-- ITEM QUEUE -->
-				<div id = "itemQueue">
+				<div id = "preProcessQueue" class = "queue">
 					<p>Items</p>
 					<select id = "itemSelect"></select>
 				</div>
+			</div>
+			<!-- InProcess QUEUE -->
+			<div id = "inProcessQueueContainer" class = "queueContainer center twoEM">
+				<div id = "inProcessQueue" class = "queue"></div>
 			</div>
 			<div id = "interfaceContainer" class = "interfaceContainer twoEM">
 				<!-- QTY LEFT -->

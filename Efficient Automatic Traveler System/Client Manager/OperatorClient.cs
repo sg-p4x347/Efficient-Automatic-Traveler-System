@@ -32,6 +32,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 m_station = StationClass.GetStation(obj["station"]);
+
                 HandleTravelersChanged(m_travelerManager.GetTravelers);
             }
             catch (Exception ex)
@@ -45,16 +46,149 @@ namespace Efficient_Automatic_Traveler_System
             bool mirror = true; // travelers.Count == m_travelerManager.GetTravelers.Count;
             travelers = m_travelerManager.GetTravelers;
             Dictionary<string, string> message = new Dictionary<string, string>();
-            List<string> travelerStrings = new List<string>();
+            //// PreProcess
+            //List<string> travelerStrings = new List<string>();
 
+            //foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
+            //{
+            //    travelerStrings.Add(ExportTraveler(traveler));
+            //}
+
+            //message.Add("preProcess", travelerStrings.Stringify(false));
+            //// InProcess
+            //travelerStrings.Clear();
+
+            //foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
+            //{
+            //    foreach (TravelerItem item in traveler.Items.Where(i => i.State == ItemState.InProcess && i.Station == m_station))
+            //    {
+            //        travelerStrings.Add(ExportTravelerItem(traveler,item));
+            //    }
+            //}
+
+            //message.Add("inProcess", travelerStrings.Stringify(false));
+
+            //message.Add("mirror", mirror.ToString().ToLower());
+            //SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify(), "LoadCurrent").ToString());
+            
+            // PreProcess traveler queue items
+            NodeList preProcess = new NodeList(styleClasses: new Style("queue"));
             foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
             {
-                travelerStrings.Add(ExportTraveler(traveler));
+                NodeList queueItem = CreateQueueItem(traveler);
+                queueItem.EventListeners.Add(new EventListener("click", "LoadTraveler", @"{""travelerID"":" + traveler.ID + "}"));
+                // ID
+                queueItem.Add(new TextNode(traveler.ID.ToString("D6")));
+
+                queueItem.Add(new Row()
+                {
+                    // Qty pending
+                    {new TextNode(traveler.QuantityPendingAt(m_station).ToString(),styleClasses: new Style("queue__item__qty lime")) },
+                    // slash "/"
+                    { new TextNode("/",styleClasses: new Style("queue__item__qty white")) },
+                    // Total Qty
+                    {new TextNode(traveler.Quantity.ToString(),styleClasses: new Style("queue__item__qty orange")) }
+                });
+                // ItemCode
+                queueItem.Add(new TextNode(traveler.ItemCode, styleClasses: new Style("queue__item__desc beige")));
+                
+                preProcess.Add(queueItem);
             }
-            message.Add("travelers", travelerStrings.Stringify(false));
-            message.Add("mirror", mirror.ToString().ToLower());
-            SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify(), "LoadCurrent").ToString());
+            ControlPanel preProcessControlPanel = new ControlPanel("inProcess", preProcess, "preProcessQueue");
+            SendMessage(preProcessControlPanel.Dispatch().ToString());
+
+            // InProcess queue items
+            NodeList inProcess = new NodeList(styleClasses: new Style("queue"));
+            foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
+            {
+                foreach (TravelerItem item in traveler.Items.Where(i => i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station)))
+                {
+                    NodeList queueItem = CreateQueueItem(traveler,item);
+                    queueItem.EventListeners.Add(new EventListener("click", "LoadItem", @"{""travelerID"":" + traveler.ID + @",""itemID"":" + item.ID + "}"));
+                    queueItem.Add(new TextNode(traveler.PrintSequenceID(item)));
+                    inProcess.Add(queueItem);
+                }
+            }
+            ControlPanel cp = new ControlPanel("inProcess", inProcess, "inProcessQueueContainer");
+            SendMessage(cp.Dispatch().ToString());
+            UpdateUI();
         }
+        private NodeList CreateQueueItem(Traveler traveler, TravelerItem item = null)
+        {
+            NodeList queueItem = new NodeList(styleClasses: new Style("queue__item", "redBack"));
+            if ((item == null && traveler == m_current) || (item != null && item == m_item)) queueItem.StyleClasses += new Style("selected");
+            if (traveler is Table)
+            {
+                queueItem.StyleClasses.AddStyle("backgroundImage", "url('./img/" + (traveler as Table).Shape + ".png')");
+            }
+            return queueItem;
+        }
+        // Direct UI control vvvvvvvvvvvvvvvvvvvvvvvvvv
+        private void UpdateUI()
+        {
+            if (m_current == null)
+            {
+                SetQtyCompleted(0);
+                SetQtyPending(0);
+                DisableProcessBtns();
+                DisableSubmitBtn();
+            } else
+            {
+
+                int qtyPending = m_current.QuantityPendingAt(m_station);
+                SetQtyPending(qtyPending);
+                int qtyCompleted = m_current.QuantityCompleteAt(m_station);
+                SetQtyCompleted(qtyCompleted);
+
+                if (qtyPending > 0)
+                {
+                    EnableProcessBtns();
+                } else
+                {
+                    DisableProcessBtns();
+                }
+                if (qtyCompleted > 0)
+                {
+                    EnableSubmitBtn();
+                } else
+                {
+                    DisableSubmitBtn();
+                }
+
+                LoadTravelerView(m_current);
+            }
+        }
+        private void DisableProcessBtns()
+        {
+            SendMessage(new ClientMessage("DisableUI").ToString());
+        }
+        private void DisableSubmitBtn()
+        {
+            SendMessage(new ClientMessage("DisableSubmitBtn").ToString());
+        }
+        private void EnableProcessBtns()
+        {
+            SendMessage(new ClientMessage("EnableUI").ToString());
+        }
+        private void EnableSubmitBtn()
+        {
+            SendMessage(new ClientMessage("EnableSubmitBtn").ToString());
+        }
+        private void SetQtyPending(int qty)
+        {
+            SendMessage(new ClientMessage("SetQtyPending",qty.ToString()).ToString());
+        }
+        private void SetQtyCompleted(int qty)
+        {
+            SendMessage(new ClientMessage("SetQtyCompleted", qty.ToString()).ToString());
+        }
+        private void LoadTravelerView(Traveler traveler, TravelerItem item = null)
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            obj.Add("ID", (item != null ? traveler.PrintSequenceID(item) : traveler.ID.ToString("D6")).Quotate());
+            SendMessage(new ClientMessage("LoadTravelerView", obj.Stringify().MergeJSON(traveler.ExportTableRows(m_station))).ToString());
+        }
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         private string ExportTraveler(Traveler traveler)
         {
             string travelerJSON = traveler.ToString();
@@ -64,6 +198,19 @@ namespace Efficient_Automatic_Traveler_System
             travelerJSON = travelerJSON.MergeJSON(traveler.ExportTableRows(m_station));
             travelerJSON = travelerJSON.MergeJSON(traveler.ExportProperties(m_station).Stringify());
             return travelerJSON;
+        }
+        public string ExportTravelerItem(Traveler traveler, TravelerItem item)
+        {
+            string itemJSON = item.ToString();
+            itemJSON = itemJSON.MergeJSON(traveler.ExportTableRows(m_station));
+            Dictionary<string, string> extraProps = new Dictionary<string, string>()
+            {
+                {"sequenceID",traveler.PrintSequenceID(item).Quotate() },
+                {"travelerID",traveler.ID.ToString() }
+            };
+            itemJSON = itemJSON.MergeJSON(extraProps.Stringify());
+            itemJSON = itemJSON.MergeJSON(traveler.ExportProperties(m_station).Stringify());
+            return itemJSON;
         }
         public ClientMessage ChecklistSubmit(string json)
         {
@@ -149,7 +296,35 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("LoginPopup", ("System error! oops...").Quotate());
             }
         }
+        public ClientMessage CompleteItem(string json)
+        {
+            try
+            {
+                DateTime now = DateTime.Now;
+                TimeSpan duration = now.Subtract(m_partStart);
+                m_partStart = now;
+                ProcessEvent evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, ProcessType.Completed);
 
+                if (m_item != null && evt.Process == ProcessType.Completed)
+                {
+                    // remove the start event
+                    m_item.History.RemoveAll(e => e is ProcessEvent && (e as ProcessEvent).Process == ProcessType.Started);
+                }
+                SendMessage(m_travelerManager.AddTravelerEvent(evt, m_current, m_item).ToString());
+                UpdateUI();
+
+                if (m_station.Mode == StationMode.Serial)
+                {
+                    SubmitTraveler("");
+                }
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error completing item");
+            }
+        }
         public ClientMessage AddTravelerEvent(string json)
         {
             try
@@ -163,7 +338,14 @@ namespace Efficient_Automatic_Traveler_System
                 ProcessEvent evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, (ProcessType)Enum.Parse(typeof(ProcessType), obj["eventType"]));
                 
                 TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
-                return m_travelerManager.AddTravelerEvent(evt,traveler,item);
+                if (item != null && evt.Process == ProcessType.Completed)
+                {
+                    // remove the start event
+                    item.History.RemoveAll(e => e is ProcessEvent && (e as ProcessEvent).Process == ProcessType.Started);
+                }
+                SendMessage( m_travelerManager.AddTravelerEvent(evt,traveler,item).ToString());
+                UpdateUI();
+                return new ClientMessage();
             } catch (Exception ex)
             {
                 Server.LogException(ex);
@@ -175,11 +357,8 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                ScrapEvent evt = new ScrapEvent(m_user, m_station, traveler.GetCurrentLabor(m_station) - Convert.ToDouble(obj["time"]), Convert.ToBoolean(obj["startedWork"].ToLower()),obj["source"],obj["reason"]);
-                TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
-                
-                ClientMessage message =  m_travelerManager.AddTravelerEvent(evt, traveler, item);
+                ScrapEvent evt = new ScrapEvent(m_user, m_station, (DateTime.Now - m_partStart).TotalMinutes, Convert.ToBoolean(obj["startedWork"].ToLower()),obj["source"],obj["reason"]);
+                ClientMessage message =  m_travelerManager.AddTravelerEvent(evt, m_current, m_item);
                 int userScrapQty = m_travelerManager.GetTravelers.Sum(t => t.Items.Count(i => i.History.OfType<ScrapEvent>().ToList().Exists(e => e.User.UID == m_user.UID && e.Date >= DateTime.Today)));
                 message.Parameters = (message.Parameters.DeQuote() + "<br>You have scrapped " + userScrapQty + " items today").Quotate();
                 if (userScrapQty >= 5)
@@ -223,13 +402,14 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                AddHistory(new Dictionary<string, object>() { { "traveler", traveler }, { "items", traveler.CompletedItems(m_station) } });
-                return m_travelerManager.SubmitTraveler(
-                    traveler,
+                AddHistory(new Dictionary<string, object>() { { "traveler", m_current }, { "items", m_current.CompletedItems(m_station) } });
+                
+                SendMessage( m_travelerManager.SubmitTraveler(
+                    m_current,
                     m_station
-                );
+                ).ToString());
+                UpdateUI();
+                return new ClientMessage();
             }
             catch (Exception ex)
             {
@@ -282,6 +462,8 @@ namespace Efficient_Automatic_Traveler_System
                         DisplayChecklist();
                         m_travelerManager.SubmitTraveler(m_current, m_station);
                         m_current = traveler;
+
+                        HandleTravelersChanged(m_travelerManager.GetTravelers);
                         return new ClientMessage("LoadTraveler", ExportTraveler(traveler));
                     } else
                     {
@@ -315,6 +497,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     SendMessage(new ClientMessage("Info", traveler.PrintLabel(m_item.ID, LabelType.Table)).ToString());
                 }
+                HandleTravelersChanged(m_travelerManager.GetTravelers);
                 return new ClientMessage("LoadItem", returnParams.Stringify());
             }
             catch (Exception ex)
@@ -365,7 +548,13 @@ namespace Efficient_Automatic_Traveler_System
                         {
                             if (item.Station == m_station)
                             {
-                                SendMessage(LoadItem(json).ToString());
+                                // Start work on this item
+                                if (!item.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))
+                                {
+                                    item.History.Add(new ProcessEvent(m_user, m_station, 0, ProcessType.Started));
+                                }
+                                HandleTravelersChanged(m_travelerManager.GetTravelers);
+                                //SendMessage(LoadItem(json).ToString());
                                 // if this is Table pack station, print Table label on search submission 
                                 // (they scanned the barcode)
                                 //if (m_station == StationClass.GetStation("Table-Pack"))

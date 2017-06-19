@@ -13,6 +13,7 @@ function Application () {
 	this.type = "operator";
 	// DOM
 	this.travelerQueue;
+	this.inProcessQueue;
 	this.travelerView;
 	this.completedList;
 	this.popupManager;
@@ -46,18 +47,21 @@ function Application () {
 		document.body.style.height = window.innerHeight + "px";
 		
 		var viewContainer = document.getElementById("viewContainer");
-		var queueContainer = document.getElementById("queueContainer");
+		var preProcessQueueContainer = document.getElementById("preProcessQueueContainer");
+		var inProcessQueueContainer = document.getElementById("inProcessQueueContainer");
 		var interfaceContainer = document.getElementById("interfaceContainer");
 		
 		if (window.innerHeight / window.innerWidth < (3/4)) {
 			// landscape layout
-			viewContainer.style.width = "50%";
+			viewContainer.style.width = "45%";
 			viewContainer.style.height = "100%";
 			
 			
-			queueContainer.style.width = "15%";
-			queueContainer.style.height = "100%";
+			preProcessQueueContainer.style.width = "10%";
+			preProcessQueueContainer.style.height = "100%";
 			
+			inProcessQueueContainer.style.width = "10%";
+			inProcessQueueContainer.style.height = "100%";
 			
 			interfaceContainer.style.width = "35%";
 			interfaceContainer.style.height = "100%";
@@ -68,12 +72,15 @@ function Application () {
 			viewContainer.style.height = "40%";
 			
 			
-			queueContainer.style.width = "25%";
-			queueContainer.style.maxWidth = "none";
-			queueContainer.style.height = "60%";
+			preProcessQueueContainer.style.width = "15%";
+			preProcessQueueContainer.style.maxWidth = "none";
+			preProcessQueueContainer.style.height = "60%";
 			
+			inProcessQueueContainer.style.width = "15%";
+			inProcessQueueContainer.style.maxWidth = "none";
+			inProcessQueueContainer.style.height = "60%";
 			
-			interfaceContainer.style.width = "75%";
+			interfaceContainer.style.width = "70%";
 			interfaceContainer.style.height = "60%";
 		}
 		// Small screens
@@ -201,8 +208,8 @@ function Application () {
 			}
 		});
 	}
-	this.ControlPanel = function (format) {
-		this.popupManager.ControlPanel(format)
+	this.ControlPanel = function (controlPanel) {
+		this.popupManager.ControlPanel(controlPanel,document.getElementById(controlPanel.ID));
 	}
 	this.Autofocus = function (evt) {
 		if (document.getElementById("travelerSearchBox") != document.activeElement)  {
@@ -260,12 +267,12 @@ function Application () {
 		//this.JSONviewer = new JSONviewer(traveler,"Traveler");
 	}
 	this.LoadTraveler = function (traveler) {
-		this.travelerView.Load(traveler);
-		this.travelerQueue.SelectTraveler(traveler);
+		//this.travelerView.Load(traveler);
+		//this.travelerQueue.SelectTraveler(traveler);
 	}
 	this.LoadItem = function (params) {
-		this.travelerView.LoadItem(params.traveler,params.item,params.sequenceID);
-		this.travelerQueue.SelectTraveler(params.traveler);
+		//this.travelerView.LoadItem(params.traveler,params.item,params.sequenceID);
+		//this.travelerQueue.SelectTraveler(params.traveler);
 	}
 	this.StartAutofocus = function () {
 		window.addEventListener("keydown",this.Autofocus);
@@ -319,7 +326,7 @@ function Application () {
 			}
 			if (allSelected) {
 				self.popupManager.Close(popup);
-				self.partTimer.Resume();
+				//self.partTimer.Resume();
 				//----------INTERFACE CALL-----------------------
 				var message = new InterfaceCall("ChecklistSubmit");
 				
@@ -370,10 +377,10 @@ function Application () {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("ScrapEvent",
 			{
-				travelerID: self.travelerView.traveler.ID,
+				/* travelerID: self.travelerView.traveler.ID,
 				eventType: "Scrapped",
 				time: application.partTimer.timerTime.asMinutes(),
-				itemID: (self.travelerView.item ? self.travelerView.item.ID : "undefined"),
+				itemID: (self.travelerView.item ? self.travelerView.item.ID : "undefined"), */
 				
 				source: vendorRadio.checked ? "Vendor" : "Marco Group",
 				reason: scrapReasons.value,
@@ -389,11 +396,15 @@ function Application () {
 		var self = this;
 		if (message.mirror) {
 			// The only travelers in the queue are explicitly the ones in the message
-			self.travelerQueue.Clear();
-			self.travelerView.Clear();
-			message.travelers.forEach(function (obj) {
-				self.travelerQueue.AddTraveler(new Traveler(obj));
-			});
+			//self.travelerQueue.Clear();
+			//self.inProcessQueue.Clear();
+			//self.travelerView.Clear();
+			/* message.preProcess.forEach(function (obj) {
+				self.travelerQueue.AddTraveler(Traveler(obj));
+			}); */
+			/* message.inProcess.forEach(function (obj) {
+				self.inProcessQueue.AddTraveler(TravelerItem(obj));
+			}); */
 		} else {
 			// Only update existing travelers in the queue
 			message.travelers.forEach(function (obj) {
@@ -421,6 +432,43 @@ function Application () {
 		}); */
 		return "{}";
 	}
+	// Direct UI control vvvvvvvvvvvvvvvvvvvvvvvvvv
+	this.DisableUI = function () {
+		document.getElementById("completeItemBtn").classList.add("disabled");
+		document.getElementById("scrapItemBtn").classList.add("disabled");
+	}
+	this.DisableSubmitBtn = function () {
+		document.getElementById("submitTravelerBtn").classList.add("disabled");
+	}
+	this.EnableUI = function () {
+		document.getElementById("completeItemBtn").classList.remove("disabled");
+		document.getElementById("scrapItemBtn").classList.remove("disabled");
+	}
+	this.EnableSubmitBtn = function () {
+		document.getElementById("submitTravelerBtn").classList.remove("disabled");
+	}
+	this.SetQtyPending = function (qty) {
+		var qtyPending = document.getElementById("qtyPending");
+		if (qty > 0) {
+			qtyPending.innerHTML = qty;
+		} else {
+			qtyPending.innerHTML = "-";
+		}
+	}
+	this.SetQtyCompleted = function (qty) {
+		var qtyCompleted = document.getElementById("qtyCompleted");
+		if (qty > 0) {
+			qtyCompleted.innerHTML = qty;
+		} else {
+			qtyCompleted.innerHTML = "-";
+		}
+	}
+	this.LoadTravelerView = function (params) {
+		var self = this;
+		self.travelerView.LoadTable(params.ID,params.members);
+	}
+	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
@@ -452,7 +500,10 @@ function Application () {
 		// traveler queue
 		//----------------
 		self.travelerQueue = new TravelerQueue();
-		self.travelerQueue.Initialize("travelerQueue");
+		self.travelerQueue.Initialize("preProcessQueueContainer");
+		
+		self.inProcessQueue = new TravelerQueue();
+		self.inProcessQueue.Initialize("inProcessQueueContainer");
 		//----------------
 		// completed travelers
 		//----------------
@@ -686,20 +737,28 @@ function TravelerQueue() {
 			
 			var DOMqueueItem = traveler.CreateQueueItem(application.station.name);
 			DOMqueueItem.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("LoadTravelerAt",
-				{
-					travelerID: traveler.ID,
-					station: application.station.name
-				});
-				
-				//-----------------------------------------------
-				
+				if (traveler.queueType = "traveler") {
+					//----------INTERFACE CALL-----------------------
+					new InterfaceCall("LoadTravelerAt",
+					{
+						travelerID: traveler.ID,
+						station: application.station.name
+					});
+					//-----------------------------------------------
+				} else if (traveler.queueType ==  "travelerItem") {
+					//----------INTERFACE CALL-----------------------
+					new InterfaceCall("LoadItem",
+					{
+						travelerID: traveler.travelerID,
+						itemID: traveler.ID
+					});
+					//-----------------------------------------------
+				}
 			}
 			DOMqueueItem.style.fontSize = "1em";
-			DOMqueueItem.onmousedown = function () {
+			/* DOMqueueItem.onmousedown = function () {
 				new InterfaceCall("LoadTraveler",{travelerID: traveler.ID});
-			}
+			} */
 			self.DOMelement.appendChild(DOMqueueItem);
 		});
 	}
@@ -722,7 +781,7 @@ function TravelerView() {
 	// Part timer
 	this.timer;
 	this.Clear = function () {
-		var self = this;
+		/* var self = this;
 		delete self.traveler;
 		self.traveler;
 		delete self.item;
@@ -735,23 +794,16 @@ function TravelerView() {
 		self.ResetSliders();
 		self.UpdateSubmitBtn();
 		// hide the item area
-		document.getElementById("itemQueue").style.display = "none";
+		//document.getElementById("itemQueue").style.display = "none";
 		document.getElementById("completeItemBtn").innerHTML = "Complete item";
 		document.getElementById("scrapItemBtn").innerHTML = "Scrap item";
 		self.ResetSliders();
 		// clear the timer
 		application.partTimer.Clear();
 		// stop the station timer
-		application.stationTimer.Stop();
+		application.stationTimer.Stop(); */
 	}
-	this.DisableUI = function () {
-		document.getElementById("completeItemBtn").classList.add("disabled");
-		document.getElementById("scrapItemBtn").classList.add("disabled");
-	}
-	this.EnableUI = function () {
-		document.getElementById("completeItemBtn").classList.remove("disabled");
-		document.getElementById("scrapItemBtn").classList.remove("disabled");
-	}
+	
 	this.UpdateSubmitBtn = function () {
 		if (this.traveler && this.traveler.queueItem.qtyCompleted > 0) {
 			document.getElementById("submitTravelerBtn").classList.remove("disabled");
@@ -760,16 +812,14 @@ function TravelerView() {
 		}
 	}
 	
-	this.LoadTable = function (sequenceID) {
+	this.LoadTable = function (ID,members) {
 		var self = this;
+		ClearChildren(self.DOMcontainer);
 		// create the view header
 		var viewHeader = document.createElement("DIV");
 		viewHeader.className = "view__header";
-		if (sequenceID !== undefined) {
-			viewHeader.innerHTML = sequenceID;
-		} else {
-			viewHeader.innerHTML = pad(self.traveler.ID,6);
-		}
+		viewHeader.innerHTML = ID;
+
 		
 		self.DOMcontainer.appendChild(viewHeader);
 		// create the table
@@ -779,10 +829,10 @@ function TravelerView() {
 		// add the part row
 		//self.traveler.members.unshift({name: "Part", value: self.traveler.itemCode, qty: self.traveler.quantity});
 		// add the column header
-		self.traveler.members.unshift({name: "Property", value: "Value", qty: "Qty.",style:"view__row--header italics"});
+		members.unshift({name: "Property", value: "Value", qty: "Qty.",style:"view__row--header italics"});
 		
 		// all other properties are in the table body
-		self.traveler.members.forEach(function (property) {
+		members.forEach(function (property) {
 			var row = document.createElement("TR");
 			if (property.hasOwnProperty("style")) row.className = property.style;
 			// Property name
@@ -809,12 +859,12 @@ function TravelerView() {
 			DOMtable.appendChild(row);
 		});
 		// remove the column header
-		self.traveler.members.shift();
+		members.shift();
 		
 		// add the table
 		self.DOMcontainer.appendChild(DOMtable);
 		// start the timer
-		application.partTimer.CountDown(self.traveler.laborRate);
+		//application.partTimer.CountDown(self.traveler.laborRate);
 		application.stationTimer.Resume();
 	}
 	this.AutomaticReload = function (oldT,newT) {
@@ -853,7 +903,7 @@ function TravelerView() {
 		//document.getElementById("scrapItemBtn").innerHTML = "Scrap item #" + self.item.ID;
 		document.getElementById("completeItemBtn").innerHTML = "Complete item"
 		document.getElementById("scrapItemBtn").innerHTML = "Scrap item"
-		self.LoadTable(sequenceID);
+		//self.LoadTable(sequenceID);
 	}
 	this.Load = function (traveler) {
 		var self = this;
@@ -891,7 +941,7 @@ function TravelerView() {
 			// enable the buttons
 			self.EnableUI();
 			// hide the item area
-			document.getElementById("itemQueue").style.display = "none";
+			//document.getElementById("itemQueue").style.display = "none";
 			
 			
 			
@@ -908,9 +958,9 @@ function TravelerView() {
 			// disable the buttons (temporarily)
 			self.DisableUI();
 			// show the item area
-			document.getElementById("itemQueue").style.display = "block";
+			//document.getElementById("itemQueue").style.display = "block";
 			// create the selection for traveler items
-			var select = document.getElementById("itemSelect");
+			/* var select = document.getElementById("itemSelect");
 			// clear old options
 			while (select.hasChildNodes()) {
 				select.removeChild(select.lastChild);
@@ -932,7 +982,7 @@ function TravelerView() {
 				});
 				//self.LoadItem(self.traveler,self.traveler.FindItem(select.value));
 			}
-			select.value = 0;
+			select.value = 0; */
 		}
 		
 	}
@@ -999,32 +1049,21 @@ function TravelerView() {
 		// completing a finished traveler item
 		document.getElementById("completeItemBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("AddTravelerEvent",
-			{
-				travelerID: self.traveler.ID,
-				eventType: "Completed",
-				time: application.partTimer.timerTime.asMinutes(),
-				itemID: (self.item ? self.item.ID : "undefined")
-			});
+			new InterfaceCall("CompleteItem");
 			
 			//-----------------------------------------------
-			if (application.station.mode == "Serial") document.getElementById("submitTravelerBtn").onclick();
-			self.UpdateSubmitBtn();
+			//if (application.station.mode == "Serial") document.getElementById("submitTravelerBtn").onclick();
+			//self.UpdateSubmitBtn();
 			// Restart part timer 
-			application.partTimer.CountDown(self.traveler.laborRate);
+			//application.partTimer.CountDown(self.traveler.laborRate);
 		}
 		// scrapping a traveler item
 		document.getElementById("scrapItemBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("DisplayScrapReport",
-			{
-				travelerID: self.traveler.ID,
-				itemID: (self.item ? self.item.ID : "undefined")
-			});
-			
+			var message = new InterfaceCall("DisplayScrapReport");
 			//-----------------------------------------------
 			
-			self.UpdateSubmitBtn();
+			//self.UpdateSubmitBtn();
 		}
 		// Submitting a finished traveler
 		document.getElementById("submitTravelerBtn").onclick = function () {
@@ -1036,16 +1075,12 @@ function TravelerView() {
 			// } else {
 				// completedTraveler = self.traveler;
 			// }
-			self.lastTravelerID = completedTraveler.ID;
+			//self.lastTravelerID = completedTraveler.ID;
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("SubmitTraveler",
-			{
-				travelerID: completedTraveler.ID,
-				station: application.station.name
-			});
+			new InterfaceCall("SubmitTraveler");
 			
 			//-----------------------------------------------
-			self.UpdateSubmitBtn();
+			//self.UpdateSubmitBtn();
 		}
 		/* self.timerStop = document.getElementById("stopTimer");
 		

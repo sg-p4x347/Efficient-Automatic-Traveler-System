@@ -8,6 +8,7 @@ using System.Net.Mail;
 namespace Efficient_Automatic_Traveler_System
 {
     enum ProcessType {
+        Started,
         Completed,
         Scrapped
     }
