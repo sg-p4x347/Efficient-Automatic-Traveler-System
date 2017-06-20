@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
+using System.Timers;
 
 using System.Net.Sockets;
 using System.Net;
@@ -25,6 +26,45 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string Method;
         public Dictionary<string,object> Parameters;
+    }
+    internal struct ClientStopwatch
+    {
+        public ClientStopwatch(Client client)
+        {
+            Client = client;
+            Stopwatch = new Stopwatch();
+        }
+        public void Start(string method = null, double minutes = 0.0)
+        {
+            Stopwatch.Start();
+            CallMethod(method,minutes);
+        }
+        public void Resume(string method = null)
+        {
+            Stopwatch.Start();
+            CallMethod(method);
+        }
+        public void CountDown(double minutes, string method)
+        {
+            Stopwatch.Start();
+            CallMethod(method, minutes);
+        }
+        public void Stop(string method = null)
+        {
+            Stopwatch.Stop();
+            CallMethod(method);
+        }
+        public void Clear(string method = null)
+        {
+            Stopwatch.Reset();
+            CallMethod(method);
+        }
+        private void CallMethod(string method = null, double minutes = 0.0)
+        {
+            if (method != null) Client.SendMessage(new ClientMessage(method,minutes.ToString()).ToString());
+        }
+        public Client Client;
+        public Stopwatch Stopwatch;
     }
     public struct ClientMessage
     {

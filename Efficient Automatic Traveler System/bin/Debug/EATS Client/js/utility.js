@@ -312,6 +312,17 @@ function Timer(DOMelement) {
 	}
 	this.Clear();
 }
+function Breakify(string) {
+	var newString = "";
+	for (var i = 0; i < string.length; i++) {
+		if (string.charAt(i) == '\n') {
+			newString += "</br>";
+		} else {
+			newString += string.charAt(i);
+		}
+	}
+	return newString;
+}
 function ClearChildren(domElement) {
 	while (domElement.hasChildNodes()) {
 		domElement.removeChild(domElement.lastChild);

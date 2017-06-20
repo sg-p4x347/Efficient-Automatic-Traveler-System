@@ -28,6 +28,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             get;
         }
+        void Backup();
         void OnTravelersChanged(List<Traveler> travelers);
     }
     interface IOperatorActions
@@ -737,7 +738,8 @@ namespace Efficient_Automatic_Traveler_System
             List<Order> parentOrders = new List<Order>();
             foreach (string orderNo in traveler.ParentOrderNums)
             {
-                parentOrders.Add(m_orderManager.FindOrder(orderNo));
+                Order order = m_orderManager.FindOrder(orderNo);
+                if (order != null) parentOrders.Add(order);
             }
             parentOrders.Sort((a, b) => a.ShipDate.CompareTo(b.ShipDate)); // sort in ascending order (soonest first)
             foreach (Order order in parentOrders)

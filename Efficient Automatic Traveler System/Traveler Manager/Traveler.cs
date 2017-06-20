@@ -88,7 +88,9 @@ namespace Efficient_Automatic_Traveler_System
             
             foreach (string item in (new StringStream(obj["items"])).ParseJSONarray())
             {
-                Items.Add(new TravelerItem(item));
+                TravelerItem itemObj = new TravelerItem(item);
+                itemObj.Parent = this;
+                Items.Add(itemObj);
             }
             m_parentOrderNums = (new StringStream(obj["parentOrders"])).ParseJSONarray();
             foreach (string id in (new StringStream(obj["parentTravelers"])).ParseJSONarray())
@@ -371,6 +373,7 @@ namespace Efficient_Automatic_Traveler_System
             // use the next id (highest + 1)
             TravelerItem newItem = new TravelerItem(ItemCode,(ushort)(highestID + 1), sequenceNo,replacement);
             newItem.Station = station;
+            newItem.Parent = this;
             Items.Add(newItem);
             return newItem;
         }
@@ -588,6 +591,10 @@ namespace Efficient_Automatic_Traveler_System
             if (this is Part)
             {
                 members.Add(new NameValueQty<string, string>("Description", (this as Part).Bill.BillDesc, "").ToString());
+            }
+            if (ParentOrders.Count > 0 )
+            {
+                members.Add(new NameValueQty<string, string>("Customers", ParentOrders.Select(o => o.CustomerNo).ToList().Stringify(false).Trim('[').Trim(']').Replace(",","\\n"),"").ToString());
             }
             obj.Add("members", members.Stringify(false));
             return obj.Stringify();

@@ -105,6 +105,7 @@ namespace Efficient_Automatic_Traveler_System
                 Traveler box = ChildTravelers.FirstOrDefault();
                 members.Add(new NameValueQty<string, string>("Box Traveler", box != null ? box.ID.ToString() : "No box traveler", "").ToString());
                 members.Add(new NameValueQty<string, int>("Box pads",  "One-pack system",m_pads).ToString());
+                members.Add(new NameValueQty<string, int>("Pallet", m_palletSize, m_palletQty).ToString());
             }
             double rate = GetRate(Part.ComponentBills[0], station);
             members.Add(new NameValueQty<string, string>("Rate", rate > 0 ? rate.ToString() + " min" : "No rate", "").ToString());
@@ -177,7 +178,7 @@ namespace Efficient_Automatic_Traveler_System
             //m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
             string[] parts = ItemCode.Split('-');
             string colorNo = "";
-            foreach (char ch in parts[2])
+            foreach (char ch in parts.Last())
             {
                 if (Char.IsNumber(ch)) colorNo += ch;
             }
@@ -425,7 +426,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (!reader.IsDBNull(0)) BlankNo = reader.GetString(0);
                 if (!reader.IsDBNull(1)) BlankSize = reader.GetString(1);
-                //if (!reader.IsDBNull(2)) traveler.ShapeNo = reader.GetString(2);
+                if (!reader.IsDBNull(2)) Shape = reader.GetString(2);
                 if (BlankNo == "") BlankNo = "Missing blank info";
             }
             // open the table ref csv file
@@ -440,7 +441,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (Part.BillNo.Contains(row[header.IndexOf("Table")]))
                 {
                     Size = row[header.IndexOf("Size")];
-                    Shape = row[header.IndexOf("Shape Type")];
+                    //Shape = row[header.IndexOf("Shape Type")];
                     PalletSize = row[header.IndexOf("Pallet")];
                     //--------------------------------------------
                     // BLANK INFO

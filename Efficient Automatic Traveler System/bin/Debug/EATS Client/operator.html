@@ -56,7 +56,7 @@
 					<p id = "stationTime">00:00:00</p>
 				</div>
 				<div class = "black bold timer twoEM">
-					<p>This part &nbsp</p>
+					<p>Time left on part &nbsp</p>
 					<p id = "partTime">00:00:00</p>
 				</div>
 				<!-- Logout button -->
@@ -65,15 +65,14 @@
 				<div id = "moreInfoBtn" class = "dark button twoEM disabled">More Info</div>
 				<!-- View Drawing -->
 				<div id = "viewDrawingBtn" class = "dark button twoEM disabled">Drawing</div>
+				<!-- Add Comment -->
+				<div id = "addCommentBtn" class = "dark button twoEM disabled">Add Comment</div>
 				<!-- OPTIONS BUTTON -->
 				<img id = "optionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
 			</div>
 		</div>
 		<!-- BODY -->
 		<div class = "body">
-			<div id = "viewContainer" class = "viewContainer">
-				<table class = "view"></table>
-			</div>
 			<div id = "preProcessQueueContainer" class = "queueContainer center twoEM">
 				<!-- TRAVELER QUEUE -->
 				<form id = "travelerSearch">
@@ -85,6 +84,10 @@
 					<select id = "itemSelect"></select>
 				</div>
 			</div>
+			<div id = "viewContainer" class = "viewContainer">
+				<table class = "view"></table>
+			</div>
+			
 			<!-- InProcess QUEUE -->
 			<div id = "inProcessQueueContainer" class = "queueContainer center twoEM">
 				<div id = "inProcessQueue" class = "queue"></div>
@@ -118,7 +121,6 @@
 				</div>
 				<!-- SUBMIT BUTTON -->
 				<div id = "submitTravelerBtn" class = "dark button twoEM largeBorder bold">Submit completed items</div>
-				
 				
 			</div>
 		</div>

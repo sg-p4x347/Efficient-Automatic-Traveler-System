@@ -430,13 +430,11 @@ div.queue__item {
 	border-radius: 8px;
 	font-family: "Arial Black", Gadget, sans-serif;
 	text-align: center;
-	text-shadow: 0px 0px 5px black;
 	
 	margin: 0px;
 	padding: 2px;
 	
 	color: white;
-	text-shadow: 0px 0px 15px black, 0px 0px 15px black;
 	
 	border-width: 3px;
 	border-radius: 6px;
@@ -455,7 +453,7 @@ div.queue__item__desc {
 	color: white;
 	text-shadow: 1px 1px 1px black;
 }
-div.queue__item__qty {
+.queue__item__qty {
 	display: flex;
 }
 /* border */
@@ -474,6 +472,21 @@ div.queue__item__qty {
 	border-style: solid;
 	border-image:
       linear-gradient(to bottom,transparent, silver, transparent) 1 100%;
+}
+/*text outline*/
+.whiteOutline {
+	text-shadow: 
+	-1px -1px 0 white,
+	1px -1px 0 white,
+	-1px 1px 0 white,
+	1px 1px 0 white;
+}
+.blackOutline {
+	text-shadow: 
+	-1px -1px 0 black,
+	1px -1px 0 black,
+	-1px 1px 0 black,
+	1px 1px 0 black;
 }
 /* Tooltip text */
 .tooltip .tooltiptext {

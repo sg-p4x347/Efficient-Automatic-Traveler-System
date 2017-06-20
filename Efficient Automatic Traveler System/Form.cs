@@ -60,7 +60,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_fields.Add(Basic(name,title, "text",value.Quotate()));
         }
-        
+        public void Textarea(string name, string title, string value = "")
+        {
+            m_fields.Add(Basic(name, title, "textarea", value.Quotate()));
+        }
         public void Integer(string name, string title, int min = int.MinValue, int max = int.MaxValue, int value = 0)
         {
             string basic = Basic(name, title, "number", value.ToString());

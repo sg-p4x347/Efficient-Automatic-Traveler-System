@@ -26,6 +26,7 @@ namespace Efficient_Automatic_Traveler_System
             m_history = new List<Event>();
             m_order = "";
             m_state = ItemState.InProcess; // an Item can never be in pre-process; existance implies that it has begun processing
+            m_comment = "";
         }
         public TravelerItem(string json)
         {
@@ -46,6 +47,7 @@ namespace Efficient_Automatic_Traveler_System
                     m_history.Add(BackupManager.ImportDerived<Event>(eventString));
                 }
                 m_state = (ItemState)Enum.Parse(typeof(ItemState),obj["state"]);
+                m_comment = obj.ContainsKey("comment") ? obj["comment"] : "";
             }
             catch (Exception ex)
             {
@@ -67,7 +69,14 @@ namespace Efficient_Automatic_Traveler_System
                 {"order",m_order.Quotate() },
                 {"state",m_state.ToString().Quotate() }
             };
+            if (m_comment != "") obj.Add("comment", m_comment.Quotate());
             return obj.Stringify();
+        }
+        public string ExportTableRows(StationClass station)
+        {
+            List<string> members = new List<string>();
+            if (m_comment.Length > 0) members.Add(new NameValueQty<string, string>("Comment", m_comment,"").ToString());
+            return members.Stringify(false);
         }
         public string ExportHuman()
         {
@@ -106,6 +115,8 @@ namespace Efficient_Automatic_Traveler_System
         private List<Event> m_history;
         private string m_order;
         private ItemState m_state;
+        private Traveler m_parent;
+        private string m_comment;
 
         public ushort ID
         {
@@ -230,6 +241,32 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_itemCode = value;
+            }
+        }
+
+        internal Traveler Parent
+        {
+            get
+            {
+                return m_parent;
+            }
+
+            set
+            {
+                m_parent = value;
+            }
+        }
+
+        public string Comment
+        {
+            get
+            {
+                return m_comment;
+            }
+
+            set
+            {
+                m_comment = value;
             }
         }
 
