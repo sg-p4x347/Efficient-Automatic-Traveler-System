@@ -152,7 +152,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
         }
-        internal static string ToCSV(this List<ICSV> list, object param = null)
+        public static string ToCSV(this List<ICSV> list, object param = null)
         {
             string csv = "";
            

@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    internal class Table : Traveler, IPart
+    public class Table : Part
     {
         #region Public Methods
         //--------------------------
@@ -38,7 +38,7 @@ namespace Efficient_Automatic_Traveler_System
         //    m_blankNo = table.BlankNo;
         //    m_blankColor = table.BlankColor;
         //    m_blankSize = table.BlankSize;
-        //    m_partsPerBlank = table.PartsPerBlank;
+        //    BillsPerBlank = table.PartsPerBlank;
         //    m_blankQuantity = table.BlankQuantity;
         //    m_leftoverParts = table.LeftoverParts;
         //}
@@ -50,22 +50,21 @@ namespace Efficient_Automatic_Traveler_System
         //    return t;
         //}
         public Table() : base() {
-            m_part = null;
+            Bill = null;
         }
         public Table(Form form) : base(form)
         {
-            m_part = new Bill(form.ValueOf("itemCode"), 1, Convert.ToInt32(form.ValueOf("quantity")));
+            Bill = new Bill(form.ValueOf("itemCode"), 1, Convert.ToInt32(form.ValueOf("quantity")));
         }
         public Table(string json) : base(json) {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();
             if (obj["itemCode"] != "")
             {
-                m_part = new Bill(obj["itemCode"], 1, m_quantity);
+                Bill = new Bill(obj["itemCode"], 1, m_quantity);
             }
         }
         // create a Table from partNo, quantity, and a MAS connection
         public Table(string itemCode, int quantity) : base(itemCode,quantity) {
-            m_part = new Bill(itemCode, 1, quantity);
         }
         public override bool CombinesWith(object[] args)
         {
@@ -74,7 +73,7 @@ namespace Efficient_Automatic_Traveler_System
         public override string ToString()
         {
             Dictionary<string, string> obj = new StringStream(base.ToString()).ParseJSON(false);
-            //obj.Add("itemCode", (m_part != null ? m_part.BillNo : "").Quotate());
+            //obj.Add("itemCode", (Bill != null ? Bill.BillNo : "").Quotate());
             return obj.Stringify();
         }
         // returns a JSON formatted string to be sent to a client
@@ -89,14 +88,14 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new StringStream(base.ExportTableRows(station)).ParseJSON(false);
             List<string> members = new StringStream(obj["members"]).ParseJSONarray(false);
             if (station.Type == "heian" || station.Type == "weeke") {
-                members.Add(new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString());
+                members.Add(new NameValueQty<string, string>("Drawing", Bill.DrawingNo, "").ToString());
                 members.Add(new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString());
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 members.Add(new NameValueQty<string, string>("Color", m_color, "").ToString());
                 
                 if (Comment != "") members.Add(new NameValueQty<string, string>("Comment", Comment, "").ToString());
             } else if (station == StationClass.GetStation("Vector")) {
-                members.Add(new NameValueQty<string, string>("Drawing", m_part.DrawingNo, "").ToString());
+                members.Add(new NameValueQty<string, string>("Drawing", Bill.DrawingNo, "").ToString());
                 members.Add(new NameValueQty<string, string>("Color", m_color, "").ToString());
                 members.Add(new NameValueQty<string, string>("Edgebanding", BandingColor, "").ToString());
                 if (Comment != "") members.Add(new NameValueQty<string, string>("Comment", Comment, "").ToString());
@@ -107,16 +106,26 @@ namespace Efficient_Automatic_Traveler_System
                 members.Add(new NameValueQty<string, int>("Box pads",  "One-pack system",m_pads).ToString());
                 members.Add(new NameValueQty<string, int>("Pallet", m_palletSize, m_palletQty).ToString());
             }
-            double rate = GetRate(Part.ComponentBills[0], station);
+            double rate = GetRate(Bill.ComponentBills[0], station);
             members.Add(new NameValueQty<string, string>("Rate", rate > 0 ? rate.ToString() + " min" : "No rate", "").ToString());
             obj["members"] = members.Stringify(false);
             return obj.Stringify();
         }
+        public override Dictionary<string, Node> ExportViewProperties()
+        {
+            Dictionary<string, Node> list = base.ExportViewProperties();
+            list.Add("Drawing", new TextNode(Bill.DrawingNo));
+            list.Add("Blank", new TextNode(BlankSize));
+            list.Add("Blank Qty", new TextNode(BlankQuantity.ToString()));
+            list.Add("Color", new TextNode(Color));
+            list.Add("Banding", new TextNode(BandingColor));
+            return list;
+        }
         public override string ExportHuman()
         {
             Dictionary<string, string> obj = new StringStream(base.ExportHuman()).ParseJSON(false);
-            obj.Add("Model", (m_part != null ? m_part.BillNo : "").Quotate());
-            obj.Add("Description", (m_part != null ? m_part.BillDesc : "").Quotate());
+            obj.Add("Model", (Bill != null ? Bill.BillNo : "").Quotate());
+            obj.Add("Description", (Bill != null ? Bill.BillDesc : "").Quotate());
             return obj.Stringify();
         }
         public new static string ExportCSVheader()
@@ -136,7 +145,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             List<string> detail = new StringStream('[' + base.ExportCSVdetail() + ']').ParseJSONarray(false);
             detail.Add(ItemCode.Quotate());
-            detail.Add(Part.BillDesc.Quotate());
+            detail.Add(Bill.BillDesc.Quotate());
             detail.Add(m_color.Quotate());
             detail.Add(m_bandingColor.Quotate());
             detail.Add(m_blankNo.Quotate());
@@ -152,7 +161,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 obj.Merge(base.ExportProperties(station));
                 obj.Add("shape", Shape.Quotate());
-                obj.Add("laborRate", GetRate(Part.ComponentBills[0], station).ToString());
+                obj.Add("laborRate", GetRate(Bill.ComponentBills[0], station).ToString());
                 obj.Add("totalLabor", Math.Round(GetTotalLabor(station), 1).ToString());
             }
             catch (Exception ex)
@@ -166,15 +175,15 @@ namespace Efficient_Automatic_Traveler_System
         {
             // Displays properties in order
             Dictionary<string, string> obj = new StringStream(base.ExportSummary()).ParseJSON(false);
-            obj.Add("Model", m_part.BillNo.Quotate());
+            obj.Add("Model", Bill.BillNo.Quotate());
             return obj.Stringify();
         }
         public async override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
-            m_part = new Bill(m_part.BillNo, m_part.QuantityPerBill, Quantity);
-            await m_part.Import(MAS);
-            m_part.BillDesc = Regex.Replace(m_part.BillDesc,"TableTopAsm,", "", RegexOptions.IgnoreCase); // tabletopasm is pretty obvious and therefore extraneous
-            m_part.BillDesc = Regex.Replace(m_part.BillDesc, "TableTop,", "", RegexOptions.IgnoreCase);
+            Bill = new Bill(Bill.BillNo, Bill.QuantityPerBill, Quantity);
+            await Bill.Import(MAS);
+            Bill.BillDesc = Regex.Replace(Bill.BillDesc,"TableTopAsm,", "", RegexOptions.IgnoreCase); // tabletopasm is pretty obvious and therefore extraneous
+            Bill.BillDesc = Regex.Replace(Bill.BillDesc, "TableTop,", "", RegexOptions.IgnoreCase);
             //m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
             string[] parts = ItemCode.Split('-');
             string colorNo = "";
@@ -188,7 +197,7 @@ namespace Efficient_Automatic_Traveler_System
             GetBlankInfo(MAS);
             GetPackInfo(orderManager);
             // for work rates
-            //FindComponents(m_part);
+            //FindComponents(Bill);
         }
         public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
         {
@@ -240,14 +249,14 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
                     // Item ID is now a sequence number out of the qty on the traveler
                     json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
-                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + Part.BillDesc + "\"";
+                    json += ",\"Desc1\":\"" + Bill.BillNo + "\"";
+                    json += ",\"Desc2\":\"" + Bill.BillDesc + "\"";
                     json += ",\"Desc3\":\"" + m_bandingAbrev + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
                     json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
-                    json += ",\"Desc1\":\"" + Part.BillNo + "\"";
+                    json += ",\"Desc1\":\"" + Bill.BillNo + "\"";
                     json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) +  " !!\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
                     string reason = scrapEvent.Reason;
@@ -323,13 +332,13 @@ namespace Efficient_Automatic_Traveler_System
         public override double GetCurrentLabor(StationClass station)
         {
             // gets the rate from the first (and only) bill; this is the common bill that all tables share
-            return GetRate(Part.ComponentBills[0], station != null ? station : Station);
+            return GetRate(Bill.ComponentBills[0], station != null ? station : Station);
         }
         public override double GetTotalLabor(StationClass station)
         {
             if (station != null)
             {
-                return GetRate(Part.ComponentBills[0], station, true);
+                return GetRate(Bill.ComponentBills[0], station, true);
             } else
             {
                 // sum up every station
@@ -356,7 +365,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             base.EnterProduction(travelerManager);
         }
-        public override string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false,StationClass station = null)
+        public override string PrintLabel(ushort itemID, LabelType type, int? qty, bool forcePrint = false,StationClass station = null)
         {
             return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint,station);
         }
@@ -438,7 +447,7 @@ namespace Efficient_Automatic_Traveler_System
             while (line != "" && line != null)
             {
                 string[] row = line.Split(',');
-                if (Part.BillNo.Contains(row[header.IndexOf("Table")]))
+                if (Bill.BillNo.Contains(row[header.IndexOf("Table")]))
                 {
                     Size = row[header.IndexOf("Size")];
                     //Shape = row[header.IndexOf("Shape Type")];
@@ -520,7 +529,7 @@ namespace Efficient_Automatic_Traveler_System
             while (line != "" && line != null)
             {
                 string[] row = line.Split(',');
-                if (Part.BillNo.Contains(row[header.IndexOf("Table")]))
+                if (Bill.BillNo.Contains(row[header.IndexOf("Table")]))
                 {
                     //--------------------------------------------
                     // PACK & BOX INFO
@@ -741,7 +750,6 @@ namespace Efficient_Automatic_Traveler_System
         #region Properties
 
         // Table
-        protected Bill m_part;
         private int m_colorNo = 0;
         private string m_color = "";
         private string m_bandingColor = "";
@@ -774,7 +782,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_blankColor = "";
         private string m_blankSize = "";
         private string m_blankComment = "";
-        private int m_partsPerBlank = 0;
+        private int BillsPerBlank = 0;
         private int m_blankQuantity = 0;
         // Pallet
         private string m_palletSize = "";
@@ -783,21 +791,14 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Interface
-        public Bill Part
-        {
-            get
-            {
-                return m_part;
-            }
-        }
         new public string ItemCode
         {
             get
             {
-                return m_part != null ? m_part.BillNo : base.ItemCode;
+                return Bill != null ? Bill.BillNo : base.ItemCode;
             }
         }
-        internal int ColorNo
+        public int ColorNo
         {
             get
             {
@@ -809,7 +810,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_colorNo = value;
             }
         }
-        internal string Shape
+        public string Shape
         {
             get
             {
@@ -821,7 +822,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_shape = value;
             }
         }
-        internal string BlankNo
+        public string BlankNo
         {
             get
             {
@@ -833,7 +834,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_blankNo = value;
             }
         }
-        internal string BlankSize
+        public string BlankSize
         {
             get
             {
@@ -845,19 +846,19 @@ namespace Efficient_Automatic_Traveler_System
                 m_blankSize = value;
             }
         }
-        internal int PartsPerBlank
+        public int PartsPerBlank
         {
             get
             {
-                return m_partsPerBlank;
+                return BillsPerBlank;
             }
 
             set
             {
-                m_partsPerBlank = value;
+                BillsPerBlank = value;
             }
         }
-        internal int BlankQuantity
+        public int BlankQuantity
         {
             get
             {
@@ -869,7 +870,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_blankQuantity = value;
             }
         }
-        internal string BlankColor
+        public string BlankColor
         {
             get
             {
@@ -881,7 +882,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_blankColor = value;
             }
         }
-        internal string SheetSize
+        public string SheetSize
         {
             get
             {
@@ -893,7 +894,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_sheetSize = value;
             }
         }
-        internal string BlankComment
+        public string BlankComment
         {
             get
             {
@@ -905,7 +906,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_blankComment = value;
             }
         }
-        internal string PalletSize
+        public string PalletSize
         {
             get
             {
@@ -917,7 +918,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_palletSize = value;
             }
         }
-        internal int PalletQty
+        public int PalletQty
         {
             get
             {
@@ -929,7 +930,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_palletQty = value;
             }
         }
-        internal string BoxItemCode
+        public string BoxItemCode
         {
             get
             {
@@ -941,7 +942,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_boxItemCode = value;
             }
         }
-        internal string RegPack
+        public string RegPack
         {
             get
             {
@@ -953,7 +954,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_regPack = value;
             }
         }
-        internal int RegPackQty
+        public int RegPackQty
         {
             get
             {
@@ -965,7 +966,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_regPackQty = value;
             }
         }
-        internal string SupPack
+        public string SupPack
         {
             get
             {
@@ -977,7 +978,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_supPack = value;
             }
         }
-        internal int SupPackQty
+        public int SupPackQty
         {
             get
             {
@@ -990,7 +991,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal string BandingColor
+        public string BandingColor
         {
             get
             {

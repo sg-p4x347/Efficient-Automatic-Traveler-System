@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    interface IForm
+    public interface IForm
     {
         Form CreateForm();
         Form CreateFilledForm();

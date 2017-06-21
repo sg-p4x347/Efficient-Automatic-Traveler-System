@@ -167,7 +167,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_position--;
             }
         }
-        internal bool EOF
+        public bool EOF
         {
             get
             {

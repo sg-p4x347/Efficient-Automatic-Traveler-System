@@ -10,12 +10,12 @@ namespace Efficient_Automatic_Traveler_System
     public class BackupManager
     {
         #region Public Methods
-        static internal void Initialize()
+        static public void Initialize(string rootDir = null)
         {
             
             CreateBackupDir();
 
-            string[] backupPaths = System.IO.Directory.GetDirectories(System.IO.Path.Combine(Server.RootDir, "backup\\"));
+            string[] backupPaths = System.IO.Directory.GetDirectories(System.IO.Path.Combine(rootDir != null ? rootDir : Server.RootDir, "backup\\"));
             m_backupDates = new List<DateTime>();
             foreach (string path in backupPaths)
             {
@@ -24,7 +24,7 @@ namespace Efficient_Automatic_Traveler_System
             // sort descending 
             m_backupDates.Sort((x, y) => y.CompareTo(x));
         }
-        static internal string GetBackupDates(string json)
+        static public string GetBackupDates(string json)
         {
             ClientMessage returnMessage;
             try
@@ -47,33 +47,33 @@ namespace Efficient_Automatic_Traveler_System
             return returnMessage.ToString();
         }
         // Standardized conversion from dateTime to string
-        static internal string DateToString(DateTime date)
+        static public string DateToString(DateTime date)
         {
             return date.ToString("MM-dd-yyyy");
         }
         // Standardized conversion from string to dateTime
-        static internal DateTime StringToDate(string date)
+        static public DateTime StringToDate(string date)
         {
             return DateTime.Parse(date);
         }
         // gets the most recent past backup
-        static internal DateTime GetMostRecent()
+        static public DateTime GetMostRecent()
         {
             return m_backupDates.First(x => x.Date < DateTime.Today.Date);
         }
         // makes a backup folder for today's date
-        static internal void CreateBackupDir()
+        static public void CreateBackupDir()
         {
             Directory.CreateDirectory(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today)));
         }
         // returns true if a current backup for today exists
-        static internal bool CurrentBackupExists(string file)
+        static public bool CurrentBackupExists(string file)
         {
             return  (m_backupDates.Exists(x => x == DateTime.Today.Date)
                 && File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date),file)));
         }
         // returns the requested file from current day backup
-        static internal string Import(string filename,DateTime? d = null)
+        static public string Import(string filename,DateTime? d = null)
         {
             DateTime date = (d == null ? DateTime.Today.Date : d.Value);
             // if there is a backup for today
@@ -90,7 +90,7 @@ namespace Efficient_Automatic_Traveler_System
             return "";
         }
         // returns the requested file from most recent backup that is not the current day
-        static internal string ImportPast(string filename)
+        static public string ImportPast(string filename)
         {
             // if there is a backup from a previous day
             if (m_backupDates.Exists(x => x.Date < DateTime.Today.Date))
@@ -106,12 +106,12 @@ namespace Efficient_Automatic_Traveler_System
             }
             return "";
         }
-        static internal void Backup(string filename, string contents)
+        static public void Backup(string filename, string contents)
         {
             CreateBackupDir();
             File.WriteAllText(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date), filename),contents);
         }
-        static internal void Backup(string path)
+        static public void Backup(string path)
         {
             CreateBackupDir();
             string filename = Path.GetFileName(path);
@@ -121,7 +121,7 @@ namespace Efficient_Automatic_Traveler_System
             );
         }
 
-        static internal T ImportDerived<T>(string json)
+        static public T ImportDerived<T>(string json)
         {
             Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
             T derived = default(T);

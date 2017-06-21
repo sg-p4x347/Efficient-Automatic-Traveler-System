@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    internal delegate void KanbanChangedSubscriber();
+    public delegate void KanbanChangedSubscriber();
     static class KanbanManager
     {
         // initializes the user manager from a json file
@@ -90,7 +90,7 @@ namespace Efficient_Automatic_Traveler_System
                 KanbanItem item = m_items.Find(i => i.ItemCode == itemCodeQty.Key);
                 item.Update(
                     itemCodeQty.Value,
-                    Server.TravelerManager.GetTravelers.OfType<IPart>().Where(t => t.ItemCode == itemCodeQty.Key).Sum(x => ((Traveler)x).Quantity)
+                    Server.TravelerManager.GetTravelers.Where(t => t.ItemCode == itemCodeQty.Key).Sum(x => ((Traveler)x).Quantity)
                 );
             }
             HandleKanbanChanged();
@@ -108,14 +108,11 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static ControlPanel CreateKanbanMonitor()
         {
-            Dictionary<string, string> flexStart = new Dictionary<string, string>() { { "justifyContent", @"""flex-start""" } };
-            Dictionary<string, string> center = new Dictionary<string, string>() { { "align-items", @"""center""" } };
-            
-            Row controls = new Row(style: flexStart)
+            Row controls = new Row(style: new Style("justify-start"))
             {
                 new Button("New Item","NewKanbanItemForm")
             };
-            NodeList monitorTable = new NodeList(BorderStyle,DOMtype: "table");
+            NodeList monitorTable = new NodeList(new Style("kanban__border"),DOMtype: "table");
             monitorTable.Add(KanbanItem.CreateMonitorHeader());
             int rowIndex = 0;
             foreach (KanbanItem item in m_items)
@@ -167,7 +164,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                Form form = new Form(json);
+                Form form = new Form(obj["form"]);
                 KanbanItem newItem = new KanbanItem(form);
                 m_items.Find(i => i.ItemCode == newItem.ItemCode).Update(form);
                 await Update();
@@ -209,10 +206,5 @@ namespace Efficient_Automatic_Traveler_System
                 return m_items.Count;
             }
         }
-
-        public static Dictionary<string, string> BorderStyle = new Dictionary<string, string>()
-        {
-            {"border","2px solid black".Quotate() }
-        };
     }
 }

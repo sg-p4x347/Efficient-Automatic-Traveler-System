@@ -7,7 +7,7 @@ using System.Data.Odbc;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class Item
+    public class Item
     {
         // Interface
         public Item(string itemCode, double quantityPerBill, double parentQuantity, OdbcConnection MAS)

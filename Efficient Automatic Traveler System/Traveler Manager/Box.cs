@@ -10,7 +10,7 @@ using Marshal = System.Runtime.InteropServices.Marshal;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    internal class Box : Traveler
+    public class Box : Traveler
     {
         #region Public Methods
         public Box() : base()
@@ -209,7 +209,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal Item BoxLabor
+        public Item BoxLabor
         {
             get
             {

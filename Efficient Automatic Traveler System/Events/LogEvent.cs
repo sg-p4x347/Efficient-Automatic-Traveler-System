@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum LogType
+    public enum LogType
     {
         Login,
         Logout,
         Finish
     }
-    class LogEvent : Event
+    public class LogEvent : Event
     {
         #region Public Methods
         public LogEvent(User user, LogType logType, StationClass station = null, string client = "") : base()
@@ -77,7 +77,7 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------------------------------------
 
         #region Interface
-        internal StationClass Station
+        public StationClass Station
         {
             get
             {
@@ -90,7 +90,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal LogType LogType
+        public LogType LogType
         {
             get
             {
@@ -103,7 +103,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal string Client
+        public string Client
         {
             get
             {

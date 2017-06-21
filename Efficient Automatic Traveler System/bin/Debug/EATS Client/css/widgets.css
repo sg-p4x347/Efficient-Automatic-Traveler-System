@@ -347,6 +347,10 @@ input.searchBox:focus {
 	
 
 }
+.vertical-text {
+	writing-mode: tb-rl;
+	text-orientation: upright;
+}
 /* alignment */
 .leftAlign {
 	text-align: left;
@@ -406,6 +410,10 @@ input.searchBox:focus {
 .justify-center {
 	display: flex;
 	justify-content: center;
+}
+.justify-start {
+	display: flex;
+	justify-content: flex-start;
 }
 .justify-end {
 	display: flex;

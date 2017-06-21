@@ -17,7 +17,7 @@ namespace Efficient_Automatic_Traveler_System
         Login,
         Finished
     }
-    abstract class Event : IEquatable<Event>
+    public abstract class Event : IEquatable<Event>
     {
         #region Public Methods
         public Event(string json)
@@ -97,7 +97,7 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------------------------------------
 
         #region Interface
-        internal DateTime Date
+        public DateTime Date
         {
             get
             {

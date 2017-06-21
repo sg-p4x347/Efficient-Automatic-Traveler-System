@@ -231,22 +231,22 @@ namespace Efficient_Automatic_Traveler_System
                 }.Stringify();
                 //=================================
                 // STYLES
-                Dictionary<string, string> spaceBetween = new Dictionary<string, string>() { { "justifyContent", @"""space-between""" } };
-                List<string> leftAlign = new List<string>() { "leftAlign" };
-                List<string> rightAlign = new List<string>() { "rightAlign" };
-                List<string> shadow = new List<string>() { "shadow" };
-                List<string> white = new List<string>() { "white" };
+                Style spaceBetween = new Style("justify-space-between");
+                Style leftAlign = new Style("leftAlign");
+                Style rightAlign = new Style("rightAlign");
+                Style shadow = new Style("shadow");
+                Style white = new Style("white");
                 //=================================
                 Column fields = new Column(dividers: true);
                 if (traveler.Comment != "")
                 {
                     fields.Add(
-                        new TextNode(traveler.Comment,styleClasses: new Style("red","shadow"))
+                        new TextNode(traveler.Comment,style: new Style("red","shadow"))
                     );
                 }
                 fields.Add(new Row(style: spaceBetween)
                     {
-                        new TextNode("ID",styleClasses: new Style("leftAlign")), new TextNode(traveler.ID.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("ID",style: new Style("leftAlign")), new TextNode(traveler.ID.ToString(),style: new Style("white","rightAlign","shadow"))
                     }
                 );
                 //fields.Add(
@@ -260,24 +260,21 @@ namespace Efficient_Automatic_Traveler_System
                 fields.Add(
                     new Row(style: spaceBetween)
                     {
-                        new TextNode("Starting station",styleClasses: new Style("leftAlign")), new Selection("Station","MoveTravelerStart",stations,traveler.Station.Name,returnParam)
+                        new TextNode("Starting station",style: new Style("leftAlign")), new Selection("Station","MoveTravelerStart",stations,traveler.Station.Name,returnParam)
                     }
                 );
-                if (traveler is IPart)
-                {
-                    fields.Add(
-                        new Row(style: spaceBetween)
-                        {
-                            new TextNode("Model",styleClasses: new Style("leftAlign")), new TextNode((traveler as IPart).ItemCode,styleClasses:new Style("white","rightAlign","shadow"))
-                        }
-                    );
-                }
+                fields.Add(
+                    new Row(style: spaceBetween)
+                    {
+                        new TextNode("Model",style: new Style("leftAlign")), new TextNode(traveler.ItemCode,style:new Style("white","rightAlign","shadow"))
+                    }
+                );
                 if (traveler is Table)
                 {
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Shape",styleClasses: new Style("leftAlign")), new TextNode((traveler as Table).Shape,styleClasses: new Style("white","rightAlign","shadow"))
+                            new TextNode("Shape",style: new Style("leftAlign")), new TextNode((traveler as Table).Shape,style: new Style("white","rightAlign","shadow"))
                         }
                     );
                 }
@@ -285,17 +282,17 @@ namespace Efficient_Automatic_Traveler_System
                 fields.Add(
                     new Row(style: spaceBetween)
                     {
-                        new TextNode("Qty on traveler",styleClasses: new Style("leftAlign")), new TextNode(traveler.Quantity.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("Qty on traveler",style: new Style("leftAlign")), new TextNode(traveler.Quantity.ToString(),style: new Style("white","rightAlign","shadow"))
                     }
                 );
                 
                 if (traveler.ParentOrders.Count == 0)
                 {
-                    fields.Add(new TextNode("Make to Stock",styleClasses: new Style("red","shadow")));
+                    fields.Add(new TextNode("Make to Stock",style: new Style("red","shadow")));
                 } else
                 {
                     // Orders
-                    Column orders = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
+                    Column orders = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     foreach (Order order in traveler.ParentOrders)
                     {
                         orders.Add(new Button(order.SalesOrderNo,"OrderPopup",@"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"));
@@ -303,14 +300,14 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Orders",styleClasses: new Style("leftAlign")), orders
+                            new TextNode("Orders",style: new Style("leftAlign")), orders
                         }
                     );
                 }
                 // Parents
                 if (traveler.ParentTravelers.Count > 0)
                 {
-                    Column parents = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
+                    Column parents = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     foreach (Traveler parent in traveler.ParentTravelers)
                     {
                         parents.Add(new Button(parent.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + parent.ID + "}"));
@@ -318,14 +315,14 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Parents",styleClasses: new Style("leftAlign")), parents
+                            new TextNode("Parents",style: new Style("leftAlign")), parents
                         }
                     );
                 }
                 // Children
                 if (traveler.ChildTravelers.Count > 0)
                 {
-                    Column children = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
+                    Column children = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     foreach (Traveler child in traveler.ChildTravelers)
                     {
                         children.Add(new Button(child.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + child.ID + "}"));
@@ -333,7 +330,7 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Children",styleClasses: new Style("leftAlign")), children
+                            new TextNode("Children",style: new Style("leftAlign")), children
                         }
                     );
                 }
@@ -342,13 +339,13 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Station",styleClasses: new Style("leftAlign")), new TextNode(station.Name,styleClasses: new Style("white","rightAlign","shadow"))
+                            new TextNode("Station",style: new Style("leftAlign")), new TextNode(station.Name,style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Pending",styleClasses: new Style("leftAlign")), new TextNode(traveler.QuantityPendingAt(station).ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                            new TextNode("Pending",style: new Style("leftAlign")), new TextNode(traveler.QuantityPendingAt(station).ToString(),style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     if (traveler.QuantityCompleteAt(station) > 0)
@@ -356,14 +353,14 @@ namespace Efficient_Automatic_Traveler_System
                         fields.Add(
                             new Row(style: spaceBetween)
                             {
-                                new TextNode("Complete",styleClasses: new Style("leftAlign")), new TextNode(traveler.QuantityCompleteAt(station).ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                                new TextNode("Complete",style: new Style("leftAlign")), new TextNode(traveler.QuantityCompleteAt(station).ToString(),style: new Style("white","rightAlign","shadow"))
                             }
                         );
                     }
                 }
                 if (traveler.Items.Count > 0)
                 {
-                    Column items = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
+                    Column items = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     foreach (TravelerItem item in traveler.Items)
                     {
                         items.Add(new Button(traveler.PrintSequenceID(item), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}"));
@@ -371,7 +368,7 @@ namespace Efficient_Automatic_Traveler_System
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
-                            new TextNode("Items",styleClasses: new Style("leftAlign")), items
+                            new TextNode("Items",style: new Style("leftAlign")), items
                         }
                     );
                 }
@@ -402,51 +399,51 @@ namespace Efficient_Automatic_Traveler_System
                 if (order != null)
                 {
                     Column orderPopup = new Column(true);
-                    orderPopup.Add(new Row(styleClasses:new Style("justify-space-between"))
+                    orderPopup.Add(new Row(style:new Style("justify-space-between"))
                         {
-                            new TextNode("Ship Date",styleClasses: new Style("leftAlign")), new TextNode(order.ShipDate.ToString("MM/dd/yyyy"),styleClasses: new Style("white","rightAlign","shadow"))
+                            new TextNode("Ship Date",style: new Style("leftAlign")), new TextNode(order.ShipDate.ToString("MM/dd/yyyy"),style: new Style("white","rightAlign","shadow"))
                         }
                     );
-                    orderPopup.Add(new Row(styleClasses: new Style("justify-space-between"))
+                    orderPopup.Add(new Row(style: new Style("justify-space-between"))
                         {
-                            new TextNode("Order Date",styleClasses: new Style("leftAlign")), new TextNode(order.OrderDate.ToString("MM/dd/yyyy"),styleClasses: new Style("white","rightAlign","shadow"))
+                            new TextNode("Order Date",style: new Style("leftAlign")), new TextNode(order.OrderDate.ToString("MM/dd/yyyy"),style: new Style("white","rightAlign","shadow"))
                         }
                     );
-                    orderPopup.Add(new Row(styleClasses: new Style("justify-space-between"))
+                    orderPopup.Add(new Row(style: new Style("justify-space-between"))
                         {
-                            new TextNode("Customer",styleClasses: new Style("leftAlign")), new TextNode(order.CustomerNo,styleClasses: new Style("white","rightAlign","shadow"))
+                            new TextNode("Customer",style: new Style("leftAlign")), new TextNode(order.CustomerNo,style: new Style("white","rightAlign","shadow"))
                         }
                     );
-                    orderPopup.Add(new Row(styleClasses: new Style("justify-space-between"))
+                    orderPopup.Add(new Row(style: new Style("justify-space-between"))
                         {
-                            new TextNode("Status",styleClasses: new Style("leftAlign")), new TextNode(order.Status.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                            new TextNode("Status",style: new Style("leftAlign")), new TextNode(order.Status.ToString(),style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     NodeList lineItems = new NodeList(DOMtype: "table");
 
                     // Header
                     NodeList header = new NodeList( DOMtype: "tr");
-                    header.Add(new TextNode("Item Code", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
-                    header.Add(new TextNode("Ordered", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
-                    header.Add(new TextNode("On Hand", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
-                    header.Add(new TextNode("Traveler", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
-                    header.Add(new TextNode("Shipped", styleClasses: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("Item Code", style: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("Ordered", style: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("On Hand", style: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("Traveler", style: new Style("mediumBorder"), DOMtype: "th"));
+                    header.Add(new TextNode("Shipped", style: new Style("mediumBorder"), DOMtype: "th"));
                     lineItems.Add(header);
                     foreach (OrderItem item in order.Items)
                     {
                         // Detail
                         NodeList row = new NodeList(DOMtype: "tr");
-                        row.Add(new TextNode(item.ItemCode, styleClasses: new Style("mediumBorder"), DOMtype: "td"));
-                        row.Add(new TextNode(item.QtyOrdered.ToString(), styleClasses: new Style("mediumBorder"), DOMtype: "td"));
-                        row.Add(new TextNode(item.QtyOnHand.ToString(), styleClasses: new Style("mediumBorder"), DOMtype: "td"));
+                        row.Add(new TextNode(item.ItemCode, style: new Style("mediumBorder"), DOMtype: "td"));
+                        row.Add(new TextNode(item.QtyOrdered.ToString(), style: new Style("mediumBorder"), DOMtype: "td"));
+                        row.Add(new TextNode(item.QtyOnHand.ToString(), style: new Style("mediumBorder"), DOMtype: "td"));
                         if (item.ChildTraveler >= 0)
                         {
                             row.Add(new Button(item.ChildTraveler.ToString("D6"), "LoadTraveler", @"{""travelerID"":" + item.ChildTraveler + "}"));
                         } else
                         {
-                            row.Add(new Node(styleClasses: new Style("mediumBorder"), DOMtype: "td")); // blank if no child traveler
+                            row.Add(new Node(style: new Style("mediumBorder"), DOMtype: "td")); // blank if no child traveler
                         }
-                        row.Add(new TextNode(item.QtyShipped.ToString(), styleClasses: new Style("mediumBorder"), DOMtype: "td"));
+                        row.Add(new TextNode(item.QtyShipped.ToString(), style: new Style("mediumBorder"), DOMtype: "td"));
                         lineItems.Add(row);
                     }
                     orderPopup.Add(lineItems);
@@ -474,32 +471,32 @@ namespace Efficient_Automatic_Traveler_System
 
                 Column fields = new Column(true);
                 fields.Add(
-                    new Row(styleClasses: new Style("justify-space-between"))
+                    new Row(style: new Style("justify-space-between"))
                     {
-                        new TextNode("Traveler",styleClasses: new Style("leftAlign")), new Button(traveler.ID.ToString(),"LoadTraveler",json)
+                        new TextNode("Traveler",style: new Style("leftAlign")), new Button(traveler.ID.ToString(),"LoadTraveler",json)
                     }
                 );
                 fields.Add(
-                    new Row(styleClasses: new Style("justify-space-between"))
+                    new Row(style: new Style("justify-space-between"))
                     {
-                        new TextNode("Station",styleClasses: new Style("leftAlign")), new Selection("Station","MoveItem",StationClass.GetStations().Select(s => s.Name).ToList(),item.Station.Name,json)
+                        new TextNode("Station",style: new Style("leftAlign")), new Selection("Station","MoveItem",StationClass.GetStations().Select(s => s.Name).ToList(),item.Station.Name,json)
                     }
                 );
                 fields.Add(
-                    new Row(styleClasses: new Style("justify-space-between"))
+                    new Row(style: new Style("justify-space-between"))
                     {
-                        new TextNode("ItemCode",styleClasses: new Style("leftAlign")), new TextNode(item.ItemCode,styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("ItemCode",style: new Style("leftAlign")), new TextNode(item.ItemCode,style: new Style("white","rightAlign","shadow"))
                     }
                 );
                 fields.Add(
-                    new Row(styleClasses: new Style("justify-space-between"))
+                    new Row(style: new Style("justify-space-between"))
                     {
-                        new TextNode("State",styleClasses: new Style("leftAlign")), new TextNode(item.State.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("State",style: new Style("leftAlign")), new TextNode(item.State.ToString(),style: new Style("white","rightAlign","shadow"))
                     }
                 );
                 if (item.History.Count > 0)
                 {
-                    Column history = new Column(styleClasses: new Style("blackout__popup__controlPanel__list"));
+                    Column history = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     int index = 0;
                     foreach (Event evt in item.History)
                     {
@@ -507,9 +504,9 @@ namespace Efficient_Automatic_Traveler_System
                         index++;
                     }
                     fields.Add(
-                        new Row(styleClasses: new Style("justify-space-between"))
+                        new Row(style: new Style("justify-space-between"))
                         {
-                            new TextNode("History",styleClasses: new Style("leftAlign")), history
+                            new TextNode("History",style: new Style("leftAlign")), history
                         }
                     );
                 }
@@ -568,56 +565,56 @@ namespace Efficient_Automatic_Traveler_System
 
                 Column fields = new Column(true);
                 fields.Add(
-                    new Row(styleClasses: new Style("justify-space-between"))
+                    new Row(style: new Style("justify-space-between"))
                     {
-                        new TextNode("Item",styleClasses: new Style("leftAlign")), new Button(traveler.PrintSequenceID(item),"ItemPopup",json)
+                        new TextNode("Item",style: new Style("leftAlign")), new Button(traveler.PrintSequenceID(item),"ItemPopup",json)
                     }
                 );
                 fields.Add(
-                    new Row(styleClasses: new Style("justify-space-between"))
+                    new Row(style: new Style("justify-space-between"))
                     {
-                        new TextNode("Date",styleClasses: new Style("leftAlign")), new TextNode(evt.Date.ToString("MM/dd/yyyy @ hh:mm tt"),styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("Date",style: new Style("leftAlign")), new TextNode(evt.Date.ToString("MM/dd/yyyy @ hh:mm tt"),style: new Style("white","rightAlign","shadow"))
                     }
                 );
                 if (evt is ProcessEvent) {
                     ProcessEvent process = (ProcessEvent)evt;
                     fields.Add(
-                        new Row(styleClasses: new Style("justify-space-between"))
+                        new Row(style: new Style("justify-space-between"))
                         {
-                        new TextNode("Station",styleClasses: new Style("leftAlign")), new TextNode(process.Station.Name,styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("Station",style: new Style("leftAlign")), new TextNode(process.Station.Name,style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     fields.Add(
-                        new Row(styleClasses: new Style("justify-space-between"))
+                        new Row(style: new Style("justify-space-between"))
                         {
-                        new TextNode("Process",styleClasses: new Style("leftAlign")), new TextNode(process.Process.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("Process",style: new Style("leftAlign")), new TextNode(process.Process.ToString(),style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     fields.Add(
-                        new Row(styleClasses: new Style("justify-space-between"))
+                        new Row(style: new Style("justify-space-between"))
                         {
-                        new TextNode("Duration",styleClasses: new Style("leftAlign")), new TextNode(Math.Round(process.Duration,2).ToString() + " min",styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("Duration",style: new Style("leftAlign")), new TextNode(Math.Round(process.Duration,2).ToString() + " min",style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     fields.Add(
-                        new Row(styleClasses: new Style("justify-space-between"))
+                        new Row(style: new Style("justify-space-between"))
                         {
-                        new TextNode("User",styleClasses: new Style("leftAlign")), new TextNode(process.User.Name,styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("User",style: new Style("leftAlign")), new TextNode(process.User.Name,style: new Style("white","rightAlign","shadow"))
                         }
                     );
                 } else
                 {
                     LogEvent log = (LogEvent)evt;
                     fields.Add(
-                        new Row(styleClasses: new Style("justify-space-between"))
+                        new Row(style: new Style("justify-space-between"))
                         {
-                        new TextNode("Station",styleClasses: new Style("leftAlign")), new TextNode(log.Station.Name,styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("Station",style: new Style("leftAlign")), new TextNode(log.Station.Name,style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     fields.Add(
-                        new Row(styleClasses: new Style("justify-space-between"))
+                        new Row(style: new Style("justify-space-between"))
                         {
-                        new TextNode("Log type",styleClasses: new Style("leftAlign")), new TextNode(log.LogType.ToString(),styleClasses: new Style("white","rightAlign","shadow"))
+                        new TextNode("Log type",style: new Style("leftAlign")), new TextNode(log.LogType.ToString(),style: new Style("white","rightAlign","shadow"))
                         }
                     );
                 }
@@ -647,8 +644,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     {"travelerIDs", obj["travelerIDs"] }
                 }.Stringify();
-                Dictionary<string, string> flexStart = new Dictionary<string, string>() { { "justifyContent", @"""flex-start""" } };
-                Column IDs = new Column(style: flexStart);
+                Column IDs = new Column(style: new Style("justify-flex-start"));
                 foreach (string selectedID in selectedIDs)
                 {
                     IDs.Add(new TextNode(selectedID));
@@ -673,7 +669,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Dictionary<string, string> flexStart = new Dictionary<string, string>() { { "justifyContent", @"""flex-start""" } };
+                Style flexStart = new Style("justify-flex-start");
                 Column download = new Column(style: flexStart)
                 {
                     new TextNode("Download"),
@@ -771,7 +767,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Column list = new Column(true,styleClasses: new Style("scrollY"));
+                Column list = new Column(true,style: new Style("scrollY"));
                 foreach (Order order in Server.OrderManager.GetOrders.Where( o => o.Items.Exists( i => i.ChildTraveler >= 0)))
                 {
                     list.Add(new Button(order.SalesOrderNo, "OrderPopup", @"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"));

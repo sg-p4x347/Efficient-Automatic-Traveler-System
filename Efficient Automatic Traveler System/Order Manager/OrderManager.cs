@@ -12,7 +12,7 @@ using System.IO;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    interface IOrderManager
+    public interface IOrderManager
     {
         
         //void ImportOrders(ref List<Order> newOrders, ref OdbcConnection MAS);
@@ -27,7 +27,7 @@ namespace Efficient_Automatic_Traveler_System
         void ReleaseTraveler(Traveler traveler);
 
     }
-    class OrderManager : IManager, IOrderManager
+    public class OrderManager : IManager, IOrderManager
     {
         #region Public Methods
         public OrderManager()

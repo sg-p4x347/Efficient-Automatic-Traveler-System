@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class UserManager : IManager
+    public class UserManager : IManager
     {
         #region Public Methods
         // initializes the user manager from a json file
@@ -86,7 +86,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Properties
         private List<User> m_users = new List<User>();
 
-        internal List<User> Users
+        public List<User> Users
         {
             get
             {

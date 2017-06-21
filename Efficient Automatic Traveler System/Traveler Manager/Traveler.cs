@@ -8,10 +8,11 @@ using System.IO;
 using System.Data.Odbc;
 using System.Net;
 using System.Net.Http;
+using System.Data;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum LabelType
+    public enum LabelType
     {
         Tracking,
         Scrap,
@@ -24,7 +25,7 @@ namespace Efficient_Automatic_Traveler_System
     }
     
     
-    struct NameValueQty<valueType,qtyType>
+    public struct NameValueQty<valueType,qtyType>
     {
         public NameValueQty(string name, valueType value, qtyType qty)
         {
@@ -53,7 +54,7 @@ namespace Efficient_Automatic_Traveler_System
         public qtyType Qty;
     }
     
-    abstract internal class Traveler : IForm
+    abstract public class Traveler : IForm
     {
         #region Public Methods
         public Traveler() {
@@ -193,7 +194,7 @@ namespace Efficient_Automatic_Traveler_System
             return obj.Stringify();
         }
         // print a label for this traveler
-        public virtual string PrintLabel(ushort itemID, LabelType type, int qty = 1, bool forcePrint = false, StationClass station = null)
+        public virtual string PrintLabel(ushort itemID, LabelType type, int? qty = null, bool forcePrint = false, StationClass station = null)
         {
             string result = "";
             try
@@ -213,12 +214,18 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         case LabelType.Tracking:    template = "4x2 Table Travel1";             break; // 4x2Pack --> in hall
                         case LabelType.Scrap:       template = "4x2 Table Scrap1";              break;
-                        case LabelType.Pack:        template = "4x2 Table Carton EATS";         break;
+                        case LabelType.Pack:        template = "4x2 Table Carton EATS";
+                            if (qty == null)
+                            {
+                                qty = 2;
+                            }
+                            break;
                         case LabelType.Table:       template = "4x6 Table EATS";                break;
                         case LabelType.Chair:       template = "4x2 EdChair EATS";              break;
                         case LabelType.ChairCarton: template = "4x6 EdChair Pack Carton EATS";  break;
                         case LabelType.Box:         template = "4x2 Table Travel Box";          break;
                     }
+                    if (qty == null) qty = 1;
                     size = template.Substring(0, 3).ToLower();
                     if (station == null) station = item.Station;
                     printer = station.Printers.Find(x => x.ToLower().Contains(size));
@@ -243,7 +250,7 @@ namespace Efficient_Automatic_Traveler_System
                     if (fields.Length > 0) { json += fields.Trim(',') + ','; }
                     json += "\"printer\":\"" + printer + "\"";
                     json += ",\"template\":\"" + template + "\"";
-                    json += ",\"qty\":" + qty;
+                    json += ",\"qty\":" + qty.Value;
                     json += '}';
                     Dictionary < string, string> labelConfigs = (new StringStream(ConfigManager.Get("print"))).ParseJSON();
                     // only print if the config says so
@@ -301,14 +308,16 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string PrintSequenceID(TravelerItem item)
         {
-            string sequenceID = ID.ToString("D6") + "-";
-            if (item.Scrapped)
-            {
-                sequenceID += "Scrap #" + ScrapSequenceNo(item);
-            }
-            else
-            {
-                sequenceID +=  (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString();
+            string sequenceID = ID.ToString("D6");
+            if (item != null) {
+                if (item.Scrapped)
+                {
+                    sequenceID += "-Scrap #" + ScrapSequenceNo(item);
+                }
+                else
+                {
+                    sequenceID += "-" + (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString();
+                }
             }
             return sequenceID;
         }
@@ -594,10 +603,35 @@ namespace Efficient_Automatic_Traveler_System
             }
             if (ParentOrders.Count > 0 )
             {
-                members.Add(new NameValueQty<string, string>("Customers", ParentOrders.Select(o => o.CustomerNo).ToList().Stringify(false).Trim('[').Trim(']').Replace(",","\\n"),"").ToString());
+                foreach (Order order in ParentOrders)
+                {
+                    string customerString = order.SalesOrderNo + " - " + order.CustomerNo;
+                    members.Add(new NameValueQty<string, int>("Order", customerString, order.FindItems(ID).Sum(i => i.QtyNeeded)).ToString());
+                }
+                //members.Add(new NameValueQty<string, string>("Customers", .Stringify(false).Trim('[').Trim(']').Replace(",","\\n"),"").ToString());
             }
             obj.Add("members", members.Stringify(false));
             return obj.Stringify();
+        }
+        public virtual Dictionary<string, Node> ExportViewProperties()
+        {
+            Dictionary<string, Node> list = new Dictionary<string, Node>();
+            list.Add("Quantity", new TextNode(Quantity.ToString()));
+
+            list.Add("Part", new TextNode(ItemCode,new Style("twoEM","red","shadow")));
+            if (this is Part) list.Add("Description", new TextNode((this as Part).Bill.BillDesc));
+            if (ParentOrders.Count > 0)
+            {
+                List<object> orders = new List<object>();
+                foreach (Order order in ParentOrders)
+                {
+                    string customerString = "(" + order.FindItems(ID).Sum(i => i.QtyNeeded).ToString() + ") " + order.SalesOrderNo + " - " + order.CustomerNo;
+                    orders.Add(customerString);
+                }
+                list.Add("Orders",ControlPanel.CreateList(orders));
+            }
+            return list;
+
         }
 
         public virtual void Update(Form form)
@@ -753,7 +787,7 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Interface
-        internal int ID
+        public int ID
         {
             get
             {
@@ -763,7 +797,7 @@ namespace Efficient_Automatic_Traveler_System
 
         
 
-        internal int Quantity
+        public int Quantity
         {
             get
             {
@@ -780,7 +814,7 @@ namespace Efficient_Automatic_Traveler_System
 
         
 
-        internal StationClass Station
+        public StationClass Station
         {
             get
             {
@@ -792,7 +826,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<string> ParentOrderNums
+        public List<string> ParentOrderNums
         {
             get
             {
@@ -818,7 +852,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal ItemState State
+        public ItemState State
         {
             get
             {
@@ -830,7 +864,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal string DateStarted
+        public string DateStarted
         {
             get
             {
@@ -843,7 +877,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal int Priority
+        public int Priority
         {
             get
             {
@@ -856,7 +890,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<Traveler> ParentTravelers
+        public List<Traveler> ParentTravelers
         {
             get
             {
@@ -869,7 +903,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<Traveler> ChildTravelers
+        public List<Traveler> ChildTravelers
         {
             get
             {
@@ -908,7 +942,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<Order> ParentOrders
+        public List<Order> ParentOrders
         {
             get
             {
@@ -920,7 +954,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_parentOrders = value;
             }
         }
-        internal DateTime? SoonestShipDate
+        public DateTime? SoonestShipDate
         {
             get
             {

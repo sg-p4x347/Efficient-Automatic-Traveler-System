@@ -15,7 +15,7 @@ namespace Efficient_Automatic_Traveler_System
     // Class: Used to generate and store the digital "travelers" that are used throughout the system
     // Developer: Gage Coates
     // Date started: 1/25/17
-    interface ITravelerManager : IOperatorActions, ISupervisorActions
+    public interface ITravelerManager : IOperatorActions, ISupervisorActions
     {
         //void CreateScrapChild(Traveler parent, int qtyScrapped);
         //Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time);
@@ -31,12 +31,12 @@ namespace Efficient_Automatic_Traveler_System
         void Backup();
         void OnTravelersChanged(List<Traveler> travelers);
     }
-    interface IOperatorActions
+    public interface IOperatorActions
     {
         ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem travelerItem);
         ClientMessage SubmitTraveler(Traveler traveler, StationClass station);
     }
-    interface ISupervisorActions
+    public interface ISupervisorActions
     {
         string MoveTravelerStart(string json);
         ClientMessage LoadTravelerJSON(string json);
@@ -49,8 +49,8 @@ namespace Efficient_Automatic_Traveler_System
         ClientMessage TravelerForm(string json);
         Task<ClientMessage> NewTraveler(string json);
     }
-    internal delegate void TravelersChangedSubscriber(List<Traveler> travelers);
-    class TravelerManager : IManager, ITravelerManager
+    public delegate void TravelersChangedSubscriber(List<Traveler> travelers);
+    public class TravelerManager : IManager, ITravelerManager
     {
         #region Public methods
         public TravelerManager(IOrderManager orderManager)
@@ -355,7 +355,7 @@ namespace Efficient_Automatic_Traveler_System
                     if (traveler is Table)
                     {
                         
-                        returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+                        //returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                         //returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
                     }
                 }

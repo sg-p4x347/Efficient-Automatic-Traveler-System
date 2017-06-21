@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class BlacklistItem
+    public class BlacklistItem
     {
         public BlacklistItem(string itemCode)
         {

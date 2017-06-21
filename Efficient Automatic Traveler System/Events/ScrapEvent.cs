@@ -7,7 +7,7 @@ using System.Net.Mail;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class ScrapEvent : ProcessEvent//, IForm
+    public class ScrapEvent : ProcessEvent//, IForm
     {
         #region Public Methods
         public ScrapEvent(User user, StationClass station, double duration, bool startedWork, string source, string reason) : base(user,station,duration,ProcessType.Scrapped)

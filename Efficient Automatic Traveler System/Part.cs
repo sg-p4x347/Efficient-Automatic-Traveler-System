@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class Part : Traveler
+    public class Part : Traveler
     {
         #region Public members
         public Part() : base() {
@@ -16,6 +16,7 @@ namespace Efficient_Automatic_Traveler_System
         public Part(Form form) : base(form)
         {
             m_bill = new Bill(form.ValueOf("itemCode"), 1, Convert.ToInt32(form.ValueOf("quantity")));
+           
         }
         public Part(string json) : base(json) {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();

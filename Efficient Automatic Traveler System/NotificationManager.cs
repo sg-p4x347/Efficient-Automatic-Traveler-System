@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class NotificationManager
+    public class NotificationManager
     {
         #region Public Methods
         public NotificationManager(string json)

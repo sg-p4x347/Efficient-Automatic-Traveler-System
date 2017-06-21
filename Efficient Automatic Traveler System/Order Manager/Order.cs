@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum OrderStatus
+    public enum OrderStatus
     {
         Open,
         Closed,
         Hold
     }
-    class Order
+    public class Order
     {
         //-----------------------
         // Public members
@@ -161,7 +161,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal OrderStatus Status
+        public OrderStatus Status
         {
             get
             {

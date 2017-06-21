@@ -7,13 +7,13 @@ using System.Net.Mail;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum ProcessType {
+    public enum ProcessType {
         Started,
         Completed,
         Scrapped
     }
 
-    class ProcessEvent : Event
+    public class ProcessEvent : Event
     {
         #region Public Methods
         public ProcessEvent(User user, StationClass station, double duration, ProcessType process) : base()
@@ -76,7 +76,7 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------------------------------------
 
         #region Interface
-        internal User User
+        public User User
         {
             get
             {
@@ -89,7 +89,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal StationClass Station
+        public StationClass Station
         {
             get
             {
@@ -115,7 +115,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal ProcessType Process
+        public ProcessType Process
         {
             get
             {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    interface ICSV
+    public interface ICSV
     {
         Dictionary<string, string> ExportCSV(object parameter = null);
     }

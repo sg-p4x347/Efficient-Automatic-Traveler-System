@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    interface IManager
+    public interface IManager
     {
         // Imports everything from the date (defaults to today)
         void Import(DateTime? date = null);

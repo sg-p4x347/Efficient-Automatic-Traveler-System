@@ -27,7 +27,7 @@ namespace Efficient_Automatic_Traveler_System
         public string Method;
         public Dictionary<string,object> Parameters;
     }
-    internal struct ClientStopwatch
+    public struct ClientStopwatch
     {
         public ClientStopwatch(Client client)
         {
@@ -98,13 +98,13 @@ namespace Efficient_Automatic_Traveler_System
     }
     /* all derived classes that use ITravelers 
      * implement definitions for thise prototypes */
-    interface ITravelers
+    public interface ITravelers
     {
         event TravelersChangedSubscriber TravelersChanged;
         void HandleTravelersChanged(List<Traveler> travelers);
     }
     // The base class for a TcpClient that connects to the EATS server
-    abstract class Client : IClient
+    public abstract class Client : IClient
     {
         //------------------------------
         // Public members
@@ -382,7 +382,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal AccessLevel AccessLevel
+        public AccessLevel AccessLevel
         {
             get
             {

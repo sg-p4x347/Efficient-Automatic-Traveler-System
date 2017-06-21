@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum AccessLevel
+    public enum AccessLevel
     {
         Operator = 0,
         Supervisor = 1,
         Administrator = 2
     }
-    class User : IForm, ICSV
+    public class User : IForm, ICSV
     {
         #region Public Methods
         public User(string json)
@@ -151,7 +151,8 @@ namespace Efficient_Automatic_Traveler_System
         private bool m_notify;
         #endregion
         #region Interface
-        internal string UID
+
+        public string UID
         {
             get
             {
@@ -164,7 +165,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal string Name
+        public string Name
         {
             get
             {
@@ -177,7 +178,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<Event> History
+        public List<Event> History
         {
             get
             {

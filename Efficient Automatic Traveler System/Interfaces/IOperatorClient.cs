@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    interface IOperatorClient: IOperator, IClient
+    public interface IOperatorClient: IOperator, IClient
     {
     }
 }

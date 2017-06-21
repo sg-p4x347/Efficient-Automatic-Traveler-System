@@ -7,13 +7,13 @@ using System.Reflection;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum StationMode
+    public enum StationMode
     {
         Batch,
         Serial
     }
 
-    internal class StationClass : IEquatable<StationClass>
+    public class StationClass : IEquatable<StationClass>
     {
         #region Public Methods
         public static void ImportStations(string types, string stationsJson)
@@ -154,7 +154,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal StationMode Mode
+        public StationMode Mode
         {
             get
             {
@@ -162,7 +162,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<string> LaborCodes
+        public List<string> LaborCodes
         {
             get
             {

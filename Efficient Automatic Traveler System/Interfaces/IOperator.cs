@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    interface IOperator
+    public interface IOperator
     {
         ClientMessage AddTravelerEvent(string json);
         ClientMessage SubmitTraveler(string json);

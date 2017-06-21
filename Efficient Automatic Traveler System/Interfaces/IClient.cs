@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    interface IClient
+    public interface IClient
     {
         ClientMessage Login(string json);
         ClientMessage Logout(string json);

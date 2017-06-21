@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class Style
+    public class Style
     {
         public Style()
         {
@@ -32,13 +33,14 @@ namespace Efficient_Automatic_Traveler_System
         public List<string> ClassNames;
         public Dictionary<string,string> UniqueStyles;
     }
-    class Node
+    public class Node
     {
-        public Node() { }
-        public Node(Dictionary<string, string> style = null, Style styleClasses = null, string DOMtype = "div")
+        public Node() {
+            Style = new Style();
+        }
+        public Node(Style style = null, string DOMtype = "div")
         {
-            m_style = style != null ? style : new Dictionary<string, string>();
-            m_styleClasses = (styleClasses != null ? styleClasses : new Style());
+            m_style = (style != null ? style : new Style());
             m_DOMtype = DOMtype;
             m_eventListeners = new List<EventListener>();
         }
@@ -47,16 +49,16 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("type", this.GetType().Name.Quotate());
             obj.Add("DOMtype", m_DOMtype.Quotate());
-            obj.Add("style", m_styleClasses.UniqueStyles.Stringify());
-            obj.Add("styleClasses", m_styleClasses.ClassNames.Stringify());
+            obj.Add("style", m_style.UniqueStyles.Stringify());
+            obj.Add("styleClasses", m_style.ClassNames.Stringify());
             obj.Add("eventListeners", m_eventListeners.Stringify());
             return obj.Stringify();
         }
-        private Dictionary<string, string> m_style;
-        private Style m_styleClasses = new Style();
+        private Style m_style = new Style();
         private string m_DOMtype;
         private List<EventListener> m_eventListeners;
-        public Dictionary<string, string> Style
+
+        public Style Style
         {
             get
             {
@@ -69,20 +71,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public Style StyleClasses
-        {
-            get
-            {
-                return m_styleClasses;
-            }
-
-            set
-            {
-                m_styleClasses = value;
-            }
-        }
-
-        internal List<EventListener> EventListeners
+        public List<EventListener> EventListeners
         {
             get
             {
@@ -98,12 +87,12 @@ namespace Efficient_Automatic_Traveler_System
         // Specialized Nodes
         public static Node Img(Style style = null)
         {
-            return new Node(styleClasses: style, DOMtype: "img");
+            return new Node(style: style, DOMtype: "img");
         }
     }
-    class TextNode : Node
+    public class TextNode : Node
     {
-        public TextNode(string text, Dictionary<string, string> style = null, Style styleClasses = null, string DOMtype = "p") : base(style,styleClasses,DOMtype)
+        public TextNode(string text,Style style = null, string DOMtype = "p") : base(style,DOMtype)
         {
             m_text = text;
         }
@@ -115,9 +104,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         private string m_text;
     }
-    abstract class Control : Node
+    public abstract class Control : Node
     {
-        public Control(string type, string name, string callback, string returnParam, Dictionary<string, string> style = null, Style styleClasses = null) : base(style,styleClasses)
+        public Control(string type, string name, string callback, string returnParam,Style style = null) : base(style)
         {
             m_name = name;
             EventListeners.Add(new EventListener(type, callback, returnParam));
@@ -130,22 +119,22 @@ namespace Efficient_Automatic_Traveler_System
         }
         private string m_name;
     }
-    class Button : Control
+    public class Button : Control
     {
-        public Button(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base("click", name, callback, returnParam, style, styleClasses)
+        public Button(string name, string callback, string returnParam = "{}", Style style = null) : base("click", name, callback, returnParam, style)
         {
             
         }
     }
-    class Checkbox : Control
+    public class Checkbox : Control
     {
-        public Checkbox(string name, string callback, string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base("change", name, callback, returnParam, style, styleClasses)
+        public Checkbox(string name, string callback, string returnParam = "{}", Style style = null) : base("change", name, callback, returnParam, style)
         {
         }
     }
-    class Selection : Control
+    public class Selection : Control
     {
-        public Selection(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base ("change",name, callback, returnParam, style, styleClasses) {
+        public Selection(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Style style = null) : base ("change",name, callback, returnParam, style) {
             m_options = options;
             m_value = value;
         }
@@ -159,15 +148,15 @@ namespace Efficient_Automatic_Traveler_System
         private List<string> m_options;
         private string m_value;
     }
-    class RadioButtons : Selection
+    public class RadioButtons : Selection
     {
-        public RadioButtons(string name, string callback, List<string> options, string value = "", string returnParam = "{}", Dictionary<string, string> style = null, Style styleClasses = null) : base(name, callback, options, value, returnParam, style, styleClasses)
+        public RadioButtons(string name, string callback, List<string> options, string value = "", string returnParam = "{}",Style style = null) : base(name, callback, options, value, returnParam, style)
         {
         }
     }
-    class NodeList : Node, IEnumerable<Node>
+    public class NodeList : Node, IEnumerable<Node>
     {
-        public NodeList(Dictionary<string, string> style = null, Style styleClasses = null, string DOMtype = "div") : base(style, styleClasses, DOMtype)
+        public NodeList(Style style = null, string DOMtype = "div") : base(style, DOMtype)
         {
             m_nodes = new List<Node>();
         }
@@ -204,9 +193,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         private List<Node> m_nodes;
     }
-    class Row : NodeList
+    public class Row : NodeList
     {
-        public Row(bool dividers = false, Dictionary<string, string> style = null, Style styleClasses = null) : base(style, styleClasses)
+        public Row(bool dividers = false, Style style = null) : base(style)
         {
             m_dividers = dividers;
         }
@@ -218,9 +207,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         private bool m_dividers;
     }
-    class Column : NodeList
+    public class Column : NodeList
     {
-        public Column(bool dividers = false, Dictionary<string, string> style = null, Style styleClasses = null) : base(style, styleClasses)
+        public Column(bool dividers = false, Style style = null) : base(style)
         {
             m_dividers = dividers;
         }
@@ -232,7 +221,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private bool m_dividers;
     }
-    class ControlPanel
+    public class ControlPanel
     {
         public ControlPanel(string title, Node body, string id = "")
         {
@@ -255,9 +244,71 @@ namespace Efficient_Automatic_Traveler_System
         private string m_title;
         private Node m_body;
         private string m_ID;
+
+        // Static html creation helpers
+        public static Node CreateDataTable(DataTable dataTable)
+        {
+            Style cellStyle = new Style("mediumBorder");
+            NodeList table = new NodeList(cellStyle,"table");
+            // create the header
+            NodeList header = new NodeList(DOMtype: "tr");
+            foreach (DataColumn column in dataTable.Columns)
+            {
+                header.Add(new TextNode(column.ColumnName, cellStyle, "th"));
+            }
+            // create the detail
+            foreach (DataRow row in dataTable.Rows)
+            {
+                NodeList detail = new NodeList(DOMtype: "tr");
+                foreach(DataColumn column in dataTable.Columns)
+                {
+                    detail.Add(new TextNode(row[column].ToString(), cellStyle, "td"));
+                }
+            }
+            return table;
+        }
+        public static Node CreateDictionary(Dictionary<string, Node> dictionary)
+        {
+            //=================================
+            // STYLES
+            Style spaceBetween = new Style("justify-space-between");
+            Style leftAlign = new Style("leftAlign");
+            Style rightAlign = new Style("rightAlign");
+            Style shadow = new Style("shadow");
+            Style white = new Style("white");
+            //=================================
+
+            Column list = new Column(true);
+            foreach (KeyValuePair<string, Node> pair in dictionary)
+            {
+                Row row = new Row(style: spaceBetween);
+                // key
+                row.Add(new TextNode(pair.Key, leftAlign));
+                // value
+                row.Add(pair.Value as Node);
+
+                list.Add(row);
+            }
+            return list;
+        }
+        public static Node CreateList(List<object> list)
+        {
+            Column column = new Column();
+            foreach (object item in list)
+            {
+                if (item is string)
+                {
+                    column.Add(new TextNode(item as string));
+                } else if (item is Node)
+                {
+                    column.Add(item as Node);
+                }
+            }
+            return column;
+        }
     }
-    
-    class EventListener
+
+    public class EventListener
     {
         public EventListener(string type, string callback, string returnParam)
         {
@@ -277,4 +328,5 @@ namespace Efficient_Automatic_Traveler_System
         private string m_callback;
         private string m_returnParam;
     }
+    
 }

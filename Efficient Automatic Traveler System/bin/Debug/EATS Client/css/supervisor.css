@@ -211,3 +211,13 @@ th.view__item--complete {
 	background-color: lightGreen;
 	color: black;
 }
+
+/*Kanban monitor style*/
+.kanban__border {
+	border: 2px solid black;
+}
+.kanban__colorBox {
+	width: 1em;
+	height: 1em;
+}
+

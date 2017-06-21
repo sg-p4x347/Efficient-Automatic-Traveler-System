@@ -44,7 +44,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private Dictionary<string, JSON> m_value;
 
-        internal Dictionary<string, JSON> Value
+        public Dictionary<string, JSON> Value
         {
             get
             {

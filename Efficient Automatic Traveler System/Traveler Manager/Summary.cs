@@ -180,7 +180,7 @@ namespace Efficient_Automatic_Traveler_System
                             item.Add("Quantity", quantity.ToString());
                             foreach (string stationName in StationClass.StationNames())
                             {
-                                double sum = m_travelers.Where(t => t is Table && (t as IPart).ItemCode == table.ItemCode).Sum( j => j.Items.Sum(i => i.ProcessTimeAt(StationClass.GetStation(stationName))));
+                                double sum = m_travelers.Where(t => t is Table && t.ItemCode == table.ItemCode).Sum( j => j.Items.Sum(i => i.ProcessTimeAt(StationClass.GetStation(stationName))));
 
                                 if (sum > 0)
                                 {
@@ -377,7 +377,7 @@ namespace Efficient_Automatic_Traveler_System
         private List<User> m_users;
         #endregion
         #region Interface
-        internal List<Traveler> Travelers
+        public List<Traveler> Travelers
         {
             get
             {
@@ -385,7 +385,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<User> Users
+        public List<User> Users
         {
             get
             {

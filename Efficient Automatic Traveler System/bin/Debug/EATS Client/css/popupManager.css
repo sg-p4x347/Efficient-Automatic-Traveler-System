@@ -86,6 +86,7 @@
 .blackout__popup__controlPanel__node {
 	margin: 1px;
 	padding: 1px;
+	box-sizing: border-box;
 	flex-shrink: 0;
 }
 .blackout__popup__controlPanel__column {

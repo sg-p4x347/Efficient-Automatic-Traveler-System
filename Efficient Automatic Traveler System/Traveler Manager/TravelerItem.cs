@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum ItemState
+    public enum ItemState
     {
         PreProcess,
         InProcess,
         PostProcess
     }
-    class TravelerItem
+    public class TravelerItem
     {
         public TravelerItem(string itemCode, UInt16 ID, UInt16 sequenceNo, bool replacement = false)
         {
@@ -126,7 +126,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal StationClass Station
+        public StationClass Station
         {
             get
             {
@@ -166,7 +166,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<Event> History
+        public List<Event> History
         {
             get
             {
@@ -192,7 +192,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal ItemState State
+        public ItemState State
         {
             get
             {
@@ -244,7 +244,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal Traveler Parent
+        public Traveler Parent
         {
             get
             {

@@ -38,13 +38,14 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static NodeList CreateMonitorHeader()
         {
+            Style borderStyle = new Style("kanban__border");
             NodeList row = new NodeList(DOMtype: "tr");
-            row.Add(new Node(KanbanManager.BorderStyle, DOMtype:"td"));
-            row.Add(new TextNode("Current", KanbanManager.BorderStyle, DOMtype: "th"));
-            row.Add(new TextNode("Min Qty", KanbanManager.BorderStyle, DOMtype: "th"));
-            row.Add(new TextNode("Item Code", KanbanManager.BorderStyle, DOMtype: "th"));
-            row.Add(new TextNode("Qty Queued", KanbanManager.BorderStyle, DOMtype: "th"));
-            row.Add(new TextNode("Traveler Qty", KanbanManager.BorderStyle, DOMtype: "th"));
+            row.Add(new Node(new Style("kanban__border"), DOMtype:"td"));
+            row.Add(new TextNode("Current", new Style("kanban__border"), DOMtype: "th"));
+            row.Add(new TextNode("Min Qty", new Style("kanban__border"), DOMtype: "th"));
+            row.Add(new TextNode("Item Code", new Style("kanban__border"), DOMtype: "th"));
+            row.Add(new TextNode("Qty Queued", new Style("kanban__border"), DOMtype: "th"));
+            row.Add(new TextNode("Traveler Qty", new Style("kanban__border"), DOMtype: "th"));
             return row;
         }
         public NodeList CreateMonitorRow(int rowIndex)
@@ -56,26 +57,22 @@ namespace Efficient_Automatic_Traveler_System
             //byte green = (byte)Math.Min(255, (((double)Math.Max(0, m_stockQty - MinStockQty) / (double)MinStockQty)) * (double)255);
             byte green = (byte)Math.Min(255, (255 * x * 2.0));
 
-            Dictionary<string, string> colorBox = new Dictionary<string, string>()
-            {
-                {"backgroundColor", ("rgb(" + red + ',' + green + ",0)").Quotate()},
-                {"width", "1em".Quotate() },
-                {"height", "1em".Quotate() }
-            };
-            colorBox.Merge(KanbanManager.BorderStyle);
-            row.Add(new Node(colorBox, DOMtype: "td"));
-            row.Add(new TextNode(m_stockQty.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
-            row.Add(new TextNode(m_minStockQty.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
-            row.Add(new TextNode(ItemCode, KanbanManager.BorderStyle, DOMtype: "td"));
-            row.Add(new TextNode(m_qtyOnTraveler.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
-            row.Add(new TextNode(InjectionQty.ToString(), KanbanManager.BorderStyle, DOMtype: "td"));
+            Style color = new Style();
+            color.AddStyle("backgroundColor", ("rgb(" + red + ',' + green + ",0)"));
+
+            row.Add(new Node(new Style("kanban__colorBox") + color, DOMtype: "td"));
+            row.Add(new TextNode(m_stockQty.ToString(), new Style("kanban__border"), DOMtype: "td"));
+            row.Add(new TextNode(m_minStockQty.ToString(), new Style("kanban__border"), DOMtype: "td"));
+            row.Add(new TextNode(ItemCode, new Style("kanban__border"), DOMtype: "td"));
+            row.Add(new TextNode(m_qtyOnTraveler.ToString(), new Style("kanban__border"), DOMtype: "td"));
+            row.Add(new TextNode(InjectionQty.ToString(), new Style("kanban__border"), DOMtype: "td"));
             row.Add(new NodeList(DOMtype: "td")
             {
-                { new Button("","EditKanbanItemForm", @"{""itemCode"":" + m_itemCode.Quotate() + "}",styleClasses: new Style("editBtn")) }
+                { new Button("","EditKanbanItemForm", @"{""itemCode"":" + m_itemCode.Quotate() + "}",style: new Style("editBtn")) }
             });
             row.Add(new NodeList(DOMtype: "td")
             {
-                { new Button("", "DeleteKanbanItem",@"{""itemCode"":" + m_itemCode.Quotate() + "}",styleClasses: new Style("deleteBtn")) }
+                { new Button("", "DeleteKanbanItem",@"{""itemCode"":" + m_itemCode.Quotate() + "}",style: new Style("deleteBtn")) }
             });
             return row;
         }

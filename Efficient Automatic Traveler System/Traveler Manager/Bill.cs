@@ -7,7 +7,7 @@ using System.Data.Odbc;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class Bill
+    public class Bill
     {
         //enum BillType
         //{
@@ -257,7 +257,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<Item> ComponentItems
+        public List<Item> ComponentItems
         {
             get
             {
@@ -270,7 +270,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal List<Bill> ComponentBills
+        public List<Bill> ComponentBills
         {
             get
             {
@@ -309,7 +309,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal Bill Parent
+        public Bill Parent
         {
             get
             {

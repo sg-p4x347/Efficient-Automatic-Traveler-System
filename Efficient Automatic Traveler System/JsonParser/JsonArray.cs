@@ -55,7 +55,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private List<JSON> m_value;
 
-        internal List<JSON> Value
+        public List<JSON> Value
         {
             get
             {

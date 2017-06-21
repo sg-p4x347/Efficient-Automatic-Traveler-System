@@ -14,7 +14,7 @@ using System.Reflection;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class Server
+    public class Server
     {
         
         //------------------------------
@@ -534,7 +534,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal static OrderManager OrderManager
+        public static OrderManager OrderManager
         {
             get
             {
@@ -542,7 +542,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal static UserManager UserManager
+        public static UserManager UserManager
         {
             get
             {
@@ -550,7 +550,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        internal static NotificationManager NotificationManager
+        public static NotificationManager NotificationManager
         {
             get
             {
@@ -560,6 +560,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_notificationManager = value;
+            }
+        }
+
+        public static string RootDirectory
+        {
+            get
+            {
+                return m_rootDirectory;
+            }
+
+            set
+            {
+                m_rootDirectory = value;
             }
         }
     }

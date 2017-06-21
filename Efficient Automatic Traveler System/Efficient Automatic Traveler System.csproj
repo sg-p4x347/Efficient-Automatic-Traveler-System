@@ -61,6 +61,15 @@
   <PropertyGroup>
     <SignManifests>true</SignManifests>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -89,7 +98,6 @@
     <Compile Include="Interfaces\IManager.cs" />
     <Compile Include="Interfaces\IOperator.cs" />
     <Compile Include="Interfaces\IOperatorClient.cs" />
-    <Compile Include="Interfaces\IPart.cs" />
     <Compile Include="Interfaces\ISupervisor.cs" />
     <Compile Include="Interfaces\ISupervisorClient.cs" />
     <Compile Include="InventoryManager.cs" />

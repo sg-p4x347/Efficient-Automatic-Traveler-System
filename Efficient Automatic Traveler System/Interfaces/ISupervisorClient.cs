@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    interface ISupervisorClient : ISupervisor , IClient
+    public interface ISupervisorClient : ISupervisor , IClient
     {
 
     }
