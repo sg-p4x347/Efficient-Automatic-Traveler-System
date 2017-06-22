@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class JsonObject : JSON
+    class JsonObject : JSON, IEnumerable<KeyValuePair<string,JSON>>
     {
         public JsonObject()
         {
@@ -19,42 +20,83 @@ namespace Efficient_Automatic_Traveler_System
             char ch = '}';
             while (json.Get(ref ch))
             {
-                if (key == null && ch == '"')
+                if (!Char.IsWhiteSpace(ch))
                 {
-                    json.PutBack();
-                    key = new JsonString(ref json).Value;
-                }
-                else if (ch == '}')
-                {
-                    break;
-                }
-                else if (ch == ':')
-                {
-                }
-                else if (ch == ',')
-                {
-                }
-                else
-                {
-                    json.PutBack();
-                    Value.Add(key, Import(ref json));
-                    key = null;
+                    if (key == null && ch == '"')
+                    {
+                        json.PutBack();
+                        key = new JsonString(ref json);
+                    }
+                    else if (ch == '}')
+                    {
+                        break;
+                    }
+                    else if (ch == ':')
+                    {
+                    }
+                    else if (ch == ',')
+                    {
+                    }
+                    else
+                    {
+                        json.PutBack();
+                        (Value as Dictionary<string, JSON>).Add(key, Import(ref json));
+                        key = null;
+                    }
                 }
             }
         }
-        private Dictionary<string, JSON> m_value;
-
-        public Dictionary<string, JSON> Value
+        public override string ToString()
         {
-            get
-            {
-                return m_value;
+            string json = "{";
+            bool first = true;
+            foreach (KeyValuePair<string, JSON> pair in (Value as Dictionary<string, JSON>) ) {
+                if (!first) json += ',';
+                json += pair.Key.Quotate() + ':' + pair.Value.ToString();
+                first = false;
             }
-
+            json += '}';
+            return json;
+        }
+        
+        public bool ContainsKey(string key)
+        {
+            return (Value as Dictionary<string, JSON>).ContainsKey(key);
+        }
+        public void Add(string key, JSON value)
+        {
+            (Value as Dictionary<string, JSON>).Add(key, value);
+        }
+        public void Add(string key, object value)
+        {
+            StringStream stream = new StringStream(value is string ? (value as string).Quotate() : value.ToString());
+            Add(key, JSON.Import(ref stream));
+        }
+        public JSON this[string key]
+        {
+            get { return (Value as Dictionary<string, JSON>)[key]; }
             set
             {
-                m_value = value;
+                try
+                {
+                    (Value as Dictionary<string, JSON>)[key] = value;
+                }
+                catch (Exception ex)
+                {
+                    Server.LogException(ex);
+                    Server.WriteLine("JSON creation exception");
+                }
             }
+        }
+
+        public IEnumerator<KeyValuePair<string, JSON>> GetEnumerator()
+        {
+            return ((IEnumerable<KeyValuePair<string, JSON>>)(Value as Dictionary<string, JSON>)).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<KeyValuePair<string, JSON>>)(Value as Dictionary<string, JSON>)).GetEnumerator();
         }
     }
 }

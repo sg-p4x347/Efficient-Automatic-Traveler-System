@@ -28,44 +28,40 @@ namespace Efficient_Automatic_Traveler_System
                     else
                     {
                         json.PutBack();
-                        Value.Add(Import(ref json));
+                        (Value as List<JSON>).Add(Import(ref json));
                     }
                 }
             }
         }
+        public override string ToString()
+        {
+            string json = "[";
+            foreach (JSON element in (Value as List<JSON>))
+            {
+                json += element.ToString();
+            }
+            json += ']';
+            return json;
+        }
         // IEnumerable<JSON>
         public void Add(JSON node)
         {
-            Value.Add(node);
+            (Value as List<JSON>).Add(node);
         }
         public JSON this[int index]
         {
-            get { return Value[index]; }
-            set { Value.Insert(index, value); }
+            get { return (Value as List<JSON>)[index]; }
+            set { (Value as List<JSON>).Insert(index, value); }
         }
 
         public IEnumerator<JSON> GetEnumerator()
         {
-            return Value.GetEnumerator();
+            return (Value as List<JSON>).GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
-        }
-        private List<JSON> m_value;
-
-        public List<JSON> Value
-        {
-            get
-            {
-                return m_value;
-            }
-
-            set
-            {
-                m_value = value;
-            }
+            return (Value as List<JSON>).GetEnumerator();
         }
     }
 }

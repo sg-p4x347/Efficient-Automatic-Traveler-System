@@ -69,6 +69,14 @@ namespace Efficient_Automatic_Traveler_System
                 return "";
             }
         }
+        public override Dictionary<string, Node> ExportViewProperties()
+        {
+            Table parentTable = ParentTravelers.FirstOrDefault() as Table;
+            Dictionary<string, Node> list = base.ExportViewProperties();
+            list.Add("Table Shape", new TextNode(parentTable.Shape));
+            list.Add("Table Size", new TextNode(parentTable.Size));
+            return list;
+        }
         // labels
         public override string GetLabelFields(ushort itemID, LabelType type)
         {

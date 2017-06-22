@@ -93,6 +93,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             await m_bill.Import(MAS);
         }
+        public virtual bool HasDrawing()
+        {
+            // check the drawings directory for a drawing
+            return (System.IO.File.Exists(ConfigManager.Get("drawings") + Bill.DrawingNo + ".pdf"));
+        }
         #endregion
         #region Private Methods
         private Bill BillOf(string itemCode)

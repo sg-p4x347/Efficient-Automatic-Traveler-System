@@ -13,7 +13,7 @@ namespace Efficient_Automatic_Traveler_System
         static public void Initialize(string rootDir = null)
         {
             
-            CreateBackupDir();
+            //CreateBackupDir();
 
             string[] backupPaths = System.IO.Directory.GetDirectories(System.IO.Path.Combine(rootDir != null ? rootDir : Server.RootDir, "backup\\"));
             m_backupDates = new List<DateTime>();
@@ -65,6 +65,8 @@ namespace Efficient_Automatic_Traveler_System
         static public void CreateBackupDir()
         {
             Directory.CreateDirectory(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today)));
+            // mirror in dataDump
+            Directory.CreateDirectory(Path.Combine(ConfigManager.Get("dataDump"), "backup", DateToString(DateTime.Today)));
         }
         // returns true if a current backup for today exists
         static public bool CurrentBackupExists(string file)
@@ -110,6 +112,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             CreateBackupDir();
             File.WriteAllText(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date), filename),contents);
+            // mirror this at the data dump location
+            File.WriteAllText(Path.Combine(ConfigManager.Get("dataDump"), "backup", DateToString(DateTime.Today.Date), filename), contents);
         }
         static public void Backup(string path)
         {

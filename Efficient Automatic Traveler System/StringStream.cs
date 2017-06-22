@@ -11,7 +11,7 @@ namespace Efficient_Automatic_Traveler_System
         public StringStream(string s)
         {
             m_string = s;
-            m_position = -1;
+            m_position = 0;
         }
         public static char operator>>(StringStream s, int shift)
         {
@@ -149,14 +149,15 @@ namespace Efficient_Automatic_Traveler_System
         }
         public bool Get(ref char ch)
         {
-            m_position++;
             if (m_position >= m_string.Length)
             {
+                m_position++;
                 return false;
             }
             else
             {
                 ch = m_string[m_position];
+                m_position++;
                 return true;
             }
         }

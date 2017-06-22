@@ -13,6 +13,60 @@ namespace Efficient_Automatic_Traveler_System
             StringStream stream = new StringStream(json);
             return Import(ref stream);
         }
+        // From JSON to primitives
+        static public implicit operator int(JSON value)
+        {
+            return Convert.ToInt32(value.Value);
+        }
+        static public implicit operator double(JSON value)
+        {
+            return Convert.ToInt32(value.Value);
+        }
+        static public implicit operator bool(JSON value)
+        {
+            return Convert.ToBoolean(value.Value);
+        }
+        static public implicit operator string(JSON value)
+        {
+            return value.ToString().DeQuote();
+        }
+        // From primitives to JSON
+        static public implicit operator JSON(int value)
+        {
+            return new JsonInt(value);
+        }
+        static public implicit operator JSON(double value)
+        {
+            return new JsonDouble(value);
+        }
+        static public implicit operator JSON(bool value)
+        {
+            return new JsonBool(value);
+        }
+        static public implicit operator JSON(string value)
+        {
+            return new JsonString(value);
+        }
+        
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+        private object m_value;
+
+        protected object Value
+        {
+            get
+            {
+                return m_value;
+            }
+
+            set
+            {
+                this.m_value = value;
+            }
+        }
+
         protected static JSON Import(ref StringStream json)
         {
             char ch = ' ';
@@ -50,6 +104,31 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
             return null;
+        }
+        public string Humanize()
+        {
+            string json = ToString();
+            string formatted = "";
+            int scopeLevel = 0;
+            foreach (Char ch in json)
+            {
+                formatted += ch;
+                if (ch == '{' || ch == '[')
+                {
+
+                    scopeLevel++;
+                }
+                else if (ch == '}' || ch == ']')
+                {
+                    scopeLevel--;
+                }
+                if (new char[] { '{', '}', '[', ']', ',' }.Contains(ch))
+                {
+                    formatted += Environment.NewLine;
+                    formatted += new string('\t', scopeLevel);
+                }
+            }
+            return formatted;
         }
         private static void GetCommentScope(ref StringStream json) {
             char ch = ' ';

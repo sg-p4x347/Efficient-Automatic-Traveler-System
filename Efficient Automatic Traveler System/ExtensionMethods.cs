@@ -121,6 +121,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return names;
         }
+        // String exensions
         public static string MergeJSON(this string A, string B)
         {
             try
@@ -137,6 +138,10 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
                 return "";
             }
+        }
+        public static string Decompose(this string camelCase)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(camelCase, "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim();
         }
         public static void Merge(this Dictionary<string, string> A, Dictionary<string, string> B)
         {

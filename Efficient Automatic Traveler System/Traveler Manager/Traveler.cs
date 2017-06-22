@@ -616,11 +616,12 @@ namespace Efficient_Automatic_Traveler_System
         public virtual Dictionary<string, Node> ExportViewProperties()
         {
             Dictionary<string, Node> list = new Dictionary<string, Node>();
-            list.Add("Quantity", new TextNode(Quantity.ToString()));
+            list.Add("Quantity", new TextNode(Quantity.ToString(),new Style("lime")));
 
             list.Add("Part", new TextNode(ItemCode,new Style("twoEM","red","shadow")));
             if (this is Part) list.Add("Description", new TextNode((this as Part).Bill.BillDesc));
-            if (ParentOrders.Count > 0)
+            // orders
+            if (ParentOrders.Any())
             {
                 List<object> orders = new List<object>();
                 foreach (Order order in ParentOrders)
@@ -630,6 +631,24 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 list.Add("Orders",ControlPanel.CreateList(orders));
             }
+            // parents
+            if (ParentTravelers.Any())
+            {
+                List<object> parents = new List<object>();
+                foreach (Traveler parent in ParentTravelers)
+                {
+                    string parentString = parent.GetType().Name.Decompose() + " traveler: " + parent.PrintID() + " (" + parent.ItemCode + ")";
+                    parents.Add(parentString);
+                }
+                list.Add(ParentTravelers.Count > 1 ? "Parents" : "Parent", ControlPanel.CreateList(parents));
+            }
+            // labor (if it exists)
+            double labor = GetCurrentLabor(Station);
+            TimeSpan rate = TimeSpan.FromMinutes(labor);
+            string laborRate = "";
+            if (rate.Minutes > 0) laborRate += rate.Minutes + " min";
+            if (rate.Seconds > 0) laborRate += ' ' + rate.Seconds + " seconds";
+            list.Add("Labor", new TextNode(labor > 0 ? laborRate : "No rate information"));
             return list;
 
         }

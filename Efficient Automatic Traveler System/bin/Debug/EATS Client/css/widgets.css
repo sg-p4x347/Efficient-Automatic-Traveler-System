@@ -197,6 +197,9 @@ input.searchBox:focus {
 .blue {
 	color: blue;
 }
+.lightBlue {
+	color: lightblue;
+}
 .cyan {
 	color: cyan;
 }
@@ -271,6 +274,12 @@ input.searchBox:focus {
 .purpleBack {
 	background-color: purple;
 	border: 2px outset indigo;
+	border-top-color: violet;
+	border-left-color: violet;
+}
+.magentaBack {
+	background-color: magenta;
+	border: 2px outset BlueViolet;
 	border-top-color: violet;
 	border-left-color: violet;
 }

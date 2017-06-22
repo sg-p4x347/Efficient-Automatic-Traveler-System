@@ -165,7 +165,13 @@ namespace Efficient_Automatic_Traveler_System
                 m_scrapped = value;
             }
         }
-
+        public bool Finished
+        {
+            get
+            {
+                return History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish);
+            }
+        }
         public List<Event> History
         {
             get

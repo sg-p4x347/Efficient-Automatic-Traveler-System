@@ -56,7 +56,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.WriteLine("Server started on " + m_ip + ":80"); 
                 Server.WriteLine("websocket on " + m_ip + ":" + m_port.ToString());
-                m_clientManagerThread.Start();
+                m_clientManager.Start();
                 
                 
                 Update(); // immediately create travelers upon server start
@@ -361,7 +361,7 @@ namespace Efficient_Automatic_Traveler_System
             filename = filename.Substring(1);
             if (filename.Contains("drawings"))
             {
-                filename = Path.Combine(@"\\MGFS01\Company\SHARE\common\Drawings\Marco\PDF", Path.GetFileName(filename));
+                filename = Path.Combine(ConfigManager.Get("drawings"), Path.GetFileName(filename));
             } else
             {
                 if (string.IsNullOrEmpty(filename))

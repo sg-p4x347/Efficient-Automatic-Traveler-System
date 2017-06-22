@@ -169,9 +169,14 @@ namespace Efficient_Automatic_Traveler_System
             tableRef.Close();
         }
 
-        
 
 
+        public override Dictionary<string, Node> ExportViewProperties()
+        {
+            Dictionary<string,Node> list = base.ExportViewProperties();
+            list.Add("Box Size", new TextNode(BoxSize));
+            return list;
+        }
         #endregion
         //--------------------------------------------------------
         #region Properties

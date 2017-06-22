@@ -10,31 +10,20 @@ namespace Efficient_Automatic_Traveler_System
     {
         public JsonString(string str)
         {
-            Value = str;
+            Value = str.Quotate();
         }
         public JsonString(ref StringStream json)
         {
-            Value = "\"";
+            Value = "";
             char ch = ' ';
-            json.Get(ref ch);
             while (json.Get(ref ch)) {
-                Value += ch;
-                if (ch == '"') break;
+                Value = (Value as string) + ch;
+                if ((Value as string).Length > 1 && ch == '"') break;
             }
         }
-        private string m_value;
-
-        public string Value
+        public override string ToString()
         {
-            get
-            {
-                return m_value.DeQuote();
-            }
-
-            set
-            {
-                m_value = value.Quotate();
-            }
+            return (Value as string);
         }
     }
 }

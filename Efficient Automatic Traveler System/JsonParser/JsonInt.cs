@@ -12,19 +12,5 @@ namespace Efficient_Automatic_Traveler_System
         {
             Value = integer;
         }
-        private int m_value;
-
-        public int Value
-        {
-            get
-            {
-                return m_value;
-            }
-
-            set
-            {
-                m_value = value;
-            }
-        }
     }
 }

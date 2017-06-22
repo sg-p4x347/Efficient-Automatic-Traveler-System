@@ -12,19 +12,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             Value = boolean;
         }
-        private bool m_value;
-
-        public bool Value
+        public override string ToString()
         {
-            get
-            {
-                return m_value;
-            }
-
-            set
-            {
-                m_value = value;
-            }
+            return Value.ToString().ToLower();
         }
     }
 }

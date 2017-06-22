@@ -369,7 +369,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint,station);
         }
-
+        public override bool HasDrawing()
+        {
+            return true;
+        }
         // IForm -------------------
         public override Form CreateForm()
         {

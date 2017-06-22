@@ -17,11 +17,11 @@ namespace Efficient_Automatic_Traveler_System
                 if (date == null)
                 {
                     string path = Path.Combine(Server.RootDir, "config.json");
-                    m_configObj = (new StringStream(File.ReadAllText(path))).ParseJSON();
+                    m_configObj = (JsonObject)JSON.Parse(File.ReadAllText(path));
                     Server.WriteLine("Configuration settings loaded from current");
                 } else
                 {
-                    m_configObj = (new StringStream(BackupManager.Import("config.json",date))).ParseJSON();
+                    m_configObj = (JsonObject)JSON.Parse(BackupManager.Import("config.json", date));
                     Server.WriteLine("Configuration settings loaded from " + BackupManager.DateToString(date.Value));
                 }
                 
@@ -40,21 +40,21 @@ namespace Efficient_Automatic_Traveler_System
         }
         static public string Export(bool pretty = false)
         {
-            return m_configObj.Stringify(pretty);
+            return m_configObj.Humanize();
         }
         // returns the json string stored under the specified key
         static public string Get(string key)
         {
             if (m_configObj.ContainsKey(key))
             {
-                return m_configObj.ContainsKey(key) ? m_configObj[key] : "";
+                return m_configObj.ContainsKey(key) ? (string)m_configObj[key] : "";
             } else
             {
                 return "";
             }
         }
         // sets the json string stored under the specified key
-        static public void Set(string key, string value)
+        static public void Set(string key, JSON value)
         {
             m_configObj[key] = value;
             Backup();
@@ -64,7 +64,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Private Methods
         #endregion
         #region Properties
-        static private Dictionary<string, string> m_configObj;
+        static private JsonObject m_configObj;
         #endregion
     }
 }

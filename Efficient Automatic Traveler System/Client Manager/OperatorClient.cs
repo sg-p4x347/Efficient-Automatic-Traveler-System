@@ -86,17 +86,26 @@ namespace Efficient_Automatic_Traveler_System
             NodeList preProcess = new NodeList(style: new Style("queue"));
             foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
             {
-                NodeList queueItem = CreateQueueItem(traveler);
+                NodeList queueItem = CreateQueueItem(ItemState.PreProcess, traveler);
                 queueItem.EventListeners.Add(new EventListener("click", "LoadTraveler", @"{""travelerID"":" + traveler.ID + "}"));
                 // ID
-                queueItem.Add(new TextNode(traveler.ID.ToString("D6"),style:new Style("white","blackOutline")));
+                string IDtoDisplay = traveler.PrintID();
+                if (traveler.ParentTravelers.Any()) {
+                    IDtoDisplay = traveler.GetType().Name.Decompose() + " for ";
+                    foreach (Traveler parent in traveler.ParentTravelers)
+                    {
+                        IDtoDisplay += "<br>";
+                        IDtoDisplay += parent.PrintID();
+                    }
+                }
+                queueItem.Add(new TextNode(IDtoDisplay,style:new Style("yellow","blackOutline")));
 
                 queueItem.Add(new Row()
                 {
                     // Qty pending
-                    {new TextNode(traveler.QuantityPendingAt(m_station).ToString(),style: new Style("queue__item__qty","blue","whiteOutline")) },
+                    {new TextNode(traveler.QuantityPendingAt(m_station).ToString(),style: new Style("queue__item__qty","white","blackOutline")) },
                     // slash "/"
-                    { new TextNode("/",style: new Style("white")) },
+                    { new TextNode("/",style: new Style("white", "blackOutline")) },
                     // Total Qty
                     {new TextNode(traveler.Quantity.ToString(),style: new Style("queue__item__qty","lime","blackOutline")) }
                 });
@@ -121,7 +130,7 @@ namespace Efficient_Automatic_Traveler_System
             items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
             foreach (TravelerItem item in items)
             {
-                NodeList queueItem = CreateQueueItem(item.Parent,item);
+                NodeList queueItem = CreateQueueItem(ItemState.InProcess, item.Parent,item);
                 queueItem.EventListeners.Add(new EventListener("click", "LoadItem", @"{""travelerID"":" + item.Parent.ID + @",""itemID"":" + item.ID + "}"));
                 queueItem.Add(new TextNode(item.Parent.PrintSequenceID(item)));
                 inProcess.Add(queueItem);
@@ -132,9 +141,24 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage(cp.Dispatch().ToString());
             UpdateUI();
         }
-        private NodeList CreateQueueItem(Traveler traveler, TravelerItem item = null)
+        private NodeList CreateQueueItem(ItemState state, Traveler traveler, TravelerItem item = null)
         {
-            Column queueItem = new Column(style: new Style("queue__item", "redBack","align-items-center"));
+            Column queueItem = new Column(style: new Style("queue__item","align-items-center"));
+            if (traveler.ChildTravelers.Exists(child => child.Items.Exists(i => i.Finished)))
+            {
+                // has at least one finished box item
+                queueItem.Style += new Style("purpleBack");
+            } else
+            {
+                switch (state)
+                {
+                    case ItemState.PreProcess: queueItem.Style += new Style("blueBack"); break;
+                    case ItemState.InProcess: queueItem.Style += new Style("redBack"); break;
+                    case ItemState.PostProcess: queueItem.Style += new Style("limeBack"); break;
+                    default: queueItem.Style += new Style("ghostBack"); break;
+                }
+                
+            }
             if ((item == null && traveler == m_current) || (item != null && item == m_item)) queueItem.Style += new Style("selected");
             if (traveler is Table)
             {
@@ -281,7 +305,10 @@ namespace Efficient_Automatic_Traveler_System
                 };
                 travelerView.Add(new Button("Print Table label", "PrintLabel",printTable.Stringify()));
             }
-
+            if (m_current is Part && (m_current as Part).HasDrawing())
+            {
+                travelerView.Add(new Button("Drawing", "OpenDrawing"));
+            }
             ControlPanel travelerViewCP = new ControlPanel("travelerView", travelerView, "viewContainer");
 
             SendMessage(travelerViewCP.Dispatch().ToString());
@@ -721,74 +748,80 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                if (traveler != null)
+                if (json.Length > 0)
                 {
-                    ushort itemID;
-                    if (ushort.TryParse(obj["itemID"], out itemID))
+                    Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                    Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                    if (traveler != null)
                     {
-                        TravelerItem item = traveler.FindItem(itemID);
-                        if (item != null)
+                        ushort itemID;
+                        if (ushort.TryParse(obj["itemID"], out itemID))
                         {
-                            if (item.Station == m_station)
+                            TravelerItem item = traveler.FindItem(itemID);
+                            if (item != null)
                             {
-                                if (!item.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))
+                                if (item.Station == m_station)
                                 {
-                                    // ***************************************************
-                                    // First scan starts work and moves to InProcess queue
-                                    // ***************************************************
-
-                                    // add a flag event
-                                    m_travelerManager.AddTravelerEvent(new ProcessEvent(m_user, m_station, 0, ProcessType.Started), traveler, item);
-                                    //item.History.Add();
-                                    // start the timer
-                                    m_partTimer.Start("StartPartTimer");
-
-                                    // this is Table pack station, print Table label on search submission 
-                                    
-                                    if (m_station == StationClass.GetStation("Table-Pack"))
+                                    if (!item.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))
                                     {
-                                        return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
+                                        // ***************************************************
+                                        // First scan starts work and moves to InProcess queue
+                                        // ***************************************************
+
+                                        // add a flag event
+                                        m_travelerManager.AddTravelerEvent(new ProcessEvent(m_user, m_station, 0, ProcessType.Started), traveler, item);
+                                        //item.History.Add();
+                                        // start the timer
+                                        m_partTimer.Start("StartPartTimer");
+
+                                        // this is Table pack station, print Table label on search submission 
+
+                                        if (m_station == StationClass.GetStation("Table-Pack"))
+                                        {
+                                            return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
+                                        }
                                     }
-                                } else if (m_item != item)
-                                {
-                                    // ******************************
-                                    // Second scan loads the item
-                                    // ******************************
-                                    LoadItem(item);
-                                    if (m_station.Type == "tablePack")
+                                    else if (m_item != item)
                                     {
-                                        m_current.PrintLabel(m_item.ID, LabelType.Pack);
+                                        // ******************************
+                                        // Second scan loads the item
+                                        // ******************************
+                                        LoadItem(item);
+                                        if (m_station.Type == "tablePack")
+                                        {
+                                            m_current.PrintLabel(m_item.ID, LabelType.Pack);
+                                        }
                                     }
-                                } else
+                                    else
+                                    {
+                                        // ******************************
+                                        // Third scan Completes the item
+                                        // ******************************
+                                        CompleteItem();
+                                    }
+                                }
+                                else
                                 {
-                                    // ******************************
-                                    // Third scan Completes the item
-                                    // ******************************
-                                    CompleteItem();
+                                    return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
                                 }
                             }
                             else
                             {
-                                return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
+                                SendMessage(LoadTraveler(json).ToString());
+                                return new ClientMessage("Info", traveler.ID.ToString() + "-" + obj["itemID"] + " does not exist");
                             }
                         }
                         else
                         {
                             SendMessage(LoadTraveler(json).ToString());
-                            return new ClientMessage("Info", traveler.ID.ToString() + "-" + obj["itemID"] + " does not exist");
+                            return new ClientMessage();
                         }
-                    } else
-                    {
-                        SendMessage(LoadTraveler(json).ToString());
-                        return new ClientMessage();
                     }
-                } else
-                {
-                    return new ClientMessage("Info", obj["travelerID"] + " does not exist");
+                    else
+                    {
+                        return new ClientMessage("Info", obj["travelerID"] + " does not exist");
+                    }
                 }
-                
                 return new ClientMessage();
             } catch (Exception ex)
             {
