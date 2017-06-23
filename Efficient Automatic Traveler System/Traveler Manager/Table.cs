@@ -130,7 +130,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public new static string ExportCSVheader()
         {
-            List<string> header = new StringStream('[' + Traveler.ExportCSVheader() + ']').ParseJSONarray(false);
+            List<string> header = new StringStream('[' + Traveler.ExportCSVheader() + ']').ParseJSONarray();
             header.Add("Part");
             header.Add("Description");
             header.Add("Color");

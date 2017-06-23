@@ -839,6 +839,8 @@ function TravelerQueue(station) {
 	this.totalLaborElem;
 	this.travelers;
 	this.station;
+	// maintain scroll position
+	this.scrollPos;
 	
 	this.Clear = function () {
 		this.travelers = [];
@@ -887,7 +889,6 @@ function TravelerQueue(station) {
 						travelerID: traveler.ID,
 						station: self.station.name
 					});
-					
 					//-----------------------------------------------
 				}
 				DOMqueueItem.ontouchmove = function (event) {
@@ -901,6 +902,9 @@ function TravelerQueue(station) {
 			});
 			self.totalQtyElem.innerHTML = totalQty;
 			self.totalLaborElem.innerHTML = totalLabor.toFixed(1);
+			if (self.scrollPos) {
+				self.DOMelement.scrollTop = self.scrollPos;
+			}
 		} else {
 			self.DOMcontainer.style.display = "none";
 		}
@@ -944,7 +948,9 @@ function TravelerQueue(station) {
 		
 		self.DOMelement = document.createElement("DIV");
 		self.DOMelement.className = "queue";
-		
+		self.DOMelement.onscroll = function () {
+			self.scrollPos = this.scrollTop;
+		}
 		self.DOMcontainer.appendChild(self.DOMelement);
 		self.travelers = [];
 	}

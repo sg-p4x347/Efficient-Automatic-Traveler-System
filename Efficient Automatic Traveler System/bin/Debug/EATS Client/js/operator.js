@@ -32,16 +32,13 @@ function Application () {
 	// timers
 	this.partTimer
 	this.stationTimer
+	// Queue scroll positions (by element id)
+	this.scrollPos = {};
+
 	// update and render
 	this.view = {
 		viewState:"InProcess"
 	}
-	this.Render = function () {
-		
-	};
-	this.Update = function (elapsed) {
-		
-	};
 	this.SetWindow = function () {
 		// fit the body to the screen resolution
 		document.body.style.height = window.innerHeight + "px";
@@ -209,7 +206,17 @@ function Application () {
 		});
 	}
 	this.ControlPanel = function (controlPanel) {
-		this.popupManager.ControlPanel(controlPanel,document.getElementById(controlPanel.ID));
+		var self = this;
+		self.popupManager.ControlPanel(controlPanel,document.getElementById(controlPanel.ID));
+		if (controlPanel.ID in self.scrollPos) {
+			// reload scroll position
+			document.getElementById(controlPanel.ID).scrollTop = self.scrollPos[controlPanel.ID];
+		} else {
+			// add this id to the list of scroll positions
+			document.getElementById(controlPanel.ID).onscroll = function () {
+				self.scrollPos[controlPanel.ID] = this.scrollTop;
+			}
+		}
 	}
 	this.Autofocus = function (evt) {
 		if (document.getElementById("travelerSearchBox") != document.activeElement)  {

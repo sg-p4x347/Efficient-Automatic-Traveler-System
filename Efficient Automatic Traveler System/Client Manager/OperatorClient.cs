@@ -81,9 +81,11 @@ namespace Efficient_Automatic_Traveler_System
 
             //message.Add("mirror", mirror.ToString().ToLower());
             //SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify(), "LoadCurrent").ToString());
-            
+
             // PreProcess traveler queue items
-            NodeList preProcess = new NodeList(style: new Style("queue"));
+            Style visibleOverflow = new Style();
+            visibleOverflow.AddStyle("overflow", "visible");
+            NodeList preProcess = new NodeList(visibleOverflow);
             foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
             {
                 NodeList queueItem = CreateQueueItem(ItemState.PreProcess, traveler);
@@ -121,11 +123,11 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 preProcess.Add(queueItem);
             }
-            ControlPanel preProcessControlPanel = new ControlPanel("inProcess", preProcess, "preProcessQueue");
+            ControlPanel preProcessControlPanel = new ControlPanel("preProcess", preProcess, "preProcessQueue");
             SendMessage(preProcessControlPanel.Dispatch().ToString());
 
             // InProcess queue items
-            NodeList inProcess = new NodeList(style: new Style("queue"));
+            NodeList inProcess = new NodeList(visibleOverflow);
             List<TravelerItem> items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))).ToList();
             items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
             foreach (TravelerItem item in items)
@@ -137,7 +139,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             // sort the items by start event time (most recent on top)
 
-            ControlPanel cp = new ControlPanel("inProcess", inProcess, "inProcessQueueContainer");
+            ControlPanel cp = new ControlPanel("inProcess", inProcess, "inProcessQueue");
             SendMessage(cp.Dispatch().ToString());
             UpdateUI();
         }
@@ -289,7 +291,7 @@ namespace Efficient_Automatic_Traveler_System
             // buttons
             if (m_station.Type == "tablePack")
             {
-                // print carton labels
+                // print carton labels -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
                 Dictionary<string, string> printCarton = new Dictionary<string, string>() {
                     {"travelerID",m_current.ID.ToString() },
                     {"itemID",m_item.ID.ToString() },
@@ -297,7 +299,7 @@ namespace Efficient_Automatic_Traveler_System
                 };
 
                 travelerView.Add(new Button("Print Carton Labels", "PrintLabel",printCarton.Stringify()));
-                // print table label
+                // print table label -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
                 Dictionary<string, string> printTable = new Dictionary<string, string>() {
                     {"travelerID",m_current.ID.ToString() },
                     {"itemID",m_item.ID.ToString() },
@@ -305,9 +307,21 @@ namespace Efficient_Automatic_Traveler_System
                 };
                 travelerView.Add(new Button("Print Table label", "PrintLabel",printTable.Stringify()));
             }
+            // View Drawing -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
             if (m_current is Part && (m_current as Part).HasDrawing())
             {
                 travelerView.Add(new Button("Drawing", "OpenDrawing"));
+            }
+            if (m_item != null)
+            {
+                // Print Tracking label -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+                Dictionary<string, string> printTracking = new Dictionary<string, string>() {
+                    {"travelerID",m_current.ID.ToString() },
+                    {"itemID",m_item.ID.ToString() },
+                    {"labelType",LabelType.Tracking.ToString().Quotate() }
+                };
+                travelerView.Add(new Button("Print Tracking label", "PrintLabel", printTracking.Stringify()));
+                // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
             }
             ControlPanel travelerViewCP = new ControlPanel("travelerView", travelerView, "viewContainer");
 

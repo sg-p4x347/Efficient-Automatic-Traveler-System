@@ -246,14 +246,18 @@ function PopupManager(blackout) {
 		if (!DOMparent) {
 			popup = self.CreatePopup(format.title,true);
 			popup.id = format.title;
+			self.AddControlNode(format.body,popup,function (parameters) {
+			new InterfaceCall(parameters.callback,parameters);
+			},true);
 		} else {
 			popup = DOMparent;
 			ClearChildren(DOMparent);
+			self.AddControlNode(format.body,popup,function (parameters) {
+			new InterfaceCall(parameters.callback,parameters);
+			});
 		}
 		
-		self.AddControlNode(format.body,popup,function (parameters) {
-			new InterfaceCall(parameters.callback,parameters);
-		},true);
+		
 		/* var horizontal = self.CreateHorizontalList();
 		var fieldsTable = self.CreateTable(displayFields,object);
 		horizontal.appendChild(fieldsTable); */

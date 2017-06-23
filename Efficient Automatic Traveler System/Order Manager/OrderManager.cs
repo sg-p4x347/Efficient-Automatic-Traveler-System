@@ -76,7 +76,7 @@ namespace Efficient_Automatic_Traveler_System
                         order.ShipVia = reader["ShipVia"].ToString();
                         if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
                         order.ShipDate = Convert.ToDateTime(reader["ShipExpireDate"]);
-                        order.SetStatus(Convert.ToChar(reader["OrderStatus"]));
+                        if (order.Status != OrderStatus.Removed) order.SetStatus(Convert.ToChar(reader["OrderStatus"]));
 
                         // get information from detail
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
@@ -191,9 +191,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, List<OrderItem>> ordersByItemCode = new Dictionary<string, List<OrderItem>>();
             // get all orderItems in one list
-            List<OrderItem> allItems = m_orders.Select(o => o.Items).Aggregate((i,j) => i.Concat(j).ToList());
-            // get all unique itemCodes on order
-            List<string> itemCodes = allItems.GroupBy(x => x.ItemCode).Select(y => y.First()).Select(z => z.ItemCode).ToList();
+            List<OrderItem> allItems = m_orders.SelectMany(o => o.Items).ToList();
+            // get all distinct itemCodes on order
+            List<string> itemCodes = allItems.Select(i => i.ItemCode).Distinct().ToList();
             // for all itemCodes on order
             foreach (string itemCode in itemCodes)
             {
@@ -214,8 +214,8 @@ namespace Efficient_Automatic_Traveler_System
                 int qtyOnSO = 0;
                 // get all Open OrderItem(s) with this itemCode
                 List<OrderItem> items = allItems.Where(x => x.ItemCode == itemCode).ToList();
-                // add hold order's quantities to available
-                available += items.Where(i => i.Parent.Status == OrderStatus.Hold).Sum(j => j.QtyNeeded);
+                // add non open orders' quantities to available
+                //available += items.Where(i => i.Parent.Status != OrderStatus.Open || i.ItemStatus != OrderStatus.Open).Sum(j => j.QtyNeeded);
                 // remove all non-open items
                 items.RemoveAll(i => i.Parent.Status != OrderStatus.Open);
                 // sort the list in ascending order with respect to the ship date
@@ -232,7 +232,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 if (SOqty != qtyOnSO)
                 {
-                    //Server.WriteLine("MAS inventory inconsistency for " + itemCode + " : " + qtyOnSO + " " + SOqty + items.Select(i => i.Parent.SalesOrderNo + " " + i.QtyOrdered).ToList().Stringify(false) );
+                    Server.WriteLine("MAS inventory inconsistency for " + itemCode + " : " + qtyOnSO + " " + SOqty + items.Select(i => i.Parent.SalesOrderNo + " " + i.QtyOrdered).ToList().Stringify(false) );
                 }
             }
         }
@@ -316,6 +316,48 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.NotificationManager.PushNotification("Close Ship Dates", message);
             }
+        }
+        // remove this order's ability to influnce travelers
+        public void RemoveOrder(Order order)
+        {
+            // remove traveler dependencies
+            foreach (OrderItem item in order.Items.Where(i => i.ChildTraveler >= 0))
+            {
+                
+                Traveler child = Server.TravelerManager.FindTraveler(item.ChildTraveler);
+                if (child != null) RemoveOrder(order, child);
+            }
+            Backup();
+        }
+        public void AddOrder(Order order)
+        {
+            // open all the items back up again
+            foreach (OrderItem item in order.Items)
+            {
+                item.ItemStatus = OrderStatus.Open;
+            }
+            Backup();
+        }
+        public void RefactorOrders()
+        {
+            OdbcConnection MAS = new OdbcConnection();
+            MAS.ConnectionString = "DSN=SOTAMAS90;Company=MGI;UID=GKC;PWD=sgp4x347;";
+            MAS.Open();
+            ImportOrders(ref MAS);
+            Backup();
+        }
+        // Just remove this order from this traveler
+        public void RemoveOrder(Order order, Traveler child)
+        {
+            foreach (OrderItem item in order.FindItems(child.ID))
+            {
+                item.ItemStatus = OrderStatus.Removed;
+                child.ParentOrders.Remove(order);
+                child.ParentOrderNums.Remove(order.SalesOrderNo);
+
+                item.ChildTraveler = -1;
+            }
+            Backup();
         }
         #endregion
         //--------------------------------------------

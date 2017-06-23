@@ -10,7 +10,8 @@ namespace Efficient_Automatic_Traveler_System
     {
         Open,
         Closed,
-        Hold
+        Hold,
+        Removed
     }
     public class Order
     {

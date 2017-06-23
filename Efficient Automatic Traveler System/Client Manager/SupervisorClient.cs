@@ -223,6 +223,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                m_traveler = traveler;
                 StationClass station = StationClass.GetStation(obj["station"]);
                 // the parameter that returns with all the control events
                 string returnParam = new Dictionary<string, string>()
@@ -295,7 +296,11 @@ namespace Efficient_Automatic_Traveler_System
                     Column orders = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     foreach (Order order in traveler.ParentOrders)
                     {
-                        orders.Add(new Button(order.SalesOrderNo,"OrderPopup",@"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"));
+                        Row orderListing = new Row() {
+                            new Button(order.SalesOrderNo,"OrderPopup",@"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"),
+                            new Button("", "RemoveOrderFromTraveler",new JsonObject() { { "order", order.SalesOrderNo } }, style: new Style("deleteBtn"))
+                        };
+                        orders.Add(orderListing);
                     }
                     fields.Add(
                         new Row(style: spaceBetween)
@@ -395,28 +400,34 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                Order order = Server.OrderManager.FindOrder(obj["orderNo"]);
-                if (order != null)
+                m_order = Server.OrderManager.FindOrder(obj["orderNo"]);
+                if (m_order != null)
                 {
                     Column orderPopup = new Column(true);
+                    Row controls = new Row()
+                    {
+                        new Button("Remove Order","RemoveOrder"),
+                        new Button("Add Order","AddOrder")
+                    };
+                    orderPopup.Add(controls);
                     orderPopup.Add(new Row(style:new Style("justify-space-between"))
                         {
-                            new TextNode("Ship Date",style: new Style("leftAlign")), new TextNode(order.ShipDate.ToString("MM/dd/yyyy"),style: new Style("white","rightAlign","shadow"))
+                            new TextNode("Ship Date",style: new Style("leftAlign")), new TextNode(m_order.ShipDate.ToString("MM/dd/yyyy"),style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     orderPopup.Add(new Row(style: new Style("justify-space-between"))
                         {
-                            new TextNode("Order Date",style: new Style("leftAlign")), new TextNode(order.OrderDate.ToString("MM/dd/yyyy"),style: new Style("white","rightAlign","shadow"))
+                            new TextNode("Order Date",style: new Style("leftAlign")), new TextNode(m_order.OrderDate.ToString("MM/dd/yyyy"),style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     orderPopup.Add(new Row(style: new Style("justify-space-between"))
                         {
-                            new TextNode("Customer",style: new Style("leftAlign")), new TextNode(order.CustomerNo,style: new Style("white","rightAlign","shadow"))
+                            new TextNode("Customer",style: new Style("leftAlign")), new TextNode(m_order.CustomerNo,style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     orderPopup.Add(new Row(style: new Style("justify-space-between"))
                         {
-                            new TextNode("Status",style: new Style("leftAlign")), new TextNode(order.Status.ToString(),style: new Style("white","rightAlign","shadow"))
+                            new TextNode("Status",style: new Style("leftAlign")), new TextNode(m_order.Status.ToString(),style: new Style("white","rightAlign","shadow"))
                         }
                     );
                     NodeList lineItems = new NodeList(DOMtype: "table");
@@ -429,7 +440,7 @@ namespace Efficient_Automatic_Traveler_System
                     header.Add(new TextNode("Traveler", style: new Style("mediumBorder"), DOMtype: "th"));
                     header.Add(new TextNode("Shipped", style: new Style("mediumBorder"), DOMtype: "th"));
                     lineItems.Add(header);
-                    foreach (OrderItem item in order.Items)
+                    foreach (OrderItem item in m_order.Items)
                     {
                         // Detail
                         NodeList row = new NodeList(DOMtype: "tr");
@@ -447,7 +458,7 @@ namespace Efficient_Automatic_Traveler_System
                         lineItems.Add(row);
                     }
                     orderPopup.Add(lineItems);
-                    return new ClientMessage("ControlPanel", new ControlPanel("Order " + order.SalesOrderNo, orderPopup).ToString());
+                    return new ClientMessage("ControlPanel", new ControlPanel("Order " + m_order.SalesOrderNo, orderPopup).ToString());
                 }
                 else
                 {
@@ -685,13 +696,17 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("New User","UserForm"),
                     new Button("Edit User","SearchPopup",@"{""interfaceCall"":""EditUserForm"",""message"":""Search for a user by name or ID""}"),
                     new Button("New Traveler","TravelerForm"),
-                    new Button("Kanban Monitor", "KanbanMonitor")
+                    new Button("Kanban Monitor", "KanbanMonitor"),
+                    new Button("Orders","OrderListPopup"),
+                    
+                    new TextNode("Invoke"), 
+                    new Button("Refactor Travelers","RefactorTravelers")
                 };
                 Column view = new Column(style: flexStart)
                 {
                     new TextNode("View"),
-                    new Button("View Summary","CreateSummary",@"{""sort"":""Active"",""type"":""Table"",""from"":"""",""to"":""""}"),
-                    new Button("View Orders","OrderListPopup")
+                    new Button("View Summary","CreateSummary",@"{""sort"":""Active"",""type"":""Table"",""from"":"""",""to"":""""}")
+                    
                 };
                 ControlPanel panel = new ControlPanel("Options", new Row() { download , manage, view});
                 return new ClientMessage("ControlPanel", panel.ToString());
@@ -700,6 +715,20 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error when getting display fields");
+            }
+        }
+        public ClientMessage RefactorTravelers(string json)
+        {
+            try
+            {
+                SendMessage(new ClientMessage("Updating").ToString());
+                Program.server.Update();
+                return new ClientMessage("Info", "Done refactoring PreProcess travelers");
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error refactoring traveler quantities");
             }
         }
         public ClientMessage SearchPopup(string json)
@@ -711,6 +740,56 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error reflecting function call");
+            }
+        }
+        public ClientMessage RemoveOrder(string json)
+        {
+            try
+            {
+                Order order = m_order;
+                m_order = null;
+                Server.OrderManager.RemoveOrder(order);
+                SendMessage(new ClientMessage("CloseAll").ToString());
+                return new ClientMessage("Info", "Order " + order.SalesOrderNo + " removed!");
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error removing order");
+            }
+        }
+        public ClientMessage AddOrder(string json)
+        {
+            try
+            {
+                Order order = m_order;
+                Server.OrderManager.AddOrder(order);
+                return new ClientMessage("Info", "Order " + order.SalesOrderNo + " added!<br>Refactor travelers to apply this change");
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error adding order");
+            }
+        }
+        public ClientMessage RemoveOrderFromTraveler(string json)
+        {
+            try
+            {
+                JsonObject param = (JsonObject)JSON.Parse(json);
+                Order order = Server.OrderManager.FindOrder(param["order"]);
+                if (order != null && m_traveler != null)
+                {
+                    Server.OrderManager.RemoveOrder(order,m_traveler);
+                    return new ClientMessage("Info", "Order " + order.SalesOrderNo + " removed from traveler " + m_traveler.PrintID() + " !");
+                } else
+                {
+                    return new ClientMessage("Info", "Something went wrong... :(");
+                }
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error removing order from traveler");
             }
         }
         public ClientMessage Test(string json)
@@ -1103,6 +1182,8 @@ namespace Efficient_Automatic_Traveler_System
         private Type m_viewType;
         private bool m_filterState;
         private bool m_filterType;
+        private Traveler m_traveler;
+        private Order m_order;
         #endregion
         //----------
         // Events

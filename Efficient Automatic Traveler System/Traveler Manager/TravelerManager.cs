@@ -30,6 +30,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         void Backup();
         void OnTravelersChanged(List<Traveler> travelers);
+        void RefactorTravelers();
     }
     public interface IOperatorActions
     {
@@ -70,7 +71,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (order.Status == OrderStatus.Open)
                 {
-                    foreach (OrderItem item in order.Items)
+                    foreach (OrderItem item in order.Items.Where(i => i.ItemStatus == OrderStatus.Open))
                     {
                         // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
                         if (item.ChildTraveler < 0)
@@ -169,6 +170,22 @@ namespace Efficient_Automatic_Traveler_System
             Server.Write("\r{0}", "Gathering Info...Finished\n");
             // travelers have changed
             OnTravelersChanged(m_travelers);
+        }
+        //// Update this travelers quantities dynamically
+        //public void UpdateTraveler(Traveler traveler)
+        //{
+
+        //}
+        public void RefactorTravelers()
+        {
+            Server.OrderManager.RefactorOrders();
+            // only change the quantities of preprocess travelers
+            foreach (Traveler traveler in m_travelers.Where(t => t.State == ItemState.PreProcess))
+            {
+                List<OrderItem> items = traveler.ParentOrders.SelectMany(o => o.Items.Where(i => i.ChildTraveler == traveler.ID)).ToList();
+                traveler.Quantity = items.Sum(i => i.QtyOrdered - i.QtyOnHand);
+            }
+            OnTravelersChanged();
         }
         #endregion
         //----------------------------------
@@ -725,12 +742,12 @@ namespace Efficient_Automatic_Traveler_System
                 return false;
             }
         }
-        public void OnTravelersChanged(List<Traveler> travelers)
+        public void OnTravelersChanged(List<Traveler> travelers = null)
         {
             // Update the travelers.json file with all the current travelers
             Backup();
             // fire the event
-            TravelersChanged(travelers);
+            TravelersChanged(travelers != null ? travelers : m_travelers);
         }
 
         private void AssignOrder(Traveler traveler, TravelerItem item)

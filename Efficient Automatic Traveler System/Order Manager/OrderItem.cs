@@ -17,6 +17,7 @@ namespace Efficient_Automatic_Traveler_System
             ChildTraveler = -1;
             LineNo = -1;
             Parent = parent;
+            ItemStatus = OrderStatus.Open;
         }
         public OrderItem(string json, Order parent)
         {
@@ -31,6 +32,7 @@ namespace Efficient_Automatic_Traveler_System
                 QtyOnHand = Convert.ToInt32(obj["qtyOnHand"]);
                 ChildTraveler = Convert.ToInt32(obj["childTraveler"]);
                 LineNo = Convert.ToInt32(obj["lineNo"]);
+                ItemStatus = obj.ContainsKey("itemStatus") ? (OrderStatus)Enum.Parse(typeof(OrderStatus), obj["itemStatus"]) : OrderStatus.Open;
             }
             catch (Exception ex)
             {
@@ -55,7 +57,8 @@ namespace Efficient_Automatic_Traveler_System
                 {"qtyShipped",QtyShipped.ToString() },
                 {"qtyOnHand",QtyOnHand.ToString() },
                 {"childTraveler",ChildTraveler.ToString() },
-                {"lineNo",LineNo.ToString() }
+                {"lineNo",LineNo.ToString() },
+                {"itemStatus",ItemStatus.ToString().Quotate() }
             };
             return obj.Stringify();
         }
@@ -66,7 +69,7 @@ namespace Efficient_Automatic_Traveler_System
         public int ChildTraveler;
         public int LineNo;
         public Order Parent;
-
+        public OrderStatus ItemStatus;
         public int QtyNeeded
         {
             get

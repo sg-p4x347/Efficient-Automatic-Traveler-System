@@ -56,7 +56,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.WriteLine("Server started on " + m_ip + ":80"); 
                 Server.WriteLine("websocket on " + m_ip + ":" + m_port.ToString());
-                m_clientManager.Start();
+                m_clientManagerThread.Start();
                 
                 
                 Update(); // immediately create travelers upon server start
@@ -105,6 +105,9 @@ namespace Efficient_Automatic_Traveler_System
             {
                 case "update":
                     Update();
+                    break;
+                case "backup":
+                    Backup();
                     break;
                 case "reset":
                     //m_travelerManager.GetTravelers.Clear();
@@ -185,7 +188,7 @@ namespace Efficient_Automatic_Traveler_System
 
             CreateClientConfig();
         }
-        private void Update()
+        public void Update()
         {
             Server.WriteLine("\n<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>" + DateTime.Now.ToString("\tMM/dd/yyy @ hh:mm") + "\n");
             // Refresh the static managers

@@ -181,7 +181,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"itemCode",m_itemCode.Quotate() },
                 {"quantity",m_quantity.ToString() },
                 {"items",Items.Stringify<TravelerItem>() },
-                {"parentOrders",m_parentOrderNums.Stringify<string>() },
+                {"parentOrders",m_parentOrders.Select(o => o.SalesOrderNo).ToList<string>().Stringify<string>() },
                 {"parentTravelers",m_parentTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
                 {"childTravelers",m_childTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
                 {"station",m_station.Name.Quotate() },
@@ -575,6 +575,7 @@ namespace Efficient_Automatic_Traveler_System
             header.Add("Traveler");
             header.Add("Quantity");
             header.Add("Soonest Ship");
+            header.Add("Orders");
             header.Add("Station");
             header.Add("Comment");
             return header.Stringify<string>().Trim('[').Trim(']');
@@ -587,6 +588,12 @@ namespace Efficient_Automatic_Traveler_System
             detail.Add(m_quantity.ToString());
             DateTime? soonestShipDate = SoonestShipDate;
             detail.Add(soonestShipDate.HasValue ? soonestShipDate.Value.ToString("MM/dd/yyyy") : "Make to stock");
+            string orders = "";
+            foreach (Order order in ParentOrders)
+            {
+                orders += "(" + order.ShipDate.ToString("MM/dd/yyyy") + "  " + order.SalesOrderNo + ")";
+            }
+            detail.Add(orders);
             detail.Add(m_station.Name);
             detail.Add(m_comment);
             return detail.Stringify<string>().Trim('[').Trim(']');
@@ -647,7 +654,7 @@ namespace Efficient_Automatic_Traveler_System
             TimeSpan rate = TimeSpan.FromMinutes(labor);
             string laborRate = "";
             if (rate.Minutes > 0) laborRate += rate.Minutes + " min";
-            if (rate.Seconds > 0) laborRate += ' ' + rate.Seconds + " seconds";
+            if (rate.Seconds > 0) laborRate += " " + rate.Seconds + " seconds";
             list.Add("Labor", new TextNode(labor > 0 ? laborRate : "No rate information"));
             return list;
 
