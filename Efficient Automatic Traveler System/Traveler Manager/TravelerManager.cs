@@ -22,7 +22,7 @@ namespace Efficient_Automatic_Traveler_System
         Traveler FindTraveler(int ID);
         void AdvanceTravelerItem(int travelerID, ushort itemID);
         void ScrapTravelerItem(int travelerID, ushort itemID);
-        void RemoveTraveler(int travelerID);
+        void RemoveTraveler(Traveler traveler);
         Traveler AddTraveler(string itemCode, int quantity);
         List<Traveler> GetTravelers
         {
@@ -31,6 +31,7 @@ namespace Efficient_Automatic_Traveler_System
         void Backup();
         void OnTravelersChanged(List<Traveler> travelers);
         void RefactorTravelers();
+        void ClearStartQueue();
     }
     public interface IOperatorActions
     {
@@ -61,13 +62,12 @@ namespace Efficient_Automatic_Traveler_System
             m_importedFromPast = new List<Traveler>();
             m_orderManager = orderManager;
         }
-        public void CompileTravelers()
+        public void CompileTravelers(bool consolodate, bool consolidatePriorityCustomers,  List<Order> orders)
         {
-            // import stored travelers
-            Import();
+            
 
             int index = 0;
-            foreach (Order order in m_orderManager.GetOrders)
+            foreach (Order order in orders)
             {
                 if (order.Status == OrderStatus.Open)
                 {
@@ -82,18 +82,24 @@ namespace Efficient_Automatic_Traveler_System
                             // can only combine if same itemCode, hasn't started, and has no parents
                             Traveler traveler = m_travelers.Find(x => x.CombinesWith(new object[] { item.ItemCode }));
                             int quantity = item.QtyOrdered - item.QtyOnHand;
-                            if (traveler != null)
-                            {
-                                if (!traveler.ParentOrderNums.Contains(order.SalesOrderNo))
+                            
+                            if (traveler != null) {
+                                bool containsPriority = traveler.ParentOrders.Exists(o => ((JsonArray)JSON.Parse(ConfigManager.Get("priorityCustomers"))).ToList().Contains(o.CustomerNo));
+                                bool isPriority = ((JsonArray)JSON.Parse(ConfigManager.Get("priorityCustomers"))).ToList().Contains(order.CustomerNo);
+                                if ((consolidatePriorityCustomers && (isPriority == containsPriority)) || (consolodate && !consolidatePriorityCustomers))
                                 {
-                                    // add to existing traveler
-                                    traveler.Quantity += quantity;
+                                    if (!traveler.ParentOrderNums.Contains(order.SalesOrderNo))
+                                    {
+                                        // add to existing traveler
+                                        traveler.Quantity += quantity;
 
-                                    // RELATIONAL =============================================================
-                                    traveler.ParentOrderNums.Add(order.SalesOrderNo);
+                                        // RELATIONAL =============================================================
+                                        traveler.ParentOrderNums.Add(order.SalesOrderNo);
+                                        traveler.ParentOrders.Add(order);
+                                    }
+                                    item.ChildTraveler = traveler.ID;
+                                    //=========================================================================
                                 }
-                                item.ChildTraveler = traveler.ID;
-                                //=========================================================================
                             }
                             else
                             {
@@ -109,6 +115,7 @@ namespace Efficient_Automatic_Traveler_System
                                     // RELATIONAL =============================================================
                                     item.ChildTraveler = newTraveler.ID;
                                     newTraveler.ParentOrderNums.Add(order.SalesOrderNo);
+                                    newTraveler.ParentOrders.Add(order);
                                     //=========================================================================
 
                                     // add the new traveler to the list
@@ -120,6 +127,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 index++;
             }
+            Backup();
             Server.Write("\r{0}", "Compiling Travelers...Finished\n");
         }
         public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS)
@@ -131,6 +139,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
 
                     // link with orders
+                    traveler.ParentOrders.Clear();
                     foreach (string orderNum in traveler.ParentOrderNums)
                     {
                         Order parent = m_orderManager.FindOrder(orderNum);
@@ -140,6 +149,7 @@ namespace Efficient_Automatic_Traveler_System
                         }
                     }
                     // link with parent travelers
+                    traveler.ParentTravelers.Clear();
                     foreach (int id in traveler.ParentIDs)
                     {
                         Traveler parent = FindTraveler(id);
@@ -149,6 +159,7 @@ namespace Efficient_Automatic_Traveler_System
                         }
                     }
                     // link with child travelers
+                    traveler.ChildTravelers.Clear();
                     foreach (int id in traveler.ChildIDs)
                     {
                         Traveler child = FindTraveler(id);
@@ -187,6 +198,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             OnTravelersChanged();
         }
+        
         #endregion
         //----------------------------------
         #region IManager
@@ -255,21 +267,22 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_travelers.Find(x => x.ID == ID);
         }
-        public void RemoveTraveler(int ID)
+        public void RemoveTraveler(Traveler traveler)
         {
-            Traveler toRemove = FindTraveler(ID);
             // remove itself from order items
-            foreach (string orderNo in FindTraveler(ID).ParentOrderNums)
+            foreach (Order parentOrder in traveler.ParentOrders)
             {
-                foreach (OrderItem item in m_orderManager.FindOrder(orderNo).FindItems(ID))
+                foreach (OrderItem item in parentOrder.FindItems(traveler.ID))
                 {
                     item.ChildTraveler = -1;
                 }
             }
-            foreach (Traveler traveler in m_travelers)
+            foreach (Traveler child in traveler.ChildTravelers)
             {
-                traveler.ChildTravelers.Remove(toRemove);
-                traveler.ChildIDs.Remove(toRemove.ID);
+                traveler.ChildTravelers.Remove(child);
+                traveler.ChildIDs.Remove(child.ID);
+                // recursively remove children
+                RemoveTraveler(child);
             }
             //// remove itself from parents
             //foreach (int parentID in traveler.Parents)
@@ -282,7 +295,7 @@ namespace Efficient_Automatic_Traveler_System
             //    RemoveTraveler(FindTraveler(childID));
             //}
             // finally... remove THIS traveler
-            m_travelers.RemoveAll(x => x.ID == ID);
+            m_travelers.Remove(traveler);
         }
         public Traveler AddTraveler(string itemCode, int quantity)
         {
@@ -302,7 +315,14 @@ namespace Efficient_Automatic_Traveler_System
                 return m_travelers;
             }
         }
-
+        public void ClearStartQueue()
+        {
+            foreach (Traveler traveler in new List<Traveler>(GetTravelers.Where(t => t.State == ItemState.PreProcess && t.Station == StationClass.GetStation("Start"))))
+            {
+                RemoveTraveler(traveler);
+            }
+            OnTravelersChanged();
+        }
         public void AdvanceTravelerItem(int travelerID, ushort itemID)
         {
             FindTraveler(travelerID).AdvanceItem(itemID);

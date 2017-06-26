@@ -11,6 +11,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Data;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -188,7 +189,7 @@ namespace Efficient_Automatic_Traveler_System
 
             CreateClientConfig();
         }
-        public void Update()
+        public void Update(string orderQuery = "")
         {
             Server.WriteLine("\n<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>" + DateTime.Now.ToString("\tMM/dd/yyy @ hh:mm") + "\n");
             // Refresh the static managers
@@ -201,20 +202,25 @@ namespace Efficient_Automatic_Traveler_System
             UserManager.Import();
 
             // open the MAS connection
-            ConnectToData();
+            if (ConnectToData())
+            {
+                UpdateOnline(orderQuery);
+            } else
+            {
+                UpdateOffline();
+            }
             
         }
-        private void UpdateOnline()
+        private void UpdateOnline(string orderQuery = "")
         {
             Server.WriteLine("> Updating in Online mode");
             // Import stored orders from json file and MAS
             m_orderManager.ImportOrders(ref m_MAS);
             m_orderManager.NotifyShipDates();
 
-            // Load, Create, and combine all travelers
-            m_travelerManager.CompileTravelers();
+            // import stored travelers
+            m_travelerManager.Import();
 
-            // Finalize the travelers by importing external information
             m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
 
             // Push planned travelers from the previous day into production
@@ -227,18 +233,35 @@ namespace Efficient_Automatic_Traveler_System
             Backup();
             Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
         }
+        public void CreateTravelers(bool consolodate = true, bool consolidatePriorityCustomers = true, List<Order> orders = null)
+        {
+            try
+            {
+                if (ConnectToData())
+                {
+                    // Create, and combine all travelers
+                    m_travelerManager.CompileTravelers(consolodate, consolidatePriorityCustomers, orders);
+
+                    // Finalize the travelers by importing external information
+                    m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
+
+                    m_orderManager.Backup();
+
+                    CloseMAS();
+                }
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                CloseMAS();
+            }
+        }
         private void UpdateOffline()
         {
             Server.WriteLine("> Updating in Offline mode");
             // Import stored orders from json file and MAS
             m_orderManager.ImportOrders(ref m_MAS);
-
-            // Load, Create, and combine all travelers
-            m_travelerManager.CompileTravelers();
-
-            // Finalize the travelers by importing external information
-            m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
-
+            // import stored travelers
+            m_travelerManager.Import();
             // Push planned travelers from the previous day into production
             m_travelerManager.EnterProduction();
 
@@ -259,7 +282,7 @@ namespace Efficient_Automatic_Traveler_System
             UserManager.Backup();
         }
         // Opens a connection to the MAS database
-        private async void ConnectToData()
+        private bool ConnectToData()
         {
             Server.Write("\r{0}", "Connecting to MAS...");
 
@@ -272,10 +295,12 @@ namespace Efficient_Automatic_Traveler_System
                 m_MAS.Open();
                 if (m_MAS.State == System.Data.ConnectionState.Open)
                 {
-                    Online();
+                    Server.Write("\r{0}", "Connecting to MAS...Connected\n");
+                    return true;
                 } else
                 {
-                    Offline();
+                    Server.Write("\r{0}", "Connecting to MAS...Failed\n");
+                    return false;
                 }
                 
             }
@@ -283,6 +308,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.Write("\r{0}", "Connecting to MAS...Failed\n");
                 LogException(ex);
+                return false;
             }
         }
         public static OdbcConnection GetMasConnection()
@@ -302,16 +328,6 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine(ex.Message);
             }
             return mas;
-        }
-        private void Online()
-        {
-            Server.Write("\r{0}", "Connecting to MAS...Connected\n");
-            UpdateOnline();
-        }
-        private void Offline()
-        {
-            Server.Write("\r{0}", "Connecting to MAS...Failed\n");
-            UpdateOffline();
         }
         private void CloseMAS()
         {

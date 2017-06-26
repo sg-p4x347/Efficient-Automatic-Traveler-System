@@ -591,7 +591,7 @@ namespace Efficient_Automatic_Traveler_System
             string orders = "";
             foreach (Order order in ParentOrders)
             {
-                orders += "(" + order.ShipDate.ToString("MM/dd/yyyy") + "  " + order.SalesOrderNo + ")";
+                orders += "(" + order.ShipDate.ToString("MM/dd/yyyy") + "  " + order.SalesOrderNo + " " + order.CustomerNo + ")";
             }
             detail.Add(orders);
             detail.Add(m_station.Name);
@@ -984,7 +984,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return ParentOrders.Count > 0  ? new DateTime?(ParentOrders.Max(y => y.ShipDate)) : null;
+                return ParentOrders.Count > 0  ? new DateTime?(ParentOrders.Min(y => y.ShipDate)) : null;
             }
         }
 

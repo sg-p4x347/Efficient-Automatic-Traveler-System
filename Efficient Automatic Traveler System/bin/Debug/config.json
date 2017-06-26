@@ -19,7 +19,7 @@
 		"address":"http://192.168.2.6/printLabel"}
 	,
 	"drawings":"\\MGFS01\Company\SHARE\common\Drawings\Marco\PDF\",
-	"dataDump":"\\MGFS01\Company\SHARE\common\Quick Ship Traveler\",
+	"dataDump":"c:\Gage Omega\Programming\\Efficient-Automatic-Traveler-System\dataDump\",
 	"notificationManager":{
 		"serverAddress":"192.168.2.3",
 		"mailAddress":"eats@marcogroupinc.com",
@@ -27,14 +27,28 @@
 		"password":"EfficientAutomaticTravelerSystem",
 		"domain":"MARCOGROUP.local"}
 	,
-	"nextTravelerID":"78719",
-	"nextEventID":"5648",
+	"priorityCustomers":[
+		"AMAZOND",
+		"WAYFAIR"]
+	,
+	"nextTravelerID":"83268",
+	"nextEventID":"5740",
 	"scrapReport":{
 		"vendor":[
-			"SCRATCHES/DENTS/CHIPS""OIL SPOTS""DEFORMED/PROFILE/BOW""DISCOLOR""OTHER"]
+			"SCRATCHES/DENTS/CHIPS",
+			"OIL SPOTS",
+			"DEFORMED/PROFILE/BOW",
+			"DISCOLOR",
+			"OTHER"]
 		,
 		"production":[
-			"MACHINE DAMAGE""FELL OFF LINE""LOST VACUUM""OPERATOR ERROR""SPOIL BOARD BUILD""MATERIAL HANDLING""OTHER"]
+			"MACHINE DAMAGE",
+			"FELL OFF LINE",
+			"LOST VACUUM",
+			"OPERATOR ERROR",
+			"SPOIL BOARD BUILD",
+			"MATERIAL HANDLING",
+			"OTHER"]
 		}
 	,
 	"stationTypes":{
@@ -59,7 +73,9 @@
 				"Chair"]
 			,
 			"laborCodes":[
-				"/LACH1""/LACH2""/LACH3"]
+				"/LACH1",
+				"/LACH2",
+				"/LACH3"]
 			}
 		,
 		"drill":{
@@ -75,7 +91,8 @@
 				]
 			,
 			"laborCodes":[
-				"/LBND2""/LBND3"]
+				"/LBND2",
+				"/LBND3"]
 			}
 		,
 		"finished":{
@@ -91,10 +108,15 @@
 				"Table"]
 			,
 			"laborCodes":[
-				"/LCNC1""/LCNC2"]
+				"/LCNC1",
+				"/LCNC2"]
 			,
 			"checklist":[
-				"Set router head positions""Load required tooling""Enter head offsets in control""Enter tool offsets in control""Set program number in control"]
+				"Set router head positions",
+				"Load required tooling",
+				"Enter head offsets in control",
+				"Enter tool offsets in control",
+				"Set program number in control"]
 			}
 		,
 		"packline":{
@@ -102,7 +124,13 @@
 				]
 			,
 			"laborCodes":[
-				"/LPCK1""/LPCK2""/LPCK3""/LPCK4""/LPCK5""/LPCK6""/LOVW1"]
+				"/LPCK1",
+				"/LPCK2",
+				"/LPCK3",
+				"/LPCK4",
+				"/LPCK5",
+				"/LPCK6",
+				"/LOVW1"]
 			}
 		,
 		"paint":{
@@ -118,7 +146,8 @@
 				]
 			,
 			"laborCodes":[
-				"/LPNL1""/LPNL2"]
+				"/LPNL1",
+				"/LPNL2"]
 			}
 		,
 		"virtual":{
@@ -134,7 +163,9 @@
 				]
 			,
 			"laborCodes":[
-				"/LATB1""/LATB2""/LATB3"]
+				"/LATB1",
+				"/LATB2",
+				"/LATB3"]
 			}
 		,
 		"tNut":{
@@ -158,10 +189,12 @@
 				"Table"]
 			,
 			"laborCodes":[
-				"/LWKE1""/LWKE2"]
+				"/LWKE1",
+				"/LWKE2"]
 			,
 			"checklist":[
-				"Verify part offsets in WW""Verify blank size"]
+				"Verify part offsets in WW",
+				"Verify blank size"]
 			}
 		}
 	,
@@ -173,6 +206,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Box",
 			"type":"box",
@@ -180,6 +214,7 @@
 			"printers":[
 				"4x2Box1"]
 			}
+		,
 		{
 			"name":"Chairs",
 			"type":"chairs",
@@ -187,6 +222,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Drill",
 			"type":"drill",
@@ -194,6 +230,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Edgebander",
 			"type":"edgebander",
@@ -201,6 +238,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Finished",
 			"type":"virtual",
@@ -208,6 +246,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Heian1",
 			"type":"heian",
@@ -215,6 +254,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Heian2",
 			"type":"heian",
@@ -222,6 +262,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Packline",
 			"type":"packline",
@@ -229,6 +270,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Paint",
 			"type":"paint",
@@ -236,6 +278,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Saw",
 			"type":"saw",
@@ -243,6 +286,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Scrapped",
 			"type":"virtual",
@@ -250,6 +294,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Start",
 			"type":"virtual",
@@ -257,13 +302,16 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Table-Pack",
 			"type":"tablePack",
 			"mode":"Serial",
 			"printers":[
-				"4x6FloorTable""4x2FloorTableBox"]
+				"4x6FloorTable",
+				"4x2FloorTableBox"]
 			}
+		,
 		{
 			"name":"T-nut",
 			"type":"tNut",
@@ -271,6 +319,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Vector",
 			"type":"contourEdgebander",
@@ -278,6 +327,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Weeke1",
 			"type":"weeke",
@@ -285,6 +335,7 @@
 			"printers":[
 				"4x2Heian2"]
 			}
+		,
 		{
 			"name":"Weeke2",
 			"type":"weeke",

@@ -17,10 +17,18 @@ namespace Efficient_Automatic_Traveler_System
         }
         public Form(string json)
         {
-            Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-            m_title = obj["name"];
-            //m_source = obj["source"];
-            m_fields = new StringStream(obj["fields"]).ParseJSONarray();
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                m_title = obj["name"];
+                //m_source = obj["source"];
+                m_fields = new StringStream(obj["fields"]).ParseJSONarray();
+            } catch (Exception ex)
+            {
+                JsonObject obj = (JsonObject)JSON.Parse(json);
+                m_title = ((JsonObject)obj["form"])["name"];
+                m_fields = new StringStream(((JsonArray)((JsonObject)obj["form"])["fields"])).ParseJSONarray();
+            }
         }
         public override string ToString()
         {
@@ -96,6 +104,10 @@ namespace Efficient_Automatic_Traveler_System
         public void Radio(string name, string title, List<string> options, string value = "")
         {
             Selection(name, title, options, value, "radio");
+        }
+        public void Date(string name, string title, string value = "")
+        {
+            m_fields.Add(Basic(name, title, "date", value.Quotate()));
         }
         #endregion
         //---------------------------------------------------------

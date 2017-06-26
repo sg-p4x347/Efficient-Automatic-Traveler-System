@@ -26,22 +26,28 @@ namespace Efficient_Automatic_Traveler_System
         }
         public async void Import(OdbcConnection MAS)
         {
-            // get item info from MAS
-            if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-            OdbcCommand command = MAS.CreateCommand();
-            command.CommandText = "SELECT ItemCodeDesc, StandardUnitOfMeasure FROM CI_item WHERE itemCode = '" + m_itemCode + "'";
-            OdbcDataReader reader = (OdbcDataReader)await command.ExecuteReaderAsync();
-
-            // begin to read
-            if (reader.Read())
+            try
             {
+                // get item info from MAS
+                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                OdbcCommand command = MAS.CreateCommand();
+                command.CommandText = "SELECT ItemCodeDesc, StandardUnitOfMeasure FROM CI_item WHERE itemCode = '" + m_itemCode + "'";
+                OdbcDataReader reader = (OdbcDataReader)await command.ExecuteReaderAsync();
 
-                //if (!reader.IsDBNull(0)) m_itemType = reader.GetInt32(0);
-                if (!reader.IsDBNull(0)) m_itemCodeDesc = reader.GetString(0);
-                if (!reader.IsDBNull(1)) m_unit = reader.GetString(1);
+                // begin to read
+                if (reader.Read())
+                {
 
+                    //if (!reader.IsDBNull(0)) m_itemType = reader.GetInt32(0);
+                    if (!reader.IsDBNull(0)) m_itemCodeDesc = reader.GetString(0);
+                    if (!reader.IsDBNull(1)) m_unit = reader.GetString(1);
+
+                }
+                reader.Close();
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
             }
-            reader.Close();
         }
         public Item (Item item)
         {

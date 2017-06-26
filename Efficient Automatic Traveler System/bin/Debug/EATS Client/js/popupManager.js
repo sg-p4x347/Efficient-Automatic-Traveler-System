@@ -144,10 +144,11 @@ function PopupManager(blackout) {
 				input.value = field.value;
 			} else {
 				input.checked = field.value;
-				input.onclick = function (evt) {
+				
+			}
+			input.onclick = function (evt) {
 					evt.stopPropagation();
 				}
-			}
 			row.appendChild(input);
 			inputs.push(input);
 			//------

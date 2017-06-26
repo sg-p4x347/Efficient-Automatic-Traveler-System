@@ -930,7 +930,7 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         if (traveler.ChildTravelers.Count > 0)
                         {
-                            m_travelerManager.RemoveTraveler(traveler.ChildTravelers.Last().ID);
+                            m_travelerManager.RemoveTraveler(traveler.ChildTravelers.Last());
                         }
                     }
                     m_travelerManager.OnTravelersChanged(new List<Traveler>() { traveler });

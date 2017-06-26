@@ -220,16 +220,19 @@ namespace Efficient_Automatic_Traveler_System
                 items.RemoveAll(i => i.Parent.Status != OrderStatus.Open);
                 // sort the list in ascending order with respect to the ship date
                 items.Sort((i, j) => i.Parent.ShipDate.CompareTo(j.Parent.ShipDate));
-                
+
                 // for each OrderItem that has this itemCode;
                 foreach (OrderItem item in items)
                 {
                     qtyOnSO += item.QtyNeeded;
+                    
                     // allocate as much as possible to this OrderItem
                     item.QtyOnHand = Math.Min(item.QtyNeeded, available);
+                    
                     // subtract from the avilable supply
                     available -= item.QtyOnHand;
                 }
+                
                 if (SOqty != qtyOnSO)
                 {
                     Server.WriteLine("MAS inventory inconsistency for " + itemCode + " : " + qtyOnSO + " " + SOqty + items.Select(i => i.Parent.SalesOrderNo + " " + i.QtyOrdered).ToList().Stringify(false) );
@@ -345,6 +348,7 @@ namespace Efficient_Automatic_Traveler_System
             MAS.Open();
             ImportOrders(ref MAS);
             Backup();
+            Server.TravelerManager.Backup();
         }
         // Just remove this order from this traveler
         public void RemoveOrder(Order order, Traveler child)
@@ -358,6 +362,7 @@ namespace Efficient_Automatic_Traveler_System
                 item.ChildTraveler = -1;
             }
             Backup();
+            Server.TravelerManager.Backup();
         }
         #endregion
         //--------------------------------------------
@@ -422,7 +427,7 @@ namespace Efficient_Automatic_Traveler_System
                     foreach(OrderItem item in order.Items)
                     {
                         // only import items that have a child traveler
-                        if (item.ChildTraveler >= 0 && item.QtyOnHand < item.QtyNeeded)
+                        //if (item.ChildTraveler >= 0 && item.QtyOnHand < item.QtyNeeded)
                         {
                             items.Add(item);
                         }

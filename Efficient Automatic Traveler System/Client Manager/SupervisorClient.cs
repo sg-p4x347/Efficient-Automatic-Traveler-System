@@ -698,9 +698,11 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("New Traveler","TravelerForm"),
                     new Button("Kanban Monitor", "KanbanMonitor"),
                     new Button("Orders","OrderListPopup"),
+                    new Button("Clear Start Queue","ClearStartQueue"),
                     
                     new TextNode("Invoke"), 
-                    new Button("Refactor Travelers","RefactorTravelers")
+                    new Button("Refactor Travelers","RefactorTravelers"),
+                    new Button("Create Travelers","CreateTravelersForm")
                 };
                 Column view = new Column(style: flexStart)
                 {
@@ -716,6 +718,63 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error when getting display fields");
             }
+        }
+        public ClientMessage CreateTravelersForm(string json)
+        {
+            try
+            {
+                Form form = new Form();
+                form.Title = "Filter orders";
+                form.Date("before", "Before");
+                form.Date("after", "After");
+                form.Checkbox("consolidate", "Consolidate orders", true);
+                form.Checkbox("consolidatePriorityCustomers", "Consolodate priority customers (" + ((JsonArray)JSON.Parse(ConfigManager.Get("priorityCustomers"))).Print() + ") separately<br>",true);
+                return form.Dispatch("CreateTravelers");
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading filter orders form");
+            }
+        }
+        public ClientMessage CreateTravelers(string json)
+        {
+            try
+            {
+                Form form = new Form(json);
+                DateTime before = DateTime.MaxValue;
+                DateTime after = DateTime.MinValue;
+                DateTime.TryParse(form.ValueOf("before"),out before);
+                DateTime.TryParse(form.ValueOf("after"), out after);
+                bool consolidate = Convert.ToBoolean(form.ValueOf("consolidate"));
+                bool consolidatePriorityCustomers = Convert.ToBoolean(form.ValueOf("consolidatePriorityCustomers"));
+                List<Order> orders = Server.OrderManager.GetOrders.Where(o => o.ShipDate > after && o.ShipDate < before).ToList();
+
+                SendMessage(new ClientMessage("Updating").ToString());
+                Program.server.CreateTravelers(consolidate, consolidatePriorityCustomers, orders);
+                return new ClientMessage("Info", "Done refactoring PreProcess travelers");
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error creating travelers");
+            }
+            
+        }
+        public ClientMessage ClearStartQueue(string json)
+        {
+            try
+            {
+                Server.TravelerManager.ClearStartQueue();
+
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error clearing start queue");
+            }
+
         }
         public ClientMessage RefactorTravelers(string json)
         {
