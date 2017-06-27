@@ -175,6 +175,10 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("nodes", strings.Stringify(false));
             return base.ToString().MergeJSON(obj.Stringify());
         }
+        public List<Node> Nodes
+        {
+            get { return m_nodes; }
+        }
         // IEnumerable<Node>
         public Node this[int index]
         {
@@ -305,6 +309,23 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
             return column;
+        }
+        public static Node FormattedText(string text, Style style = null)
+        {
+            List<object> lines = new List<object>();
+            foreach ( string line in text.Split('\n').ToList())
+            {
+                lines.Add(line);
+            }
+            NodeList nodes = (NodeList)CreateList(lines);
+            if (style != null)
+            {
+                foreach (Node node in nodes)
+                {
+                    node.Style += style;
+                }
+            }
+            return nodes;
         }
     }
 

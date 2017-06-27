@@ -47,7 +47,17 @@ namespace Efficient_Automatic_Traveler_System
         {
             return new JsonString(value);
         }
-        
+        public JSON this[int index]
+        {
+            get { return (this as JsonArray)[index]; }
+            set { (this as JsonArray)[index] = value; }
+        }
+        public JSON this[string key]
+        {
+            get { return (this as JsonObject)[key]; }
+            set { (this as JsonObject)[key] = value; }
+        }
+
         public override string ToString()
         {
             return Value.ToString();
@@ -112,20 +122,26 @@ namespace Efficient_Automatic_Traveler_System
             int scopeLevel = 0;
             foreach (Char ch in json)
             {
-                formatted += ch;
-                if (ch == '{' || ch == '[')
-                {
-
-                    scopeLevel++;
-                }
-                else if (ch == '}' || ch == ']')
+                if (ch == '}' || ch == ']')
                 {
                     scopeLevel--;
-                }
-                if (new char[] { '{', '}', '[', ']', ',' }.Contains(ch))
+                } else
                 {
+                    formatted += ch;
+                    if (ch == '{' || ch == '[')
+                    {
+                        scopeLevel++;
+                    }
+                }
+                if (new char[] { '{', '}', '[',']',','}.Contains(ch))
+                {
+
                     formatted += Environment.NewLine;
                     formatted += new string('\t', scopeLevel);
+                    if (ch == '}' || ch == ']')
+                    {
+                        formatted += ch;
+                    }
                 }
             }
             return formatted;

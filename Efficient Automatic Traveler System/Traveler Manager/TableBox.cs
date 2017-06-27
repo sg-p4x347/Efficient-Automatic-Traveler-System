@@ -87,7 +87,7 @@ namespace Efficient_Automatic_Traveler_System
                 case LabelType.Box:
                     json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6") + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
-                    json += ",\"Desc2\":\"" + ((Table)ParentTravelers[0]).ItemCode + "\"";
+                    json += ",\"Desc2\":\"" + ((Table)ParentTravelers[0]).ItemCode + " (" + ((Table)ParentTravelers[0]).Size + ")" + "\"";
                     json += ",\"Desc3\":\"" + "BOX" + "\"";
                     break;
                 case LabelType.Scrap:

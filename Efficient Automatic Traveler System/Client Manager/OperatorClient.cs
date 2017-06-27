@@ -85,7 +85,7 @@ namespace Efficient_Automatic_Traveler_System
             // PreProcess traveler queue items
             Style visibleOverflow = new Style();
             visibleOverflow.AddStyle("overflow", "visible");
-            NodeList preProcess = new NodeList(visibleOverflow);
+            NodeList preProcess = new NodeList(visibleOverflow + new Style("flex-direction-column-reverse"));
             foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
             {
                 NodeList queueItem = CreateQueueItem(ItemState.PreProcess, traveler);
@@ -127,7 +127,7 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage(preProcessControlPanel.Dispatch().ToString());
 
             // InProcess queue items
-            NodeList inProcess = new NodeList(visibleOverflow);
+            NodeList inProcess = new NodeList(visibleOverflow + new Style("flex-direction-column-reverse"));
             List<TravelerItem> items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))).ToList();
             items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
             foreach (TravelerItem item in items)
@@ -288,6 +288,19 @@ namespace Efficient_Automatic_Traveler_System
             Node viewTable = ControlPanel.CreateDictionary(traveler.ExportViewProperties());
             viewTable.Style.AddStyle("width", "100%");
             travelerView.Add(viewTable);
+
+            // item table
+            Dictionary<string, Node> itemProperties = item.ExportViewProperties();
+            if (itemProperties.Any()) {
+                
+                // item table title
+                TextNode itemTitle = new TextNode("Item specific", new Style("yellow"));
+                travelerView.Add(itemTitle);
+
+                Node itemTable = ControlPanel.CreateDictionary(itemProperties);
+                itemTable.Style.AddStyle("width", "100%");
+                travelerView.Add(itemTable);
+            }
             // buttons
             if (m_station.Type == "tablePack")
             {
@@ -323,6 +336,14 @@ namespace Efficient_Automatic_Traveler_System
                 travelerView.Add(new Button("Print Tracking label", "PrintLabel", printTracking.Stringify()));
                 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
             }
+            // More Info -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+            travelerView.Add(new Button("Traveler Information", "LoadTravelerJSON"));
+            // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+
+            // Add Comment -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+            travelerView.Add(new Button("Add Comment", "AddComment"));
+            // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+
             ControlPanel travelerViewCP = new ControlPanel("travelerView", travelerView, "viewContainer");
 
             SendMessage(travelerViewCP.Dispatch().ToString());
@@ -648,12 +669,12 @@ namespace Efficient_Automatic_Traveler_System
                 if (form.ValueOf("target") == "item" && m_item != null)
                 {
                     m_item.Comment +=
-                      (m_item.Comment.Length > 0 ? "\\n" : "") +
+                      (m_item.Comment.Length > 0 ? "\n" : "") +
                       m_user.Name + " ~ " + form.ValueOf("comment");
                 } else if (form.ValueOf("target") == "traveler" && m_current != null)
                 {
                     m_current.Comment +=
-                     (m_current.Comment.Length > 0 ? "\\n" : "") +
+                     (m_current.Comment.Length > 0 ? "\n" : "") +
                      m_user.Name + " ~ " + form.ValueOf("comment");
                 }
                 m_travelerManager.OnTravelersChanged(new List<Traveler>() { m_current });

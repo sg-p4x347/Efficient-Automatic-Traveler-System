@@ -420,7 +420,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
         }
-        
+        public int QuantityOrdered()
+        {
+            return ParentOrders.Sum(o => o.FindItems(ID).Sum(i => i.QtyOrdered));
+        }
         public string ExportStationSummary(StationClass station)
         {
             Dictionary<string, string> detail = new Dictionary<string, string>();
@@ -656,6 +659,7 @@ namespace Efficient_Automatic_Traveler_System
             if (rate.Minutes > 0) laborRate += rate.Minutes + " min";
             if (rate.Seconds > 0) laborRate += " " + rate.Seconds + " seconds";
             list.Add("Labor", new TextNode(labor > 0 ? laborRate : "No rate information"));
+            if (m_comment != "") list.Add("Comment", ControlPanel.FormattedText(m_comment, new Style("orange", "shadow")));
             return list;
 
         }

@@ -218,12 +218,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             if (station.Type == "heian" && travelerManager != null)
             {
-                int qtyToAdvance = Items.Count(i => i.Station == station && i.IsComplete()) - Items.Count(i => i.History.OfType<ScrapEvent>().ToList().Exists(e => e.Station.Type != "heian"));
-                if (qtyToAdvance > 0)
+                int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+                if (boxQuantity > 0)
                 {
                     // Create a box traveler for these items
                     TableBox box = CreateBoxTraveler();
-                    box.Quantity = qtyToAdvance;
+                    box.Quantity = boxQuantity;
                     box.EnterProduction(travelerManager);
                     travelerManager.GetTravelers.Add(box);
                 }

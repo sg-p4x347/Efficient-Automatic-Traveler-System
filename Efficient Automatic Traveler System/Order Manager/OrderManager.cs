@@ -134,7 +134,7 @@ namespace Efficient_Automatic_Traveler_System
                         m_orders.Add(order);
                     } else
                     {
-                        var test = "ded";
+                        Server.WriteLine("- " + order.SalesOrderNo + " has invoiced");
                     }
                 }
                 // allocate teh inventory
@@ -190,15 +190,15 @@ namespace Efficient_Automatic_Traveler_System
         public void AllocateCurrentInventoryForCurrentOrders(OdbcConnection MAS)
         {
             Dictionary<string, List<OrderItem>> ordersByItemCode = new Dictionary<string, List<OrderItem>>();
-            // get all orderItems in one list
+            // get all orderItems that play a role in one list (just the ones that have child travelers)
             List<OrderItem> allItems = m_orders.SelectMany(o => o.Items).ToList();
-            // get all distinct itemCodes on order
+            // get all distinct itemCodes on traveler
             List<string> itemCodes = allItems.Select(i => i.ItemCode).Distinct().ToList();
-            // for all itemCodes on order
+            // for all itemCodes on traveler
             foreach (string itemCode in itemCodes)
             {
                 // Get the number of available [itemCode] items in MAS inventory
-                int available = 0;
+                int onHand = 0;
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                 OdbcCommand command = MAS.CreateCommand();
                 command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand, QuantityOnBackOrder FROM IM_ItemWarehouse WHERE ItemCode = '" + itemCode + "'";
@@ -207,36 +207,38 @@ namespace Efficient_Automatic_Traveler_System
                 if (reader.Read())
                 {
                     // avialable = onHand
-                    available = Convert.ToInt32(reader.GetValue(1));
+                    onHand = Convert.ToInt32(reader.GetValue(1));
                     SOqty = Convert.ToInt32(reader.GetValue(0)) + Convert.ToInt32(reader.GetValue(2));
                 }
                 reader.Close();
-                int qtyOnSO = 0;
-                // get all Open OrderItem(s) with this itemCode
-                List<OrderItem> items = allItems.Where(x => x.ItemCode == itemCode).ToList();
-                // add non open orders' quantities to available
-                //available += items.Where(i => i.Parent.Status != OrderStatus.Open || i.ItemStatus != OrderStatus.Open).Sum(j => j.QtyNeeded);
-                // remove all non-open items
-                items.RemoveAll(i => i.Parent.Status != OrderStatus.Open);
-                // sort the list in ascending order with respect to the ship date
-                items.Sort((i, j) => i.Parent.ShipDate.CompareTo(j.Parent.ShipDate));
+                InventoryManager.SetMAS(itemCode, onHand);
 
-                // for each OrderItem that has this itemCode;
-                foreach (OrderItem item in items)
-                {
-                    qtyOnSO += item.QtyNeeded;
+                //int qtyOnSO = 0;
+                //// get all Open OrderItem(s) with this itemCode
+                //List<OrderItem> items = allItems.Where(x => x.ItemCode == itemCode).ToList();
+                //// add non open orders' quantities to available
+                ////available += items.Where(i => i.Parent.Status != OrderStatus.Open || i.ItemStatus != OrderStatus.Open).Sum(j => j.QtyNeeded);
+                //// remove all non-open items
+                //items.RemoveAll(i => i.Parent.Status != OrderStatus.Open);
+                //// sort the list in ascending order with respect to the ship date
+                //items.Sort((i, j) => i.Parent.ShipDate.CompareTo(j.Parent.ShipDate));
+
+                //// for each OrderItem that has this itemCode;
+                //foreach (OrderItem item in items)
+                //{
+                //    qtyOnSO += item.QtyNeeded;
                     
-                    // allocate as much as possible to this OrderItem
-                    item.QtyOnHand = Math.Min(item.QtyNeeded, available);
+                //    // allocate as much as possible to this OrderItem
+                //    item.QtyOnHand = Math.Min(item.QtyNeeded, available);
                     
-                    // subtract from the avilable supply
-                    available -= item.QtyOnHand;
-                }
+                //    // subtract from the avilable supply
+                //    available -= item.QtyOnHand;
+                //}
                 
-                if (SOqty != qtyOnSO)
-                {
-                    Server.WriteLine("MAS inventory inconsistency for " + itemCode + " : " + qtyOnSO + " " + SOqty + items.Select(i => i.Parent.SalesOrderNo + " " + i.QtyOrdered).ToList().Stringify(false) );
-                }
+                //if (SOqty != qtyOnSO)
+                //{
+                //    Server.WriteLine("MAS inventory inconsistency for " + itemCode + " : " + qtyOnSO + " " + SOqty + items.Select(i => i.Parent.SalesOrderNo + " " + i.QtyOrdered).ToList().Stringify(false) );
+                //}
             }
         }
         // reserve inventory items under order items by item type (by traveler)
@@ -364,6 +366,13 @@ namespace Efficient_Automatic_Traveler_System
             Backup();
             Server.TravelerManager.Backup();
         }
+
+        // returns the quantity of items ordered for all active order items
+        public int QuantityOrdered(string itemCode)
+        {
+            return m_orders.Sum(o => o.Items.Where(i => i.ItemCode == itemCode).Sum(i => i.QtyOrdered));
+        }
+
         #endregion
         //--------------------------------------------
         #region IOrderManager

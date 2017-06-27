@@ -78,6 +78,12 @@ namespace Efficient_Automatic_Traveler_System
             if (m_comment.Length > 0) members.Add(new NameValueQty<string, string>("Comment", m_comment,"").ToString());
             return members.Stringify(false);
         }
+        public virtual Dictionary<string, Node> ExportViewProperties()
+        {
+            Dictionary<string, Node> list = new Dictionary<string, Node>();
+            if (m_comment != "") list.Add("Comment", ControlPanel.FormattedText(m_comment, new Style("orange", "shadow")));
+            return list;
+        }
         public string ExportHuman()
         {
             List<string> history = new List<string>();

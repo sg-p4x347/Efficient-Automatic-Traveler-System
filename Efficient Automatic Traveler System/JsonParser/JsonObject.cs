@@ -72,7 +72,7 @@ namespace Efficient_Automatic_Traveler_System
             StringStream stream = new StringStream(value is string ? (value as string).Quotate() : value.ToString());
             Add(key, JSON.Import(ref stream));
         }
-        public JSON this[string key]
+        public new JSON this[string key]
         {
             get { return (Value as Dictionary<string, JSON>)[key]; }
             set

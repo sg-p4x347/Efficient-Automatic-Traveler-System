@@ -72,7 +72,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             (Value as List<JSON>).Add(node);
         }
-        public JSON this[int index]
+        public new JSON this[int index]
         {
             get { return (Value as List<JSON>)[index]; }
             set { (Value as List<JSON>).Insert(index, value); }

@@ -241,8 +241,12 @@ namespace Efficient_Automatic_Traveler_System
                 Column fields = new Column(dividers: true);
                 if (traveler.Comment != "")
                 {
-                    fields.Add(
-                        new TextNode(traveler.Comment,style: new Style("red","shadow"))
+                    Node comment = ControlPanel.FormattedText(traveler.Comment, new Style("red", "shadow", "scrollX", "scrollY"));
+                    comment.Style.AddStyle("maxWidth", "300px");
+                    fields.Add(new Row(style: spaceBetween)
+                        {
+                            new TextNode("Comment", style: new Style("leftAlign")), comment
+                        }
                     );
                 }
                 fields.Add(new Row(style: spaceBetween)
@@ -446,7 +450,7 @@ namespace Efficient_Automatic_Traveler_System
                         NodeList row = new NodeList(DOMtype: "tr");
                         row.Add(new TextNode(item.ItemCode, style: new Style("mediumBorder"), DOMtype: "td"));
                         row.Add(new TextNode(item.QtyOrdered.ToString(), style: new Style("mediumBorder"), DOMtype: "td"));
-                        row.Add(new TextNode(item.QtyOnHand.ToString(), style: new Style("mediumBorder"), DOMtype: "td"));
+                        row.Add(new TextNode(InventoryManager.GetMAS(item.ItemCode).ToString(), style: new Style("mediumBorder"), DOMtype: "td"));
                         if (item.ChildTraveler >= 0)
                         {
                             row.Add(new Button(item.ChildTraveler.ToString("D6"), "LoadTraveler", @"{""travelerID"":" + item.ChildTraveler + "}"));
@@ -905,12 +909,26 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
+                JsonObject parameters = (JsonObject)JSON.Parse(json);
+                bool filterReadyToShip = parameters.ContainsKey("filterReadyToShip") ? (bool)parameters["filterReadyToShip"] : false;
+                List<Order> orders = new List<Order>();
+                if (filterReadyToShip) {
+                    orders = Server.OrderManager.GetOrders.Where(
+                        o => o.Items.Exists(i => i.ChildTraveler >= 0 && InventoryManager.GetMAS(i.ItemCode) >= i.QtyNeeded)
+                        ).ToList();
+                } else {
+                    orders= Server.OrderManager.GetOrders.Where(o => o.Items.Exists(i => i.ChildTraveler >= 0)).ToList();
+                }
                 Column list = new Column(true,style: new Style("scrollY"));
-                foreach (Order order in Server.OrderManager.GetOrders.Where( o => o.Items.Exists( i => i.ChildTraveler >= 0)))
+                foreach (Order order in orders)
                 {
                     list.Add(new Button(order.SalesOrderNo, "OrderPopup", @"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"));
                 }
-                return new ClientMessage("ControlPanel",new ControlPanel("Orders",list).ToString());
+                Column controls = new Column()
+                {
+                    new Button("Ready to Ship","OrderListPopup",new JsonObject() { {"filterReadyToShip",!filterReadyToShip } })
+                };
+                return new ClientMessage("ControlPanel",new ControlPanel("Orders",new Row() { controls, list }).ToString());
             }
             catch (Exception ex)
             {

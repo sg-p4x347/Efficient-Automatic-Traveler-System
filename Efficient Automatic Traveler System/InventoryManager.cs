@@ -59,7 +59,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> inventory = new Dictionary<string, string>();
-                foreach (KeyValuePair<string, short> inventoryItem in m_inventory)
+                foreach (KeyValuePair<string, int> inventoryItem in m_inventory)
                 {
                     inventory.Add(inventoryItem.Key, inventoryItem.Value.ToString());
                 }
@@ -115,27 +115,50 @@ namespace Efficient_Automatic_Traveler_System
                 return 0;
             }
         }
+        static public int GetMAS(string itemCode)
+        {
+            if (m_MASinventory.ContainsKey(itemCode))
+            {
+                return Convert.ToInt32(m_MASinventory[itemCode]);
+            }
+            else
+            {
+                return 0;
+            }
+        }
         static public void Add(string itemCode, int qty = 1)
         {
             if (m_inventory.ContainsKey(itemCode))
             {
                 m_inventory[itemCode] += Convert.ToInt16(qty);
-            }
-            else
+            } else
             {
-                m_inventory.Add(itemCode, Convert.ToInt16(qty));
+                Server.WriteLine("Cannot add to inventory for nonexistant " + itemCode);
             }
             Backup();
         }
-        static public Dictionary<string, short> Inventory
+        static public void Set(string itemCode, int qty)
+        {
+            m_inventory[itemCode] = qty;
+        }
+        static public void SetMAS(string itemCode, int qty)
+        {
+            m_MASinventory[itemCode] = qty;
+        }
+        static public Dictionary<string, int> Inventory
         {
             get { return m_inventory; }
+        }
+        static public Dictionary<string, int> MASinventory
+        {
+            get { return m_MASinventory; }
         }
         #endregion
         #region Private Methods
         #endregion
         #region Properties
-        private static Dictionary<string, short> m_inventory = new Dictionary<string, short>();
+        private static Dictionary<string, int> m_inventory = new Dictionary<string, int>();
+        private static Dictionary<string, int> m_MASinventory = new Dictionary<string, int>();
         #endregion
 
     }

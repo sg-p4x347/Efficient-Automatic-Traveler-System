@@ -295,9 +295,12 @@ function PopupManager(blackout) {
 				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
 			case "Button":
-				var innerParams = node.returnParam;
-				//innerParams.callback = node.callback;
 				//var eventListener = node.EventListeners[0];
+				nodeElement = new self.CreateButton(node.name);
+				//button.Initialize(self,innerParams);
+				nodeElement.className += " blackout__popup__controlPanel__node";
+				break;
+			case "Checkbox":
 				nodeElement = new self.CreateButton(node.name);
 				//button.Initialize(self,innerParams);
 				nodeElement.className += " blackout__popup__controlPanel__node";
@@ -420,11 +423,13 @@ function PopupManager(blackout) {
 		list.className = "list--horizontal";
 		return list;
 	}
-	this.CreateCheckItem = function (innerHTML)  {
+	this.CreateCheckItem = function (innerHTML,callback)  {
 		var self = this;
 		var list = self.CreateHorizontalList();
 		var check = document.createElement("INPUT");
+			
 		check.onclick = function (event) {
+			if (callback) {callback(check.checked);}
 			var test = "";
 			event.stopPropagation();
 		}

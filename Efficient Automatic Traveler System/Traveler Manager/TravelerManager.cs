@@ -64,8 +64,8 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void CompileTravelers(bool consolodate, bool consolidatePriorityCustomers,  List<Order> orders)
         {
-            
 
+            List<Traveler> newTravelers = new List<Traveler>();
             int index = 0;
             foreach (Order order in orders)
             {
@@ -80,8 +80,8 @@ namespace Efficient_Automatic_Traveler_System
 
                             // search for existing traveler
                             // can only combine if same itemCode, hasn't started, and has no parents
-                            Traveler traveler = m_travelers.Find(x => x.CombinesWith(new object[] { item.ItemCode }));
-                            int quantity = item.QtyOrdered - item.QtyOnHand;
+                            Traveler traveler = newTravelers.Find(x => x.CombinesWith(new object[] { item.ItemCode }));
+                            
                             
                             if (traveler != null) {
                                 bool containsPriority = traveler.ParentOrders.Exists(o => ((JsonArray)JSON.Parse(ConfigManager.Get("priorityCustomers"))).ToList().Contains(o.CustomerNo));
@@ -91,7 +91,7 @@ namespace Efficient_Automatic_Traveler_System
                                     if (!traveler.ParentOrderNums.Contains(order.SalesOrderNo))
                                     {
                                         // add to existing traveler
-                                        traveler.Quantity += quantity;
+                                        //traveler.Quantity += quantity;
 
                                         // RELATIONAL =============================================================
                                         traveler.ParentOrderNums.Add(order.SalesOrderNo);
@@ -106,9 +106,9 @@ namespace Efficient_Automatic_Traveler_System
                                 // create a new traveler from the new item
                                 Traveler newTraveler = null;
                                 if (Traveler.IsTable(item.ItemCode)) {
-                                    newTraveler = (Traveler)new Table(item.ItemCode, quantity);
+                                    newTraveler = (Traveler)new Table(item.ItemCode, -0);
                                 } else if (Traveler.IsChair(item.ItemCode)) {
-                                    newTraveler = (Traveler)new Chair(item.ItemCode, quantity);
+                                    newTraveler = (Traveler)new Chair(item.ItemCode, -0);
                                 }
                                 if (newTraveler != null)
                                 {
@@ -119,7 +119,7 @@ namespace Efficient_Automatic_Traveler_System
                                     //=========================================================================
 
                                     // add the new traveler to the list
-                                    m_travelers.Add(newTraveler);
+                                    newTravelers.Add(newTraveler);
                                 }
                             }
                         }
@@ -127,6 +127,21 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 index++;
             }
+            // allocate inventory and set final traveler quantities
+            foreach (Traveler newTraveler in newTravelers)
+            {
+                
+                // quantity to add to the traveler maxes out at qty ordered, taking into account what
+                // is on hand that hasnt been allocated for another traveler;
+
+                // total allocated is the sum of what has been ordered for all active travelers
+                int qtyAllocated = m_travelers.Where(t => t.ItemCode == newTraveler.ItemCode).Sum(t => t.QuantityOrdered());
+                int qtyOnHand = InventoryManager.GetMAS(newTraveler.ItemCode);
+                int qtyOrdered = newTraveler.QuantityOrdered();
+                newTraveler.Quantity = qtyOrdered - Math.Min(qtyOrdered, Math.Max(0,qtyOnHand - qtyAllocated));
+                m_travelers.Add(newTraveler);
+            }
+            
             Backup();
             Server.Write("\r{0}", "Compiling Travelers...Finished\n");
         }
