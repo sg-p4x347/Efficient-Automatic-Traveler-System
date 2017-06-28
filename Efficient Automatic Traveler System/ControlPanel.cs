@@ -37,11 +37,14 @@ namespace Efficient_Automatic_Traveler_System
     {
         public Node() {
             Style = new Style();
+            m_innerHTML = "";
         }
-        public Node(Style style = null, string DOMtype = "div")
+        public Node(Style style = null, string DOMtype = "div", string id = null)
         {
             m_style = (style != null ? style : new Style());
             m_DOMtype = DOMtype;
+            ID = id;
+            m_innerHTML = "";
             m_eventListeners = new List<EventListener>();
         }
         public override string ToString()
@@ -49,13 +52,17 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>();
             obj.Add("type", this.GetType().Name.Quotate());
             obj.Add("DOMtype", m_DOMtype.Quotate());
+            if (ID != null) obj.Add("id", ID.Quotate());
             obj.Add("style", m_style.UniqueStyles.Stringify());
             obj.Add("styleClasses", m_style.ClassNames.Stringify());
             obj.Add("eventListeners", m_eventListeners.Stringify());
+            obj.Add("innerHTML", m_innerHTML.Quotate());
             return obj.Stringify();
         }
         private Style m_style = new Style();
         private string m_DOMtype;
+        private string m_id;
+        private string m_innerHTML;
         private List<EventListener> m_eventListeners;
 
         public Style Style
@@ -81,6 +88,32 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_eventListeners = value;
+            }
+        }
+
+        public string ID
+        {
+            get
+            {
+                return m_id;
+            }
+
+            set
+            {
+                m_id = value;
+            }
+        }
+
+        public string InnerHTML
+        {
+            get
+            {
+                return m_innerHTML;
+            }
+
+            set
+            {
+                m_innerHTML = value;
             }
         }
 
@@ -128,9 +161,17 @@ namespace Efficient_Automatic_Traveler_System
     }
     public class Checkbox : Control
     {
-        public Checkbox(string name, string callback, string returnParam = "{}", Style style = null) : base("change", name, callback, returnParam, style)
+        public Checkbox(string name, string callback, string returnParam = "{}", bool value = false , Style style = null) : base("change", name, callback, returnParam, style)
         {
+            m_value = value; 
         }
+        public override string ToString()
+        {
+            Dictionary<string, string> obj = new Dictionary<string, string>();
+            obj.Add("value", m_value.ToString().ToLower());
+            return base.ToString().MergeJSON(obj.Stringify());
+        }
+        private bool m_value = false;
     }
     public class Selection : Control
     {

@@ -44,6 +44,7 @@ select {
 /* Checkboxes */
 input[type=checkbox] {
   transform: scale(2);
+  margin: 8px;
 }
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown__content {
@@ -443,7 +444,8 @@ input.searchBox:focus {
 	overflow-x: auto;
 }
 div.queue__item {
-	
+	display: flex;
+	justify-content: center;
 	border-radius: 8px;
 	font-family: "Arial Black", Gadget, sans-serif;
 	text-align: center;
@@ -578,3 +580,14 @@ div.queue__item__desc {
 	background-position: left center;
 	background-size: contain;
 }
+.blanksReady {
+	background-image: url("../img/blanksReady.png");
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: contain;
+}
+/* position modifiers*/
+.topLeft {
+	align-self: flex-start;
+}
+	

@@ -135,7 +135,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return 0.0;
         }
-        public async override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
         }
         #endregion

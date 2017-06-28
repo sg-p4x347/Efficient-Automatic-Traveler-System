@@ -727,7 +727,7 @@ namespace Efficient_Automatic_Traveler_System
             };
         }
         // pre
-        public abstract Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS);
+        public abstract void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS);
         // get a list of fields from the label DB
         protected string GetLabelFields(List<string> fieldNames)
         {

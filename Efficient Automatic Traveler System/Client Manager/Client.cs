@@ -135,6 +135,10 @@ namespace Efficient_Automatic_Traveler_System
                 LostConnection();
             }
         }
+        public void SendMessage(ClientMessage message)
+        {
+            SendMessage(message.ToString());
+        }
         public static async Task<string> RecieveMessageAsync(NetworkStream stream)
         {
             try
@@ -157,7 +161,117 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         // Private members
         //------------------------------
+        protected NodeList CreateTravelerQueue(List<Traveler> travelers, StationClass station, bool split = true)
+        {
+            Style visibleOverflow = new Style();
+            //visibleOverflow.AddStyle("overflow", "visible");
+            NodeList queue = new NodeList(visibleOverflow + new Style("flex-direction-column-reverse"));
+            PopulateTravelerQueue(queue, travelers, station, split);
+            return queue;
+        }
+        protected NodeList CreateItemQueue(List<TravelerItem> items)
+        {
+            Style visibleOverflow = new Style();
+            //visibleOverflow.AddStyle("overflow", "visible");
+            NodeList queue = new NodeList(visibleOverflow + new Style("flex-direction-column-reverse"));
+            PopulateItemQueue(queue, items);
+            return queue;
+        }
+        protected void PopulateTravelerQueue(NodeList queue, List<Traveler> travelers, StationClass station, bool split)
+        {
+            foreach (Traveler traveler in travelers)
+            {
+                Row queueItem = CreateTravelerQueueItem(traveler.State, traveler);
+                queueItem.EventListeners.Add(new EventListener("click", "LoadTraveler", @"{""travelerID"":" + traveler.ID + "}"));
+                Column groupOne = new Column();
+                // ID
+                string IDtoDisplay = traveler.PrintID();
+                if (traveler.ParentTravelers.Any())
+                {
+                    IDtoDisplay = traveler.GetType().Name.Decompose() + " for ";
+                    foreach (Traveler parent in traveler.ParentTravelers)
+                    {
+                        IDtoDisplay += "<br>";
+                        IDtoDisplay += parent.PrintID();
+                    }
+                }
+                groupOne.Add(new TextNode(IDtoDisplay, style: new Style("yellow", "blackOutline")));
 
+                groupOne.Add(new Row()
+                {
+                    // Qty pending
+                    {new TextNode(traveler.QuantityPendingAt(station).ToString(),style: new Style("queue__item__qty","white","blackOutline")) },
+                    // slash "/"
+                    { new TextNode("/",style: new Style("white", "blackOutline")) },
+                    // Total Qty
+                    {new TextNode(traveler.Quantity.ToString(),style: new Style("queue__item__qty","lime","blackOutline")) }
+                });
+                queueItem.Add(groupOne);
+
+                Column groupTwo = new Column();
+                // ItemCode
+                (split ? groupTwo : groupOne).Add(new TextNode(traveler.ItemCode, style: new Style("beige", "blackOutline")));
+                // Tables
+                if (traveler is Table)
+                {
+                    //queueItem.Add(new Node(new Style("blanksReady")));
+                    // table color
+                    (split ? groupTwo : groupOne).Add(new TextNode((traveler as Table).Color, style: new Style("white", "blackOutline")));
+                    // Edgebanding color
+                    (split ? groupTwo : groupOne).Add(new TextNode((traveler as Table).BandingColor + " EB", style: new Style("white", "blackOutline")));
+                }
+                if (split) queueItem.Add(groupTwo);
+               
+                queue.Add(queueItem);
+            }
+        }
+        
+        protected void PopulateItemQueue(NodeList queue, List<TravelerItem> items)
+        {
+            foreach (TravelerItem item in items)
+            {
+                NodeList queueItem = CreateItemQueueItem(item.State, item);
+                queueItem.EventListeners.Add(new EventListener("click", "LoadItem", @"{""travelerID"":" + item.Parent.ID + @",""itemID"":" + item.ID + "}"));
+                queueItem.Add(new TextNode(item.Parent.PrintSequenceID(item)));
+                queue.Add(queueItem);
+            }
+        }
+        protected virtual Row CreateItemQueueItem(ItemState state, TravelerItem item)
+        {
+            Row queueItem = CreateQueueItem(state, item.Parent);
+            if (item.Selected) queueItem.Style += new Style("selected");
+            return queueItem;
+        }
+        protected virtual Row CreateTravelerQueueItem(ItemState state, Traveler traveler)
+        {
+            Row queueItem = CreateQueueItem(state, traveler);
+            return queueItem;
+        }
+        private Row CreateQueueItem(ItemState state, Traveler traveler)
+        {
+            Row queueItem = new Row(style: new Style("queue__item", "align-items-center"));
+            if (traveler.ChildTravelers.Exists(child => child.Items.Exists(i => i.Finished)))
+            {
+                // has at least one finished box item
+                queueItem.Style += new Style("purpleBack");
+            }
+            else
+            {
+                switch (state)
+                {
+                    case ItemState.PreProcess: queueItem.Style += new Style("blueBack"); break;
+                    case ItemState.InProcess: queueItem.Style += new Style("redBack"); break;
+                    case ItemState.PostProcess: queueItem.Style += new Style("limeBack"); break;
+                    default: queueItem.Style += new Style("ghostBack"); break;
+                }
+
+            }
+            if (traveler is Table)
+            {
+                queueItem.Style.AddStyle("backgroundImage", "url('./img/" + (traveler as Table).Shape + ".png')");
+            }
+            return queueItem;
+        }
         protected async Task<string> RecieveMessageAsync()
         {
             try

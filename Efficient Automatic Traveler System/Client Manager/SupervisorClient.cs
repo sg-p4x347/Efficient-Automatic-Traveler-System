@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class SupervisorClient : Client, ISupervisorClient, ITravelers
+    class SupervisorClient : Client, ITravelers
     {
         #region Public Methods
         public SupervisorClient(TcpClient client, ITravelerManager travelerManager) : base(client)
@@ -22,6 +22,7 @@ namespace Efficient_Automatic_Traveler_System
             m_travelers = m_travelerManager.GetTravelers;
             m_viewState = ItemState.PreProcess;
             m_viewType = typeof(Table);
+            m_selected = new List<Traveler>();
             SendMessage((new ClientMessage("InitStations",StationClass.GetStations().Stringify())).ToString());
             SendMessage((new ClientMessage("InitLabelTypes", ExtensionMethods.Stringify<LabelType>())).ToString());
             SendMessage((new ClientMessage("InterfaceOpen")).ToString());
@@ -30,39 +31,133 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
-            bool mirror = true; // travelers.Count == m_travelerManager.GetTravelers.Count;
-            travelers = m_travelerManager.GetTravelers;
-            Dictionary<string, string> message = new Dictionary<string, string>();
-            List<Traveler> filtered = new List<Traveler>(travelers);
-            if (m_filterState)
-            {
-                filtered.RemoveAll(x => (x.State != m_viewState && !x.Items.Exists(y => y.State == m_viewState)));
-            }
-            if (m_filterType)
-            {
-                filtered.RemoveAll(x => !m_viewType.IsAssignableFrom(x.GetType()));
-            }
-            // the package send to the client, contains all the stations and their respective traveler queue items
-            Dictionary<string, string> stations = new Dictionary<string, string>();
-            List<StationClass> visibleStations = filtered.SelectMany(f => f.CurrentStations(m_viewState)).Distinct().ToList();
-            foreach (StationClass station in visibleStations)
-            {
-                List<string> travelerStrings = new List<string>();
-                foreach (Traveler traveler in filtered.Where(f => f.CurrentStations(m_viewState).Contains(station)))
-                {
-                    travelerStrings.Add(ExportTraveler(traveler, station));
-                }
-                Dictionary<string, string> stationObj = new Dictionary<string, string>()
-                {
-                    {"travelers", travelerStrings.Stringify(false)}
-                };
-                stations.Add(station.Name, stationObj.Stringify());
-            }
-            message.Add("stations", stations.Stringify(false));
-            message.Add("mirror", mirror.ToString().ToLower());
-            SendMessage(new ClientMessage("HandleTravelersChanged",message.Stringify()).ToString());
-        }
+            //bool mirror = true; // travelers.Count == m_travelerManager.GetTravelers.Count;
+            //travelers = m_travelerManager.GetTravelers;
+            //Dictionary<string, string> message = new Dictionary<string, string>();
+            //List<Traveler> filtered = new List<Traveler>(travelers);
+            //if (m_filterState)
+            //{
+            //    filtered.RemoveAll(x => (x.State != m_viewState && !x.Items.Exists(y => y.State == m_viewState)));
+            //}
+            //if (m_filterType)
+            //{
+            //    filtered.RemoveAll(x => !m_viewType.IsAssignableFrom(x.GetType()));
+            //}
+            //// the package send to the client, contains all the stations and their respective traveler queue items
+            //Dictionary<string, string> stations = new Dictionary<string, string>();
+            //List<StationClass> visibleStations = filtered.SelectMany(f => f.CurrentStations(m_viewState)).Distinct().ToList();
+            //foreach (StationClass station in visibleStations)
+            //{
+            //    List<string> travelerStrings = new List<string>();
+            //    foreach (Traveler traveler in filtered.Where(f => f.CurrentStations(m_viewState).Contains(station)))
+            //    {
+            //        travelerStrings.Add(ExportTraveler(traveler, station));
+            //    }
+            //    Dictionary<string, string> stationObj = new Dictionary<string, string>()
+            //    {
+            //        {"travelers", travelerStrings.Stringify(false)}
+            //    };
+            //    stations.Add(station.Name, stationObj.Stringify());
+            //}
+            //message.Add("stations", stations.Stringify(false));
+            //message.Add("mirror", mirror.ToString().ToLower());
+            //SendMessage(new ClientMessage("HandleTravelersChanged",message.Stringify()).ToString());
 
+            NodeList queueArray = new NodeList(new Style("queueArray"));
+            queueArray.ID = "queueArray";
+            foreach (StationClass station in StationClass.GetStations())
+            {
+                queueArray.Add(CreateStation(station, m_viewState));
+            }
+            SendMessage(new ControlPanel("queueArray", queueArray, "body").Dispatch().ToString());
+        }
+        public Node CreateStation(StationClass station, ItemState state)
+        {
+            List<Traveler> travelers = VisibleTravelers(station);
+            NodeList queueContainer = new NodeList(new Style("queueContainer"));
+            if (!travelers.Any()) queueContainer.Style.AddStyle("display", "none");
+            TextNode heading = new TextNode(station.Name, new Style("heading"));
+            queueContainer.Add(heading);
+            if (state == ItemState.PreProcess)
+            {
+                queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
+                {
+                    {"Qty Pending:",new TextNode(travelers.Sum(t => t.Quantity).ToString(),new Style("beige") )},
+                    {"Total Pending Labor:",new TextNode(travelers.Sum(t => t.GetTotalLabor()).ToString() + " min",new Style("beige") )},
+                }));
+            } else if (state == ItemState.InProcess)
+            {
+                queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
+                {
+                    {"Qty at this station:",new TextNode(travelers.Sum(t => t.Quantity).ToString(),new Style("beige") )}
+                }));
+            }
+            queueContainer.Add(new Checkbox("Select All", "SelectAll", new JsonObject() { { "station", station.Name } },VisibleTravelers(station).All(t => m_selected.Contains(t))));
+            NodeList queue = CreateTravelerQueue(travelers, station);
+            queue.ID = station.Name;
+            queue.Style += new Style("queue");
+            queueContainer.Add(queue);
+            return queueContainer;
+        }
+        protected override Row CreateTravelerQueueItem(ItemState state, Traveler traveler)
+        {
+            Row queueItem =  base.CreateTravelerQueueItem(state, traveler);
+            // checkbox
+            bool selected = m_selected.Contains(traveler) || traveler == m_current;
+            if (this is SupervisorClient) queueItem.Add(new Checkbox("", "SelectChanged", new JsonObject() { { "travelerID", traveler.ID } }, selected, new Style("topLeft")));
+            if (selected) queueItem.Style += new Style("selected");
+            return queueItem;
+        }
+        public List<Traveler> VisibleTravelers(StationClass station)
+        {
+            return m_travelerManager.GetTravelers.Where(t => (!m_filterType || m_viewType.IsAssignableFrom(t.GetType())) && (t.Items.Exists(i => i.State == m_viewState && i.Station == station) || (t.State == m_viewState && t.Station == station))).ToList();
+        }
+        public ClientMessage SelectChanged(string json)
+        {
+            try
+            {
+                JSON obj = JSON.Parse(json);
+                Traveler traveler = Server.TravelerManager.FindTraveler(obj["travelerID"]);
+                if (obj["value"])
+                {
+                    if (!m_selected.Contains(traveler)) m_selected.Add(traveler);
+                } else
+                {
+                    m_selected.Remove(traveler);
+                }
+                HandleTravelersChanged(new List<Traveler>() { traveler });
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage();
+            }
+        }
+        public ClientMessage SelectAll(string json)
+        {
+            try
+            {
+                JSON obj = JSON.Parse(json);
+                StationClass station = StationClass.GetStation(obj["station"]);
+                if (obj["value"])
+                {
+                    // select all
+                    m_selected.AddRange(VisibleTravelers(station));
+                } else
+                {
+                    // deselect all
+                    m_selected.RemoveAll(t => VisibleTravelers(station).Contains(t));
+                }
+                
+                Server.TravelerManager.OnTravelersChanged();
+                return new ClientMessage();
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "error selecting all");
+            }
+        }
         public void HandleKanbanChanged()
         {
             QueryClient("application.popupManager.Exists('Kanban Monitor')", "KanbanMonitor");
@@ -113,9 +208,20 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         #region ISupervisor
-        public string MoveTravelerStart(string json)
+        public ClientMessage MoveTravelerStart(string json)
         {
-            return m_travelerManager.MoveTravelerStart(json);
+            JSON obj = JSON.Parse(json);
+            if (m_current != null) m_selected.Add(m_current);
+            foreach (Traveler traveler in m_selected)
+            {
+                if (traveler != null && StationClass.GetStation(obj["value"]) != null)
+                {
+                    traveler.Station = StationClass.GetStation(obj["value"]);
+                }
+            }
+            m_selected.Clear();
+            Server.TravelerManager.OnTravelersChanged();
+            return new ClientMessage();
         }
         public void CloseAllPopups()
         {
@@ -166,14 +272,19 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                if (traveler != null)
-                {
-                    return new ClientMessage("LoadTraveler", traveler.Export("SupervisorClient", null));
-                } else
-                {
-                    return new ClientMessage("Info", "That traveler does not exist right now");
+                if (m_selected.Count > 1) {
+                    m_current = null;
+                    MultiTravelerOptions();
+                    return new ClientMessage();
+                } else {
+                    m_current = m_travelerManager.FindTraveler(JSON.Parse(json)["travelerID"]);
+                    if (m_current != null)
+                    {
+                        return new ClientMessage("LoadTraveler", m_current.Export("SupervisorClient", null));
+                    } else
+                    {
+                        return new ClientMessage("Info", "That traveler does not exist right now");
+                    }
                 }
             }
             catch (Exception ex)
@@ -641,12 +752,10 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error loading item popup");
             }
         }
-        public ClientMessage MultiTravelerOptions(string json)
+        private void MultiTravelerOptions()
         {
             try
             {
-                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                List<string> selectedIDs = new StringStream(obj["travelerIDs"]).ParseJSONarray();
                 
                 //foreach (string selectedID in selectedIDs)
                 //{
@@ -654,30 +763,24 @@ namespace Efficient_Automatic_Traveler_System
                     
                 //}
 
-                // the parameter that returns with all the control events
-                string returnParam = new Dictionary<string, string>()
-                {
-                    {"travelerIDs", obj["travelerIDs"] }
-                }.Stringify();
                 Column IDs = new Column(style: new Style("justify-flex-start"));
-                foreach (string selectedID in selectedIDs)
+                foreach (Traveler traveler in m_selected)
                 {
-                    IDs.Add(new TextNode(selectedID));
+                    IDs.Add(new TextNode(traveler.PrintID()));
                 }
                 Column controls = new Column()
                 {
-                    new Button("Disintegrate","DisintegrateTraveler",returnParam),
-                    new Button("Enter Production","EnterProduction",returnParam),
+                    new Button("Disintegrate","DisintegrateTraveler"),
+                    new Button("Enter Production","EnterProduction"),
                     new TextNode("Starting Station"),
-                    new Selection("Starting Station","MoveTravelerStart",StationClass.StationNames(),returnParam: returnParam)
+                    new Selection("Starting Station","MoveTravelerStart",StationClass.StationNames())
                 };
 
                 ControlPanel panel = new ControlPanel("Travelers", new Row() { IDs, controls });
-                return new ClientMessage("ControlPanel", panel.ToString());
+                SendMessage(new ClientMessage("ControlPanel", panel.ToString()).ToString());
             } catch (Exception ex)
             {
                 Server.LogException(ex);
-                return new ClientMessage("Info", "Error getting multi-traveler options");
             }
         }
         public ClientMessage OptionsMenu(string json)
@@ -866,12 +969,46 @@ namespace Efficient_Automatic_Traveler_System
 
         public ClientMessage DisintegrateTraveler(string json)
         {
-            return m_travelerManager.DisintegrateTraveler(json);
+            try
+            {
+                List<string> success = new List<string>();
+                List<string> failure = new List<string>();
+                if (m_current != null) m_selected.Add(m_current);
+                foreach (Traveler traveler in m_selected)
+                {
+                    if (traveler.Items.Count == 0)
+                    {
+                        Server.OrderManager.ReleaseTraveler(traveler);
+                        Server.TravelerManager.RemoveTraveler(traveler);
+                        Server.TravelerManager.OnTravelersChanged();
+                        success.Add(traveler.PrintID());
+                    }
+                    else
+                    {
+                        failure.Add(traveler.PrintID());
+                    }
+                }
+                m_selected.Clear();
+                m_current = null;
+                Server.TravelerManager.OnTravelersChanged();
+                return new ClientMessage("Info", (success.Count > 0 ? "Disintegrated: " + success.Stringify<string>(false) : "") + (failure.Count > 0 ? "<br>Failed to disintegrate: " + failure.Stringify<string>(false) : ""));
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error Disintegrating traveler");
+            }
         }
 
         public ClientMessage EnterProduction(string json)
         {
-            return m_travelerManager.EnterProduction(json);
+            if (m_current != null) m_selected.Add(m_current);
+            foreach (Traveler traveler in m_selected)
+            {
+                traveler.EnterProduction(m_travelerManager);
+            }
+            m_selected.Clear();
+            Server.TravelerManager.OnTravelersChanged();
+            return new ClientMessage();
         }
 
         public ClientMessage DownloadSummary(string json)
@@ -882,9 +1019,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                DateTime A = DateTime.Parse(obj["A"]);
-                DateTime B = DateTime.Parse(obj["B"]);
+                //Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                DateTime A = DateTime.MinValue;
+                DateTime B = DateTime.MaxValue;
+                Form.DateRange(new Form(json), out A,out B);
                 return new ClientMessage("Redirect", new Summary(A,B).UserCSV().Quotate());
             }
             catch (Exception ex)
@@ -897,7 +1035,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                return new ClientMessage("DateRangePopup", json);
+                JsonObject obj = (JsonObject)JSON.Parse(json);
+                return Form.DateRange().Dispatch(obj["innerCallback"]);
             }
             catch (Exception ex)
             {
@@ -1261,6 +1400,8 @@ namespace Efficient_Automatic_Traveler_System
         private bool m_filterType;
         private Traveler m_traveler;
         private Order m_order;
+        private List<Traveler> m_selected;
+        private Traveler m_current = null;
         #endregion
         //----------
         // Events

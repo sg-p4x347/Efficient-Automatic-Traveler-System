@@ -1,34 +1,10 @@
-Traveler,Quantity,Soonest Ship,Orders,Station,Comment,Part,Description,Color,Banding Color,Blank,Blank Size,Blank Qty,Labor
-"84429","48","06/26/2017","(06/26/2017  5038886 WORTHDR)","Heian2","","38-2258-22","Apex,30x54 Wave","Marker Board","Black","WRIT7","7-1549x1838",48,580.5312
-"84430","30","06/26/2017","(06/26/2017  5038886 WORTHDR)","Heian2","","38-2252-22","Apex,54 HalfRndWav","Marker Board","Black","WRIT8","8-1549x1532",30,353.259
-"84432","1","06/27/2017","(06/27/2017  5039114 KLOG)","Heian2","","38-2257-23","Apex,24x60 Wave","Marker Board","Grey","WRIT8","8-1549x1532",1,9.3477
-"84437","11","06/29/2017","(06/29/2017  5039175 SCHLSIN)","Heian2","","38-2237-60","Apex,30x60 Rect","Wild Cherry","Black","CHOK8","8-1549x1532",11,136.3417
-"84441","3","06/23/2017","(06/23/2017  5039210 WORTHDR)","Heian2","","38-2268-60","Apex,48x72 Kdny","Wild Cherry","Black","CHOK3","3-1244x1838",3,67.0815
-"84444","1","06/23/2017","(06/23/2017  5039238 BELNICK)","Heian2","","38-2292-77","Apex,25x31 Chevron","Grey Nebula","Black","GENSF","F-1244x2460",1,7.5167
-"84445","39","06/23/2017","(06/23/2017  5039241 HERTZFN)(06/23/2017  5039248 WORTHDR)(06/28/2017  5039441 WORTHDR)","Heian2","","38-2222-77","Apex,20x60 Rect","Grey Nebula","Black","GENS8","8-1549x1532",39,369.4158
-"84446","8","06/23/2017","(06/23/2017  5039242 HERTZFN)","Heian2","","38-2222-61","Apex,20x60 Rect","Fusion Maple","Grey","MAGR8","8-1549x1532",8,75.7776
-"84449","1","06/23/2017","(06/23/2017  5039245 OFFDPBS)","Heian2","","38-2268-50","Apex,48x72 Kdny","Fusion Maple","Black","MAGR3","3-1244x1838",1,22.3605
-"84451","11","06/23/2017","(06/23/2017  5039249 WORTHDR)","Heian2","","38-2272-78","Apex,30x41Triangle","Grey Nebula","Grey","GENSF","F-1244x2460",11,97.5612
-"84453","1","06/26/2017","(06/26/2017  5039352 SSWORLD)","Heian2","","MG2268-54","48x72 Kdny,GG/Yel","Gray Glace","Yellow","MAGR3","3-1244x1838",1,18.941
-"84454","3","06/26/2017","(06/26/2017  5039357 WORTHDR)(06/29/2017  5039459 ROGARDS)","Heian2","","MG2238-55","30x72 Rect,GG/Blk","Gray Glace","Black","MAGR7","7-1549x1838",3,45.2112
-"84455","12","06/26/2017","(06/26/2017  5039357 WORTHDR)(06/27/2017  5039388 PAGEOFF)(06/28/2017  5039445 WORTHDR)","Heian2","","38-2272-77","Apex,30x41Triangle","Grey Nebula","Black","GENSF","F-1244x2460",12,106.4304
-"84457","1","06/26/2017","(06/26/2017  5039358 WORTHDR)","Heian2","","41-2437-50","Desktop,Apex,SD 30x60","Fusion Maple","Black","MAGR8","8-1549x1532",1,12.998
-"84458","21","06/26/2017","(06/26/2017  5039360 WORTHDR)(06/28/2017  5039442 WORTHDR)","Heian2","","MG2237-55","30x60 Rect,GG/Blk","Gray Glace","Black","MAGR8","8-1549x1532",21,200.277
-"84459","51","06/26/2017","(06/26/2017  5039364 WORTHDR)","Heian2","","38-2228-77","Apex,24x60 Rect","Grey Nebula","Black","GENS9","9-1244x1532",51,491.7624
-"84460","24","06/26/2017","(06/26/2017  5039370 WORTHDR)","Heian2","","38-2272-50","Apex,30x41Triangle","Fusion Maple","Black","MAGRF","F-1244x2460",24,212.8608
-"84462","1","06/28/2017","(06/28/2017  5039396 SSWORLD)","Heian2","","MG2236-54","30x48 Rect,GG/Yel","Gray Glace","Yellow","MAGR10","10-1224x1549",1,9.6685
-"84463","1","06/28/2017","(06/28/2017  5039396 SSWORLD)","Heian2","","MG2236-52","30x48 Rect,GG/Grn","Gray Glace","Green","MAGR10","10-1224x1549",1,9.6685
-"84464","1","06/28/2017","(06/28/2017  5039396 SSWORLD)","Heian2","","MG2236-51","30x48 Rect,GG/Blu","Gray Glace","Blue","MAGR10","10-1224x1549",1,9.6685
-"84465","8","06/27/2017","(06/27/2017  5039397 WORTHDR)","Heian2","","41-2423-77","Desktop,Apex,SD 20x30","Grey Nebula","Black","GENS8","8-1549x1532",8,71.7104
-"84466","3","06/27/2017","(06/27/2017  5039398 IPAEDUC)","Heian2","","38-2248-77","Apex,36x72 Rect","Grey Nebula","Black","GENS4","4-925x1838",3,44.7426
-"84468","3","06/23/2017","(06/23/2017  5039399 WORTHDR)(06/27/2017  5039462 SSWORLD)","Heian2","","MG2237-51","30x60 Rect,GG/Blu","Gray Glace","Blue","MAGR8","8-1549x1532",3,28.611
-"84469","19","06/28/2017","(06/28/2017  5039418 USTOYCO)","Heian2","","MG2244-69","36 Round,Map/Map","Fusion Maple","Fusion","MAGR4","4-925x1838",19,209.7296
-"84470","9","06/28/2017","(06/28/2017  5039418 USTOYCO)","Heian2","","MG2245-51","42 Round,GG/Blu","Gray Glace","Blue","MAGRF","F-1244x2460",9,94.446
-"84471","5","06/28/2017","(06/28/2017  5039418 USTOYCO)","Heian2","","MG2266-51","48 Round,GG/Blu","Gray Glace","Blue","MAGRF","F-1244x2460",5,47.007
-"84476","23","06/27/2017","(06/27/2017  5039433 WORTHDR)","Heian2","","38-2284-50","Apex,36x23x19 Trpz","Fusion Maple","Black","MAGRF","F-1244x2460",23,253.9913
-"84477","5","06/27/2017","(06/27/2017  5039434 WORTHDR)","Heian2","","MG2228-50","24x60 Rect,Map/Blk","Fusion Maple","Black","MAGR9","9-1244x1532",5,48.1785
-"84478","7","06/28/2017","(06/28/2017  5039436 WORTHDR)","Heian2","","38-2247-78","Apex,36x60 Rect","Grey Nebula","Grey","GENS7","7-1549x1838",7,93.9764
-"84481","3","06/28/2017","(06/28/2017  5039442 WORTHDR)","Heian2","","MG2268-55","48x72 Kdny,GG/Blk","Gray Glace","Black","MAGR3","3-1244x1838",3,56.823
-"84482","3","06/28/2017","(06/28/2017  5039443 WORTHDR)","Heian2","","38-2266-23","Apex,48 Round","Marker Board","Grey","WRITF","F-1244x2460",3,28.2042
-"84483","11","06/29/2017","(06/29/2017  5039456 UNITY)","Heian2","","38-2222-60","Apex,20x60 Rect","Wild Cherry","Black","CHOK8","8-1549x1532",11,104.1942
-"84486","16","06/29/2017","(06/29/2017  5039469 STAPLBI)","Heian2","","MG2226-49","24x48 Rect,Oak/Blk","Solar Oak","Black","CHOKF","F-1244x2460",16,149.1056
+"Name","UID","Access Level","Scrapped parts","Completed parts","Box(min)","Heian2(min)",
+"Gage Coates","gage","Administrator","3","42","0.513246605","5.35600174166667",
+"test","test","Operator","0","0",,,
+"fest","frest","Operator","0","0",,,
+"Nate Dillon","nate","Supervisor","0","0",,,
+"Gage Belcher","gbelcher","Operator","0","0",,,
+"greg vincent","gvincent","Operator","0","0",,,
+"amy proznyk","jadacy","Operator","0","0",,,
+"Brandon Green","brandon005","Operator","0","0",,,
+"stephanie","boxmaker","Operator","0","0",,,

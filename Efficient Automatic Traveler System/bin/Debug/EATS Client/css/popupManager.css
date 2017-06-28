@@ -100,6 +100,7 @@
 .blackout__popup__controlPanel__row {
 	display: flex;
 	flex-direction: row;
+	overflow-x: auto;
 }
 .blackout__popup__controlPanel__row--dividers > .blackout__popup__controlPanel__node, .blackout__popup__controlPanel__row--dividers {
 	border-left: 2px solid black;

@@ -27,6 +27,7 @@ namespace Efficient_Automatic_Traveler_System
             m_order = "";
             m_state = ItemState.InProcess; // an Item can never be in pre-process; existance implies that it has begun processing
             m_comment = "";
+            m_selected = false;
         }
         public TravelerItem(string json)
         {
@@ -48,6 +49,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 m_state = (ItemState)Enum.Parse(typeof(ItemState),obj["state"]);
                 m_comment = obj.ContainsKey("comment") ? obj["comment"] : "";
+                m_selected = false;
             }
             catch (Exception ex)
             {
@@ -123,6 +125,7 @@ namespace Efficient_Automatic_Traveler_System
         private ItemState m_state;
         private Traveler m_parent;
         private string m_comment;
+        private bool m_selected;
 
         public ushort ID
         {
@@ -279,6 +282,20 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_comment = value;
+            }
+        }
+
+        public bool Selected
+        {
+            get
+            {
+                return m_selected;
+            }
+
+            set
+            {
+                m_selected = value;
+
             }
         }
 

@@ -2,6 +2,8 @@ function PopupManager(blackout) {
 	this.blackout;
 	this.locked;
 	this.popupCount = 0;
+	this.scrollYpos = {};
+	this.scrollXpos = {};
 	// adds a custom popup, where the close function is returned for the popup creator to call
 	this.AddCustom = function (popup,noClose) {
 		var self = this;
@@ -243,6 +245,7 @@ function PopupManager(blackout) {
 	// displays a procedurally generated control panel from the format provided by the server
 	this.ControlPanel = function (format,DOMparent) {
 		var self = this;
+		
 		var popup;
 		if (!DOMparent) {
 			popup = self.CreatePopup(format.title,true);
@@ -257,7 +260,7 @@ function PopupManager(blackout) {
 			new InterfaceCall(parameters.callback,parameters);
 			});
 		}
-		
+		self.SetScrollPos(popup);
 		
 		/* var horizontal = self.CreateHorizontalList();
 		var fieldsTable = self.CreateTable(displayFields,object);
@@ -269,22 +272,28 @@ function PopupManager(blackout) {
 		});
 		horizontal.appendChild(controlDiv);
 		popup.appendChild(horizontal); */
-		if (!DOMparent) {self.Open(popup);}
+		if (!DOMparent) {
+			self.CloseAll();
+			self.Open(popup);
+		}
 	}
 	// helper for the control panel
 	this.AddControlNode = function (node,parent,callback,highestLevel) {
 		var self = this;
 		
 		var nodeElement;
+		
 		switch (node.type) {
 			case "NodeList":
 				nodeElement = document.createElement(node.DOMtype);
+				nodeElement.innerHTML = node.innerHTML;
 				node.nodes.forEach(function (innerNode) {
 					self.AddControlNode(innerNode,nodeElement,callback);
 				});
 				break;
 			case "Node":
 				nodeElement = document.createElement(node.DOMtype);
+				nodeElement.innerHTML = node.innerHTML;
 				break;
 			case "TextNode": 
 				nodeElement = document.createElement(node.DOMtype);
@@ -301,7 +310,9 @@ function PopupManager(blackout) {
 				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
 			case "Checkbox":
-				nodeElement = new self.CreateButton(node.name);
+				nodeElement = document.createElement("INPUT");
+				nodeElement.type = "checkbox";
+				nodeElement.checked = node.value;
 				//button.Initialize(self,innerParams);
 				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
@@ -344,12 +355,18 @@ function PopupManager(blackout) {
 		node.styleClasses.forEach(function (styleClass) {
 			nodeElement.className += " " + styleClass;
 		});
+		if (node.type == "Checkbox") {
+			nodeElement.onclick = function (event) {event.stopPropagation();}
+		}
 		node.eventListeners.forEach(function (evtListener) {
-			nodeElement.addEventListener(evtListener.type,function () {
+			nodeElement.addEventListener(evtListener.type,function (evt) {
 				if (node.type == "Selection") {
 					evtListener.returnParam.value = nodeElement.value;
+				} else if (node.type == "Checkbox") {
+					evtListener.returnParam.value = nodeElement.checked;
 				}
 				new InterfaceCall(evtListener.callback,evtListener.returnParam);
+				evt.stopPropagation();
 			});
 		});
 		if (node.style) {
@@ -357,12 +374,16 @@ function PopupManager(blackout) {
 				nodeElement.style[style] = node.style[style];
 			}
 		}
+		if (node.id) {
+			nodeElement.id = node.id;
+		}
 		if (highestLevel) {
 			nodeElement.style.overflowX = "auto";
 			nodeElement.style.overflowY = "auto";
 		}
 		parent.appendChild(nodeElement);
 	}
+	
 	
 	// displays an animated loading GIF
 	this.Loading = function () {
@@ -477,6 +498,28 @@ function PopupManager(blackout) {
 	}
 	//=========================================
 	
+	// sets scroll positions for elements with ids
+	this.SetScrollPos = function (element) {
+		var self = this;
+		if (element.id) {
+			// reload scroll position
+			if (element.id in self.scrollYpos) {
+				element.scrollTop = self.scrollYpos[element.id];
+			}
+			if (element.id in self.scrollXpos) {
+				element.scrollLeft = self.scrollXpos[element.id];
+			}
+			// add this id to the list of scroll positions
+			element.onscroll = function () {
+				self.scrollYpos[element.id] = element.scrollTop;
+				self.scrollXpos[element.id] = element.scrollLeft;
+			}
+		}
+		// recursivley set scroll positions for child elements with IDs
+		for (var i = 0; i < element.children.length; i++) {
+			self.SetScrollPos(element.children[i]);
+		}
+	}
 	// clears everything and closes the blackout
 	this.Close = function (popup) {
 		var self = this;

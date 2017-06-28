@@ -110,6 +110,21 @@ namespace Efficient_Automatic_Traveler_System
             m_fields.Add(Basic(name, title, "date", value.Quotate()));
         }
         #endregion
+
+        #region Static helpers
+        public static Form DateRange()
+        {
+            Form form = new Form();
+            form.Date("from", "From");
+            form.Date("to", "To");
+            return form;
+        }
+        public static void DateRange(Form form, out DateTime from, out DateTime to)
+        {
+            DateTime.TryParse(form.ValueOf("from"), out from);
+            DateTime.TryParse(form.ValueOf("to"), out to);
+        }
+        #endregion
         //---------------------------------------------------------
 
         #region Private Methods

@@ -24,7 +24,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("An error occured when retrieving item information from MAS: " + ex.Message);
             }
         }
-        public async void Import(OdbcConnection MAS)
+        public void Import(OdbcConnection MAS)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                 OdbcCommand command = MAS.CreateCommand();
                 command.CommandText = "SELECT ItemCodeDesc, StandardUnitOfMeasure FROM CI_item WHERE itemCode = '" + m_itemCode + "'";
-                OdbcDataReader reader = (OdbcDataReader)await command.ExecuteReaderAsync();
+                OdbcDataReader reader = command.ExecuteReader();
 
                 // begin to read
                 if (reader.Read())

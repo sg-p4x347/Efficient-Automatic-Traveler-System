@@ -47,6 +47,7 @@ namespace Efficient_Automatic_Traveler_System
             m_accessLevel = (AccessLevel)Enum.Parse(typeof(AccessLevel), form.ValueOf("accessLevel"));
             m_mailAddress = form.ValueOf("mailAddress");
             Notify = Convert.ToBoolean(form.ValueOf("notify"));
+            Server.UserManager.Backup();
         }
         public override string ToString()
         {

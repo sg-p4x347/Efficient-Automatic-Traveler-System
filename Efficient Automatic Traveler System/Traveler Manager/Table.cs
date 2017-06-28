@@ -178,10 +178,10 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("Model", Bill.BillNo.Quotate());
             return obj.Stringify();
         }
-        public async override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
             Bill = new Bill(Bill.BillNo, Bill.QuantityPerBill, Quantity);
-            await Bill.Import(MAS);
+            Bill.Import(MAS);
             Bill.BillDesc = Regex.Replace(Bill.BillDesc,"TableTopAsm,", "", RegexOptions.IgnoreCase); // tabletopasm is pretty obvious and therefore extraneous
             Bill.BillDesc = Regex.Replace(Bill.BillDesc, "TableTop,", "", RegexOptions.IgnoreCase);
             //m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
@@ -540,11 +540,11 @@ namespace Efficient_Automatic_Traveler_System
                     SupPack = row[header.IndexOf("Super Pack")];
                     RegPack = row[header.IndexOf("Regular Pack")];
                     m_pads = Convert.ToInt32(row[header.IndexOf("Pads")]);
-                    foreach (string orderNo in ParentOrderNums)
-                    {
-                        Order order = orderManager.FindOrder(orderNo);
-                        foreach (OrderItem orderItem in order.FindItems(ID))
-                        {
+                    //foreach (string orderNo in ParentOrderNums)
+                    //{
+                      //  Order order = orderManager.FindOrder(orderNo);
+                      //  foreach (OrderItem orderItem in order.FindItems(ID))
+                       // {
                             // TEMP
                             //// Get box information
                             //if (order.ShipVia != "" && (order.ShipVia.ToUpper().IndexOf("FEDEX") != -1 || order.ShipVia.ToUpper().IndexOf("UPS") != -1))
@@ -557,8 +557,8 @@ namespace Efficient_Automatic_Traveler_System
                             //    // approximately 20 max tables per pallet
                             //    PalletQty += Convert.ToInt32(Math.Ceiling(Convert.ToDouble(orderItem.QtyOrdered) / 20));
                             //}
-                        }
-                    }
+                      //  }
+                    //}
                     
                     break;
                 }

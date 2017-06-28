@@ -25,11 +25,6 @@ p.title {
 	font-size: 4em;
 	color: rgb(32,192,32);
 }
-p.heading {
-	margin: 8px;
-	font-size: 2em;
-	color: rgb(32,128,32);
-}
 p {
 	margin: 8px;
 }
@@ -141,7 +136,6 @@ div.queueContainer {
 	text-align: center;
 	display: flex;
 	flex-direction: column;
-	width: 50%;
 	height: 100%;
 	border: 4px inset gray;
 }
@@ -151,7 +145,6 @@ div.queueContainer--tall {
 }
 div.queue {
 	box-sizing: border-box;
-	font-size: 0.5em;
 	display: flex;
 	flex-direction: column-reverse;
 	border: 2px solid black;

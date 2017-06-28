@@ -36,7 +36,7 @@ namespace Efficient_Automatic_Traveler_System
             m_parent = parent;
             Import(MAS);
         }
-        public async Task Import(OdbcConnection MAS)
+        public void Import(OdbcConnection MAS)
         {
             if (!m_imported)
             {

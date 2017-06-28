@@ -83,89 +83,28 @@ namespace Efficient_Automatic_Traveler_System
             //SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify(), "LoadCurrent").ToString());
 
             // PreProcess traveler queue items
-            Style visibleOverflow = new Style();
-            visibleOverflow.AddStyle("overflow", "visible");
-            NodeList preProcess = new NodeList(visibleOverflow + new Style("flex-direction-column-reverse"));
-            foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
-            {
-                NodeList queueItem = CreateQueueItem(ItemState.PreProcess, traveler);
-                queueItem.EventListeners.Add(new EventListener("click", "LoadTraveler", @"{""travelerID"":" + traveler.ID + "}"));
-                // ID
-                string IDtoDisplay = traveler.PrintID();
-                if (traveler.ParentTravelers.Any()) {
-                    IDtoDisplay = traveler.GetType().Name.Decompose() + " for ";
-                    foreach (Traveler parent in traveler.ParentTravelers)
-                    {
-                        IDtoDisplay += "<br>";
-                        IDtoDisplay += parent.PrintID();
-                    }
-                }
-                queueItem.Add(new TextNode(IDtoDisplay,style:new Style("yellow","blackOutline")));
 
-                queueItem.Add(new Row()
-                {
-                    // Qty pending
-                    {new TextNode(traveler.QuantityPendingAt(m_station).ToString(),style: new Style("queue__item__qty","white","blackOutline")) },
-                    // slash "/"
-                    { new TextNode("/",style: new Style("white", "blackOutline")) },
-                    // Total Qty
-                    {new TextNode(traveler.Quantity.ToString(),style: new Style("queue__item__qty","lime","blackOutline")) }
-                });
-                // ItemCode
-                queueItem.Add(new TextNode(traveler.ItemCode, style: new Style("beige", "blackOutline")));
-                // Tables
-                if (traveler is Table)
-                {
-                    // table color
-                    queueItem.Add(new TextNode((traveler as Table).Color, style: new Style("white", "blackOutline")));
-                    // Edgebanding color
-                    queueItem.Add(new TextNode((traveler as Table).BandingColor + " EB", style: new Style("white", "blackOutline")));
-                }
-                preProcess.Add(queueItem);
-            }
+            NodeList preProcess = CreateTravelerQueue(m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList(),m_station,false);
             ControlPanel preProcessControlPanel = new ControlPanel("preProcess", preProcess, "preProcessQueue");
             SendMessage(preProcessControlPanel.Dispatch().ToString());
 
             // InProcess queue items
-            NodeList inProcess = new NodeList(visibleOverflow + new Style("flex-direction-column-reverse"));
+            
             List<TravelerItem> items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))).ToList();
-            items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
-            foreach (TravelerItem item in items)
-            {
-                NodeList queueItem = CreateQueueItem(ItemState.InProcess, item.Parent,item);
-                queueItem.EventListeners.Add(new EventListener("click", "LoadItem", @"{""travelerID"":" + item.Parent.ID + @",""itemID"":" + item.ID + "}"));
-                queueItem.Add(new TextNode(item.Parent.PrintSequenceID(item)));
-                inProcess.Add(queueItem);
-            }
+            if (m_item != null && !items.Contains(m_item)) ClearTravelerView();
             // sort the items by start event time (most recent on top)
-
+            items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
+            NodeList inProcess = CreateItemQueue(items);
             ControlPanel cp = new ControlPanel("inProcess", inProcess, "inProcessQueue");
             SendMessage(cp.Dispatch().ToString());
+
+
             UpdateUI();
         }
-        private NodeList CreateQueueItem(ItemState state, Traveler traveler, TravelerItem item = null)
+        protected override Row CreateTravelerQueueItem(ItemState state, Traveler traveler)
         {
-            Column queueItem = new Column(style: new Style("queue__item","align-items-center"));
-            if (traveler.ChildTravelers.Exists(child => child.Items.Exists(i => i.Finished)))
-            {
-                // has at least one finished box item
-                queueItem.Style += new Style("purpleBack");
-            } else
-            {
-                switch (state)
-                {
-                    case ItemState.PreProcess: queueItem.Style += new Style("blueBack"); break;
-                    case ItemState.InProcess: queueItem.Style += new Style("redBack"); break;
-                    case ItemState.PostProcess: queueItem.Style += new Style("limeBack"); break;
-                    default: queueItem.Style += new Style("ghostBack"); break;
-                }
-                
-            }
-            if ((item == null && traveler == m_current) || (item != null && item == m_item)) queueItem.Style += new Style("selected");
-            if (traveler is Table)
-            {
-                queueItem.Style.AddStyle("backgroundImage", "url('./img/" + (traveler as Table).Shape + ".png')");
-            }
+            Row queueItem = base.CreateTravelerQueueItem(state, traveler);
+            if (m_current == traveler) queueItem.Style += new Style("selected");
             return queueItem;
         }
         // Direct UI control vvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -290,16 +229,20 @@ namespace Efficient_Automatic_Traveler_System
             travelerView.Add(viewTable);
 
             // item table
-            Dictionary<string, Node> itemProperties = item.ExportViewProperties();
-            if (itemProperties.Any()) {
-                
-                // item table title
-                TextNode itemTitle = new TextNode("Item specific", new Style("yellow"));
-                travelerView.Add(itemTitle);
+            if (item != null)
+            {
+                Dictionary<string, Node> itemProperties = item.ExportViewProperties();
+                if (itemProperties.Any())
+                {
 
-                Node itemTable = ControlPanel.CreateDictionary(itemProperties);
-                itemTable.Style.AddStyle("width", "100%");
-                travelerView.Add(itemTable);
+                    // item table title
+                    TextNode itemTitle = new TextNode("Item specific", new Style("yellow"));
+                    travelerView.Add(itemTitle);
+
+                    Node itemTable = ControlPanel.CreateDictionary(itemProperties);
+                    itemTable.Style.AddStyle("width", "100%");
+                    travelerView.Add(itemTable);
+                }
             }
             // buttons
             if (m_station.Type == "tablePack")
@@ -738,7 +681,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         private ClientMessage LoadItem(TravelerItem item)
         {
+            if (m_item != null) m_item.Selected = false; // deselect old item
             m_item = item;
+            m_item.Selected = true; // select new item
             LoadTraveler(item.Parent);
 
             Dictionary<string, string> returnParams = new Dictionary<string, string>()

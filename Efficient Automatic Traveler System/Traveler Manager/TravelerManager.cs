@@ -29,7 +29,7 @@ namespace Efficient_Automatic_Traveler_System
             get;
         }
         void Backup();
-        void OnTravelersChanged(List<Traveler> travelers);
+        void OnTravelersChanged(List<Traveler> travelers = null);
         void RefactorTravelers();
         void ClearStartQueue();
     }
@@ -679,7 +679,7 @@ namespace Efficient_Automatic_Traveler_System
                 Form form = new Form(json);
                 Type type = Type.GetType("Efficient_Automatic_Traveler_System." + form.Name);
                 Traveler traveler = traveler = (Traveler)Activator.CreateInstance(type, form);
-                await traveler.ImportInfo(this as ITravelerManager, m_orderManager, MAS);
+                traveler.ImportInfo(this as ITravelerManager, m_orderManager, MAS);
                 m_travelers.Add(traveler);
                 OnTravelersChanged(m_travelers);
                 return new ClientMessage("Info","Success!");

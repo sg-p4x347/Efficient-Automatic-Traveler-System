@@ -39,6 +39,8 @@ function Application () {
 		lastQueue: undefined,
 		lastTraveler: undefined
 	};
+	// Queue scroll positions (by element id)
+	this.scrollPos = {};
 	// Websocket
 	this.websocket;
 	this.SetWindow = function () {
@@ -575,10 +577,22 @@ function Application () {
 	this.EndDrag = function () {
 		//document.getElementById("dragElement");
 	}
-	this.ControlPanel = function (format) {
-		this.popupManager.CloseAll();
-		this.popupManager.ControlPanel(format)
+	this.ControlPanel = function (controlPanel) {
+		var self = this;
+		self.popupManager.ControlPanel(controlPanel,document.getElementById(controlPanel.ID));
+		//self.SetScrollPos(document.getElementById(controlPanel.ID));
+		
+		/* if (controlPanel.ID in self.scrollPos) {
+			// reload scroll position
+			document.getElementById(controlPanel.ID).scrollTop = self.scrollPos[controlPanel.ID];
+		} else {
+			// add this id to the list of scroll positions
+			document.getElementById(controlPanel.ID).onscroll = function () {
+				self.scrollPos[controlPanel.ID] = this.scrollTop;
+			}
+		} */
 	}
+	
 	this.SearchPopup = function (params) {
 		var self = this;
 		self.StopAutofocus();
