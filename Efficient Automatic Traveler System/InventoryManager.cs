@@ -133,7 +133,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_inventory[itemCode] += Convert.ToInt16(qty);
             } else
             {
-                Server.WriteLine("Cannot add to inventory for nonexistant " + itemCode);
+                m_inventory.Add(itemCode, Convert.ToInt16(qty));
             }
             Backup();
         }

@@ -26,6 +26,7 @@ namespace Efficient_Automatic_Traveler_System
             m_items = new List<OrderItem>();
             m_shipVia = "";
             m_status = OrderStatus.Open;
+            m_invoicing = false;
         }
         // Import from json string
         public Order(string json)
@@ -84,6 +85,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_customerNo;
         private List<OrderItem> m_items;
         private string m_shipVia;
+        private bool m_invoicing;
         private OrderStatus m_status;
         public DateTime OrderDate
         {
@@ -172,6 +174,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_status = value;
+            }
+        }
+
+        public bool Invoicing
+        {
+            get
+            {
+                return m_invoicing;
+            }
+
+            set
+            {
+                m_invoicing = value;
             }
         }
     }

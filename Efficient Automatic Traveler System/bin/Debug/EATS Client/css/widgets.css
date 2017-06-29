@@ -581,6 +581,9 @@ div.queue__item__desc {
 	background-size: contain;
 }
 .blanksReady {
+	margin: 8px;
+	width: 2em;
+	height: 2em;
 	background-image: url("../img/blanksReady.png");
 	background-repeat: no-repeat;
 	background-position: left center;

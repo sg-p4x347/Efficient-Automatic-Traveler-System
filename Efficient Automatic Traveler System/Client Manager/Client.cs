@@ -214,6 +214,7 @@ namespace Efficient_Automatic_Traveler_System
                 // Tables
                 if (traveler is Table)
                 {
+                    // Blanks ready icon
                     //queueItem.Add(new Node(new Style("blanksReady")));
                     // table color
                     (split ? groupTwo : groupOne).Add(new TextNode((traveler as Table).Color, style: new Style("white", "blackOutline")));
@@ -239,7 +240,6 @@ namespace Efficient_Automatic_Traveler_System
         protected virtual Row CreateItemQueueItem(ItemState state, TravelerItem item)
         {
             Row queueItem = CreateQueueItem(state, item.Parent);
-            if (item.Selected) queueItem.Style += new Style("selected");
             return queueItem;
         }
         protected virtual Row CreateTravelerQueueItem(ItemState state, Traveler traveler)
@@ -261,7 +261,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     case ItemState.PreProcess: queueItem.Style += new Style("blueBack"); break;
                     case ItemState.InProcess: queueItem.Style += new Style("redBack"); break;
-                    case ItemState.PostProcess: queueItem.Style += new Style("limeBack"); break;
+                    case ItemState.PostProcess: queueItem.Style += new Style("greenBack"); break;
                     default: queueItem.Style += new Style("ghostBack"); break;
                 }
 
@@ -269,6 +269,9 @@ namespace Efficient_Automatic_Traveler_System
             if (traveler is Table)
             {
                 queueItem.Style.AddStyle("backgroundImage", "url('./img/" + (traveler as Table).Shape + ".png')");
+            } else if (traveler is Box)
+            {
+                queueItem.Style.AddStyle("backgroundImage", "url('./img/box.png')");
             }
             return queueItem;
         }
@@ -309,7 +312,7 @@ namespace Efficient_Automatic_Traveler_System
                     PropertyInfo pi = this.GetType().GetProperty(obj["interfaceTarget"]);
                     if (pi != null)
                     {
-                        MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"]);
+                        MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"],new[] { typeof(string) });
                         if (mi != null)
                         {
                             Type attType = typeof(AsyncStateMachineAttribute);
@@ -348,6 +351,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
+                Server.LogException(ex);
                 // something went wrong, it is best to just listen for a new message
                 ListenAsync();
             }

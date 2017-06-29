@@ -37,6 +37,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_station = StationClass.GetStation(obj["station"]);
                 m_stationTimer.Clear("ClearStationTimer");
                 m_stationTimer.Start("StartStationTimer");
+
                 HandleTravelersChanged(m_travelerManager.GetTravelers);
                 if (m_station.Mode == StationMode.Serial)
                 {
@@ -88,12 +89,25 @@ namespace Efficient_Automatic_Traveler_System
             ControlPanel preProcessControlPanel = new ControlPanel("preProcess", preProcess, "preProcessQueue");
             SendMessage(preProcessControlPanel.Dispatch().ToString());
 
-            // InProcess queue items
             
-            List<TravelerItem> items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))).ToList();
+            List<TravelerItem> items = new List<TravelerItem>();
+            if (m_station.Mode == StationMode.Serial)
+            {
+                // InProcess queue items
+                items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))).ToList();
+
+                // sort the items by start event time (most recent on top)
+                items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
+            } else if (m_station.Mode == StationMode.Batch)
+            {
+                // PostProcess queue items
+                items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station &&  !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Completed && e.Station == m_station))).ToList();
+
+                // sort the items by completed event time (most recent on top)
+                items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date));
+            }
             if (m_item != null && !items.Contains(m_item)) ClearTravelerView();
-            // sort the items by start event time (most recent on top)
-            items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
+            
             NodeList inProcess = CreateItemQueue(items);
             ControlPanel cp = new ControlPanel("inProcess", inProcess, "inProcessQueue");
             SendMessage(cp.Dispatch().ToString());
@@ -105,6 +119,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             Row queueItem = base.CreateTravelerQueueItem(state, traveler);
             if (m_current == traveler) queueItem.Style += new Style("selected");
+            return queueItem;
+        }
+        protected override Row CreateItemQueueItem(ItemState state, TravelerItem item)
+        {
+            Row queueItem = base.CreateItemQueueItem(state, item);
+            if (item == m_item) queueItem.Style += new Style("selected");
             return queueItem;
         }
         // Direct UI control vvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -120,6 +140,7 @@ namespace Efficient_Automatic_Traveler_System
                 DisableMoreInfoBtn();
                 DisableCommentBtn();
                 ClearTravelerView();
+                m_partTimer.Clear();
             } else
             {
                 EnableMoreInfoBtn();
@@ -428,12 +449,13 @@ namespace Efficient_Automatic_Traveler_System
             {
                 TravelerItem item = m_item;
                 m_item = null;
+                if (item != null && item.IsComplete()) item = null; // deselect the selected item
                 ProcessEvent evt = null;
                 if (item != null)
                 {
                     ProcessEvent startEvent = GetStartEvent(item);
 
-                    TimeSpan duration = startEvent.Date - DateTime.Now; // difference between start and now
+                    TimeSpan duration = DateTime.Now - startEvent.Date; // difference between start and now
 
                     evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, ProcessType.Completed);
 
@@ -544,7 +566,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 AddHistory(new Dictionary<string, object>() { { "traveler", m_current }, { "items", m_current.CompletedItems(m_station) } });
-                
+                m_item = null;
                 SendMessage( m_travelerManager.SubmitTraveler(
                     m_current,
                     m_station
@@ -681,9 +703,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private ClientMessage LoadItem(TravelerItem item)
         {
-            if (m_item != null) m_item.Selected = false; // deselect old item
             m_item = item;
-            m_item.Selected = true; // select new item
             LoadTraveler(item.Parent);
 
             Dictionary<string, string> returnParams = new Dictionary<string, string>()
@@ -693,7 +713,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"sequenceID",item.Parent.PrintSequenceID(m_item).Quotate() }
             };
 
-            LoadTimerFor(m_item);
+            if (m_station.Mode == StationMode.Serial) LoadTimerFor(m_item);
 
             HandleTravelersChanged(m_travelerManager.GetTravelers);
             return new ClientMessage("LoadItem", returnParams.Stringify());

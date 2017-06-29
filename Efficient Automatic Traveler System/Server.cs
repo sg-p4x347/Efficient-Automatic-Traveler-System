@@ -72,6 +72,8 @@ namespace Efficient_Automatic_Traveler_System
             catch (Exception ex)
             {
                 LogException(ex);
+                Server.WriteLine("SERVER RESTARTING FROM HARD CRASH");
+                Start();
             }
         }
         public static void WriteLine(string message)

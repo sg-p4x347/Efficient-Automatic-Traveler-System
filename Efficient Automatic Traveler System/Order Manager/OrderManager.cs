@@ -77,6 +77,7 @@ namespace Efficient_Automatic_Traveler_System
                         if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
                         order.ShipDate = Convert.ToDateTime(reader["ShipExpireDate"]);
                         if (order.Status != OrderStatus.Removed) order.SetStatus(Convert.ToChar(reader["OrderStatus"]));
+                        order.Invoicing = reader["CurrentInvoiceNo"].ToString() != String.Empty;
 
                         // get information from detail
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
@@ -372,7 +373,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_orders.Sum(o => o.Items.Where(i => i.ItemCode == itemCode).Sum(i => i.QtyOrdered));
         }
-
+        // returns current open orders
+        public List<Order> GetOpenOrders()
+        {
+            return m_orders.Where(o => o.Status == OrderStatus.Open && !o.Invoicing).ToList();
+        }
         #endregion
         //--------------------------------------------
         #region IOrderManager

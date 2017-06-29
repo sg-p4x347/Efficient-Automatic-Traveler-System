@@ -3,15 +3,18 @@
 	"print":{
 		"Tracking":true,
 		"Scrap":true,
-		"Pack":true,
-		"Table":true,
+		"Pack":false,
+		"Table":false,
 		"Chair":true,
 		"Box":true
 	},
-	"printers":{
-		"4x2Heian2":"4x6FloorTable",
-		"4x2FloorTableBox":"4x2Box1"
-	},
+	"printers":[
+		"4x2Heian2",
+		"4x6FloorTable",
+		"4x2FloorTableBox",
+		"4x2Box1",
+		"4x2IT"
+	],
 	"useMASinventory":true,
 	"KanbanManagerSyncPeriod":0.5,
 	"port":81,
@@ -31,8 +34,8 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"90462",
-	"nextEventID":"6063",
+	"nextTravelerID":"92857",
+	"nextEventID":"6382",
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",
