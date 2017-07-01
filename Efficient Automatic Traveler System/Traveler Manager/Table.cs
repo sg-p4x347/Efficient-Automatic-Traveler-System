@@ -275,7 +275,7 @@ namespace Efficient_Automatic_Traveler_System
                     break;
                 case LabelType.Pack:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
-                    json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";
+                    json += ",\"Order#\":\"" + (FindItem(itemID).Order != null ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";
 
                     json += GetLabelFields(new List<string>()
                     {

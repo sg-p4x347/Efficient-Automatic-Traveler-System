@@ -22,7 +22,7 @@ namespace Efficient_Automatic_Traveler_System
         Traveler FindTraveler(int ID);
         void AdvanceTravelerItem(int travelerID, ushort itemID);
         void ScrapTravelerItem(int travelerID, ushort itemID);
-        void RemoveTraveler(Traveler traveler);
+        void RemoveTraveler(Traveler traveler, bool backup = true);
         Traveler AddTraveler(string itemCode, int quantity);
         List<Traveler> GetTravelers
         {
@@ -45,7 +45,6 @@ namespace Efficient_Automatic_Traveler_System
         ClientMessage LoadTravelerAt(string json);
         ClientMessage LoadItem(string json);
         ClientMessage CreateSummary(string json);
-        ClientMessage DisintegrateTraveler(string json);
         ClientMessage EnterProduction(string json);
         ClientMessage DownloadSummary(string json);
         ClientMessage TravelerForm(string json);
@@ -282,7 +281,16 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_travelers.Find(x => x.ID == ID);
         }
-        public void RemoveTraveler(Traveler traveler)
+        public void RemoveTravelers(List<Traveler> travelers)
+        {
+            foreach (Traveler traveler in travelers)
+            {
+                RemoveTraveler(traveler,false);
+            }
+            Server.OrderManager.Backup();
+            Server.TravelerManager.Backup();
+        }
+        public void RemoveTraveler(Traveler traveler, bool backup = true)
         {
             // remove itself from order items
             foreach (Order parentOrder in traveler.ParentOrders)
@@ -299,18 +307,15 @@ namespace Efficient_Automatic_Traveler_System
                 // recursively remove children
                 RemoveTraveler(child);
             }
-            //// remove itself from parents
-            //foreach (int parentID in traveler.Parents)
-            //{
-            //    FindTraveler(parentID).Children.Remove(traveler.ID);
-            //}
-            //// recursively remove children
-            //foreach (int childID in traveler.Children)
-            //{
-            //    RemoveTraveler(FindTraveler(childID));
-            //}
+            // remove itself from parents
+            foreach (Traveler parent in traveler.ParentTravelers)
+            {
+                parent.ChildTravelers.Remove(traveler);
+            }
             // finally... remove THIS traveler
             m_travelers.Remove(traveler);
+            Server.OrderManager.ReleaseTraveler(traveler, backup);
+            if (backup) Backup();
         }
         public Traveler AddTraveler(string itemCode, int quantity)
         {
@@ -400,7 +405,7 @@ namespace Efficient_Automatic_Traveler_System
                     traveler.FinishItem(item.ID);
                     
                     // assign this item to the order that ships soonest
-                    AssignOrder(traveler, item);
+                    //AssignOrder(traveler, item);
 
 
                     // Pack tracking label must be printed
@@ -574,41 +579,41 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        public ClientMessage DisintegrateTraveler(string json)
-        {
-            ClientMessage returnMessage;
-            try
-            {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                List<string> travelerIDs = new List<string>();
-                if (obj.ContainsKey("travelerIDs")) travelerIDs = new StringStream(obj["travelerIDs"]).ParseJSONarray();
-                if (obj.ContainsKey("travelerID")) travelerIDs.Add(obj["travelerID"]);
-                List<string> success = new List<string>();
-                List<string> failure = new List<string>();
-                foreach (string ID in travelerIDs)
-                {
-                    Traveler traveler = FindTraveler(Convert.ToInt32(ID));
-                    if (traveler != null && traveler.Items.Count == 0)
-                    {
-                        m_travelers.Remove(traveler);
-                        m_orderManager.ReleaseTraveler(traveler);
-                        OnTravelersChanged(m_travelers);
-                        success.Add(ID);
-                    }
-                    else
-                    {
-                        failure.Add(ID);
-                    }
-                }
-                returnMessage = new ClientMessage("Info", (success.Count > 0 ? "Disintegrated: " + success.Stringify<string>(false) : "") + (failure.Count > 0 ? "<br>Failed to disintegrate: " + failure.Stringify<string>(false) : ""));
-            }
-            catch (Exception ex)
-            {
-                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("Info", "error");
-            }
-            return returnMessage;
-        }
+        //public ClientMessage DisintegrateTraveler(string json)
+        //{
+        //    ClientMessage returnMessage;
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        List<string> travelerIDs = new List<string>();
+        //        if (obj.ContainsKey("travelerIDs")) travelerIDs = new StringStream(obj["travelerIDs"]).ParseJSONarray();
+        //        if (obj.ContainsKey("travelerID")) travelerIDs.Add(obj["travelerID"]);
+        //        List<string> success = new List<string>();
+        //        List<string> failure = new List<string>();
+        //        foreach (string ID in travelerIDs)
+        //        {
+        //            Traveler traveler = FindTraveler(Convert.ToInt32(ID));
+        //            if (traveler != null && traveler.Items.Count == 0)
+        //            {
+        //                m_travelers.Remove(traveler);
+        //                Server.OrderManager.ReleaseTraveler(traveler);
+        //                OnTravelersChanged(m_travelers);
+        //                success.Add(ID);
+        //            }
+        //            else
+        //            {
+        //                failure.Add(ID);
+        //            }
+        //        }
+        //        returnMessage = new ClientMessage("Info", (success.Count > 0 ? "Disintegrated: " + success.Stringify<string>(false) : "") + (failure.Count > 0 ? "<br>Failed to disintegrate: " + failure.Stringify<string>(false) : ""));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
         public ClientMessage EnterProduction(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
@@ -783,42 +788,6 @@ namespace Efficient_Automatic_Traveler_System
             Backup();
             // fire the event
             TravelersChanged(travelers != null ? travelers : m_travelers);
-        }
-
-        private void AssignOrder(Traveler traveler, TravelerItem item)
-        {
-            List<Order> parentOrders = new List<Order>();
-            foreach (string orderNo in traveler.ParentOrderNums)
-            {
-                Order order = m_orderManager.FindOrder(orderNo);
-                if (order != null) parentOrders.Add(order);
-            }
-            parentOrders.Sort((a, b) => a.ShipDate.CompareTo(b.ShipDate)); // sort in ascending order (soonest first)
-            foreach (Order order in parentOrders)
-            {
-                List<OrderItem> orderItems = order.FindItems(traveler.ID); // the items that apply to this traveler
-
-                // If there are less items assigned to that order than what was ordered (takes into account multiple order items that match the traveler)
-                foreach (OrderItem orderItem in orderItems)
-                {
-                    if (orderItem.QtyOnHand < orderItem.QtyOrdered)
-                    {
-                        // assign this order to the item
-                        item.Order = order.SalesOrderNo;
-
-                        // allocate this item on the order
-                        // INVENTORY
-                        //orderItem.QtyOnHand++;
-
-                    }
-                }
-
-
-                //if (traveler.Items.Where(x => x.Order == order.SalesOrderNo).Count() < orderItems.Sum(x => x.QtyOrdered))
-                //{
-                    
-                //}
-            }
         }
         private Traveler ImportTraveler(string json)
         {

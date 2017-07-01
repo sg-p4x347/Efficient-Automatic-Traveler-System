@@ -24,7 +24,7 @@ namespace Efficient_Automatic_Traveler_System
             m_station = StationClass.GetStation("Start");
             m_lastStation = StationClass.GetStation("Start");
             m_history = new List<Event>();
-            m_order = "";
+            m_order = null;
             m_state = ItemState.InProcess; // an Item can never be in pre-process; existance implies that it has begun processing
             m_comment = "";
         }
@@ -41,7 +41,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_itemCode = obj["itemCode"];
                 m_lastStation = StationClass.GetStation(obj["lastStation"]);
                 m_history = new List<Event>();
-                m_order = obj["order"];
+                m_order = Server.OrderManager.FindOrder(obj["order"]);
                 foreach (string eventString in (new StringStream(obj["history"])).ParseJSONarray())
                 {
                     m_history.Add(BackupManager.ImportDerived<Event>(eventString));
@@ -66,7 +66,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"itemCode",m_itemCode.Quotate() },
                 {"lastStation",m_lastStation.Name.Quotate() },
                 {"history",m_history.ToList<Event>().Stringify<Event>() },
-                {"order",m_order.Quotate() },
+                {"order",(m_order != null ? m_order.SalesOrderNo : "").Quotate() },
                 {"state",m_state.ToString().Quotate() }
             };
             if (m_comment != "") obj.Add("comment", m_comment.Quotate());
@@ -101,7 +101,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"ItemCode",m_itemCode.Quotate() },
                 {"Last station",m_lastStation.Name.Quotate() },
                 {"History",history.Stringify(false) },
-                {"Order",m_order.Quotate() },
+                {"Order",(m_order != null ? m_order.SalesOrderNo : "").Quotate() },
                 {"State",m_state.ToString().Quotate() }
             };
             return obj.Stringify();
@@ -109,6 +109,37 @@ namespace Efficient_Automatic_Traveler_System
         public double ProcessTimeAt(StationClass station)
         {
             return m_history.OfType<ProcessEvent>().ToList().Where(evt => evt.Station == station).Sum(e => e.Duration);
+        }
+        public void AssignOrder()
+        {
+            Parent.ParentOrders.Sort((a, b) => a.ShipDate.CompareTo(b.ShipDate)); // sort in ascending order (soonest first)
+
+            foreach (Order parent in Parent.ParentOrders)
+            {
+                List<OrderItem> orderItems = parent.FindItems(ID); // the items that apply to this traveler
+
+                int qtyOrdered = Parent.QuantityOrdered();
+                // If there are less items assigned to that order than what was ordered (takes into account multiple order items that match the traveler)
+                foreach (OrderItem orderItem in orderItems)
+                {
+                    if (orderItem.QtyOnHand < orderItem.QtyOrdered)
+                    {
+                        // assign this order to the item
+                        Order = parent;
+
+                        // allocate this item on the order
+                        // INVENTORY
+                        //orderItem.QtyOnHand++;
+
+                    }
+                }
+
+
+                //if (traveler.Items.Where(x => x.Order == order.SalesOrderNo).Count() < orderItems.Sum(x => x.QtyOrdered))
+                //{
+
+                //}
+            }
         }
         // Properties
         private UInt16 m_ID;
@@ -119,10 +150,11 @@ namespace Efficient_Automatic_Traveler_System
         private string m_itemCode;
         private StationClass m_lastStation;
         private List<Event> m_history;
-        private string m_order;
+        private Order m_order;
         private ItemState m_state;
         private Traveler m_parent;
         private string m_comment;
+        private bool m_cartonPrinted = false;
 
         public ushort ID
         {
@@ -191,7 +223,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public string Order
+        public Order Order
         {
             get
             {
@@ -279,6 +311,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_comment = value;
+            }
+        }
+
+        public bool CartonPrinted
+        {
+            get
+            {
+                return m_cartonPrinted;
+            }
+
+            set
+            {
+                m_cartonPrinted = value;
             }
         }
 

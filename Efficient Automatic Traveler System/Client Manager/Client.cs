@@ -297,6 +297,7 @@ namespace Efficient_Automatic_Traveler_System
                 string message = await RecieveMessageAsync();
                 if (!Connected) return;
                 if (message.Length == 0) {
+                    LostConnection();
                     throw new Exception("bad message");
                 }
                 message = message.Trim('"');

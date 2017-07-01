@@ -95,7 +95,7 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) + " !!" + "\"";
                     break;
                 case LabelType.Pack:
-                    json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";
+                    json += ",\"Order#\":\"" + (FindItem(itemID).Order != null ? "Order: " + FindItem(itemID).Order.SalesOrderNo : "To inventory") + "\"";
                     break;
             }
             return json;

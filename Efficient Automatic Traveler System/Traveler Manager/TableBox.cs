@@ -73,8 +73,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             Table parentTable = ParentTravelers.FirstOrDefault() as Table;
             Dictionary<string, Node> list = base.ExportViewProperties();
-            list.Add("Table Shape", new TextNode(parentTable.Shape));
-            list.Add("Table Size", new TextNode(parentTable.Size));
+            if (parentTable != null)
+            {
+                list.Add("Table Shape", new TextNode(parentTable.Shape));
+                list.Add("Table Size", new TextNode(parentTable.Size));
+            }
             return list;
         }
         // labels
@@ -99,7 +102,7 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"Reason\":" + reason.Quotate();
                     break;
                 case LabelType.Pack:
-                    json += ",\"Order#\":\"" + (FindItem(itemID).Order != "" ? "Order: " + FindItem(itemID).Order : "To inventory") + "\"";
+                    json += ",\"Order#\":\"" + (FindItem(itemID).Order != null ? "Order: " + FindItem(itemID).Order.SalesOrderNo : "To inventory") + "\"";
                     break;
             }
             return json;

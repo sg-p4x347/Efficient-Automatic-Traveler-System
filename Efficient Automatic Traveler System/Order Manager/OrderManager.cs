@@ -23,8 +23,6 @@ namespace Efficient_Automatic_Traveler_System
         {
             get;
         }
-        // removes all occurences of the specified traveler from order items
-        void ReleaseTraveler(Traveler traveler);
 
     }
     public class OrderManager : IManager, IOrderManager
@@ -393,18 +391,17 @@ namespace Efficient_Automatic_Traveler_System
                 return m_orders;
             }
         }
-        public void ReleaseTraveler(Traveler traveler)
+        public void ReleaseTraveler(Traveler traveler, bool backup = true)
         {
             // iterate over all applicable orders
-            foreach (string orderNo in traveler.ParentOrderNums)
+            foreach (Order parent in traveler.ParentOrders)
             {
-                Order order = FindOrder(orderNo);
-                // for each item in the order
-                foreach (OrderItem item in order.FindItems(traveler.ID))
+                foreach (OrderItem item in parent.FindItems(traveler.ID))
                 {
                     item.ChildTraveler = -1;
                 }
             }
+            if (backup) Backup();
         }
         #endregion
         //--------------------------------------------
@@ -455,7 +452,20 @@ namespace Efficient_Automatic_Traveler_System
         {
             BackupManager.Backup("orders.json", m_orders.Stringify<Order>(false,true));
         }
-
+        public void ReleaseDanglingTravelers()
+        {
+            foreach (Order order in m_orders)
+            {
+                foreach (OrderItem item in order.Items)
+                {
+                    if (Server.TravelerManager.FindTraveler(item.ChildTraveler) == null)
+                    {
+                        item.ChildTraveler = -1;
+                    }
+                }
+            }
+            Backup();
+        }
         #endregion
         //--------------------------------------------
         #region Private Methods

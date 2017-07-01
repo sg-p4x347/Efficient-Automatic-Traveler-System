@@ -787,9 +787,10 @@ namespace Efficient_Automatic_Traveler_System
                                         // Second scan loads the item
                                         // ******************************
                                         LoadItem(item);
-                                        if (m_station.Type == "tablePack")
+                                        if (m_station.Type == "tablePack" && !m_item.CartonPrinted)
                                         {
                                             m_current.PrintLabel(m_item.ID, LabelType.Pack);
+                                            m_item.CartonPrinted = true;
                                         }
                                     }
                                     else

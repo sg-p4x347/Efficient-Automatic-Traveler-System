@@ -72,7 +72,11 @@ namespace Efficient_Automatic_Traveler_System
             catch (Exception ex)
             {
                 LogException(ex);
+                Server.WriteLine("");
+                Server.WriteLine("#################################");
                 Server.WriteLine("SERVER RESTARTING FROM HARD CRASH");
+                Server.WriteLine("#################################");
+                Server.WriteLine("");
                 Start();
             }
         }
@@ -231,6 +235,7 @@ namespace Efficient_Automatic_Traveler_System
             // No more data is needed at this time
             CloseMAS();
 
+            m_orderManager.ReleaseDanglingTravelers();
             // Store current state of data into backup folder
             Backup();
             Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
@@ -241,6 +246,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (ConnectToData())
                 {
+                    // first, sort the orders by priority customer
+                    orders.Sort((a, b) => a.CompareTo(b));
                     // Create, and combine all travelers
                     m_travelerManager.CompileTravelers(consolodate, consolidatePriorityCustomers, orders);
 

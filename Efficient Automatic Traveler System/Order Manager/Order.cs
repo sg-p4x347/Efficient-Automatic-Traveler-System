@@ -64,6 +64,25 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
+        public int CompareTo(Order b)
+        {
+            // sort by ship date first, then by customer
+            int placement = ShipDate.CompareTo(b.ShipDate);
+            if (placement == 0)
+            {
+                if (((JsonArray)JSON.Parse(ConfigManager.Get("priorityCustomers"))).ToList().Contains(CustomerNo))
+                {
+                    return -1;
+                } else
+                {
+                    return 1;
+                }
+            } else
+            {
+                return placement;
+            }
+            
+        }
         public void SetStatus(char ch)
         {
             switch (ch)

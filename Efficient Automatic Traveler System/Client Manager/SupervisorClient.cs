@@ -936,7 +936,6 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Server.TravelerManager.ClearStartQueue();
-
                 return new ClientMessage();
             }
             catch (Exception ex)
@@ -1039,16 +1038,19 @@ namespace Efficient_Automatic_Traveler_System
                 if (m_current != null) m_selected.Add(m_current);
                 foreach (Traveler traveler in m_selected)
                 {
-                    if (traveler.Items.Count == 0)
+                    if (traveler != null)
                     {
-                        Server.OrderManager.ReleaseTraveler(traveler);
-                        Server.TravelerManager.RemoveTraveler(traveler);
-                        Server.TravelerManager.OnTravelersChanged();
-                        success.Add(traveler.PrintID());
-                    }
-                    else
-                    {
-                        failure.Add(traveler.PrintID());
+                        if (traveler.Items.Count == 0)
+                        {
+                            Server.OrderManager.ReleaseTraveler(traveler);
+                            Server.TravelerManager.RemoveTraveler(traveler);
+                            Server.TravelerManager.OnTravelersChanged();
+                            success.Add(traveler.PrintID());
+                        }
+                        else
+                        {
+                            failure.Add(traveler.PrintID());
+                        }
                     }
                 }
                 m_selected.Clear();
@@ -1058,6 +1060,9 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", (success.Count > 0 ? "Disintegrated: " + success.Stringify<string>(false) : "") + (failure.Count > 0 ? "<br>Failed to disintegrate: " + failure.Stringify<string>(false) : ""));
             } catch (Exception ex)
             {
+                m_selected.Clear();
+                m_current = null;
+                CloseAllPopups();
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error Disintegrating traveler");
             }
