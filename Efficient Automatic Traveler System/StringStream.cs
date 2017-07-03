@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class StringStream
+    public class StringStream
     {
         public StringStream(string s)
         {

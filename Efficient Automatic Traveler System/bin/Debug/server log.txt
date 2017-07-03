@@ -2,7 +2,7 @@ Configuration settings loaded from current
 Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
 
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	07/03/2017 @ 01:59
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	07/03/2017 @ 04:02
 
 EATS inventory loaded from backup
 Kanban Monitor loaded from backup

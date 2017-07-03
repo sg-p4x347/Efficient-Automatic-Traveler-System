@@ -12,54 +12,48 @@ namespace Efficient_Automatic_Traveler_System
         Serial
     }
 
-    public class VirtualStation
+    public class VirtualStation : IEquatable<VirtualStation>
     {
         #region Public Methods
-        public static void ImportStations(string types, string stationsJson)
+        public static void ImportStations(JsonObject types)
         {
             m_stations.Clear();
-            Dictionary<string, string> stationTypes = new StringStream(types).ParseJSON();
-            List<string> stations = new StringStream(stationsJson).ParseJSONarray();
 
-            foreach (string stationJSON in stations)
+            foreach (KeyValuePair<string,JSON> pair in types)
             {
-                Dictionary<string, string> obj = new StringStream(stationJSON).ParseJSON();
-                m_stations.Add(new StationClass(stationTypes[obj["type"]], stationJSON));
+                m_stations.Add(new VirtualStation(pair.Key, (JsonObject)pair.Value));
             }
-            m_stations.Sort((x, y) => string.Compare(x.Name, y.Name));
+            m_stations.Sort((x, y) => string.Compare(x.Type, y.Type));
             //ConfigManager.Set("stations", m_stations.Stringify(true, true));
         }
 
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {
-                { "name", m_name.Quotate()},
                 { "type",m_type.Quotate() },
                 { "creates", m_creates.Stringify<string>()},
-                { "mode", m_mode.ToString().Quotate()},
-                { "laborCodes",m_laborCodes.Stringify<string>()},
-                { "printers",m_printers.Stringify<string>() }
+                { "laborCodes",m_laborCodes.Stringify<string>()}
             };
-            return obj.Stringify(true);
+            return obj.Stringify();
         }
         public bool CreatesThis(Traveler obj)
         {
             return m_creates.Exists(x => x == obj.GetType().Name || x == obj.GetType().BaseType.Name);
         }
-        public static StationClass GetStation(string name)
+        public static VirtualStation GetStation(string type)
         {
-            return m_stations.Find(x => x.Name == name);
+            return m_stations.Find(x => x.Type == type);
         }
-        public static List<StationClass> GetStations()
+        public static List<VirtualStation> GetStations()
         {
             return m_stations;
         }
-        public static List<StationClass> StationsInBill(Bill bill)
+        public static List<VirtualStation> StationsInBill(Bill bill)
         {
-            List<StationClass> stations = new List<StationClass>();
+            List<VirtualStation> stations = new List<VirtualStation>();
             foreach (Item componentItem in bill.ComponentItems)
             {
-                StationClass station = m_stations.Find(s => s.LaborCodes.Contains(componentItem.ItemCode));
+                VirtualStation station = m_stations.Find(s => s.LaborCodes.Contains(componentItem.ItemCode));
                 if (station != null)
                 {
                     stations.Add(station);
@@ -73,23 +67,23 @@ namespace Efficient_Automatic_Traveler_System
             return base.GetHashCode();
         }
 
-        public bool Equals(StationClass other)
+        public bool Equals(VirtualStation other)
         {
             return base.Equals(other);
         }
-        public static bool operator ==(StationClass A, StationClass B)
+        public bool Equals(object other)
+        {
+            return base.Equals(other);
+        }
+        public static bool operator ==(VirtualStation A, VirtualStation B)
         {
             return (object.ReferenceEquals(A, null) && object.ReferenceEquals(B, null))
-                || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.ID == B.ID);
+                || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.Type == B.Type);
         }
-        public static bool operator !=(StationClass A, StationClass B)
+        public static bool operator !=(VirtualStation A, VirtualStation B)
         {
             return !((object.ReferenceEquals(A, null) && object.ReferenceEquals(B, null))
-                || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.ID == B.ID));
-        }
-        public bool Is(string name)
-        {
-            return Name == name;
+                || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.Type == B.Type));
         }
         public static List<string> StationNames()
         {
@@ -103,29 +97,22 @@ namespace Efficient_Automatic_Traveler_System
         }
         #endregion
         #region Private Methods
-        private StationClass(string type, string json)
+        public VirtualStation(string type, JsonObject station)
         {
-            var obj = (new StringStream(json)).ParseJSON();
-            var typeObj = new StringStream(type).ParseJSON();
-            m_ID = StationClass.m_stations.Count;
-            m_type = obj["type"];
-            m_name = obj["name"];
-            m_creates = new StringStream(typeObj["creates"]).ParseJSONarray();
-            m_laborCodes = new StringStream(typeObj["laborCodes"]).ParseJSONarray();
-            m_printers = new StringStream(obj["printers"]).ParseJSONarray();
-            Enum.TryParse<StationMode>(obj["mode"], out m_mode);
+            m_ID = VirtualStation.m_stations.Count;
+            m_type = type;
+            m_creates = ((JsonArray)station["creates"]).ToList();
+            m_laborCodes = ((JsonArray)station["laborCodes"]).ToList();
+
         }
         #endregion
         #region Properties
         private int m_ID;
         private string m_type;
-        private string m_name;
         private List<string> m_creates; // list of traveler types that this station can create
         private List<string> m_laborCodes; // list of labor codes that are associated with this station
-        private List<string> m_printers; // list of label printers that this station can/should print to (typicallay a 4x2 and/or a 4x6)
-        private StationMode m_mode;
 
-        private static List<StationClass> m_stations = new List<StationClass>();
+        private static List<VirtualStation> m_stations = new List<VirtualStation>();
 
         #endregion
         #region Interface
@@ -137,27 +124,11 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public string Name
-        {
-            get
-            {
-                return m_name;
-            }
-        }
-
         public List<string> Creates
         {
             get
             {
                 return m_creates;
-            }
-        }
-
-        public StationMode Mode
-        {
-            get
-            {
-                return m_mode;
             }
         }
 
@@ -184,19 +155,6 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_type = value;
-            }
-        }
-
-        public List<string> Printers
-        {
-            get
-            {
-                return m_printers;
-            }
-
-            set
-            {
-                m_printers = value;
             }
         }
         #endregion

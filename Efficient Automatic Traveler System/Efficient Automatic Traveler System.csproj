@@ -138,6 +138,7 @@
     <Compile Include="Traveler Manager\TravelerManager.cs" />
     <Compile Include="User Manager\User.cs" />
     <Compile Include="User Manager\UserManager.cs" />
+    <Compile Include="VirtualStation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
