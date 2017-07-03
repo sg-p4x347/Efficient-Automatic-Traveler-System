@@ -55,65 +55,69 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void HandleTravelersChanged(List<Traveler> travelers)
         {
-            bool mirror = true; // travelers.Count == m_travelerManager.GetTravelers.Count;
-            travelers = m_travelerManager.GetTravelers;
-            Dictionary<string, string> message = new Dictionary<string, string>();
-            //// PreProcess
-            //List<string> travelerStrings = new List<string>();
-
-            //foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
-            //{
-            //    travelerStrings.Add(ExportTraveler(traveler));
-            //}
-
-            //message.Add("preProcess", travelerStrings.Stringify(false));
-            //// InProcess
-            //travelerStrings.Clear();
-
-            //foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
-            //{
-            //    foreach (TravelerItem item in traveler.Items.Where(i => i.State == ItemState.InProcess && i.Station == m_station))
-            //    {
-            //        travelerStrings.Add(ExportTravelerItem(traveler,item));
-            //    }
-            //}
-
-            //message.Add("inProcess", travelerStrings.Stringify(false));
-
-            //message.Add("mirror", mirror.ToString().ToLower());
-            //SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify(), "LoadCurrent").ToString());
-
-            // PreProcess traveler queue items
-
-            NodeList preProcess = CreateTravelerQueue(m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList(),m_station,false);
-            ControlPanel preProcessControlPanel = new ControlPanel("preProcess", preProcess, "preProcessQueue");
-            SendMessage(preProcessControlPanel.Dispatch().ToString());
-
-            
-            List<TravelerItem> items = new List<TravelerItem>();
-            if (m_station.Mode == StationMode.Serial)
+            if (m_station != null)
             {
-                // InProcess queue items
-                items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))).ToList();
+                bool mirror = true; // travelers.Count == m_travelerManager.GetTravelers.Count;
+                travelers = m_travelerManager.GetTravelers;
+                Dictionary<string, string> message = new Dictionary<string, string>();
+                //// PreProcess
+                //List<string> travelerStrings = new List<string>();
 
-                // sort the items by start event time (most recent on top)
-                items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
-            } else if (m_station.Mode == StationMode.Batch)
-            {
-                // PostProcess queue items
-                items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station &&  !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Completed && e.Station == m_station))).ToList();
+                //foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
+                //{
+                //    travelerStrings.Add(ExportTraveler(traveler));
+                //}
 
-                // sort the items by completed event time (most recent on top)
-                items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date));
+                //message.Add("preProcess", travelerStrings.Stringify(false));
+                //// InProcess
+                //travelerStrings.Clear();
+
+                //foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList())
+                //{
+                //    foreach (TravelerItem item in traveler.Items.Where(i => i.State == ItemState.InProcess && i.Station == m_station))
+                //    {
+                //        travelerStrings.Add(ExportTravelerItem(traveler,item));
+                //    }
+                //}
+
+                //message.Add("inProcess", travelerStrings.Stringify(false));
+
+                //message.Add("mirror", mirror.ToString().ToLower());
+                //SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify(), "LoadCurrent").ToString());
+
+                // PreProcess traveler queue items
+
+                NodeList preProcess = CreateTravelerQueue(m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList(), m_station, false);
+                ControlPanel preProcessControlPanel = new ControlPanel("preProcess", preProcess, "preProcessQueue");
+                SendMessage(preProcessControlPanel.Dispatch().ToString());
+
+
+                List<TravelerItem> items = new List<TravelerItem>();
+                if (m_station.Mode == StationMode.Serial)
+                {
+                    // InProcess queue items
+                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))).ToList();
+
+                    // sort the items by start event time (most recent on top)
+                    items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
+                }
+                else if (m_station.Mode == StationMode.Batch)
+                {
+                    // PostProcess queue items
+                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Completed && e.Station == m_station))).ToList();
+
+                    // sort the items by completed event time (most recent on top)
+                    items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date));
+                }
+                if (m_item != null && !items.Contains(m_item)) ClearTravelerView();
+
+                NodeList inProcess = CreateItemQueue(items);
+                ControlPanel cp = new ControlPanel("inProcess", inProcess, "inProcessQueue");
+                SendMessage(cp.Dispatch().ToString());
+
+
+                UpdateUI();
             }
-            if (m_item != null && !items.Contains(m_item)) ClearTravelerView();
-            
-            NodeList inProcess = CreateItemQueue(items);
-            ControlPanel cp = new ControlPanel("inProcess", inProcess, "inProcessQueue");
-            SendMessage(cp.Dispatch().ToString());
-
-
-            UpdateUI();
         }
         protected override Row CreateTravelerQueueItem(ItemState state, Traveler traveler)
         {
@@ -140,7 +144,7 @@ namespace Efficient_Automatic_Traveler_System
                 DisableMoreInfoBtn();
                 DisableCommentBtn();
                 ClearTravelerView();
-                m_partTimer.Clear();
+                m_partTimer.Clear("ClearPartTimer");
             } else
             {
                 EnableMoreInfoBtn();
@@ -157,7 +161,7 @@ namespace Efficient_Automatic_Traveler_System
                 int qtyCompleted = m_current.QuantityCompleteAt(m_station);
                 SetQtyCompleted(qtyCompleted);
 
-                if (qtyPending > 0)
+                if (qtyPending > 0 || (m_current != null && m_station.CreatesThis(m_current)))
                 {
                     EnableProcessBtns();
                     m_partTimer.Resume();
@@ -468,7 +472,7 @@ namespace Efficient_Automatic_Traveler_System
 
                     evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, ProcessType.Completed);
                 }
-                SendMessage(m_travelerManager.AddTravelerEvent(evt, m_current, item).ToString());
+                m_travelerManager.AddTravelerEvent(evt, m_current, item).ToString();
                 UpdateUI();
                 NewPartStarted(); // timers
                 if (m_station.Mode == StationMode.Serial)
@@ -667,7 +671,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private ClientMessage LoadTraveler(Traveler traveler)
         {
-
+            m_item = null;
             if (m_current == null || (traveler != null && traveler.ID != m_current.ID))
             {
                 if (traveler.CurrentStations().Exists(t => t == m_station))
@@ -683,6 +687,9 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     return new ClientMessage("Info", "Traveler " + traveler.ID.ToString("D6") + " is not at this station  :(");
                 }
+            } else
+            {
+                UpdateUI();
             }
             return new ClientMessage();
         }
@@ -703,8 +710,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         private ClientMessage LoadItem(TravelerItem item)
         {
-            m_item = item;
             LoadTraveler(item.Parent);
+            m_item = item;
+            
 
             Dictionary<string, string> returnParams = new Dictionary<string, string>()
             {
@@ -772,13 +780,13 @@ namespace Efficient_Automatic_Traveler_System
                                         m_travelerManager.AddTravelerEvent(new ProcessEvent(m_user, m_station, 0, ProcessType.Started), traveler, item);
                                         //item.History.Add();
                                         // start the timer
-                                        m_partTimer.Start("StartPartTimer");
+                                        //m_partTimer.Start("StartPartTimer");
 
                                         // this is Table pack station, print Table label on search submission 
 
                                         if (m_station == StationClass.GetStation("Table-Pack"))
                                         {
-                                            return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table));
+                                            traveler.PrintLabel(Convert.ToUInt16(obj["itemID"]), LabelType.Table);
                                         }
                                     }
                                     else if (m_item != item)

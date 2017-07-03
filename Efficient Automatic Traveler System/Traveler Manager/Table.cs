@@ -106,7 +106,7 @@ namespace Efficient_Automatic_Traveler_System
                 members.Add(new NameValueQty<string, int>("Box pads",  "One-pack system",m_pads).ToString());
                 members.Add(new NameValueQty<string, int>("Pallet", m_palletSize, m_palletQty).ToString());
             }
-            double rate = GetRate(Bill.ComponentBills[0], station);
+            double rate = GetRate(CommonBill, station);
             members.Add(new NameValueQty<string, string>("Rate", rate > 0 ? rate.ToString() + " min" : "No rate", "").ToString());
             obj["members"] = members.Stringify(false);
             return obj.Stringify();
@@ -115,10 +115,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, Node> list = base.ExportViewProperties();
             list.Add("Drawing", new TextNode(Bill.DrawingNo));
-            list.Add("Blank", new TextNode(BlankSize));
-            list.Add("Blank Qty", new TextNode(BlankQuantity.ToString()));
+            list.Add("Blank Name", new TextNode(BlankNo, new Style("twoEM")));
+            list.Add("Blank Size", new TextNode(BlankSize));
+            if (BlankQuantity > 0) list.Add("Blank Qty", new TextNode(BlankQuantity.ToString()));
             list.Add("Color", new TextNode(Color));
             list.Add("Banding", new TextNode(BandingColor));
+            list.Add("Pallet size", new TextNode(PalletSize));
             return list;
         }
         public override string ExportHuman()
@@ -161,7 +163,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 obj.Merge(base.ExportProperties(station));
                 obj.Add("shape", Shape.Quotate());
-                obj.Add("laborRate", GetRate(Bill.ComponentBills[0], station).ToString());
+                obj.Add("laborRate", GetRate(CommonBill, station).ToString());
                 obj.Add("totalLabor", Math.Round(GetTotalLabor(station), 1).ToString());
             }
             catch (Exception ex)
@@ -332,13 +334,13 @@ namespace Efficient_Automatic_Traveler_System
         public override double GetCurrentLabor(StationClass station)
         {
             // gets the rate from the first (and only) bill; this is the common bill that all tables share
-            return GetRate(Bill.ComponentBills[0], station != null ? station : Station);
+            return GetRate(CommonBill, station != null ? station : Station);
         }
         public override double GetTotalLabor(StationClass station)
         {
             if (station != null)
             {
-                return GetRate(Bill.ComponentBills[0], station, true);
+                return GetRate(CommonBill, station, true);
             } else
             {
                 // sum up every station
@@ -441,6 +443,12 @@ namespace Efficient_Automatic_Traveler_System
                 if (!reader.IsDBNull(2)) Shape = reader.GetString(2);
                 if (BlankNo == "") BlankNo = "Missing blank info";
             }
+            // get blank quantity from bill
+            Bill blank = Bill.ComponentBills.Find(b => b.BillNo == BlankNo);
+            if (blank != null)
+            {
+                BlankQuantity = (int)Math.Ceiling(blank.QuantityPerBill * Convert.ToDouble(Quantity));
+            }
             // open the table ref csv file
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, "Table Reference.csv"));
@@ -492,7 +500,7 @@ namespace Efficient_Automatic_Traveler_System
                     // calculate production numbers
                     if (PartsPerBlank <= 0) PartsPerBlank = 1;
                     decimal tablesPerBlank = Convert.ToDecimal(PartsPerBlank);
-                    BlankQuantity = Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(Quantity) / tablesPerBlank));
+                    //BlankQuantity = Convert.ToInt32(Math.Ceiling(Convert.ToDecimal(Quantity) / tablesPerBlank));
                     //int partsProduced = BlankQuantity * Convert.ToInt32(tablesPerBlank);
                     //LeftoverParts = partsProduced - Quantity;
 
@@ -1032,7 +1040,14 @@ namespace Efficient_Automatic_Traveler_System
                 m_packLabelQty = value;
             }
         }
-
+        // returns the common bill
+        public Bill CommonBill
+        {
+            get
+            {
+                return Bill.ComponentBills.Find(b => b.BillNo.Contains("COM"));
+            }
+        }
         public string Color
         {
             get

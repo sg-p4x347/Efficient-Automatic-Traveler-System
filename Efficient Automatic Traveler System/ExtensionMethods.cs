@@ -163,15 +163,16 @@ namespace Efficient_Automatic_Traveler_System
            
             if (list.Count > 0) {
                 Dictionary<string, List<string>> columns = new Dictionary<string, List<string>>();
-                foreach (ICSV item in list)
+                List<Dictionary<string, string>> rows = list.Select(i => i.ExportCSV(param)).ToList();
+                List<string> headings = rows.SelectMany(row => row.Keys).Distinct().ToList();
+                foreach (Dictionary<string, string> row in rows)
                 {
-                    Dictionary<string,string> detail = item.ExportCSV(param);
                     // add to the header
                     int column = 0;
-                    foreach (string heading in detail.Keys)
+                    foreach (string heading in headings)
                     {
                         if (!columns.ContainsKey(heading)) columns.Add(heading,new List<string>());
-                        columns[heading].Add(detail[heading]);
+                        columns[heading].Add(row.ContainsKey(heading) ? row[heading] : "");
                         column++;
                     }
                 }

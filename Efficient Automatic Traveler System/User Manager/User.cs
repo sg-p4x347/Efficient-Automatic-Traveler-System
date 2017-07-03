@@ -138,7 +138,20 @@ namespace Efficient_Automatic_Traveler_System
                 double minutes = travelers.Sum(t => t.Items.Sum(i => i.History.OfType<ProcessEvent>().Where(e => e.Station == station && e.User.UID == UID).Sum(h => h.Duration)));
                 if (minutes > 0) detail.Add(station.Name + "(min)", minutes.ToString());
             }
-           
+            // sum up log minutes
+            double totalLogTime = 0.0;
+            LogEvent login = null;
+            foreach (LogEvent logEvent in History.OfType<LogEvent>())
+            {
+                if (logEvent.LogType == LogType.Login) {
+                    login = logEvent;
+                } else if (logEvent.LogType == LogType.Logout && login != null)
+                {
+                    totalLogTime += (logEvent.Date - login.Date).TotalMinutes;
+                }
+            }
+            detail.Add("Total Log time", totalLogTime.ToString());
+
             return detail;
         }
         #endregion

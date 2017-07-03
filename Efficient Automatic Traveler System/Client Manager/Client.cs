@@ -127,8 +127,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Byte[] test = CreateMessage(message);
-                m_stream.Write(test, 0, test.Length);
+                if (Connected)
+                {
+                    Byte[] test = CreateMessage(message);
+                    m_stream.Write(test, 0, test.Length);
+                }
             } catch (Exception ex)
             {
                 // connection was lost
@@ -279,10 +282,18 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Byte[] bytes = new Byte[1024];
-                int length = await m_stream.ReadAsync(bytes, 0, bytes.Length, m_cts.Token);
+                Byte[] bytes = new Byte[128];
+                List<Byte> byteList = new List<Byte>();
+                int length = 0;
+                do
+                {
+                    length = await m_stream.ReadAsync(bytes, 0, bytes.Length, m_cts.Token);
+                    byteList.AddRange(bytes.ToList().GetRange(0, length));
+                } while (m_stream.DataAvailable);
+                
+                //int length = await m_stream.ReadAsync(bytes, 0, bytes.Length, m_cts.Token);
                 // Message has arrived, now lets decode it
-                return GetMessage(bytes, length);
+                return GetMessage(byteList.ToArray(), byteList.Count);
             }
             catch (Exception ex)
             {
@@ -296,58 +307,61 @@ namespace Efficient_Automatic_Traveler_System
             {
                 string message = await RecieveMessageAsync();
                 if (!Connected) return;
-                if (message.Length == 0) {
-                    LostConnection();
-                    throw new Exception("bad message");
-                }
-                message = message.Trim('"');
-                Dictionary<string, string> obj = (new StringStream(message)).ParseJSON();
-
-                //if (obj.ContainsKey("station"))
-                //{
-                //    m_station = Convert.ToInt32(obj["station"]);
-                //    HandleTravelersChanged(m_travelerManager.GetTravelers);
-                //}
-                if (obj.ContainsKey("interfaceMethod") && obj.ContainsKey("parameters"))
+                if (message.Length == 0)
                 {
-                    PropertyInfo pi = this.GetType().GetProperty(obj["interfaceTarget"]);
-                    if (pi != null)
+                    LostConnection();
+
+                }
+                else
+                {
+                    message = message.Trim('"');
+                    Dictionary<string, string> obj = (new StringStream(message)).ParseJSON();
+
+                    if (obj.ContainsKey("interfaceMethod") && obj.ContainsKey("parameters"))
                     {
-                        MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"],new[] { typeof(string) });
-                        if (mi != null)
+                        PropertyInfo pi = this.GetType().GetProperty("This");
+                        if (pi != null)
                         {
-                            Type attType = typeof(AsyncStateMachineAttribute);
-                            // Obtain the custom attribute for the method. 
-                            // The value returned contains the StateMachineType property. 
-                            // Null is returned if the attribute isn't present for the method. 
-                            var attrib = (AsyncStateMachineAttribute)mi.GetCustomAttribute(attType);
-                            if (attrib != null)
+                            MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"], new[] { typeof(string) });
+                            if (mi != null)
+                            {
+                                Type attType = typeof(AsyncStateMachineAttribute);
+                                // Obtain the custom attribute for the method. 
+                                // The value returned contains the StateMachineType property. 
+                                // Null is returned if the attribute isn't present for the method. 
+                                var attrib = (AsyncStateMachineAttribute)mi.GetCustomAttribute(attType);
+                                if (attrib != null)
+                                {
+                                    ListenAsync();
+                                    // UPDATING... popup
+                                    SendMessage(new ClientMessage("Updating").ToString());
+                                    // Await the slow operation
+                                    ClientMessage reutrnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { obj["parameters"] }));
+                                    string messageString = reutrnMessage.ToString();
+                                    if (messageString != "") SendMessage(messageString);
+                                }
+                                else
+                                {
+                                    ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
+                                    string messageString = returnMessage.ToString();
+                                    if (messageString != "") SendMessage(messageString);
+                                    ListenAsync();
+                                }
+                            }
+                            else
                             {
                                 ListenAsync();
-                                // UPDATING... popup
-                                SendMessage(new ClientMessage("Updating").ToString());
-                                // Await the slow operation
-                                ClientMessage reutrnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                                string messageString = reutrnMessage.ToString();
-                                if (messageString != "") SendMessage(messageString);
-                            } else
-                            {
-                                ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                                string messageString = returnMessage.ToString();
-                                if (messageString != "") SendMessage(messageString);
-                                ListenAsync();
-                            }                       
-                        } else
+                            }
+                        }
+                        else
                         {
                             ListenAsync();
                         }
-                    } else
+                    }
+                    else
                     {
                         ListenAsync();
                     }
-                } else
-                {
-                    ListenAsync();
                 }
             }
             catch (Exception ex)

@@ -69,7 +69,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 for (int i = 0; i < m_clients.Count; i++)
                 {
-                    m_clients[i].Poll();
+                    //m_clients[i].Poll();
                     if (!m_clients[i].Connected)
                     {
                         

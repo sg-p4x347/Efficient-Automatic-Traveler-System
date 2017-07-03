@@ -34,8 +34,8 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"93215",
-	"nextEventID":"6418",
+	"nextTravelerID":"98915",
+	"nextEventID":"6534",
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",
@@ -96,14 +96,6 @@
 			"laborCodes":[
 				"/LBND2",
 				"/LBND3"
-			]
-		},
-		"finished":{
-			"creates":[
-				
-			],
-			"laborCodes":[
-				
 			]
 		},
 		"heian":{
@@ -294,6 +286,14 @@
 			"name":"Scrapped",
 			"type":"virtual",
 			"mode":"Batch",
+			"printers":[
+				"4x2Heian2"
+			]
+		},
+		{
+			"name":"SNX",
+			"type":"contourEdgebander",
+			"mode":"Serial",
 			"printers":[
 				"4x2Heian2"
 			]

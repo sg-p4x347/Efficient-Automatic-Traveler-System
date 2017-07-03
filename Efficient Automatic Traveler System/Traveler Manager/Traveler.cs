@@ -594,7 +594,7 @@ namespace Efficient_Automatic_Traveler_System
             string orders = "";
             foreach (Order order in ParentOrders)
             {
-                orders += "(" + order.ShipDate.ToString("MM/dd/yyyy") + "  " + order.SalesOrderNo + " " + order.CustomerNo + ")";
+                orders += "(" + order.FindItems(ID).Sum(i => i.QtyOrdered) + "  " + order.SalesOrderNo + " " + order.ShipDate.ToString("MM/dd/yyyy") + " " + order.CustomerNo + ")";
             }
             detail.Add(orders);
             detail.Add(m_station.Name);

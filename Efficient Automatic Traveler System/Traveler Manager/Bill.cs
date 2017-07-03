@@ -48,7 +48,7 @@ namespace Efficient_Automatic_Traveler_System
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand command = MAS.CreateCommand();
                         command.CommandText = "SELECT BillType, BillDesc1, CurrentBillRevision, DrawingNo, Revision FROM BM_billHeader WHERE billno = '" + m_billNo + "'";
-                        OdbcDataReader reader = command.ExecuteReader();
+                        OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SequentialAccess);
                         // read info
                         while (reader.Read())
                         {

@@ -1,24 +1,9 @@
-Traveler,Quantity,Soonest Ship,Orders,Station,Comment,Part,Description,Color,Banding Color,Blank,Blank Size,Blank Qty,Labor
-"92238","48","06/26/2017","(06/26/2017  5038886 WORTHDR)","Heian2","","38-2258-22","Apex,30x54 Wave","Marker Board","Black","WRIT7","7-1549x1838",48,580.5312
-"92239","30","06/26/2017","(06/26/2017  5038886 WORTHDR)","Start","","38-2252-22","Apex,54 HalfRndWav","Marker Board","Black","WRIT8","8-1549x1532",30,353.259
-"92243","11","06/29/2017","(06/29/2017  5039175 SCHLSIN)","Start","","38-2237-60","Apex,30x60 Rect","Wild Cherry","Black","CHOK8","8-1549x1532",11,136.3417
-"92245","3","06/23/2017","(06/23/2017  5039210 WORTHDR)","Heian2","","38-2268-60","Apex,48x72 Kdny","Wild Cherry","Black","CHOK3","3-1244x1838",3,67.0815
-"92248","1","06/23/2017","(06/23/2017  5039245 OFFDPBS)","Start","","38-2268-50","Apex,48x72 Kdny","Fusion Maple","Black","MAGR3","3-1244x1838",1,22.3605
-"92249","1","06/26/2017","(06/26/2017  5039352 SSWORLD)","Start","","MG2268-54","48x72 Kdny,GG/Yel","Gray Glace","Yellow","MAGR3","3-1244x1838",1,18.941
-"92250","1","06/26/2017","(06/26/2017  5039358 WORTHDR)","Heian2","","41-2437-50","Desktop,Apex,SD 30x60","Fusion Maple","Black","MAGR8","8-1549x1532",1,12.998
-"92251","8","06/27/2017","(06/27/2017  5039397 WORTHDR)","Start","","41-2423-77","Desktop,Apex,SD 20x30","Grey Nebula","Black","GENS8","8-1549x1532",8,71.7104
-"92252","3","06/27/2017","(06/27/2017  5039398 IPAEDUC)","Start","","38-2248-77","Apex,36x72 Rect","Grey Nebula","Black","GENS4","4-925x1838",3,44.7426
-"92253","19","06/28/2017","(06/28/2017  5039418 USTOYCO)","Start","","MG2244-69","36 Round,Map/Map","Fusion Maple","Fusion","MAGR4","4-925x1838",19,209.7296
-"92254","9","06/28/2017","(06/28/2017  5039418 USTOYCO)","Heian2","","MG2245-51","42 Round,GG/Blu","Gray Glace","Blue","MAGRF","F-1244x2460",9,94.446
-"92255","5","06/28/2017","(06/28/2017  5039418 USTOYCO)","Start","","MG2266-51","48 Round,GG/Blu","Gray Glace","Blue","MAGRF","F-1244x2460",5,47.007
-"92261","5","06/27/2017","(06/27/2017  5039434 WORTHDR)","Start","","MG2228-50","24x60 Rect,Map/Blk","Fusion Maple","Black","MAGR9","9-1244x1532",5,48.1785
-"92262","7","06/28/2017","(06/28/2017  5039436 WORTHDR)","Heian2","","38-2247-78","Apex,36x60 Rect","Grey Nebula","Grey","GENS7","7-1549x1838",7,93.9764
-"92265","16","06/28/2017","(06/28/2017  5039441 WORTHDR)","Start","","38-2222-77","Apex,20x60 Rect","Grey Nebula","Black","GENS8","8-1549x1532",16,151.5552
-"92267","17","06/28/2017","(06/28/2017  5039442 WORTHDR)","Start","","MG2237-55","30x60 Rect,GG/Blk","Gray Glace","Black","MAGR8","8-1549x1532",17,162.129
-"92268","3","06/28/2017","(06/28/2017  5039442 WORTHDR)","Start","","MG2268-55","48x72 Kdny,GG/Blk","Gray Glace","Black","MAGR3","3-1244x1838",3,56.823
-"92269","3","06/28/2017","(06/28/2017  5039443 WORTHDR)","Start","","38-2266-23","Apex,48 Round","Marker Board","Grey","WRITF","F-1244x2460",3,28.2042
-"92270","10","06/28/2017","(06/28/2017  5039445 WORTHDR)","Start","","38-2272-77","Apex,30x41Triangle","Grey Nebula","Black","GENSF","F-1244x2460",10,88.692
-"92271","11","06/29/2017","(06/29/2017  5039456 UNITY)","Start","","38-2222-60","Apex,20x60 Rect","Wild Cherry","Black","CHOK8","8-1549x1532",11,104.1942
-"92274","16","06/29/2017","(06/29/2017  5039469 STAPLBI)","Start","","MG2226-49","24x48 Rect,Oak/Blk","Solar Oak","Black","CHOKF","F-1244x2460",16,149.1056
-"92275","2","06/28/2017","(06/28/2017  5039601 WORTHDR)","Start","","MG2266-50","48 Round,Map/Blk","Fusion Maple","Black","MAGRF","F-1244x2460",2,18.8028
-"92279","7","06/29/2017","(06/29/2017  WF00885 WAYFAIR)","Start","","MG2236-50","30x48 Rect,Map/Blk","Fusion Maple","Black","MAGR10","10-1224x1549",7,67.6795
+"Name","UID","Access Level","Scrapped parts","Completed parts","Heian2(min)","Table-Pack(min)","Vector(min)",
+"Gage Coates","gage","Administrator","0","3","0.04917786","0.167444045","0.453450688333333",
+"Nate Dillon","nate","Supervisor","0","0","","","",
+"Gage Belcher","gbelcher","Operator","0","15","37.499322975","","",
+"greg vincent","gvincent","Operator","0","0","","","",
+"amy proznyk","jadacy","Operator","0","0","","","",
+"Brandon Green","brandon005","Operator","0","0","","","",
+"stephanie","boxmaker","Operator","0","0","","","",
+"Len Coates","len","Administrator","0","0","","","",
