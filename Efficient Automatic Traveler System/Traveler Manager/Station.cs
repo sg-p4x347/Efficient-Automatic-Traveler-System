@@ -33,8 +33,8 @@ namespace Efficient_Automatic_Traveler_System
         public override string ToString()
         {
             JsonObject obj = (JsonObject)JSON.Parse(base.ToString());
-            obj.Add("name", m_name.Quotate());
-            obj.Add("mode", m_mode.ToString().Quotate());
+            obj.Add("name", m_name);
+            obj.Add("mode", m_mode.ToString());
             obj.Add("printers", m_printers.Stringify<string>());
             return obj;
         }

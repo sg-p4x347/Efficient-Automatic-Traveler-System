@@ -811,7 +811,17 @@ namespace Efficient_Automatic_Traveler_System
                                 }
                                 else
                                 {
-                                    return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
+                                    if (m_station.Type == "tablePack" && item.Station.Type == "contourEdgebander")
+                                    {
+                                        // A FREEE PASS TO LET THIS STUPID TRAVELER ENTER PACK!
+                                        item.Station = m_station;
+                                        SearchSubmitted(json);
+                                    } else
+                                    {
+                                        return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
+                                    }
+                                    
+
                                 }
                             }
                             else
