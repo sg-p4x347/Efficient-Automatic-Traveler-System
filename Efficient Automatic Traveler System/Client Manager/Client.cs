@@ -570,6 +570,10 @@ namespace Efficient_Automatic_Traveler_System
             return new ClientMessage();
         }
 
+        public ClientMessage CloseAll(string json = "")
+        {
+            return new ClientMessage("CloseAll");
+        }
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void AddHistory(Dictionary<string,object> parameters)
         {

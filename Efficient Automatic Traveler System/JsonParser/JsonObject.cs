@@ -98,5 +98,14 @@ namespace Efficient_Automatic_Traveler_System
         {
             return ((IEnumerable<KeyValuePair<string, JSON>>)(Value as Dictionary<string, JSON>)).GetEnumerator();
         }
+
+        // Properties
+        public List<string> Keys
+        {
+            get
+            {
+                return (Value as Dictionary<string, JSON>).Keys.ToList();
+            }
+        }
     }
 }

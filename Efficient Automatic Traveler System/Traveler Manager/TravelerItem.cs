@@ -14,18 +14,18 @@ namespace Efficient_Automatic_Traveler_System
     }
     public class TravelerItem
     {
-        public TravelerItem(string itemCode, UInt16 ID, UInt16 sequenceNo, bool replacement = false)
+        public TravelerItem(string itemCode, UInt16 ID, UInt16 sequenceNo,StationClass station, bool replacement = false)
         {
             m_ID = ID;
             m_itemCode = itemCode;
             m_sequenceNo = sequenceNo;
             m_replacement = replacement;
             m_scrapped = false;
-            m_station = StationClass.GetStation("Start");
+            m_station = station;
             m_lastStation = StationClass.GetStation("Start");
             m_history = new List<Event>();
             m_order = null;
-            m_state = ItemState.InProcess; // an Item can never be in pre-process; existance implies that it has begun processing
+            m_state = ItemState.PreProcess;
             m_comment = "";
         }
         public TravelerItem(string json)
@@ -71,6 +71,38 @@ namespace Efficient_Automatic_Traveler_System
             };
             if (m_comment != "") obj.Add("comment", m_comment.Quotate());
             return obj.Stringify();
+        }
+        public bool PendingAt(StationClass station)
+        {
+            List<StationClass> pending = Parent.PendingAt(Station);
+            if (State == ItemState.PreProcess)
+            {
+                pending.Add(Station);
+            }
+            return pending.Contains(station);
+            //// get the last station that this is complete at
+            //StationClass lastStation = null;
+            //// Get the last k
+            //if (History.Any()) {
+            //    History.OfType<LogEvent>().LastOrDefault(e => e.LogType == LogType.Rework).Station;
+            //    // if no reworks were found, determine station from completed events
+            //    if (lastStation == null)
+            //    {
+            //        lastStation
+            //    }
+            //} else
+            //{
+
+            //}
+
+        }
+        public bool InProcessAt(StationClass station)
+        {
+            return State == ItemState.InProcess && Station == station;
+        }
+        public bool CompleteAt(StationClass station)
+        {
+            return State == ItemState.PostProcess && Station == station;
         }
         public string ExportTableRows(StationClass station)
         {
@@ -141,6 +173,71 @@ namespace Efficient_Automatic_Traveler_System
                 //}
             }
         }
+        public void Start(User user, StationClass station)
+        {
+            History.Add(new ProcessEvent(user, station, 0, ProcessType.Started));
+            State = ItemState.InProcess;
+            Station = station;
+            Server.TravelerManager.OnTravelersChanged(Parent);
+        }
+        public void Complete(User user, StationClass station, double duration = 0.0)
+        {
+            State = ItemState.PostProcess;
+            // remove the start event
+
+            if (Started(station))
+            {
+                ProcessEvent startEvent = History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started);
+
+                TimeSpan timeSpan = DateTime.Now - startEvent.Date; // difference between start and now
+
+                History.Add(new ProcessEvent(user, m_station, timeSpan.TotalMinutes, ProcessType.Completed));
+                History.Remove(startEvent);
+            }
+            else
+            {
+                History.Add(new ProcessEvent(user, m_station, duration, ProcessType.Completed));
+            }
+            // Finish this item if its next station is finished
+            if (Parent.PendingAt(station).Contains(StationClass.GetStation("Finished")))
+            {
+                Finish(user);
+            }
+            Server.TravelerManager.OnTravelersChanged(Parent);
+        }
+        public void Scrap(User user, StationClass station)
+        {
+            State = ItemState.PostProcess;
+            Station = StationClass.GetStation("Scrapped");
+            Scrapped = true;
+
+            // Notify everyone who wants to be notified
+            Server.NotificationManager.PushNotification("Scrap", Summary.HumanizeDictionary(Summary.ScrapDetail(Parent, this)));
+            // print le label
+            Parent.PrintLabel(ID, LabelType.Scrap);
+            Server.TravelerManager.OnTravelersChanged(Parent);
+        }
+        public void Rework(User user, StationClass station)
+        {
+            State = ItemState.InProcess;
+            Station = StationClass.GetStation("Rework");
+            History.Add(new LogEvent(user, LogType.Rework, station));
+            Station = station;
+            Server.TravelerManager.OnTravelersChanged(Parent);
+        }
+        public void Finish(User user)
+        {
+            State = ItemState.PostProcess;
+            Station = StationClass.GetStation("Finished");
+            Scrapped = false;
+            // add this item to inventory
+            InventoryManager.Add(ItemCode);
+            Server.TravelerManager.OnTravelersChanged(Parent);
+        }
+        public void Undo()
+        {
+
+        }
         // Properties
         private UInt16 m_ID;
         private UInt16 m_sequenceNo;
@@ -171,7 +268,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_station;
             }
 
-            set
+            private set
             {
                 m_lastStation = m_station;
                 m_station = value;
@@ -210,6 +307,10 @@ namespace Efficient_Automatic_Traveler_System
                 return History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish);
             }
         }
+        public bool Started(StationClass station)
+        {
+            return History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station);
+        }
         public List<Event> History
         {
             get
@@ -242,8 +343,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return m_state;
             }
-
-            set
+            private set
             {
                 m_state = value;
             }
@@ -329,7 +429,19 @@ namespace Efficient_Automatic_Traveler_System
 
         public bool IsComplete(StationClass station = null)
         {
-            foreach (ProcessEvent evt in History.OfType<ProcessEvent>().ToList())
+            // negate any events that a rework event dismisses
+            // latest rework station
+            List<ProcessEvent> applicableHistory = History.OfType<ProcessEvent>().ToList();
+            if (History.Any())
+            {
+                LogEvent lastRework = History.OfType<LogEvent>().LastOrDefault(e => e.LogType == LogType.Rework);
+                // if reworks were found, eliminate all events for the latest rework station
+                if (lastRework != null)
+                {
+                    applicableHistory.RemoveAll(e => e.Station == lastRework.Station);
+                }
+            }
+            foreach (ProcessEvent evt in applicableHistory)
             {
                 if (evt.Station == (station != null ? station : Station) && evt.Process == ProcessType.Completed)
                 {

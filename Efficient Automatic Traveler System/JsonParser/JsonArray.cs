@@ -12,6 +12,15 @@ namespace Efficient_Automatic_Traveler_System
         {
             Value = new List<JSON>();
         }
+        static public implicit operator JsonArray(List<string> list)
+        {
+            JsonArray array = new JsonArray();
+            foreach (string item in list)
+            {
+                (array.Value as List<JSON>).Add(JSON.Parse(item));
+            }
+            return array;
+        }
         public JsonArray(ref StringStream json)
         {
             Value = new List<JSON>();

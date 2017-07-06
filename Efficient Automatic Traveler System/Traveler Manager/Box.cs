@@ -73,10 +73,10 @@ namespace Efficient_Automatic_Traveler_System
                 return "";
             }
         }
-        public override void AdvanceItem(ushort ID,ITravelerManager travelerManager = null)
-        {
-            FindItem(ID).Station = GetNextStation(ID);
-        }
+        //public override void AdvanceItem(ushort ID,ITravelerManager travelerManager = null)
+        //{
+        //    FindItem(ID).Station = GetNextStation(ID);
+        //}
         // labels
         public override string GetLabelFields(ushort itemID, LabelType type)
         {

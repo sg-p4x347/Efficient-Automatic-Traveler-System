@@ -8,15 +8,6 @@ using System.Net.Mail;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    enum EventType
-    {
-        Completed,
-        Scrapped,
-        Reworked,
-        Moved,
-        Login,
-        Finished
-    }
     public abstract class Event : IEquatable<Event>
     {
         #region Public Methods
@@ -58,7 +49,13 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static bool operator ==(Event A, Event B)
         {
-            return (A.m_date == B.m_date);
+            if (!object.ReferenceEquals(A,null) && !object.ReferenceEquals(B, null))
+            {
+                return A.Equals(B);
+            } else
+            {
+                return object.ReferenceEquals(A, null) == object.ReferenceEquals(B, null);
+            }
         }
         public bool Equals(Event B)
         {
@@ -70,7 +67,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static bool operator !=(Event A, Event B)
         {
-            return !(A != null && B != null && A.m_date == B.m_date);
+            return !(A == B);
         }
         public override int GetHashCode()
         {

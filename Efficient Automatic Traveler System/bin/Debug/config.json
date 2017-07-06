@@ -34,8 +34,8 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"98915",
-	"nextEventID":"6534",
+	"nextTravelerID":"101749",
+	"nextEventID":"6757",
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",
@@ -112,7 +112,14 @@
 				"Enter head offsets in control",
 				"Enter tool offsets in control",
 				"Set program number in control"
-			]
+			],
+			"routing":{
+				"Table":{
+					"preRequisites":[
+						
+					]
+				}
+			}
 		},
 		"packline":{
 			"creates":[
@@ -161,7 +168,14 @@
 				"/LATB1",
 				"/LATB2",
 				"/LATB3"
-			]
+			],
+			"routing":{
+				"Table":{
+					"preRequisites":[
+						"contourEdgebander"
+					]
+				}
+			}
 		},
 		"tNut":{
 			"creates":[
@@ -177,7 +191,15 @@
 			],
 			"laborCodes":[
 				"/LCEB1"
-			]
+			],
+			"routing":{
+				"Table":{
+					"preRequisites":[
+						"heian",
+						"weeke"
+					]
+				}
+			}
 		},
 		"weeke":{
 			"creates":[
@@ -190,7 +212,14 @@
 			"checklist":[
 				"Verify part offsets in WW",
 				"Verify blank size"
-			]
+			],
+			"routing":{
+				"Table":{
+					"preRequisites":[
+						
+					]
+				}
+			}
 		}
 	},
 	"stations":[
@@ -236,6 +265,14 @@
 		},
 		{
 			"name":"Finished",
+			"type":"virtual",
+			"mode":"Batch",
+			"printers":[
+				"4x2Heian2"
+			]
+		},
+		{
+			"name":"Rework",
 			"type":"virtual",
 			"mode":"Batch",
 			"printers":[

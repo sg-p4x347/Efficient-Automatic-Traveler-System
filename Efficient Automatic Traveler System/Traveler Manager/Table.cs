@@ -201,45 +201,45 @@ namespace Efficient_Automatic_Traveler_System
             // for work rates
             //FindComponents(Bill);
         }
-        public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
-        {
-            TravelerItem item = FindItem(ID);
-            //// Queue boxes for all items pending at the contour edgebander after the first table leaves a contour edgebander
-            //if (travelerManager != null && GetNextStation(ID).Type == "tablePack" && ChildTravelers.Count == 0)
-            //{
-            //    TableBox box = CreateBoxTraveler();
-            //    box.Quantity = QuantityPendingAt(item.Station); // item.Station SHOULD be a contour edgebander of some kind
-            //    box.EnterProduction(travelerManager);
-            //    travelerManager.GetTravelers.Add(box);
-            //}
+        //public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
+        //{
+        //    TravelerItem item = FindItem(ID);
+        //    //// Queue boxes for all items pending at the contour edgebander after the first table leaves a contour edgebander
+        //    //if (travelerManager != null && GetNextStation(ID).Type == "tablePack" && ChildTravelers.Count == 0)
+        //    //{
+        //    //    TableBox box = CreateBoxTraveler();
+        //    //    box.Quantity = QuantityPendingAt(item.Station); // item.Station SHOULD be a contour edgebander of some kind
+        //    //    box.EnterProduction(travelerManager);
+        //    //    travelerManager.GetTravelers.Add(box);
+        //    //}
 
-            // advance the item to the next station
-            item.Station = GetNextStation(ID);
-        }
-        public override void Advance(StationClass station, ITravelerManager travelerManager = null)
-        {
-            if (station.Type == "heian" && travelerManager != null)
-            {
-                int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
-                if (boxQuantity > 0)
-                {
-                    // Create a box traveler for these items
-                    TableBox box = CreateBoxTraveler();
-                    box.Quantity = boxQuantity;
-                    box.EnterProduction(travelerManager);
-                    travelerManager.GetTravelers.Add(box);
-                }
-            }
-            base.Advance(station, travelerManager);
-        }
-        public override void FinishItem(ushort ID)
-        {
-            base.FinishItem(ID);
-            TravelerItem item = FindItem(ID);
+        //    // advance the item to the next station
+        //    item.Station = GetNextStation(ID);
+        //}
+        //public override void Advance(StationClass station, ITravelerManager travelerManager = null)
+        //{
+        //    if (station.Type == "heian" && travelerManager != null)
+        //    {
+        //        int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+        //        if (boxQuantity > 0)
+        //        {
+        //            // Create a box traveler for these items
+        //            TableBox box = CreateBoxTraveler();
+        //            box.Quantity = boxQuantity;
+        //            box.EnterProduction(travelerManager);
+        //            travelerManager.GetTravelers.Add(box);
+        //        }
+        //    }
+        //    base.Advance(station, travelerManager);
+        //}
+        //public override void FinishItem(ushort ID)
+        //{
+        //    base.FinishItem(ID);
+        //    TravelerItem item = FindItem(ID);
 
-            // add this item to inventory
-            InventoryManager.Add(ItemCode);
-        }
+        //    // add this item to inventory
+        //    InventoryManager.Add(ItemCode);
+        //}
         // labels
         public override string GetLabelFields(ushort itemID, LabelType type)
         {
@@ -329,7 +329,6 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        
         // Gets the work rate for the current station
         public override double GetCurrentLabor(StationClass station)
         {
@@ -396,7 +395,7 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Private Methods
-        
+
         //private void GetBlacklist()
         //{
         //    m_blacklist.Add(new BlacklistItem("88")); // Glue items
@@ -404,7 +403,7 @@ namespace Efficient_Automatic_Traveler_System
         //    m_blacklist.Add(new BlacklistItem("/")); // Misc work items
         //}
         // returns the next station for this table
-        
+
         private void GetColorInfo()
         {
             // open the color ref csv file

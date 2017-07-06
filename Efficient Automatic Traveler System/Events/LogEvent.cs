@@ -10,7 +10,8 @@ namespace Efficient_Automatic_Traveler_System
     {
         Login,
         Logout,
-        Finish
+        Finish,
+        Rework
     }
     public class LogEvent : Event
     {

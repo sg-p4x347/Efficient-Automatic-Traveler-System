@@ -86,8 +86,9 @@ namespace Efficient_Automatic_Traveler_System
                 //SendMessage(new ClientMessage("HandleTravelersChanged", message.Stringify(), "LoadCurrent").ToString());
 
                 // PreProcess traveler queue items
+                // preprocess for this station are all PostProcess items sitting at a station that pushes items to this type of station
 
-                NodeList preProcess = CreateTravelerQueue(m_travelerManager.GetTravelers.Where(x => x.State == ItemState.InProcess && (x.QuantityPendingAt(m_station) > 0 || x.QuantityAt(m_station) > 0)).ToList(), m_station, false);
+                NodeList preProcess = CreateTravelerQueue(m_travelerManager.GetTravelers.Where(t => t.QuantityPendingAt(m_station) > 0).ToList(), m_station, false);
                 ControlPanel preProcessControlPanel = new ControlPanel("preProcess", preProcess, "preProcessQueue");
                 SendMessage(preProcessControlPanel.Dispatch().ToString());
 
@@ -96,7 +97,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (m_station.Mode == StationMode.Serial)
                 {
                     // InProcess queue items
-                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))).ToList();
+                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.State == ItemState.InProcess)).ToList();
 
                     // sort the items by start event time (most recent on top)
                     items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
@@ -104,7 +105,7 @@ namespace Efficient_Automatic_Traveler_System
                 else if (m_station.Mode == StationMode.Batch)
                 {
                     // PostProcess queue items
-                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Completed && e.Station == m_station))).ToList();
+                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.State == ItemState.PostProcess)).ToList();
 
                     // sort the items by completed event time (most recent on top)
                     items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date));
@@ -453,32 +454,19 @@ namespace Efficient_Automatic_Traveler_System
             {
                 TravelerItem item = m_item;
                 m_item = null;
-                if (item != null && item.IsComplete()) item = null; // deselect the selected item
-                ProcessEvent evt = null;
-                if (item != null)
+                // deselect the selected item
+                if (item == null && m_station.CreatesThis(m_current))
                 {
-                    ProcessEvent startEvent = GetStartEvent(item);
-
-                    TimeSpan duration = DateTime.Now - startEvent.Date; // difference between start and now
-
-                    evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, ProcessType.Completed);
-
-                    // remove the start event
-                    item.History.Remove(startEvent);
+                    item = m_current.AddItem(m_station);
                 }
-                else
-                {
-                    TimeSpan duration = m_partTimer.Stopwatch.Elapsed; // whatever the timer has
-
-                    evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, ProcessType.Completed);
-                }
-                m_travelerManager.AddTravelerEvent(evt, m_current, item).ToString();
+                
+                item.Complete(m_user, m_station, m_partTimer.Stopwatch.Elapsed.TotalMinutes);
                 UpdateUI();
                 NewPartStarted(); // timers
-                if (m_station.Mode == StationMode.Serial)
-                {
-                    SubmitTraveler("");
-                }
+                //if (m_station.Mode == StationMode.Serial)
+                //{
+                //    SubmitTraveler("");
+                //}
                 return new ClientMessage();
             }
             catch (Exception ex)
@@ -487,33 +475,33 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error completing item");
             }
         }
-        public ClientMessage AddTravelerEvent(string json)
-        {
-            try
-            {
-                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                //traveler.GetCurrentLabor(m_station) - Convert.ToDouble(obj["time"])
-                DateTime now = DateTime.Now;
-                TimeSpan duration = now.Subtract(m_partStart);
-                m_partStart = now;
-                ProcessEvent evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, (ProcessType)Enum.Parse(typeof(ProcessType), obj["eventType"]));
+        //public ClientMessage AddTravelerEvent(string json)
+        //{
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+        //        Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
+        //        //traveler.GetCurrentLabor(m_station) - Convert.ToDouble(obj["time"])
+        //        DateTime now = DateTime.Now;
+        //        TimeSpan duration = now.Subtract(m_partStart);
+        //        m_partStart = now;
+        //        ProcessEvent evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, (ProcessType)Enum.Parse(typeof(ProcessType), obj["eventType"]));
                 
-                TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
-                if (item != null && evt.Process == ProcessType.Completed)
-                {
-                    // remove the start event
-                    item.History.RemoveAll(e => e is ProcessEvent && (e as ProcessEvent).Process == ProcessType.Started);
-                }
-                SendMessage( m_travelerManager.AddTravelerEvent(evt,traveler,item).ToString());
-                UpdateUI();
-                return new ClientMessage();
-            } catch (Exception ex)
-            {
-                Server.LogException(ex);
-                return new ClientMessage("Info", "Error occured");
-            }
-        }
+        //        TravelerItem item = (obj["itemID"] != "undefined" ? traveler.FindItem(Convert.ToUInt16(obj["itemID"])) : null);
+        //        if (item != null && evt.Process == ProcessType.Completed)
+        //        {
+        //            // remove the start event
+        //            item.History.RemoveAll(e => e is ProcessEvent && (e as ProcessEvent).Process == ProcessType.Started);
+        //        }
+        //        SendMessage( m_travelerManager.AddTravelerEvent(evt,traveler,item).ToString());
+        //        UpdateUI();
+        //        return new ClientMessage();
+        //    } catch (Exception ex)
+        //    {
+        //        Server.LogException(ex);
+        //        return new ClientMessage("Info", "Error occured");
+        //    }
+        //}
         public ClientMessage ScrapEvent(string json)
         {
             try
@@ -523,7 +511,8 @@ namespace Efficient_Automatic_Traveler_System
                 m_item = null;
                 TimeSpan duration = m_partTimer.Stopwatch.Elapsed;
                 ScrapEvent evt = new ScrapEvent(m_user, m_station, duration.TotalMinutes, Convert.ToBoolean(obj["startedWork"].ToLower()),obj["source"],obj["reason"]);
-                ClientMessage message =  m_travelerManager.AddTravelerEvent(evt, m_current, item);
+                item.Scrap(m_user, m_station);
+                ClientMessage message = new ClientMessage();
                 int userScrapQty = m_travelerManager.GetTravelers.Sum(t => t.Items.Count(i => i.History.OfType<ScrapEvent>().ToList().Exists(e => e.User.UID == m_user.UID && e.Date >= DateTime.Today)));
                 message.Parameters = (message.Parameters.DeQuote() + "<br>You have scrapped " + userScrapQty + " items today").Quotate();
                 if (userScrapQty >= 5)
@@ -768,16 +757,17 @@ namespace Efficient_Automatic_Traveler_System
                             TravelerItem item = traveler.FindItem(itemID);
                             if (item != null)
                             {
-                                if (item.Station == m_station)
+                                if (item.PendingAt(m_station) || item.InProcessAt(m_station))
                                 {
-                                    if (!item.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station))
+                                    if (!item.Started(m_station))
                                     {
                                         // ***************************************************
                                         // First scan starts work and moves to InProcess queue
                                         // ***************************************************
 
                                         // add a flag event
-                                        m_travelerManager.AddTravelerEvent(new ProcessEvent(m_user, m_station, 0, ProcessType.Started), traveler, item);
+                                        item.Start(m_user, m_station);
+                                       // m_travelerManager.AddTravelerEvent(new ProcessEvent(m_user, m_station, 0, ProcessType.Started), traveler, item);
                                         //item.History.Add();
                                         // start the timer
                                         //m_partTimer.Start("StartPartTimer");
@@ -808,10 +798,27 @@ namespace Efficient_Automatic_Traveler_System
                                         // ******************************
                                         CompleteItem();
                                     }
-                                }
-                                else
+                                } else if (item.CompleteAt(m_station))
                                 {
-                                    return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
+                                    return ControlPanel.YesOrNo(
+                                        traveler.PrintID(item) + " is complete at your station;<br>Would you like to rework this item?",
+                                        "Rework",
+                                        returnParam: new JsonObject() { { "travelerID", traveler.ID }, { "itemID", item.ID } }
+                                    );
+                                }
+                                else if (item.IsComplete(m_station))
+                                {
+                                    return ControlPanel.YesOrNo(
+                                        traveler.PrintID(item) + " has already been completed at this station;<br>Would you like to rework this item?",
+                                        "Rework",
+                                        returnParam: new JsonObject() { { "travelerID", traveler.ID }, { "itemID", item.ID } }
+                                    );
+                                   // return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
+                                } else
+                                {
+                                    return new ClientMessage("Info",
+                                        traveler.PrintID(item) + " has not been completed at any of its prerequisites: " + ((JsonArray)m_station.PreRequisites(traveler).Select(s => s.Name).ToList()).Print()
+                                    );
                                 }
                             }
                             else
@@ -915,7 +922,7 @@ namespace Efficient_Automatic_Traveler_System
                     List<TravelerItem> items = (List<TravelerItem>)lastAction.Parameters["items"];
                     foreach (TravelerItem item in items)
                     {
-                        item.Station = m_station;
+                        item.Undo();
                         if (traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
                         {
                             item.History.Remove(item.History.Last());
@@ -931,12 +938,29 @@ namespace Efficient_Automatic_Traveler_System
                     m_travelerManager.OnTravelersChanged(new List<Traveler>() { traveler });
                 }
 
-                return new ClientMessage("CloseAll");
+                return CloseAll();
             }
             catch (Exception ex)
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Can't undo..");
+            }
+        }
+        public ClientMessage Rework(string json)
+        {
+            try
+            {
+                JsonObject obj = (JsonObject)JSON.Parse(json);
+                TravelerItem item = Server.TravelerManager.FindTraveler(obj["travelerID"]).FindItem(Convert.ToUInt16((int)obj["itemID"]));
+                // Add the rework event
+                item.Rework(m_user, m_station);
+                SendMessage(CloseAll());
+                // Re-search and take action
+                return SearchSubmitted(json);
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error reworking part");
             }
         }
         public override ClientMessage Logout(string json)

@@ -20,8 +20,6 @@ namespace Efficient_Automatic_Traveler_System
         //void CreateScrapChild(Traveler parent, int qtyScrapped);
         //Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time);
         Traveler FindTraveler(int ID);
-        void AdvanceTravelerItem(int travelerID, ushort itemID);
-        void ScrapTravelerItem(int travelerID, ushort itemID);
         void RemoveTraveler(Traveler traveler, bool backup = true);
         Traveler AddTraveler(string itemCode, int quantity);
         List<Traveler> GetTravelers
@@ -30,12 +28,13 @@ namespace Efficient_Automatic_Traveler_System
         }
         void Backup();
         void OnTravelersChanged(List<Traveler> travelers = null);
+        void OnTravelersChanged(Traveler traveler);
         void RefactorTravelers();
         void ClearStartQueue();
     }
     public interface IOperatorActions
     {
-        ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem travelerItem);
+        //ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem travelerItem);
         ClientMessage SubmitTraveler(Traveler traveler, StationClass station);
     }
     public interface ISupervisorActions
@@ -343,93 +342,92 @@ namespace Efficient_Automatic_Traveler_System
             }
             OnTravelersChanged();
         }
-        public void AdvanceTravelerItem(int travelerID, ushort itemID)
-        {
-            FindTraveler(travelerID).AdvanceItem(itemID);
-        }
+        //public void AdvanceTravelerItem(int travelerID, ushort itemID)
+        //{
+        //    FindTraveler(travelerID).AdvanceItem(itemID);
+        //}
         #endregion
         //----------------------------------
         #region IOperator
-        public void ScrapTravelerItem(int travelerID, ushort itemID)
-        {
-            FindTraveler(travelerID).ScrapItem(itemID);
-        }
+        //public void ScrapTravelerItem(int travelerID, ushort itemID)
+        //{
+        //    FindTraveler(travelerID).ScrapItem(itemID);
+        //}
         // has to know which station this is being completed from
         // TODO: change param list to take event, and construct the even from the client
-        public ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem item = null)
-        {
-            ClientMessage returnMessage = new ClientMessage();
-            try
-            {
-                bool newItem = false;
-                if (item == null)
-                {
-                    newItem = true;
-                    // create a new item
-                    item = traveler.AddItem(itemEvent.Station);
-                }
+        //public ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem item = null)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        bool newItem = false;
+        //        if (item == null)
+        //        {
+        //            newItem = true;
+        //            // create a new item
+        //            item = traveler.AddItem(itemEvent.Station);
+        //        }
                 
-                item.History.Add(itemEvent);
-                // print labels
-                if (itemEvent.Process == ProcessType.Scrapped)
-                {
-                    //=================
-                    // SCRAPPED
-                    //=================
-                    traveler.ScrapItem(item.ID);
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.PrintSequenceID(item));
-                    item.Station = StationClass.GetStation("Scrapped");
+        //        item.History.Add(itemEvent);
+        //        // print labels
+        //        if (itemEvent.Process == ProcessType.Scrapped)
+        //        {
+        //            //=================
+        //            // SCRAPPED
+        //            //=================
+        //            traveler.ScrapItem(item.ID);
+        //            returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.PrintSequenceID(item));
+        //            item.Station = StationClass.GetStation("Scrapped");
 
-                    // Notify everyone who wants to be notified
-                    Server.NotificationManager.PushNotification("Scrap", Summary.HumanizeDictionary(Summary.ScrapDetail(traveler, item)));
-                } else if (newItem)
-                {
-                    //=================
-                    // NEW
-                    //=================
-                    LabelType labelType = LabelType.Tracking;
-                    if (traveler is Chair)
-                    {
-                        labelType = LabelType.Chair;
-                    } else if (traveler is Box)
-                    {
-                        labelType = LabelType.Box;
-                    }
-                    returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, labelType) + " for item: " + traveler.PrintSequenceID(item));
-                }
-                if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
-                {
-                    //=================
-                    // FINISHED
-                    //=================
-                    traveler.FinishItem(item.ID);
                     
-                    // assign this item to the order that ships soonest
-                    //AssignOrder(traveler, item);
+        //        } else if (newItem)
+        //        {
+        //            //=================
+        //            // NEW
+        //            //=================
+        //            LabelType labelType = LabelType.Tracking;
+        //            if (traveler is Chair)
+        //            {
+        //                labelType = LabelType.Chair;
+        //            } else if (traveler is Box)
+        //            {
+        //                labelType = LabelType.Box;
+        //            }
+        //            returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, labelType) + " for item: " + traveler.PrintSequenceID(item));
+        //        }
+        //        if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
+        //        {
+        //            //=================
+        //            // FINISHED
+        //            //=================
+        //            traveler.FinishItem(item.ID);
+                    
+        //            // assign this item to the order that ships soonest
+        //            //AssignOrder(traveler, item);
 
 
-                    // Pack tracking label must be printed
-                    if (traveler is Table)
-                    {
+        //            // Pack tracking label must be printed
+        //            if (traveler is Table)
+        //            {
                         
-                        //returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                        //returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
-                    }
-                }
-                OnTravelersChanged(new List<Traveler>() { traveler });
-            } catch (Exception ex)
-            {
-                Server.WriteLine("Problem completing travelerItem: " + ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("Info", "Problem completing travelerItem");
-            }
-            return returnMessage;
-        }
+        //                //returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+        //                //returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+        //            }
+        //        }
+        //        OnTravelersChanged(new List<Traveler>() { traveler });
+        //    } catch (Exception ex)
+        //    {
+        //        Server.WriteLine("Problem completing travelerItem: " + ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "Problem completing travelerItem");
+        //    }
+        //    return returnMessage;
+        //}
         // has to know which station this is being submitted from
         public ClientMessage SubmitTraveler(Traveler traveler, StationClass station)
         {
             if (traveler != null && station != null)
             {
-                traveler.Advance(station, this);
+                //traveler.Advance(station, this);
                 OnTravelersChanged(new List<Traveler>() { traveler });
             }
             return new ClientMessage();
@@ -788,6 +786,10 @@ namespace Efficient_Automatic_Traveler_System
             Backup();
             // fire the event
             TravelersChanged(travelers != null ? travelers : m_travelers);
+        }
+        public void OnTravelersChanged(Traveler traveler)
+        {
+            OnTravelersChanged(new List<Traveler>() { traveler });
         }
         private Traveler ImportTraveler(string json)
         {

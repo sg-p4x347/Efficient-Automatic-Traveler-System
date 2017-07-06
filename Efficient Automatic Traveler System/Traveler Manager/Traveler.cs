@@ -330,14 +330,14 @@ namespace Efficient_Automatic_Traveler_System
             }
             return id;
         }
-        public void ScrapItem(ushort ID)
-        {
-            TravelerItem item = FindItem(ID);
-            //item.SequenceNo = (ushort)(QuantityScrapped() + 1);
-            item.Scrapped = true;
-            item.State = ItemState.PostProcess;
+        //public void ScrapItem(ushort ID)
+        //{
+        //    TravelerItem item = FindItem(ID);
+        //    //item.SequenceNo = (ushort)(QuantityScrapped() + 1);
+        //    item.Scrapped = true;
+        //    item.State = ItemState.PostProcess;
             
-        }
+        //}
         
         public virtual void EnterProduction(ITravelerManager travelerManager)
         {
@@ -345,13 +345,13 @@ namespace Efficient_Automatic_Traveler_System
             m_dateStarted = DateTime.Today.ToString("MM/dd/yyyy");
         }
         // advances all completed items at the specified station
-        public virtual void Advance(StationClass station, ITravelerManager travelerManager = null)
-        {
-            foreach (TravelerItem item in CompletedItems(station))
-            {
-                AdvanceItem(item.ID, travelerManager);
-            }
-        }
+        //public virtual void Advance(StationClass station, ITravelerManager travelerManager = null)
+        //{
+        //    foreach (TravelerItem item in CompletedItems(station))
+        //    {
+        //        AdvanceItem(item.ID, travelerManager);
+        //    }
+        //}
         public List<TravelerItem> CompletedItems(StationClass station)
         {
             return Items.Where(item => item.Station == station && item.IsComplete()).ToList();
@@ -380,25 +380,56 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
             // use the next id (highest + 1)
-            TravelerItem newItem = new TravelerItem(ItemCode,(ushort)(highestID + 1), sequenceNo,replacement);
-            newItem.Station = station;
+            TravelerItem newItem = new TravelerItem(ItemCode,(ushort)(highestID + 1), sequenceNo,station,replacement);
             newItem.Parent = this;
             Items.Add(newItem);
+
+
+            // print le label
+            LabelType labelType = LabelType.Tracking;
+            if (this is Chair)
+            {
+                labelType = LabelType.Chair;
+            }
+            else if (this is Box)
+            {
+                labelType = LabelType.Box;
+            }
+            PrintLabel(newItem.ID, labelType);
+            if (station.CreatesThis(this) && this is Table)
+            {
+                int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+                if (boxQuantity > 0)
+                {
+                    // Create a box traveler for these items
+                    TableBox box = (this as Table).CreateBoxTraveler();
+                    box.Quantity = boxQuantity;
+                    box.EnterProduction(Server.TravelerManager);
+                    Server.TravelerManager.GetTravelers.Add(box);
+                }
+            }
             return newItem;
         }
         public int QuantityPendingAt(StationClass station)
         {
             int quantityPending = 0;
-            if (station != null)
+            quantityPending += Server.TravelerManager.GetTravelers.Sum(t => t.Items.Count(i => i.PendingAt(station)));
+            //these stations can create items
+            if (station.Creates.Count > 0 && m_station == station)
             {
-                quantityPending += Items.Where(x => x.Station == station && !x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
-                // these stations can create items
-                if (station.Creates.Count > 0 && m_station == station)
-                {
-                    quantityPending = m_quantity - Items.Where(x => !x.Scrapped).Count(); // calculates the total item deficit for this traveler
-                }
+                quantityPending = m_quantity - Items.Where(x => !x.Scrapped).Count(); // calculates the total item deficit for this traveler
             }
             return quantityPending;
+            //if (station != null)
+            //{
+            //    quantityPending += Items.Where(x => x.Station == station && !x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
+            //    // these stations can create items
+            //    if (station.Creates.Count > 0 && m_station == station)
+            //    {
+            //        quantityPending = m_quantity - Items.Where(x => !x.Scrapped).Count(); // calculates the total item deficit for this traveler
+            //    }
+            //}
+            //return quantityPending;
         }
         public int QuantityAt(StationClass station)
         {
@@ -410,7 +441,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public int QuantityScrapped()
         {
-            return Items.Where(x => x.Scrapped).Count();
+            return items.Count(i => i.Scrapped);
         }
         public int QuantityScrappedAt(StationClass station)
         {
@@ -694,23 +725,23 @@ namespace Efficient_Automatic_Traveler_System
         //--------------------------------------------------------
         #region Abstract Methods
         // finishes an item
-        public virtual void FinishItem(ushort ID)
-        {
-            TravelerItem item = FindItem(ID);
-            // now in post process
-            item.State = ItemState.PostProcess;
-            item.History.Add(new LogEvent(null, LogType.Finish, item.Station));
-            // check to see if this concludes the traveler
-            if (Items.Where(x => x.State == ItemState.PostProcess && !x.Scrapped).Count() >= m_quantity && Items.All(x => x.State == ItemState.PostProcess))
-            {
-                State = ItemState.PostProcess;
-            }
-        }
+        //public virtual void FinishItem(ushort ID)
+        //{
+        //    TravelerItem item = FindItem(ID);
+        //    // now in post process
+        //    item.State = ItemState.PostProcess;
+        //    item.History.Add(new LogEvent(null, LogType.Finish, item.Station));
+        //    // check to see if this concludes the traveler
+        //    if (Items.Where(x => x.State == ItemState.PostProcess && !x.Scrapped).Count() >= m_quantity && Items.All(x => x.State == ItemState.PostProcess))
+        //    {
+        //        State = ItemState.PostProcess;
+        //    }
+        //}
         // returns true if the specified traveler can combine with this one
         public abstract bool CombinesWith(object[] args);
         
         // advances the item to the next station
-        public abstract void AdvanceItem(ushort ID, ITravelerManager travelerManager = null);
+        //public abstract void AdvanceItem(ushort ID, ITravelerManager travelerManager = null);
         // gets the next station for the given item
         public abstract StationClass GetNextStation(UInt16 itemID);
         // gets the work rate for the current station
@@ -725,6 +756,16 @@ namespace Efficient_Automatic_Traveler_System
                 {"forInventory",(m_parentOrders.Count == 0).ToString().ToLower()},
                 {"qtyScrapped",Items.Count(i => i.Scrapped).ToString() }
             };
+        }
+        // returns a list of stations that an item can go to
+        public List<StationClass> PendingAt(StationClass station)
+        {
+            //JsonObject config = (JsonObject)ConfigManager.GetJSON("stationTypes")[station.Type];
+            //if (config.ContainsKey(this.GetType().Name))
+            //{
+            //    return StationClass.OfType(config[this.GetType().Name]["next"]);
+            //}
+            return StationClass.GetStations().Where(s => s.PreRequisites(this).Contains(station)).ToList();
         }
         // pre
         public abstract void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS);
@@ -814,6 +855,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_dateStarted;
         private int m_priority;
         private ushort m_lastReworkAccountedFor;
+       
         #endregion
         //--------------------------------------------------------
         #region Interface

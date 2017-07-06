@@ -29,8 +29,45 @@ namespace Efficient_Automatic_Traveler_System
             }
             m_stations.Sort((x, y) => string.Compare(x.Name, y.Name));
             //ConfigManager.Set("stations", m_stations.Stringify(true, true));
+
+            // get the types
+            m_types = ((JsonObject)ConfigManager.GetJSON("stationTypes")).Keys;
         }
-        
+        public static void ConfigureRouting()
+        {
+            JsonObject types = (JsonObject)ConfigManager.GetJSON("stationTypes");
+            foreach (string type in types.Keys)
+            {
+                List<StationClass> stationsOfType = OfType(type);
+                JsonObject typeConfig = (JsonObject)types[type];
+                if (typeConfig.ContainsKey("routing"))
+                {
+                    JsonObject routingTypes = (JsonObject)typeConfig["routing"];
+                    foreach (string travelerType in routingTypes.Keys)
+                    {
+                        JsonObject travelerEntry = (JsonObject)routingTypes[travelerType];
+                        JsonArray preRequisites = (JsonArray)travelerEntry["preRequisites"];
+                        List<StationClass> preReqs = new List<StationClass>();
+                        foreach (string preReqType in preRequisites) preReqs.AddRange(StationClass.OfType(preReqType).Where(s => !preReqs.Contains(s)));
+                        foreach (StationClass station in stationsOfType)
+                        {
+                            if (station.m_preRequisites.ContainsKey(travelerType))
+                            {
+                                station.m_preRequisites[travelerType].AddRange(preReqs);
+                                station.m_preRequisites[travelerType] = station.m_preRequisites[travelerType].Distinct().ToList();
+                            } else
+                            {
+                                station.m_preRequisites.Add(travelerType, preReqs);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        public List<StationClass> PreRequisites(Traveler traveler)
+        {
+            return m_preRequisites.ContainsKey(traveler.GetType().Name) ? new List<StationClass>(m_preRequisites[traveler.GetType().Name]) : new List<StationClass>();
+        }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {
@@ -54,6 +91,10 @@ namespace Efficient_Automatic_Traveler_System
         public static List<StationClass> GetStations()
         {
             return m_stations;
+        }
+        public static List<StationClass> OfType(string type)
+        {
+            return m_stations.Where(s => s.Type == type || s.Name == type).ToList();
         }
         public static List<StationClass> StationsInBill(Bill bill)
         {
@@ -94,11 +135,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static List<string> StationNames()
         {
-            List<string> names = new List<string>();
-            foreach (StationClass station in m_stations)
-            {
-                names.Add(station.Name);
-            }
+            List<string> names = m_stations.Select(s => s.Name).ToList();
             names.Sort((x, y) => x.CompareTo(y));
             return names;
         }
@@ -115,6 +152,7 @@ namespace Efficient_Automatic_Traveler_System
             m_laborCodes = new StringStream(typeObj["laborCodes"]).ParseJSONarray();
             m_printers = new StringStream(obj["printers"]).ParseJSONarray();
             Enum.TryParse<StationMode>(obj["mode"], out m_mode);
+            m_preRequisites = new Dictionary<string, List<StationClass>>();
         }
         #endregion
         #region Properties
@@ -125,11 +163,19 @@ namespace Efficient_Automatic_Traveler_System
         private List<string> m_laborCodes; // list of labor codes that are associated with this station
         private List<string> m_printers; // list of label printers that this station can/should print to (typicallay a 4x2 and/or a 4x6)
         private StationMode m_mode;
-
+        private Dictionary<string, List<StationClass>> m_preRequisites;
         private static List<StationClass> m_stations = new List<StationClass>();
+        private static List<string> m_types = new List<string>();
 
         #endregion
         #region Interface
+        public static List<string> Types
+        {
+            get
+            {
+                return m_types;
+            }
+        }
         public int ID
         {
             get

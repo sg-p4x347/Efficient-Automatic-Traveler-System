@@ -740,7 +740,7 @@ namespace Efficient_Automatic_Traveler_System
                         TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
                         if (item != null)
                         {
-                            item.Station = station;
+                            //item.Station = station;
                         }
                     }
                 }

@@ -368,6 +368,21 @@ namespace Efficient_Automatic_Traveler_System
             }
             return nodes;
         }
+
+        // Popups
+        public static ClientMessage YesOrNo(string text, string yesCallback = "CloseAll", string noCallback = "CloseAll", string returnParam = "{}")
+        {
+            Column column = new Column()
+            {
+                new TextNode(text),
+                new Row(style: new Style("justify-space-around"))
+                {
+                    new Button("Yes",yesCallback,returnParam),
+                    new Button("No",noCallback,returnParam)
+                }
+            };
+            return new ControlPanel("", column).Dispatch();
+        }
     }
 
     public class EventListener

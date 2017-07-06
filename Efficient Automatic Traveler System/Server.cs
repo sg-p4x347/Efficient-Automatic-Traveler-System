@@ -190,7 +190,7 @@ namespace Efficient_Automatic_Traveler_System
 
             // set up the station list
             StationClass.ImportStations(ConfigManager.Get("stationTypes"),ConfigManager.Get("stations"));
-
+            StationClass.ConfigureRouting();
             m_ip = GetLocalIPAddress();
 
             CreateClientConfig();

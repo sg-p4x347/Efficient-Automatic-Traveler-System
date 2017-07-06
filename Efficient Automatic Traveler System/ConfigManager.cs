@@ -53,6 +53,11 @@ namespace Efficient_Automatic_Traveler_System
                 return "";
             }
         }
+        // retuns a JSON object stored under the specified key
+        static public JSON GetJSON(string key)
+        {
+            return m_configObj.ContainsKey(key) ? m_configObj[key] : null;
+        }
         // sets the json string stored under the specified key
         static public void Set(string key, JSON value)
         {

@@ -28,11 +28,11 @@ namespace Efficient_Automatic_Traveler_System
         public Part(string itemCode, int quantity) : base(itemCode, quantity) {
             m_bill = new Bill(itemCode, 1, quantity);
         }
-        public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
-        {
-            TravelerItem item = FindItem(ID);
-            item.Station = GetNextStation(ID);
-        }
+        //public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
+        //{
+        //    TravelerItem item = FindItem(ID);
+        //    item.Station = GetNextStation(ID);
+        //}
 
         public override bool CombinesWith(object[] args)
         {
