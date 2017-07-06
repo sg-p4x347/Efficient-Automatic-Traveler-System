@@ -97,7 +97,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (m_station.Mode == StationMode.Serial)
                 {
                     // InProcess queue items
-                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.State == ItemState.InProcess)).ToList();
+                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.LocalState == LocalItemState.InProcess)).ToList();
 
                     // sort the items by start event time (most recent on top)
                     items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
@@ -105,7 +105,7 @@ namespace Efficient_Automatic_Traveler_System
                 else if (m_station.Mode == StationMode.Batch)
                 {
                     // PostProcess queue items
-                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.State == ItemState.PostProcess)).ToList();
+                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.LocalState == LocalItemState.PostProcess)).ToList();
 
                     // sort the items by completed event time (most recent on top)
                     items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date));
@@ -120,13 +120,13 @@ namespace Efficient_Automatic_Traveler_System
                 UpdateUI();
             }
         }
-        protected override Row CreateTravelerQueueItem(ItemState state, Traveler traveler)
+        protected override Row CreateTravelerQueueItem(LocalItemState state, Traveler traveler)
         {
             Row queueItem = base.CreateTravelerQueueItem(state, traveler);
             if (m_current == traveler) queueItem.Style += new Style("selected");
             return queueItem;
         }
-        protected override Row CreateItemQueueItem(ItemState state, TravelerItem item)
+        protected override Row CreateItemQueueItem(LocalItemState state, TravelerItem item)
         {
             Row queueItem = base.CreateItemQueueItem(state, item);
             if (item == m_item) queueItem.Style += new Style("selected");
@@ -140,7 +140,6 @@ namespace Efficient_Automatic_Traveler_System
                 SetQtyCompleted(0);
                 SetQtyPending(0);
                 DisableProcessBtns();
-                DisableSubmitBtn();
                 DisableDrawingBtn();
                 DisableMoreInfoBtn();
                 DisableCommentBtn();
@@ -170,13 +169,6 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     DisableProcessBtns();
                 }
-                if (qtyCompleted > 0)
-                {
-                    EnableSubmitBtn();
-                } else
-                {
-                    DisableSubmitBtn();
-                }
 
                 LoadTravelerView(m_current,m_item);
             }
@@ -184,10 +176,6 @@ namespace Efficient_Automatic_Traveler_System
         private void DisableProcessBtns()
         {
             SendMessage(new ClientMessage("DisableUI").ToString());
-        }
-        private void DisableSubmitBtn()
-        {
-            SendMessage(new ClientMessage("DisableSubmitBtn").ToString());
         }
         private void HideSubmitBtn()
         {
@@ -208,10 +196,6 @@ namespace Efficient_Automatic_Traveler_System
         private void EnableProcessBtns()
         {
             SendMessage(new ClientMessage("EnableUI").ToString());
-        }
-        private void EnableSubmitBtn()
-        {
-            SendMessage(new ClientMessage("EnableSubmitBtn").ToString());
         }
         private void ShowSubmitBtn()
         {
@@ -798,27 +782,13 @@ namespace Efficient_Automatic_Traveler_System
                                         // ******************************
                                         CompleteItem();
                                     }
-                                } else if (item.CompleteAt(m_station))
-                                {
-                                    return ControlPanel.YesOrNo(
-                                        traveler.PrintID(item) + " is complete at your station;<br>Would you like to rework this item?",
-                                        "Rework",
-                                        returnParam: new JsonObject() { { "travelerID", traveler.ID }, { "itemID", item.ID } }
-                                    );
                                 }
-                                else if (item.IsComplete(m_station))
+                                else if (item.BeenCompleted(m_station))
                                 {
-                                    return ControlPanel.YesOrNo(
-                                        traveler.PrintID(item) + " has already been completed at this station;<br>Would you like to rework this item?",
-                                        "Rework",
-                                        returnParam: new JsonObject() { { "travelerID", traveler.ID }, { "itemID", item.ID } }
-                                    );
-                                   // return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
+                                    return ReworkOptions(item, traveler.PrintID(item) + " has been completed at this station");
                                 } else
                                 {
-                                    return new ClientMessage("Info",
-                                        traveler.PrintID(item) + " has not been completed at any of its prerequisites: " + ((JsonArray)m_station.PreRequisites(traveler).Select(s => s.Name).ToList()).Print()
-                                    );
+                                    return ReworkOptions(item, traveler.PrintID(item) + " has not been completed at any of its prerequisites: " + ((JsonArray)m_station.PreRequisites(traveler).Select(s => s.Name).ToList()).Print());
                                 }
                             }
                             else
@@ -844,6 +814,34 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error processing search event");
             }
+        }
+        private ClientMessage ReworkOptions(TravelerItem item, string message)
+        {
+            if (item.PendingRework)
+            {
+                return ControlPanel.Options(
+                    message,
+                    new Dictionary<string, string>() {
+                        {"Rework","Rework"},
+                        {"Cancel Rework","CancelRework" },
+                        {"Close","CloseAll" }
+                    },
+                    returnParam: new JsonObject() { { "travelerID", item.Parent.ID }, { "itemID", item.ID } }
+                );
+            }
+            else
+            {
+                return ControlPanel.Options(
+                    message,
+                    new Dictionary<string, string>()
+                    {
+                        {"Flag as rework","ReworkForm"},
+                        {"Close","CloseAll" }
+                    },
+                    returnParam: new JsonObject() { { "travelerID", item.Parent.ID }, { "itemID", item.ID } }
+                );
+            }
+            // return new Cl
         }
         public ClientMessage LabelPopup(string json)
         {
@@ -944,6 +942,45 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Can't undo..");
+            }
+        }
+        public ClientMessage ReworkForm(string json)
+        {
+            try
+            {
+                m_partTimer.Stop("StopPartTimer");
+                JsonObject reworkReport = (JsonObject)ConfigManager.GetJSON("scrapReport");
+                JsonArray vendorReasons = (JsonArray)reworkReport["vendor"];
+                JsonArray productionReasons = (JsonArray)reworkReport["production"];
+
+                Form form = new Form();
+                form.Title = "Rework";
+                form.Selection("source", "Source", new List<string>() { "vendor", "production" }, "production");
+                form.Selection("reason", "Reason", productionReasons.ToList().Concat(vendorReasons.ToList()).ToList());
+                form.Checkbox("startedWork", "Started Work", false);
+
+                return form.Dispatch("FlagRework",json);
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading rework form");
+            }
+        }
+        public ClientMessage FlagRework(string json)
+        {
+            try
+            {
+                JsonObject obj = (JsonObject)JSON.Parse(json);
+                Form form = new Form(json);
+                TravelerItem item = Server.TravelerManager.FindTraveler(obj["travelerID"]).FindItem(Convert.ToUInt16((int)obj["itemID"]));
+                item.FlagRework(m_user, m_station, form.ValueOf("source"), form.ValueOf("reason"));
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error reworking part");
             }
         }
         public ClientMessage Rework(string json)

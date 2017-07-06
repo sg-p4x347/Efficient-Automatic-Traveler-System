@@ -58,7 +58,7 @@ namespace Efficient_Automatic_Traveler_System
             json += '}';
             return json;
         }
-        
+
         public bool ContainsKey(string key)
         {
             return (Value as Dictionary<string, JSON>).ContainsKey(key);

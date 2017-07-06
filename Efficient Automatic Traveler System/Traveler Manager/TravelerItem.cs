@@ -6,11 +6,18 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    public enum ItemState
+    public enum LocalItemState
     {
         PreProcess,
         InProcess,
         PostProcess
+    }
+    public enum GlobalItemState
+    {
+        InProcess,
+        Scrapped,
+        PendingRework,
+        Finished
     }
     public class TravelerItem
     {
@@ -20,34 +27,47 @@ namespace Efficient_Automatic_Traveler_System
             m_itemCode = itemCode;
             m_sequenceNo = sequenceNo;
             m_replacement = replacement;
-            m_scrapped = false;
             m_station = station;
             m_lastStation = StationClass.GetStation("Start");
             m_history = new List<Event>();
             m_order = null;
-            m_state = ItemState.PreProcess;
+            m_localState = LocalItemState.PreProcess;
+            GlobalState = GlobalItemState.InProcess;
             m_comment = "";
         }
         public TravelerItem(string json)
         {
             try
             {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                m_ID = Convert.ToUInt16(obj["ID"]);
-                m_sequenceNo = obj.ContainsKey("sequenceNo") ? Convert.ToUInt16(obj["sequenceNo"]) : (ushort)0;
-                m_replacement = obj.ContainsKey("replacement") ? Convert.ToBoolean(obj["replacement"]) : false;
-                m_scrapped = Convert.ToBoolean(obj["scrapped"]);
-                m_station = StationClass.GetStation(obj["station"]);
-                m_itemCode = obj["itemCode"];
-                m_lastStation = StationClass.GetStation(obj["lastStation"]);
-                m_history = new List<Event>();
-                m_order = Server.OrderManager.FindOrder(obj["order"]);
-                foreach (string eventString in (new StringStream(obj["history"])).ParseJSONarray())
+                JsonObject obj = (JsonObject)JSON.Parse(json);
+                if (obj.ContainsKey("ID")) ID = Convert.ToUInt16((int)obj["ID"]);
+                if (obj.ContainsKey("sequenceNo")) SequenceNo = Convert.ToUInt16((int)obj["sequenceNo"]);
+                if (obj.ContainsKey("replacement")) Replacement = obj["replacement"];
+
+                // Convert old DB
+                if (obj.ContainsKey("scrapped"))
                 {
-                    m_history.Add(BackupManager.ImportDerived<Event>(eventString));
+                    GlobalState = GlobalItemState.Scrapped;
+                } else if (obj.ContainsKey("globalState"))
+                {
+                    GlobalState = obj["globalState"].ToEnum<GlobalItemState>();
                 }
-                m_state = (ItemState)Enum.Parse(typeof(ItemState),obj["state"]);
-                m_comment = obj.ContainsKey("comment") ? obj["comment"] : "";
+                if (obj.ContainsKey("station")) Station = StationClass.GetStation(obj["station"]);
+                if (obj.ContainsKey("itemCode")) ItemCode = obj["itemCode"];
+                if (obj.ContainsKey("lastStation")) LastStation = StationClass.GetStation(obj["lastStation"]);
+                
+                
+                //m_order = Server.OrderManager.FindOrder(obj["order"]);
+                History = new List<Event>();
+                if (obj.ContainsKey("history"))
+                {
+                    foreach (string eventString in (new StringStream(obj["history"])).ParseJSONarray())
+                    {
+                        History.Add(BackupManager.ImportDerived<Event>(eventString));
+                    }
+                }
+                if (obj.ContainsKey("state")) LocalState = obj["state"].ToEnum<LocalItemState>();
+                if (obj.ContainsKey("comment")) Comment = obj["comment"];
             }
             catch (Exception ex)
             {
@@ -61,13 +81,13 @@ namespace Efficient_Automatic_Traveler_System
                 {"ID",m_ID.ToString()},
                 {"sequenceNo",m_sequenceNo.ToString() },
                 {"replacement", m_replacement.ToString().ToLower() },
-                {"scrapped", m_scrapped.ToString().ToLower()},
+                {"globalState", GlobalState.ToString().Quotate()},
                 {"station",Station.Name.Quotate() },
                 {"itemCode",m_itemCode.Quotate() },
                 {"lastStation",m_lastStation.Name.Quotate() },
                 {"history",m_history.ToList<Event>().Stringify<Event>() },
                 {"order",(m_order != null ? m_order.SalesOrderNo : "").Quotate() },
-                {"state",m_state.ToString().Quotate() }
+                {"state",m_localState.ToString().Quotate() }
             };
             if (m_comment != "") obj.Add("comment", m_comment.Quotate());
             return obj.Stringify();
@@ -75,7 +95,7 @@ namespace Efficient_Automatic_Traveler_System
         public bool PendingAt(StationClass station)
         {
             List<StationClass> pending = Parent.PendingAt(Station);
-            if (State == ItemState.PreProcess)
+            if (LocalState == LocalItemState.PreProcess)
             {
                 pending.Add(Station);
             }
@@ -98,11 +118,11 @@ namespace Efficient_Automatic_Traveler_System
         }
         public bool InProcessAt(StationClass station)
         {
-            return State == ItemState.InProcess && Station == station;
+            return LocalState == LocalItemState.InProcess && Station == station;
         }
         public bool CompleteAt(StationClass station)
         {
-            return State == ItemState.PostProcess && Station == station;
+            return LocalState == LocalItemState.PostProcess && Station == station;
         }
         public string ExportTableRows(StationClass station)
         {
@@ -128,13 +148,13 @@ namespace Efficient_Automatic_Traveler_System
                 {"ID",m_ID.ToString()},
                 {"Sequence No",m_sequenceNo.ToString() },
                 {"Replacement", m_replacement.ToString().ToLower() },
-                {"Scrapped", m_scrapped.ToString().ToLower()},
+                {"Global State",GlobalState.ToString().Quotate()},
                 {"Station",Station.Name.Quotate() },
                 {"ItemCode",m_itemCode.Quotate() },
                 {"Last station",m_lastStation.Name.Quotate() },
                 {"History",history.Stringify(false) },
                 {"Order",(m_order != null ? m_order.SalesOrderNo : "").Quotate() },
-                {"State",m_state.ToString().Quotate() }
+                {"State",m_localState.ToString().Quotate() }
             };
             return obj.Stringify();
         }
@@ -175,14 +195,15 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Start(User user, StationClass station)
         {
-            History.Add(new ProcessEvent(user, station, 0, ProcessType.Started));
-            State = ItemState.InProcess;
+            LocalState = LocalItemState.InProcess;
             Station = station;
+            History.Add(new ProcessEvent(user, station, 0, ProcessType.Started));
+            
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public void Complete(User user, StationClass station, double duration = 0.0)
         {
-            State = ItemState.PostProcess;
+            LocalState = LocalItemState.PostProcess;
             // remove the start event
 
             if (Started(station))
@@ -207,9 +228,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Scrap(User user, StationClass station)
         {
-            State = ItemState.PostProcess;
+            LocalState = LocalItemState.PostProcess;
+            GlobalState = GlobalItemState.Scrapped;
             Station = StationClass.GetStation("Scrapped");
-            Scrapped = true;
 
             // Notify everyone who wants to be notified
             Server.NotificationManager.PushNotification("Scrap", Summary.HumanizeDictionary(Summary.ScrapDetail(Parent, this)));
@@ -219,17 +240,24 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Rework(User user, StationClass station)
         {
-            State = ItemState.InProcess;
+            LocalState = LocalItemState.PreProcess;
             Station = StationClass.GetStation("Rework");
             History.Add(new LogEvent(user, LogType.Rework, station));
             Station = station;
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
+        public void FlagRework(User user, StationClass station, string source, string reason)
+        {
+            GlobalState = GlobalItemState.PendingRework;
+
+            History.Add(new LogEvent(user, LogType.FlagRework, station));
+            Server.TravelerManager.OnTravelersChanged(Parent);
+        }
         public void Finish(User user)
         {
-            State = ItemState.PostProcess;
+            LocalState = LocalItemState.PostProcess;
+            GlobalState = GlobalItemState.Finished;
             Station = StationClass.GetStation("Finished");
-            Scrapped = false;
             // add this item to inventory
             InventoryManager.Add(ItemCode);
             Server.TravelerManager.OnTravelersChanged(Parent);
@@ -242,13 +270,13 @@ namespace Efficient_Automatic_Traveler_System
         private UInt16 m_ID;
         private UInt16 m_sequenceNo;
         private bool m_replacement;
-        private bool m_scrapped;
         private StationClass m_station;
         private string m_itemCode;
         private StationClass m_lastStation;
         private List<Event> m_history;
         private Order m_order;
-        private ItemState m_state;
+        private LocalItemState m_localState;
+        private GlobalItemState m_globalState;
         private Traveler m_parent;
         private string m_comment;
         private bool m_cartonPrinted = false;
@@ -258,6 +286,10 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_ID;
+            }
+            private set
+            {
+                m_ID = value;
             }
         }
 
@@ -292,19 +324,21 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return m_scrapped;
-            }
-
-            set
-            {
-                m_scrapped = value;
+                return GlobalState == GlobalItemState.Scrapped;
             }
         }
         public bool Finished
         {
             get
             {
-                return History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish);
+                return GlobalState == GlobalItemState.Finished;
+            }
+        }
+        public bool PendingRework
+        {
+            get
+            {
+                return GlobalState == GlobalItemState.PendingRework;
             }
         }
         public bool Started(StationClass station)
@@ -337,15 +371,15 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public ItemState State
+        public LocalItemState LocalState
         {
             get
             {
-                return m_state;
+                return m_localState;
             }
             private set
             {
-                m_state = value;
+                m_localState = value;
             }
         }
 
@@ -427,7 +461,20 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public bool IsComplete(StationClass station = null)
+        public GlobalItemState GlobalState
+        {
+            get
+            {
+                return m_globalState;
+            }
+
+            private set
+            {
+                m_globalState = value;
+            }
+        }
+
+        public bool BeenCompleted(StationClass station = null)
         {
             // negate any events that a rework event dismisses
             // latest rework station

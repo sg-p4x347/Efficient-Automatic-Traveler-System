@@ -234,23 +234,23 @@ namespace Efficient_Automatic_Traveler_System
         {
             foreach (TravelerItem item in items)
             {
-                NodeList queueItem = CreateItemQueueItem(item.State, item);
+                NodeList queueItem = CreateItemQueueItem(item.LocalState, item);
                 queueItem.EventListeners.Add(new EventListener("click", "LoadItem", @"{""travelerID"":" + item.Parent.ID + @",""itemID"":" + item.ID + "}"));
                 queueItem.Add(new TextNode(item.Parent.PrintSequenceID(item)));
                 queue.Add(queueItem);
             }
         }
-        protected virtual Row CreateItemQueueItem(ItemState state, TravelerItem item)
+        protected virtual Row CreateItemQueueItem(LocalItemState state, TravelerItem item)
         {
             Row queueItem = CreateQueueItem(state, item.Parent);
             return queueItem;
         }
-        protected virtual Row CreateTravelerQueueItem(ItemState state, Traveler traveler)
+        protected virtual Row CreateTravelerQueueItem(LocalItemState state, Traveler traveler)
         {
             Row queueItem = CreateQueueItem(state, traveler);
             return queueItem;
         }
-        private Row CreateQueueItem(ItemState state, Traveler traveler)
+        private Row CreateQueueItem(LocalItemState state, Traveler traveler)
         {
             Row queueItem = new Row(style: new Style("queue__item", "align-items-center"));
             if (traveler.ChildTravelers.Exists(child => child.Items.Exists(i => i.Finished)))
@@ -262,9 +262,9 @@ namespace Efficient_Automatic_Traveler_System
             {
                 switch (state)
                 {
-                    case ItemState.PreProcess: queueItem.Style += new Style("blueBack"); break;
-                    case ItemState.InProcess: queueItem.Style += new Style("redBack"); break;
-                    case ItemState.PostProcess: queueItem.Style += new Style("greenBack"); break;
+                    case LocalItemState.PreProcess: queueItem.Style += new Style("blueBack"); break;
+                    case LocalItemState.InProcess: queueItem.Style += new Style("redBack"); break;
+                    case LocalItemState.PostProcess: queueItem.Style += new Style("greenBack"); break;
                     default: queueItem.Style += new Style("ghostBack"); break;
                 }
 

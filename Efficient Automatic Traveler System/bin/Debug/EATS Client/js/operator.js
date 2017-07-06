@@ -458,13 +458,7 @@ function Application () {
 	this.DisableUI = function () {
 		document.getElementById("completeItemBtn").classList.add("disabled");
 		document.getElementById("scrapItemBtn").classList.add("disabled");
-	}
-	this.DisableSubmitBtn = function () {
-		document.getElementById("submitTravelerBtn").classList.add("disabled");
-	}
-	this.HideSubmitBtn = function () {
-		document.getElementById("submitTravelerBtn").classList.add("hidden");
-		document.getElementById("qtyCompletedRow").style.display = "none";
+		document.getElementById("reworkItemBtn").classList.add("disabled");
 	}
 	this.DisableMoreInfoBtn = function () {
 		document.getElementById("moreInfoBtn").classList.add("disabled");
@@ -478,13 +472,7 @@ function Application () {
 	this.EnableUI = function () {
 		document.getElementById("completeItemBtn").classList.remove("disabled");
 		document.getElementById("scrapItemBtn").classList.remove("disabled");
-	}
-	this.EnableSubmitBtn = function () {
-		document.getElementById("submitTravelerBtn").classList.remove("disabled");
-	}
-	this.ShowSubmitBtn = function () {
-		document.getElementById("submitTravelerBtn").classList.remove("hidden");
-		document.getElementById("qtyCompletedRow").style.display = "inherit";
+		document.getElementById("reworkItemBtn").classList.remove("disabled");
 	}
 	this.EnableMoreInfoBtn = function () {
 		document.getElementById("moreInfoBtn").classList.remove("disabled");
@@ -501,14 +489,6 @@ function Application () {
 			qtyPending.innerHTML = qty;
 		} else {
 			qtyPending.innerHTML = "-";
-		}
-	}
-	this.SetQtyCompleted = function (qty) {
-		var qtyCompleted = document.getElementById("qtyCompleted");
-		if (qty > 0) {
-			qtyCompleted.innerHTML = qty;
-		} else {
-			qtyCompleted.innerHTML = "-";
 		}
 	}
 	this.LoadTravelerView = function (params) {
@@ -1137,43 +1117,20 @@ function TravelerView() {
 		document.getElementById("completeItemBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
 			new InterfaceCall("CompleteItem");
-			
 			//-----------------------------------------------
-			//if (application.station.mode == "Serial") document.getElementById("submitTravelerBtn").onclick();
-			//self.UpdateSubmitBtn();
-			// Restart part timer 
-			//application.partTimer.CountDown(self.traveler.laborRate);
 		}
 		// scrapping a traveler item
 		document.getElementById("scrapItemBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("DisplayScrapReport");
 			//-----------------------------------------------
-			
-			//self.UpdateSubmitBtn();
 		}
-		// Submitting a finished traveler
-		document.getElementById("submitTravelerBtn").onclick = function () {
-			/* this is just for responsiveness, 
-			the server will soon confirm traveler positions in an update*/
-			var completedTraveler = self.traveler;
-			// if (parseInt(qtyScrapped.value) < self.traveler.quantity && parseInt(qtyMade) < self.traveler.quantity) {
-				// completedTraveler = self.traveler;
-			// } else {
-				// completedTraveler = self.traveler;
-			// }
-			//self.lastTravelerID = completedTraveler.ID;
+		document.getElementById("reworkItemBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
-			new InterfaceCall("SubmitTraveler");
-			
+			var message = new InterfaceCall("ReworkForm");
 			//-----------------------------------------------
-			//self.UpdateSubmitBtn();
 		}
-		/* self.timerStop = document.getElementById("stopTimer");
 		
-		self.timerStop.onmousedown = function () {
-			self.StopTimer();
-		} */
 		// Traveler Search
 		document.getElementById("travelerSearch").onsubmit = function () {
 			self.SubmitSearch();

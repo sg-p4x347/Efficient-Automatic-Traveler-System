@@ -105,7 +105,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             
             m_station = StationClass.GetStation(obj["station"]);
-            m_state = (ItemState)Enum.Parse(typeof(ItemState), obj["state"]);
+            m_state = (LocalItemState)Enum.Parse(typeof(LocalItemState), obj["state"]);
             m_dateStarted = obj["dateStarted"];
             m_comment = obj["comment"];
             m_lastReworkAccountedFor = (ushort)(obj.ContainsKey("lastReworkAccountedFor") ? Convert.ToUInt16(obj["lastReworkAccountedFor"]) : 0);
@@ -126,7 +126,7 @@ namespace Efficient_Automatic_Traveler_System
             m_itemCode = itemCode;
             m_quantity = quantity;
             m_station = StationClass.GetStation("Start");
-            m_state = ItemState.PreProcess;
+            m_state = LocalItemState.PreProcess;
         }
         
         public void NewID()
@@ -341,7 +341,7 @@ namespace Efficient_Automatic_Traveler_System
         
         public virtual void EnterProduction(ITravelerManager travelerManager)
         {
-            m_state = ItemState.InProcess;
+            m_state = LocalItemState.InProcess;
             m_dateStarted = DateTime.Today.ToString("MM/dd/yyyy");
         }
         // advances all completed items at the specified station
@@ -354,7 +354,7 @@ namespace Efficient_Automatic_Traveler_System
         //}
         public List<TravelerItem> CompletedItems(StationClass station)
         {
-            return Items.Where(item => item.Station == station && item.IsComplete()).ToList();
+            return Items.Where(item => item.Station == station && item.BeenCompleted()).ToList();
         }
         public TravelerItem AddItem(StationClass station)
         {
@@ -486,15 +486,15 @@ namespace Efficient_Automatic_Traveler_System
             if (Station == StationClass.GetStation("Start")) stations.Add(Station);
             return stations;
         }
-        public List<StationClass> CurrentStations(ItemState viewState)
+        public List<StationClass> CurrentStations(LocalItemState viewState)
         {
             List<StationClass> stations = new List<StationClass>();
             foreach (StationClass station in StationClass.GetStations())
             {
-                if (Items.Exists(i => i.State == viewState && i.Station == station)) stations.Add(station);
+                if (Items.Exists(i => i.LocalState == viewState && i.Station == station)) stations.Add(station);
             }
-            if ((viewState == ItemState.PreProcess && State == ItemState.PreProcess) 
-                || (viewState == ItemState.InProcess && State == ItemState.InProcess)) stations.Add(Station);
+            if ((viewState == LocalItemState.PreProcess && State == LocalItemState.PreProcess) 
+                || (viewState == LocalItemState.InProcess && State == LocalItemState.InProcess)) stations.Add(Station);
             return stations;
         }
         
@@ -851,7 +851,7 @@ namespace Efficient_Automatic_Traveler_System
         private List<Traveler> m_childTravelers;
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         private StationClass m_station;
-        private ItemState m_state;
+        private LocalItemState m_state;
         private string m_dateStarted;
         private int m_priority;
         private ushort m_lastReworkAccountedFor;
@@ -924,7 +924,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public ItemState State
+        public LocalItemState State
         {
             get
             {

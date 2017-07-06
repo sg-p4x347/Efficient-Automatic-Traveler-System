@@ -383,6 +383,20 @@ namespace Efficient_Automatic_Traveler_System
             };
             return new ControlPanel("", column).Dispatch();
         }
+        public static ClientMessage Options(string text, Dictionary<string,string> options, string returnParam = "{}")
+        {
+            Column column = new Column()
+            {
+                new TextNode(text)
+            };
+            Row row = new Row();
+            foreach (KeyValuePair<string,string> option in options)
+            {
+                row.Add(new Button(option.Key, option.Value, returnParam));
+            }
+            column.Add(row);
+            return new ControlPanel("", column).Dispatch();
+        }
     }
 
     public class EventListener

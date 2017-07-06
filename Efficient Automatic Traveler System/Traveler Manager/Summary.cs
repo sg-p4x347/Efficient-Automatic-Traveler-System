@@ -30,11 +30,11 @@ namespace Efficient_Automatic_Traveler_System
             m_sort = sortType;
             m_travelerType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + travelerType);
             switch (m_sort) {
-                case SummarySort.Active: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.InProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
-                case SummarySort.Available: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Station == StationClass.GetStation("Start") && x.Quantity > 0).ToList(); break;
-                case SummarySort.Sorted: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
+                case SummarySort.Active: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == LocalItemState.InProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
+                case SummarySort.Available: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == LocalItemState.PreProcess && x.Station == StationClass.GetStation("Start") && x.Quantity > 0).ToList(); break;
+                case SummarySort.Sorted: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == LocalItemState.PreProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
                 case SummarySort.All: m_travelers = travelerManager.GetTravelers; break;
-                case SummarySort.PreProcess: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == ItemState.PreProcess && x.Quantity > 0).ToList(); break;
+                case SummarySort.PreProcess: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == LocalItemState.PreProcess && x.Quantity > 0).ToList(); break;
 
                 default:
                     break;
@@ -166,7 +166,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     Table table = (Table)traveler;
                     Dictionary<string, string> item = finished.Find(x => x["Part"] == table.ItemCode);
-                    int quantity = traveler.Items.Where(x => x.State == ItemState.PostProcess && x.History.OfType<LogEvent>().ToList().Exists(y => y.LogType == LogType.Finish && y.Date >= DateTime.Today.Date)).Count();
+                    int quantity = traveler.Items.Where(x => x.LocalState == LocalItemState.PostProcess && x.History.OfType<LogEvent>().ToList().Exists(y => y.LogType == LogType.Finish && y.Date >= DateTime.Today.Date)).Count();
                     if (quantity > 0)
                     {
                         if (item != null)
@@ -304,7 +304,7 @@ namespace Efficient_Automatic_Traveler_System
             // add each detail for each traveler
             List<string> fields = new List<string>() {"Traveler", "Part", "Quantity"};
             List<Dictionary<string, string>> rework = new List<Dictionary<string, string>>();
-            foreach (Traveler traveler in m_travelers.Where(t => t.State == ItemState.InProcess))
+            foreach (Traveler traveler in m_travelers.Where(t => t.State == LocalItemState.InProcess))
             {
                 int unaccountedScrap = traveler.Items.Count(i => i.Scrapped && i.ID > traveler.LastReworkAccountedFor);
 

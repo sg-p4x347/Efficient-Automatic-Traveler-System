@@ -19,7 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             AccessLevel = AccessLevel.Supervisor;
             m_travelerManager = travelerManager;
-            m_viewState = ItemState.PreProcess;
+            m_viewState = LocalItemState.PreProcess;
             m_viewType = typeof(Table);
             m_selected = new List<Traveler>();
             SendMessage((new ClientMessage("InitStations", StationClass.GetStations().Stringify())).ToString());
@@ -71,14 +71,14 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage(new ControlPanel("queueArray", queueArray, "body").Dispatch().ToString());
             //if (m_current != null) SendMessage(TravelerPopup(m_current));
         }
-        public Node CreateStation(StationClass station, ItemState state)
+        public Node CreateStation(StationClass station, LocalItemState state)
         {
             List<Traveler> travelers = VisibleTravelers(station);
             NodeList queueContainer = new NodeList(new Style("queueContainer"));
             if (!travelers.Any()) queueContainer.Style.AddStyle("display", "none");
             TextNode heading = new TextNode(station.Name, new Style("heading"));
             queueContainer.Add(heading);
-            if (state == ItemState.PreProcess)
+            if (state == LocalItemState.PreProcess)
             {
                 queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
                 {
@@ -86,7 +86,7 @@ namespace Efficient_Automatic_Traveler_System
                     {"Total Pending Labor:",new TextNode(travelers.Sum(t => t.GetTotalLabor()).ToString() + " min",new Style("beige") )},
                 }));
             }
-            else if (state == ItemState.InProcess)
+            else if (state == LocalItemState.InProcess)
             {
                 queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
                 {
@@ -100,7 +100,7 @@ namespace Efficient_Automatic_Traveler_System
             queueContainer.Add(queue);
             return queueContainer;
         }
-        protected override Row CreateTravelerQueueItem(ItemState state, Traveler traveler)
+        protected override Row CreateTravelerQueueItem(LocalItemState state, Traveler traveler)
         {
             Row queueItem = base.CreateTravelerQueueItem(state, traveler);
             // checkbox
@@ -116,17 +116,17 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (traveler.GetType() == m_viewType)
                 {
-                    if (m_viewState == ItemState.PreProcess)
+                    if (m_viewState == LocalItemState.PreProcess)
                     {
-                        if (traveler.State == ItemState.PreProcess && traveler.Station == station) travelers.Add(traveler);
+                        if (traveler.State == LocalItemState.PreProcess && traveler.Station == station) travelers.Add(traveler);
                     }
-                    else if (m_viewState == ItemState.InProcess)
+                    else if (m_viewState == LocalItemState.InProcess)
                     {
-                        if (traveler.State == ItemState.InProcess && traveler.Items.Exists(i => i.State == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
+                        if (traveler.State == LocalItemState.InProcess && traveler.Items.Exists(i => i.LocalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
                     }
-                    else if (m_viewState == ItemState.PostProcess)
+                    else if (m_viewState == LocalItemState.PostProcess)
                     {
-                        if (traveler.Items.Exists(i => i.State == m_viewState && i.Station == station)) travelers.Add(traveler);
+                        if (traveler.Items.Exists(i => i.LocalState == m_viewState && i.Station == station)) travelers.Add(traveler);
                     }
                 }
             }
@@ -217,7 +217,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                m_viewState = (ItemState)Enum.Parse(typeof(ItemState), obj["viewState"]);
+                m_viewState = (LocalItemState)Enum.Parse(typeof(LocalItemState), obj["viewState"]);
                 m_viewType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + obj["viewType"]);
                 m_filterState = Convert.ToBoolean(obj["filterState"]);
                 m_filterType = Convert.ToBoolean(obj["filterType"]);
@@ -690,7 +690,7 @@ namespace Efficient_Automatic_Traveler_System
                 fields.Add(
                     new Row(style: new Style("justify-space-between"))
                     {
-                        new TextNode("State",style: new Style("leftAlign")), new TextNode(item.State.ToString(),style: new Style("white","rightAlign","shadow"))
+                        new TextNode("State",style: new Style("leftAlign")), new TextNode(item.LocalState.ToString(),style: new Style("white","rightAlign","shadow"))
                     }
                 );
                 if (item.History.Count > 0)
@@ -1506,7 +1506,7 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //-----------------------------------
         #region Properties
-        private ItemState m_viewState;
+        private LocalItemState m_viewState;
         private Type m_viewType;
         private bool m_filterState;
         private bool m_filterType;

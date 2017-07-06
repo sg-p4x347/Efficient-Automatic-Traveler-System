@@ -204,7 +204,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Server.OrderManager.RefactorOrders();
             // only change the quantities of preprocess travelers
-            foreach (Traveler traveler in m_travelers.Where(t => t.State == ItemState.PreProcess))
+            foreach (Traveler traveler in m_travelers.Where(t => t.State == LocalItemState.PreProcess))
             {
                 List<OrderItem> items = traveler.ParentOrders.SelectMany(o => o.Items.Where(i => i.ChildTraveler == traveler.ID)).ToList();
                 traveler.Quantity = items.Sum(i => i.QtyOrdered - i.QtyOnHand);
@@ -247,7 +247,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Traveler traveler = ImportTraveler(travelerJSON);
                 // add this traveler to the master list if it is not complete
-                if (traveler != null && traveler.State != ItemState.PostProcess && traveler.Quantity > 0)
+                if (traveler != null && traveler.State != LocalItemState.PostProcess && traveler.Quantity > 0)
                 {
                     // add this traveler to the imported list
                     m_importedFromPast.Add(traveler);
@@ -262,7 +262,7 @@ namespace Efficient_Automatic_Traveler_System
             foreach (Traveler traveler in m_importedFromPast)
             {
                 // push this traveler into production
-                if (traveler.State == ItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
+                if (traveler.State == LocalItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
                 {
                     traveler.EnterProduction(this as ITravelerManager);
                 }
@@ -336,7 +336,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void ClearStartQueue()
         {
-            foreach (Traveler traveler in new List<Traveler>(GetTravelers.Where(t => t.State == ItemState.PreProcess && t.Station == StationClass.GetStation("Start"))))
+            foreach (Traveler traveler in new List<Traveler>(GetTravelers.Where(t => t.State == LocalItemState.PreProcess && t.Station == StationClass.GetStation("Start"))))
             {
                 RemoveTraveler(traveler);
             }
