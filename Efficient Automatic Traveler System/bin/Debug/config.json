@@ -34,8 +34,13 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
+<<<<<<< HEAD
 	"nextTravelerID":"101749",
 	"nextEventID":"6757",
+=======
+	"nextTravelerID":"99571",
+	"nextEventID":"6539",
+>>>>>>> 15b51a0a5c9389ea33a2b2c51e7982bf01c3442e
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",

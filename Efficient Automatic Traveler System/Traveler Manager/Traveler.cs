@@ -519,7 +519,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station.Name);
                 foreach (TravelerItem item in Items)
                 {
-                    if (!stations.Exists(x => item.Station.Is(x)))
+                    if (!stations.Exists(x => Station.Name == x))
                     {
                         stations.Add(item.Station.Name);
                     }

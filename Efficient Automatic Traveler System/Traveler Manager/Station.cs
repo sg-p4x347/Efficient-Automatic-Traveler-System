@@ -7,27 +7,25 @@ using System.Reflection;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    public enum StationMode
-    {
-        Batch,
-        Serial
-    }
-
-    public class StationClass : IEquatable<StationClass>
+    
+    public class StationClass : VirtualStation, IEquatable<StationClass>
     {
         #region Public Methods
         public static void ImportStations(string types, string stationsJson)
         {
             m_stations.Clear();
-            Dictionary<string, string> stationTypes = new StringStream(types).ParseJSON();
-            List <string> stations = new StringStream(stationsJson).ParseJSONarray();
+            JsonObject typesObj = (JsonObject)JSON.Parse(types);
+            JsonArray stationsObj = (JsonArray)JSON.Parse(stationsJson);
             
-            foreach (string stationJSON in stations)
+            // normal stations
+            foreach (JsonObject station in stationsObj)
             {
-                Dictionary<string, string> obj = new StringStream(stationJSON).ParseJSON();
-                m_stations.Add(new StationClass(stationTypes[obj["type"]],stationJSON));
+                JsonObject type = (JsonObject)typesObj[(string)station["type"]];
+                m_stations.Add(new StationClass(station, type));
             }
             m_stations.Sort((x, y) => string.Compare(x.Name, y.Name));
+            // virtual stations
+            VirtualStation.ImportStations(typesObj);
             //ConfigManager.Set("stations", m_stations.Stringify(true, true));
 
             // get the types
@@ -68,21 +66,22 @@ namespace Efficient_Automatic_Traveler_System
         {
             return m_preRequisites.ContainsKey(traveler.GetType().Name) ? new List<StationClass>(m_preRequisites[traveler.GetType().Name]) : new List<StationClass>();
         }
+<<<<<<< HEAD
+=======
+        
+        
+>>>>>>> 15b51a0a5c9389ea33a2b2c51e7982bf01c3442e
         public override string ToString()
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>() {
-                { "name", m_name.Quotate()},
-                { "type",m_type.Quotate() },
-                { "creates", m_creates.Stringify<string>()},
-                { "mode", m_mode.ToString().Quotate()},
-                { "laborCodes",m_laborCodes.Stringify<string>()},
-                { "printers",m_printers.Stringify<string>() }
-            };
-            return obj.Stringify(true);
+            JsonObject obj = (JsonObject)JSON.Parse(base.ToString());
+            obj.Add("name", m_name.Quotate());
+            obj.Add("mode", m_mode.ToString().Quotate());
+            obj.Add("printers", m_printers.Stringify<string>());
+            return obj;
         }
         public bool CreatesThis(Traveler obj)
         {
-            return m_creates.Exists(x => x == obj.GetType().Name || x == obj.GetType().BaseType.Name);
+            return Creates.Exists(x => x == obj.GetType().Name || x == obj.GetType().BaseType.Name);
         }
         public static StationClass GetStation(string name)
         {
@@ -122,11 +121,12 @@ namespace Efficient_Automatic_Traveler_System
         public static bool operator ==(StationClass A, StationClass B)
         {
             return (object.ReferenceEquals(A,null) && object.ReferenceEquals(B, null)) 
-                || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.ID == B.ID);
+                || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.Name == B.Name);
         }
         public static bool operator !=(StationClass A, StationClass B)
         {
             return !((object.ReferenceEquals(A, null) && object.ReferenceEquals(B, null))
+<<<<<<< HEAD
                 || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.ID == B.ID));
         }
         public bool Is(string name)
@@ -138,11 +138,15 @@ namespace Efficient_Automatic_Traveler_System
             List<string> names = m_stations.Select(s => s.Name).ToList();
             names.Sort((x, y) => x.CompareTo(y));
             return names;
+=======
+                || (!object.ReferenceEquals(A, null) && !object.ReferenceEquals(B, null) && A.Name == B.Name));
+>>>>>>> 15b51a0a5c9389ea33a2b2c51e7982bf01c3442e
         }
         #endregion
         #region Private Methods
-        private StationClass(string type, string json)
+        public StationClass(JsonObject station, JsonObject type) : base(station["type"],type)
         {
+<<<<<<< HEAD
             var obj = (new StringStream(json)).ParseJSON();
             var typeObj = new StringStream(type).ParseJSON();
             m_ID = StationClass.m_stations.Count;
@@ -153,14 +157,16 @@ namespace Efficient_Automatic_Traveler_System
             m_printers = new StringStream(obj["printers"]).ParseJSONarray();
             Enum.TryParse<StationMode>(obj["mode"], out m_mode);
             m_preRequisites = new Dictionary<string, List<StationClass>>();
+=======
+            m_name = station["name"];
+            m_printers = ((JsonArray)station["printers"]).ToList();
+            Enum.TryParse<StationMode>(station["mode"], out m_mode);
+>>>>>>> 15b51a0a5c9389ea33a2b2c51e7982bf01c3442e
         }
         #endregion
         #region Properties
         private int m_ID;
-        private string m_type;
         private string m_name;
-        private List<string> m_creates; // list of traveler types that this station can create
-        private List<string> m_laborCodes; // list of labor codes that are associated with this station
         private List<string> m_printers; // list of label printers that this station can/should print to (typicallay a 4x2 and/or a 4x6)
         private StationMode m_mode;
         private Dictionary<string, List<StationClass>> m_preRequisites;
@@ -169,6 +175,7 @@ namespace Efficient_Automatic_Traveler_System
 
         #endregion
         #region Interface
+<<<<<<< HEAD
         public static List<string> Types
         {
             get
@@ -184,6 +191,8 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
+=======
+>>>>>>> 15b51a0a5c9389ea33a2b2c51e7982bf01c3442e
         public string Name
         {
             get
@@ -191,46 +200,11 @@ namespace Efficient_Automatic_Traveler_System
                 return m_name;
             }
         }
-
-        public List<string> Creates
-        {
-            get
-            {
-                return m_creates;
-            }
-        }
-
         public StationMode Mode
         {
             get
             {
                 return m_mode;
-            }
-        }
-
-        public List<string> LaborCodes
-        {
-            get
-            {
-                return m_laborCodes;
-            }
-
-            set
-            {
-                m_laborCodes = value;
-            }
-        }
-
-        public string Type
-        {
-            get
-            {
-                return m_type;
-            }
-
-            set
-            {
-                m_type = value;
             }
         }
 

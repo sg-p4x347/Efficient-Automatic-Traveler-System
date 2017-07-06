@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class JsonArray : JSON, IEnumerable<JSON>
+    public class JsonArray : JSON, IEnumerable<JSON>
     {
         public JsonArray()
         {
