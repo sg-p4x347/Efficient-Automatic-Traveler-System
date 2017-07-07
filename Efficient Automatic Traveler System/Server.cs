@@ -17,7 +17,7 @@ namespace Efficient_Automatic_Traveler_System
 {
     public class Server
     {
-        
+
         //------------------------------
         // Public members
         //------------------------------
@@ -46,7 +46,8 @@ namespace Efficient_Automatic_Traveler_System
                 m_userManager = new UserManager();
 
                 // HTTP file serving
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 LogException(ex);
             }
@@ -55,11 +56,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Server.WriteLine("Server started on " + m_ip + ":80"); 
+                Server.WriteLine("Server started on " + m_ip + ":80");
                 Server.WriteLine("websocket on " + m_ip + ":" + m_port.ToString());
                 m_clientManagerThread.Start();
-                
-                
+
+
                 Update(); // immediately create travelers upon server start
                 UpdateTimer(); // start the update loop
                 GetInputAsync(); // get console commands from the user
@@ -67,7 +68,7 @@ namespace Efficient_Automatic_Traveler_System
                 KanbanManager.Start();
                 Listen(); // start listening for http requests on port 80
 
-                
+
             }
             catch (Exception ex)
             {
@@ -93,10 +94,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             TextWriter std = Console.Out;
             Console.SetOut(m_outputLog);
-            Console.Write(regex,message);
+            Console.Write(regex, message);
             m_outputLog.Flush();
             Console.SetOut(std);
-            Console.Write(regex,message);
+            Console.Write(regex, message);
         }
         public static void LogException(Exception ex)
         {
@@ -124,6 +125,12 @@ namespace Efficient_Automatic_Traveler_System
                     break;
                 case "configure":
                     Configure();
+                    break;
+                case "CreateBoxTravelers":
+                    List<Box> pre = new List<Box>(TravelerManager.GetTravelers.OfType<Box>());
+                    TravelerManager.CreateBoxTravelers();
+                    List<Box> post = new List<Box>(TravelerManager.GetTravelers.OfType<Box>());
+                    Server.WriteLine("Created " + post.Count(p => !pre.Contains(p)) + " Box travelers");
                     break;
                 default:
                     Console.WriteLine("Invalid; commands are [update, reset]");
@@ -176,7 +183,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             DateTime current = DateTime.Now;
             TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay;
-            if (timeToGo.Ticks < 0) timeToGo = timeToGo.Add(new TimeSpan(24,0,0));
+            if (timeToGo.Ticks < 0) timeToGo = timeToGo.Add(new TimeSpan(24, 0, 0));
             m_timer = new System.Threading.Timer(x =>
             {
                 Update();
@@ -189,8 +196,8 @@ namespace Efficient_Automatic_Traveler_System
             m_port = Convert.ToInt32(ConfigManager.Get("port"));
 
             // set up the station list
-            StationClass.ImportStations(ConfigManager.Get("stationTypes"),ConfigManager.Get("stations"));
-            StationClass.ConfigureRouting();
+            StationClass.ImportStations(ConfigManager.Get("stationTypes"), ConfigManager.Get("stations"));
+
             m_ip = GetLocalIPAddress();
 
             CreateClientConfig();
@@ -202,20 +209,21 @@ namespace Efficient_Automatic_Traveler_System
             BackupManager.Initialize();
             InventoryManager.Import();
             KanbanManager.Import();
-            
+
             Configure();
-            
+
             UserManager.Import();
 
             // open the MAS connection
             if (ConnectToData())
             {
                 UpdateOnline(orderQuery);
-            } else
+            }
+            else
             {
                 UpdateOffline();
             }
-            
+
         }
         private void UpdateOnline(string orderQuery = "")
         {
@@ -258,7 +266,8 @@ namespace Efficient_Automatic_Traveler_System
 
                     CloseMAS();
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Server.LogException(ex);
                 CloseMAS();
@@ -295,7 +304,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Server.Write("\r{0}", "Connecting to MAS...");
 
-           
+
             try
             {
                 // initialize the MAS connection
@@ -306,12 +315,13 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     Server.Write("\r{0}", "Connecting to MAS...Connected\n");
                     return true;
-                } else
+                }
+                else
                 {
                     Server.Write("\r{0}", "Connecting to MAS...Failed\n");
                     return false;
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -365,7 +375,7 @@ namespace Efficient_Automatic_Traveler_System
         private void Listen()
         {
             m_listener = new HttpListener();
-            
+
             m_listener.Prefixes.Add("http://" + m_ip + ":80" + "/");
             m_listener.Start();
             while (true)
@@ -390,7 +400,8 @@ namespace Efficient_Automatic_Traveler_System
             if (filename.Contains("drawings"))
             {
                 filename = Path.Combine(ConfigManager.Get("drawings"), Path.GetFileName(filename));
-            } else
+            }
+            else
             {
                 if (string.IsNullOrEmpty(filename))
                 {
@@ -604,5 +615,5 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
     }
-    
+
 }
