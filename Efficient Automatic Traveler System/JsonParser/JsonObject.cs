@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    public class JsonObject : JSON, IEnumerable<KeyValuePair<string,JSON>>
+    class JsonObject : JSON, IEnumerable<KeyValuePair<string,JSON>>
     {
         public JsonObject()
         {
@@ -58,7 +58,7 @@ namespace Efficient_Automatic_Traveler_System
             json += '}';
             return json;
         }
-        
+
         public bool ContainsKey(string key)
         {
             return (Value as Dictionary<string, JSON>).ContainsKey(key);
@@ -97,6 +97,15 @@ namespace Efficient_Automatic_Traveler_System
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable<KeyValuePair<string, JSON>>)(Value as Dictionary<string, JSON>)).GetEnumerator();
+        }
+
+        // Properties
+        public List<string> Keys
+        {
+            get
+            {
+                return (Value as Dictionary<string, JSON>).Keys.ToList();
+            }
         }
     }
 }

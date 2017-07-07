@@ -32,6 +32,7 @@ namespace Efficient_Automatic_Traveler_System
         void OnTravelersChanged(List<Traveler> travelers = null);
         void RefactorTravelers();
         void ClearStartQueue();
+        void CreateBoxTravelers();
     }
     public interface IOperatorActions
     {
@@ -247,8 +248,8 @@ namespace Efficient_Automatic_Traveler_System
             foreach (string travelerJSON in travelerArray)
             {
                 Traveler traveler = ImportTraveler(travelerJSON);
-                // add this traveler to the master list if it is not complete
-                if (traveler != null && traveler.State != ItemState.PostProcess && traveler.Quantity > 0)
+                // add this traveler to the master list if it is not complete or has dependencies
+                if (traveler != null && (traveler.State != ItemState.PostProcess && traveler.Quantity > 0))
                 {
                     // add this traveler to the imported list
                     m_importedFromPast.Add(traveler);
@@ -433,6 +434,14 @@ namespace Efficient_Automatic_Traveler_System
                 OnTravelersChanged(new List<Traveler>() { traveler });
             }
             return new ClientMessage();
+        }
+        public void CreateBoxTravelers()
+        {
+            foreach (Table table in new List<Table>(m_travelers.OfType<Table>()))
+            {
+                table.CreateBoxTraveler();
+            }
+            OnTravelersChanged();
         }
         #endregion
         //----------------------------------

@@ -194,7 +194,7 @@ namespace Efficient_Automatic_Traveler_System
             return obj.Stringify();
         }
         // print a label for this traveler
-        public virtual string PrintLabel(ushort itemID, LabelType type, int? qty = null, bool forcePrint = false, StationClass station = null)
+        public virtual string PrintLabel(ushort itemID, LabelType type, int? qty = null, bool forcePrint = false, StationClass station = null,string printer = "")
         {
             string result = "";
             try
@@ -205,7 +205,6 @@ namespace Efficient_Automatic_Traveler_System
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
                     string json = "{";
                     string fields = GetLabelFields(itemID, type);
-                    string printer = "";
                     string template = "";
                     // TEMP
                     //type = LabelType.Test;
@@ -228,14 +227,17 @@ namespace Efficient_Automatic_Traveler_System
                     if (qty == null) qty = 1;
                     size = template.Substring(0, 3).ToLower();
                     if (station == null) station = item.Station;
-                    printer = station.Printers.Find(x => x.ToLower().Contains(size));
                     if (printer == "")
                     {
-                        throw new Exception("Could not find a " + size + " printer for this station when printing a [" + template + "] , check the config.json file for a printer listing on this station");
-                    }
-                    if (Convert.ToBoolean(ConfigManager.Get("debug")))
-                    {
-                        printer = "4x2IT";
+                        printer = station.Printers.Find(x => x.ToLower().Contains(size));
+                        if (printer == "")
+                        {
+                            throw new Exception("Could not find a " + size + " printer for this station when printing a [" + template + "] , check the config.json file for a printer listing on this station");
+                        }
+                        if (Convert.ToBoolean(ConfigManager.Get("debug")))
+                        {
+                            printer = "4x2IT";
+                        }
                     }
                     //switch (type)
                     //{

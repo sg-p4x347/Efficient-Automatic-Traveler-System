@@ -19,13 +19,15 @@ namespace Efficient_Automatic_Traveler_System
                     string path = Path.Combine(Server.RootDir, "config.json");
                     m_configObj = (JsonObject)JSON.Parse(File.ReadAllText(path));
                     Server.WriteLine("Configuration settings loaded from current");
-                } else
+                }
+                else
                 {
                     m_configObj = (JsonObject)JSON.Parse(BackupManager.Import("config.json", date));
                     Server.WriteLine("Configuration settings loaded from " + BackupManager.DateToString(date.Value));
                 }
-                
-            } catch (Exception ex)
+
+            }
+            catch (Exception ex)
             {
                 Server.LogException(ex);
                 Server.WriteLine("Failed to load configuration settings");
@@ -48,10 +50,16 @@ namespace Efficient_Automatic_Traveler_System
             if (m_configObj.ContainsKey(key))
             {
                 return m_configObj.ContainsKey(key) ? (string)m_configObj[key] : "";
-            } else
+            }
+            else
             {
                 return "";
             }
+        }
+        // retuns a JSON object stored under the specified key
+        static public JSON GetJSON(string key)
+        {
+            return m_configObj.ContainsKey(key) ? m_configObj[key] : null;
         }
         // sets the json string stored under the specified key
         static public void Set(string key, JSON value)

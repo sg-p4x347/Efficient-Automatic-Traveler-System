@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Data;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -343,6 +344,31 @@ namespace Efficient_Automatic_Traveler_System
             }
 
             File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "rework.csv"), contents.ToArray<string>());
+
+            return webLocation;
+        }
+        public string InventorySummary()
+        {
+            string webLocation = "./inventory.csv";
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("ItemCode"));
+            foreach (StationClass station in StationClass.GetStations())
+            {
+                summary.Columns.Add(new DataColumn(station.Name));
+            }
+            foreach (string itemCode in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ItemCode).Distinct())
+            {
+                DataRow row = summary.NewRow();
+                row["ItemCode"] = itemCode;
+                foreach (StationClass station in StationClass.GetStations())
+                {
+                    
+                    row[station.Name] = Server.TravelerManager.GetTravelers.Where(t => t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.Station == station));
+                    
+                }
+                summary.Rows.Add(row);
+            }
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "inventory.csv"), summary.ToCSV());
 
             return webLocation;
         }

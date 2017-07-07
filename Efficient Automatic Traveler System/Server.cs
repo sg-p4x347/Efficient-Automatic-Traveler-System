@@ -125,6 +125,12 @@ namespace Efficient_Automatic_Traveler_System
                 case "configure":
                     Configure();
                     break;
+                case "CreateBoxTravelers":
+                    List<Box> pre = new List<Box>(TravelerManager.GetTravelers.OfType<Box>());
+                    TravelerManager.CreateBoxTravelers();
+                    List<Box> post = new List<Box>(TravelerManager.GetTravelers.OfType<Box>());
+                    Server.WriteLine("Created " + post.Count(p => !pre.Contains(p)) + " Box travelers");
+                    break;
                 default:
                     Console.WriteLine("Invalid; commands are [update, reset]");
                     break;

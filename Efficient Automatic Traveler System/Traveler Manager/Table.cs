@@ -220,15 +220,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             if (station.Type == "heian" && travelerManager != null)
             {
-                int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
-                if (boxQuantity > 0)
-                {
-                    // Create a box traveler for these items
-                    TableBox box = CreateBoxTraveler();
-                    box.Quantity = boxQuantity;
-                    box.EnterProduction(travelerManager);
-                    travelerManager.GetTravelers.Add(box);
-                }
+                CreateBoxTraveler();
             }
             base.Advance(station, travelerManager);
         }
@@ -357,19 +349,25 @@ namespace Efficient_Automatic_Traveler_System
             return total;
         }
         // Create a box traveler
-        public TableBox CreateBoxTraveler()
+        public void CreateBoxTraveler()
         {
-            TableBox box = new TableBox(this);
-            ChildTravelers.Add(box);
-            return box;
+            int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+            if (boxQuantity > 0)
+            {
+                TableBox box = new TableBox(this);
+                ChildTravelers.Add(box);
+                box.Quantity = boxQuantity;
+                box.EnterProduction(Server.TravelerManager);
+                Server.TravelerManager.GetTravelers.Add(box);
+            }
         }
         public override void EnterProduction(ITravelerManager travelerManager)
         {
             base.EnterProduction(travelerManager);
         }
-        public override string PrintLabel(ushort itemID, LabelType type, int? qty, bool forcePrint = false,StationClass station = null)
+        public override string PrintLabel(ushort itemID, LabelType type, int? qty, bool forcePrint = false,StationClass station = null, string printer = "")
         {
-            return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint,station);
+            return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint,station,printer:printer);
         }
         public override bool HasDrawing()
         {

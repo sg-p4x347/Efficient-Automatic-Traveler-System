@@ -1,1 +1,200 @@
 Configuration settings loaded from current
+Server started on 192.168.0.51:80
+websocket on 192.168.0.51:81
+
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	07/06/2017 @ 07:06
+
+EATS inventory loaded from backup
+Kanban Manager loaded from backup
+Configuration settings loaded from current
+Users loaded from backup
+Connecting to MAS...Connecting to MAS...Connected
+> Updating in Online mode
+Importing orders...- 5038886 has invoiced
+- 5038913 has invoiced
+- 5039246 has invoiced
+- 5039355 has invoiced
+- 5039358 has invoiced
+- 5039397 has invoiced
+- 5039404 has invoiced
+- 5039405 has invoiced
+- 5039421 has invoiced
+- 5039422 has invoiced
+- 5039423 has invoiced
+- 5039424 has invoiced
+- 5039426 has invoiced
+- 5039427 has invoiced
+- 5039436 has invoiced
+- 5039438 has invoiced
+- 5039440 has invoiced
+- 5039441 has invoiced
+- 5039442 has invoiced
+- 5039445 has invoiced
+- 5039452 has invoiced
+- 5039454 has invoiced
+- 5039471 has invoiced
+- 5039478 has invoiced
+- 5039480 has invoiced
+- 5039483 has invoiced
+- 5039511 has invoiced
+- 5039571 has invoiced
+- 5039577 has invoiced
+- 5039579 has invoiced
+- 5039580 has invoiced
+- 5039595 has invoiced
+- 5039596 has invoiced
+- 5039603 has invoiced
+- 5039627 has invoiced
+- 5039628 has invoiced
+- 5039634 has invoiced
+- 5039635 has invoiced
+- 5039647 has invoiced
+- 5039668 has invoiced
+- 5039671 has invoiced
+- WF00890 has invoiced
+- WF00891 has invoiced
+- WF00892 has invoiced
+- WF00895 has invoiced
+- WF00896 has invoiced
+- WF00897 has invoiced
+- WM16079 has invoiced
+- WM16080 has invoiced
+- WM16081 has invoiced
+- WM16083 has invoiced
+- WM16085 has invoiced
+- WM16086 has invoiced
+- 5039692 has invoiced
+- 5039694 has invoiced
+- 5039695 has invoiced
+- 5039698 has invoiced
+- 5039717 has invoiced
+- 5039719 has invoiced
+- 5039722 has invoiced
+- 5039723 has invoiced
+- 5039724 has invoiced
+- 5039726 has invoiced
+- 5039770 has invoiced
+- 5039771 has invoiced
+- 5039772 has invoiced
+- 5039773 has invoiced
+- 5039774 has invoiced
+- 5039775 has invoiced
+- 5039776 has invoiced
+- 5039777 has invoiced
+- 5039778 has invoiced
+- 5039779 has invoiced
+- 5039780 has invoiced
+- 5039781 has invoiced
+- 5039782 has invoiced
+- 5039783 has invoiced
+- 5039784 has invoiced
+- 5039785 has invoiced
+- 5039786 has invoiced
+- 5039787 has invoiced
+- 5039788 has invoiced
+- 5039789 has invoiced
+- 5039790 has invoiced
+- 5039791 has invoiced
+- 5039792 has invoiced
+- 5039793 has invoiced
+- 5039794 has invoiced
+- 5039795 has invoiced
+- 5039796 has invoiced
+- 5039797 has invoiced
+- 5039798 has invoiced
+- 5039799 has invoiced
+- 5039800 has invoiced
+- 5039801 has invoiced
+- 5039802 has invoiced
+- 5039803 has invoiced
+- 5039804 has invoiced
+- 5039805 has invoiced
+- 5039806 has invoiced
+- 5039807 has invoiced
+- 5039808 has invoiced
+- 5039809 has invoiced
+- 5039810 has invoiced
+- 5039811 has invoiced
+- FS06616 has invoiced
+- FS06617 has invoiced
+- FS06618 has invoiced
+- OV00322 has invoiced
+- OV00323 has invoiced
+- PC34791 has invoiced
+- PC34792 has invoiced
+- PC34793 has invoiced
+- PC34794 has invoiced
+- PC34795 has invoiced
+- PC34796 has invoiced
+- PC34797 has invoiced
+- PC34798 has invoiced
+- PC34799 has invoiced
+- PC34800 has invoiced
+- PC34801 has invoiced
+- PC34802 has invoiced
+- PC34803 has invoiced
+- PC34804 has invoiced
+- PC34805 has invoiced
+- PC34806 has invoiced
+- PC34807 has invoiced
+- PC34808 has invoiced
+- PC34809 has invoiced
+- PC34810 has invoiced
+- PC34811 has invoiced
+- PC34812 has invoiced
+- PC34814 has invoiced
+- PC34815 has invoiced
+- PC34816 has invoiced
+- PC34817 has invoiced
+- PC34818 has invoiced
+- PC34819 has invoiced
+- PC34820 has invoiced
+- PC34822 has invoiced
+- PC34823 has invoiced
+- PC34824 has invoiced
+- PC34825 has invoiced
+- PC34826 has invoiced
+- PC34827 has invoiced
+- PC34828 has invoiced
+- PC34829 has invoiced
+- PC34830 has invoiced
+- PC34831 has invoiced
+- PC34832 has invoiced
+- PC34833 has invoiced
+- PC34834 has invoiced
+- PC34835 has invoiced
+- PC34836 has invoiced
+- PC34837 has invoiced
+- PC34838 has invoiced
+- PC34839 has invoiced
+- PC34840 has invoiced
+- PC34841 has invoiced
+- PC34842 has invoiced
+- PC34843 has invoiced
+- PC34844 has invoiced
+- PC34845 has invoiced
+- PC34846 has invoiced
+- PC34847 has invoiced
+- PC34848 has invoiced
+- PC34849 has invoiced
+- PC34850 has invoiced
+- PC34851 has invoiced
+- PC34852 has invoiced
+- PC34853 has invoiced
+- PC34854 has invoiced
+- PC34855 has invoiced
+- PC34856 has invoiced
+- WF00903 has invoiced
+- WM16100 has invoiced
+- 5039812 has invoiced
+- 5039813 has invoiced
+- 5039814 has invoiced
+Importing orders...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Gathering Info...2%Gathering Info...4%Gathering Info...5%Gathering Info...7%Gathering Info...9%Gathering Info...11%Gathering Info...12%Gathering Info...14%Gathering Info...16%Gathering Info...18%Gathering Info...20%Gathering Info...21%Gathering Info...23%Gathering Info...25%Gathering Info...27%Gathering Info...29%Gathering Info...30%Gathering Info...32%Gathering Info...34%Gathering Info...36%Gathering Info...38%Gathering Info...39%Gathering Info...41%Gathering Info...43%Gathering Info...45%Gathering Info...46%Gathering Info...48%Gathering Info...50%Gathering Info...52%Gathering Info...54%Gathering Info...55%Gathering Info...57%Gathering Info...59%Gathering Info...61%Gathering Info...62%Gathering Info...64%Gathering Info...66%Gathering Info...68%Gathering Info...70%Gathering Info...71%Gathering Info...73%Gathering Info...75%Gathering Info...77%Gathering Info...79%Gathering Info...80%Gathering Info...82%Gathering Info...84%Gathering Info...86%Gathering Info...88%Gathering Info...89%Gathering Info...91%Gathering Info...93%Gathering Info...95%Gathering Info...96%Gathering Info...98%Gathering Info...100%Gathering Info...Finished
+Disconnected from MAS
+
+<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
+
+Created 1 Box travelers
+Created 0 Box travelers

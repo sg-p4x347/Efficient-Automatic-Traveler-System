@@ -871,7 +871,8 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("Production Report", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("Scrap Report", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("User Report", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}"),
-                    new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}")
+                    new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Inventory Report","ExportInventory",@"{""sort"":""All"",""type"":""Table""}")
                 };
                 Column manage = new Column(style: flexStart)
                 {
@@ -1203,7 +1204,7 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> parameters = new StringStream(obj["parameters"]).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parameters["travelerID"]));
                 int qty = Convert.ToInt32(form.ValueOf("quantity"));
-                return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(parameters["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), form.ValueOf("labelType")), qty > 0 ? qty : 1, true));
+                return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(parameters["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), form.ValueOf("labelType")), qty > 0 ? qty : 1, true,printer:form.ValueOf("printer")));
 
             }
             catch (Exception ex)
@@ -1263,17 +1264,14 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        public ClientMessage ExportTest(string json)
+        public ClientMessage ExportInventory(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-                string downloadLocation = summary.CSV("EATS Client\\test.csv", new List<SummaryColumn>() {
-                    new SummaryColumn("ID","ID"),
-                    new SummaryColumn("Scrapped","Scrapped")
-                });
+                string downloadLocation = summary.InventorySummary();
                 returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
             }
             catch (Exception ex)

@@ -820,8 +820,6 @@ namespace Efficient_Automatic_Traveler_System
                                     {
                                         return new ClientMessage("Info", traveler.PrintID(item) + " is not at your station;<br/>It is at " + item.Station.Name);
                                     }
-                                    
-
                                 }
                             }
                             else

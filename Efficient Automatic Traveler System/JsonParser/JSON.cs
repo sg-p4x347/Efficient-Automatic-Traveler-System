@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    public abstract class JSON
+    abstract class JSON
     {
         public static JSON Parse(string json)
         {
@@ -57,7 +57,16 @@ namespace Efficient_Automatic_Traveler_System
             get { return (this as JsonObject)[key]; }
             set { (this as JsonObject)[key] = value; }
         }
+        public T ToEnum<T>()
+        {
+            Type enumType = typeof(T);
 
+            // Can't use type constraints on value types, so have to do check like this
+            if (enumType.BaseType != typeof(Enum))
+                throw new ArgumentException("T must be of type System.Enum");
+
+            return (T)Enum.Parse(enumType, Value.ToString().DeQuote());
+        }
         public override string ToString()
         {
             return Value.ToString();
