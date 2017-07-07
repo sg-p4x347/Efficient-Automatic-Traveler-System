@@ -12,7 +12,7 @@ namespace Efficient_Automatic_Traveler_System
         Logout,
         Finish,
         FlagRework,
-        CancelRework,
+        DeflagRework,
         Rework
     }
     public class LogEvent : Event

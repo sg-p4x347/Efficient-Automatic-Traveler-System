@@ -45,7 +45,7 @@ namespace Efficient_Automatic_Traveler_System
                     var obj = m_clients[i] as ITravelers;
                     if (obj != null)
                     {
-                        obj.HandleTravelersChanged(travelers);
+                        obj.HandleTravelersChanged();
                     }
                     //---------------------------------------------------
                 }

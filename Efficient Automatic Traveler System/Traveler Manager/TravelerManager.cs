@@ -31,18 +31,19 @@ namespace Efficient_Automatic_Traveler_System
         void OnTravelersChanged(Traveler traveler);
         void RefactorTravelers();
         void ClearStartQueue();
+        void CreateBoxTravelers();
     }
     public interface IOperatorActions
     {
         //ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem travelerItem);
-        ClientMessage SubmitTraveler(Traveler traveler, StationClass station);
+        //ClientMessage SubmitTraveler(Traveler traveler, StationClass station);
     }
     public interface ISupervisorActions
     {
         string MoveTravelerStart(string json);
         ClientMessage LoadTravelerJSON(string json);
-        ClientMessage LoadTravelerAt(string json);
-        ClientMessage LoadItem(string json);
+        //ClientMessage LoadTravelerAt(string json);
+        //ClientMessage LoadItem(string json);
         ClientMessage CreateSummary(string json);
         ClientMessage EnterProduction(string json);
         ClientMessage DownloadSummary(string json);
@@ -204,14 +205,21 @@ namespace Efficient_Automatic_Traveler_System
         {
             Server.OrderManager.RefactorOrders();
             // only change the quantities of preprocess travelers
-            foreach (Traveler traveler in m_travelers.Where(t => t.State == LocalItemState.PreProcess))
+            foreach (Traveler traveler in m_travelers.Where(t => t.State == GlobalItemState.PreProcess))
             {
                 List<OrderItem> items = traveler.ParentOrders.SelectMany(o => o.Items.Where(i => i.ChildTraveler == traveler.ID)).ToList();
                 traveler.Quantity = items.Sum(i => i.QtyOrdered - i.QtyOnHand);
             }
             OnTravelersChanged();
         }
-        
+        public void CreateBoxTravelers()
+        {
+            foreach (Table table in new List<Table>(m_travelers.OfType<Table>()))
+            {
+                table.CreateBoxTraveler();
+            }
+            OnTravelersChanged();
+        }
         #endregion
         //----------------------------------
         #region IManager
@@ -235,7 +243,11 @@ namespace Efficient_Automatic_Traveler_System
             } else
             {
                 ImportPast();
+                // remove travelers that have been complete
+                m_travelers.RemoveAll(t => t.State == GlobalItemState.Finished);
             }
+            // link dem
+            LinkTravelers();
         }
         public void ImportPast()
         {
@@ -246,8 +258,8 @@ namespace Efficient_Automatic_Traveler_System
             foreach (string travelerJSON in travelerArray)
             {
                 Traveler traveler = ImportTraveler(travelerJSON);
-                // add this traveler to the master list if it is not complete
-                if (traveler != null && traveler.State != LocalItemState.PostProcess && traveler.Quantity > 0)
+                // add this traveler to the master list if it is not null
+                if (traveler != null)
                 {
                     // add this traveler to the imported list
                     m_importedFromPast.Add(traveler);
@@ -262,7 +274,7 @@ namespace Efficient_Automatic_Traveler_System
             foreach (Traveler traveler in m_importedFromPast)
             {
                 // push this traveler into production
-                if (traveler.State == LocalItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
+                if (traveler.State == GlobalItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
                 {
                     traveler.EnterProduction(this as ITravelerManager);
                 }
@@ -336,7 +348,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void ClearStartQueue()
         {
-            foreach (Traveler traveler in new List<Traveler>(GetTravelers.Where(t => t.State == LocalItemState.PreProcess && t.Station == StationClass.GetStation("Start"))))
+            foreach (Traveler traveler in new List<Traveler>(GetTravelers.Where(t => t.State == GlobalItemState.PreProcess && t.Station == StationClass.GetStation("Start"))))
             {
                 RemoveTraveler(traveler);
             }
@@ -497,28 +509,44 @@ namespace Efficient_Automatic_Traveler_System
         //    }
         //    return returnMessage;
         //}
-        public ClientMessage LoadTravelerAt(string json)
+        //public ClientMessage LoadTravelerAt(string json)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+        //        if (traveler != null)
+        //        {
+        //            returnMessage = new ClientMessage("LoadTravelerAt", traveler.Export("OperatorClient", StationClass.GetStation(obj["station"])));
+        //        }
+        //        else
+        //        {
+        //            returnMessage = new ClientMessage("Info", "Invalid traveler number");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
+        public void LinkTravelers()
         {
-            ClientMessage returnMessage = new ClientMessage();
-            try
+            foreach(Traveler traveler in m_travelers)
             {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
-                if (traveler != null)
+                // parents
+                foreach (int parentID in traveler.ParentIDs)
                 {
-                    returnMessage = new ClientMessage("LoadTravelerAt", traveler.Export("OperatorClient", StationClass.GetStation(obj["station"])));
+                    traveler.ParentTravelers.Add(FindTraveler(parentID));
                 }
-                else
+                // children
+                foreach (int childID in traveler.ChildIDs)
                 {
-                    returnMessage = new ClientMessage("Info", "Invalid traveler number");
+                    traveler.ChildTravelers.Add(FindTraveler(childID));
                 }
             }
-            catch (Exception ex)
-            {
-                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("Info", "error");
-            }
-            return returnMessage;
         }
         public ClientMessage LoadItem(string json)
         {

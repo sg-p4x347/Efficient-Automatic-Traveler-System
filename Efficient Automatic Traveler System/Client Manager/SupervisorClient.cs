@@ -19,16 +19,16 @@ namespace Efficient_Automatic_Traveler_System
         {
             AccessLevel = AccessLevel.Supervisor;
             m_travelerManager = travelerManager;
-            m_viewState = LocalItemState.PreProcess;
+            m_viewState = GlobalItemState.PreProcess;
             m_viewType = typeof(Table);
             m_selected = new List<Traveler>();
             SendMessage((new ClientMessage("InitStations", StationClass.GetStations().Stringify())).ToString());
             SendMessage((new ClientMessage("InitLabelTypes", ExtensionMethods.Stringify<LabelType>())).ToString());
             SendMessage((new ClientMessage("InterfaceOpen")).ToString());
-            HandleTravelersChanged(m_travelerManager.GetTravelers);
+            HandleTravelersChanged();
             KanbanManager.KanbanChanged += new KanbanChangedSubscriber(HandleKanbanChanged);
         }
-        public void HandleTravelersChanged(List<Traveler> travelers)
+        public void HandleTravelersChanged()
         {
             //bool mirror = true; // travelers.Count == m_currentManager.GetTravelers.Count;
             //travelers = m_currentManager.GetTravelers;
@@ -71,14 +71,14 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage(new ControlPanel("queueArray", queueArray, "body").Dispatch().ToString());
             //if (m_current != null) SendMessage(TravelerPopup(m_current));
         }
-        public Node CreateStation(StationClass station, LocalItemState state)
+        public Node CreateStation(StationClass station, GlobalItemState state)
         {
             List<Traveler> travelers = VisibleTravelers(station);
             NodeList queueContainer = new NodeList(new Style("queueContainer"));
             if (!travelers.Any()) queueContainer.Style.AddStyle("display", "none");
             TextNode heading = new TextNode(station.Name, new Style("heading"));
             queueContainer.Add(heading);
-            if (state == LocalItemState.PreProcess)
+            if (state == GlobalItemState.PreProcess)
             {
                 queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
                 {
@@ -86,7 +86,7 @@ namespace Efficient_Automatic_Traveler_System
                     {"Total Pending Labor:",new TextNode(travelers.Sum(t => t.GetTotalLabor()).ToString() + " min",new Style("beige") )},
                 }));
             }
-            else if (state == LocalItemState.InProcess)
+            else if (state == GlobalItemState.InProcess)
             {
                 queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
                 {
@@ -100,7 +100,7 @@ namespace Efficient_Automatic_Traveler_System
             queueContainer.Add(queue);
             return queueContainer;
         }
-        protected override Row CreateTravelerQueueItem(LocalItemState state, Traveler traveler)
+        protected override Row CreateTravelerQueueItem(GlobalItemState state, Traveler traveler)
         {
             Row queueItem = base.CreateTravelerQueueItem(state, traveler);
             // checkbox
@@ -116,17 +116,17 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (traveler.GetType() == m_viewType)
                 {
-                    if (m_viewState == LocalItemState.PreProcess)
+                    if (m_viewState == GlobalItemState.PreProcess)
                     {
-                        if (traveler.State == LocalItemState.PreProcess && traveler.Station == station) travelers.Add(traveler);
+                        if (traveler.State == GlobalItemState.PreProcess && traveler.Station == station) travelers.Add(traveler);
                     }
-                    else if (m_viewState == LocalItemState.InProcess)
+                    else if (m_viewState == GlobalItemState.InProcess)
                     {
-                        if (traveler.State == LocalItemState.InProcess && traveler.Items.Exists(i => i.LocalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
+                        if (traveler.State == GlobalItemState.InProcess && traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
                     }
-                    else if (m_viewState == LocalItemState.PostProcess)
+                    else if (m_viewState == GlobalItemState.Finished)
                     {
-                        if (traveler.Items.Exists(i => i.LocalState == m_viewState && i.Station == station)) travelers.Add(traveler);
+                        if (traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station)) travelers.Add(traveler);
                     }
                 }
             }
@@ -147,7 +147,7 @@ namespace Efficient_Automatic_Traveler_System
                     m_selected.Remove(traveler);
                 }
                 m_current = null;
-                HandleTravelersChanged(new List<Traveler>() { traveler });
+                HandleTravelersChanged();
                 return new ClientMessage();
             }
             catch (Exception ex)
@@ -194,17 +194,17 @@ namespace Efficient_Automatic_Traveler_System
         //----------------------------------
         #region Private Methods
         // standard export for supervisor travelers
-        private string ExportTraveler(Traveler traveler, StationClass station)
-        {
-            Dictionary<string, string> travelerJSON = new StringStream(traveler.ToString()).ParseJSON(false);
-            List<StationClass> stationsToDisplay = traveler.CurrentStations();
-            //if (m_viewState == ItemState.PreProcess) stationsToDisplay.Add(StationClass.GetStation("Start"));
-            Dictionary<string, string> queueItem = new Dictionary<string, string>();
-            queueItem.Add("queueItem", traveler.ExportStationSummary(station));
-            travelerJSON.Merge(queueItem);
-            travelerJSON.Merge(traveler.ExportProperties());
-            return travelerJSON.Stringify();
-        }
+        //private string ExportTraveler(Traveler traveler, StationClass station)
+        //{
+        //    Dictionary<string, string> travelerJSON = new StringStream(traveler.ToString()).ParseJSON(false);
+        //    List<StationClass> stationsToDisplay = traveler.CurrentStations();
+        //    //if (m_viewState == ItemState.PreProcess) stationsToDisplay.Add(StationClass.GetStation("Start"));
+        //    Dictionary<string, string> queueItem = new Dictionary<string, string>();
+        //    queueItem.Add("queueItem", traveler.ExportStationSummary(station));
+        //    travelerJSON.Merge(queueItem);
+        //    travelerJSON.Merge(traveler.ExportProperties());
+        //    return travelerJSON.Stringify();
+        //}
 
         #endregion
         #region Properties
@@ -217,11 +217,11 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                m_viewState = (LocalItemState)Enum.Parse(typeof(LocalItemState), obj["viewState"]);
+                m_viewState = (GlobalItemState)Enum.Parse(typeof(GlobalItemState), obj["viewState"]);
                 m_viewType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + obj["viewType"]);
                 m_filterState = Convert.ToBoolean(obj["filterState"]);
                 m_filterType = Convert.ToBoolean(obj["filterType"]);
-                HandleTravelersChanged(m_travelerManager.GetTravelers);
+                HandleTravelersChanged();
                 return new ClientMessage();
             }
             catch (Exception ex)
@@ -871,7 +871,8 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("Production Report", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("Scrap Report", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("User Report", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}"),
-                    new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}")
+                    new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Inventory Report","ExportInventory",@"{""sort"":""All"",""type"":""Table""}")
                 };
                 Column manage = new Column(style: flexStart)
                 {
@@ -1298,6 +1299,23 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error exporting rework report");
             }
         }
+        public ClientMessage ExportInventory(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                string downloadLocation = summary.InventorySummary();
+                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
         public ClientMessage QuantityAt(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
@@ -1418,7 +1436,7 @@ namespace Efficient_Automatic_Traveler_System
                         TravelerItem item = traveler.FindItem(itemID);
                         if (item != null)
                         {
-                            return LoadItem(@"{""travelerID"":" + traveler.ID + @",""itemID"":" + itemID + "}");
+                            return ItemPopup(@"{""travelerID"":" + traveler.ID + @",""itemID"":" + itemID + "}");
                         }
                         else
                         {
@@ -1452,7 +1470,6 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     return new ClientMessage("Info", "Incorrect format, please search:<br>a traveler, ex: 123456<br>a traveler item, ex: 123456-1234<br>an order, ex: 1234567");
                 }
-
             }
             catch (Exception ex)
             {
@@ -1506,7 +1523,7 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //-----------------------------------
         #region Properties
-        private LocalItemState m_viewState;
+        private GlobalItemState m_viewState;
         private Type m_viewType;
         private bool m_filterState;
         private bool m_filterType;

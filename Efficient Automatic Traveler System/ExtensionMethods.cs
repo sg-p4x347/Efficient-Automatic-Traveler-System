@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -195,6 +196,30 @@ namespace Efficient_Automatic_Traveler_System
                     }
                     csv += '\n';
                 }
+            }
+            return csv;
+        }
+        public static string ToCSV(this DataTable table)
+        {
+            string csv = "";
+            bool firstHeader = true;
+            foreach (DataColumn header in table.Columns)
+            {
+                if (!firstHeader) csv += ',';
+                csv += header.ColumnName.Quotate();
+                firstHeader = false;
+            }
+            csv += '\n';
+            foreach (DataRow row in table.Rows)
+            {
+                bool first = true;
+                foreach (DataColumn column in table.Columns)
+                {
+                    if (!first) csv += ',';
+                    csv += row[column].ToString().Quotate();
+                    first = false;
+                }
+                csv += '\n';
             }
             return csv;
         }

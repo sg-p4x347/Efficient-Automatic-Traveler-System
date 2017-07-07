@@ -74,7 +74,18 @@ namespace Efficient_Automatic_Traveler_System
         }
         public new JSON this[string key]
         {
-            get { return (Value as Dictionary<string, JSON>)[key]; }
+            get {
+                try
+                {
+                    return (Value as Dictionary<string, JSON>)[key];
+                }
+                catch (Exception ex)
+                {
+                    Server.LogException(ex);
+                    Server.WriteLine("JSON Exception");
+                    return new JsonNull();
+                }
+            }
             set
             {
                 try
@@ -84,7 +95,7 @@ namespace Efficient_Automatic_Traveler_System
                 catch (Exception ex)
                 {
                     Server.LogException(ex);
-                    Server.WriteLine("JSON creation exception");
+                    Server.WriteLine("JSON Exception");
                 }
             }
         }

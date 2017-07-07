@@ -397,6 +397,15 @@ namespace Efficient_Automatic_Traveler_System
             column.Add(row);
             return new ControlPanel("", column).Dispatch();
         }
+        public static ClientMessage PrintForm(Form form)
+        {
+            Dictionary<string, Node> list = new Dictionary<string, Node>();
+            foreach (JsonObject field in (JsonArray)form.ToJSON()["fields"])
+            {
+                list.Add(field["title"], new TextNode(field["value"]));
+            }
+            return new ControlPanel(form.Title, ControlPanel.CreateDictionary(list)).Dispatch();
+        }
     }
 
     public class EventListener

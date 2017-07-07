@@ -38,6 +38,10 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
+        public JSON ToJSON()
+        {
+            return JSON.Parse(ToString());
+        }
         public ClientMessage Dispatch(string callback, string parameters = "{}")
         {
             Dictionary<string, string> obj = new Dictionary<string, string>()
@@ -124,6 +128,13 @@ namespace Efficient_Automatic_Traveler_System
             DateTime.TryParse(form.ValueOf("from"), out from);
             DateTime.TryParse(form.ValueOf("to"), out to);
         }
+        public static Form CommentForm(string title, string fieldName, string fieldTitle = null)
+        {
+            Form form = new Form();
+            form.Title = title;
+            form.Textbox(fieldName, fieldTitle != null ? fieldTitle : fieldName);
+            return form;
+        }
         #endregion
         //---------------------------------------------------------
 
@@ -184,6 +195,14 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_title = value;
+            }
+        }
+
+        public List<string> Fields
+        {
+            get
+            {
+                return m_fields;
             }
         }
 

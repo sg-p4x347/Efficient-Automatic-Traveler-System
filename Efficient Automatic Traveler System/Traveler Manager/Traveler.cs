@@ -105,7 +105,8 @@ namespace Efficient_Automatic_Traveler_System
             }
             
             m_station = StationClass.GetStation(obj["station"]);
-            m_state = (LocalItemState)Enum.Parse(typeof(LocalItemState), obj["state"]);
+            if (obj["state"] == "PostProcess") obj["state"] = "Finished";// old DB conversion
+            m_state = (GlobalItemState)Enum.Parse(typeof(GlobalItemState), obj["state"]);
             m_dateStarted = obj["dateStarted"];
             m_comment = obj["comment"];
             m_lastReworkAccountedFor = (ushort)(obj.ContainsKey("lastReworkAccountedFor") ? Convert.ToUInt16(obj["lastReworkAccountedFor"]) : 0);
@@ -126,7 +127,7 @@ namespace Efficient_Automatic_Traveler_System
             m_itemCode = itemCode;
             m_quantity = quantity;
             m_station = StationClass.GetStation("Start");
-            m_state = LocalItemState.PreProcess;
+            State = GlobalItemState.PreProcess;
         }
         
         public void NewID()
@@ -294,7 +295,6 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return false;
             }
-
         }
         
         // Manually sets the station 
@@ -341,7 +341,7 @@ namespace Efficient_Automatic_Traveler_System
         
         public virtual void EnterProduction(ITravelerManager travelerManager)
         {
-            m_state = LocalItemState.InProcess;
+            m_state = GlobalItemState.InProcess;
             m_dateStarted = DateTime.Today.ToString("MM/dd/yyyy");
         }
         // advances all completed items at the specified station
@@ -352,10 +352,6 @@ namespace Efficient_Automatic_Traveler_System
         //        AdvanceItem(item.ID, travelerManager);
         //    }
         //}
-        public List<TravelerItem> CompletedItems(StationClass station)
-        {
-            return Items.Where(item => item.Station == station && item.BeenCompleted()).ToList();
-        }
         public TravelerItem AddItem(StationClass station)
         {
             // find the highest id
@@ -396,19 +392,24 @@ namespace Efficient_Automatic_Traveler_System
                 labelType = LabelType.Box;
             }
             PrintLabel(newItem.ID, labelType);
-            if (station.CreatesThis(this) && this is Table)
-            {
-                int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
-                if (boxQuantity > 0)
-                {
-                    // Create a box traveler for these items
-                    TableBox box = (this as Table).CreateBoxTraveler();
-                    box.Quantity = boxQuantity;
-                    box.EnterProduction(Server.TravelerManager);
-                    Server.TravelerManager.GetTravelers.Add(box);
-                }
-            }
+            //if (station.CreatesThis(this) && this is Table)
+            //{
+            //    int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+            //    if (boxQuantity > 0)
+            //    {
+            //        // Create a box traveler for these items
+            //        TableBox box = (this as Table).CreateBoxTraveler();
+            //        box.Quantity = boxQuantity;
+            //        box.EnterProduction(Server.TravelerManager);
+            //        Server.TravelerManager.GetTravelers.Add(box);
+            //    }
+            //}
             return newItem;
+        }
+        public void Finish()
+        {
+            State = GlobalItemState.Finished;
+            Server.TravelerManager.OnTravelersChanged(this);
         }
         public int QuantityPendingAt(StationClass station)
         {
@@ -447,35 +448,35 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Scrapped)).Count();
         }
-        public int QuantityCompleteAt(StationClass station)
+        public int QuantityCompletedAt(StationClass station, DateTime date)
         {
-            return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed)).Count();
+            return Items.Count(i => i.BeenCompletedDuring(station, date));
         }
         public int QuantityOrdered()
         {
             return ParentOrders.Sum(o => o.FindItems(ID).Sum(i => i.QtyOrdered));
         }
-        public string ExportStationSummary(StationClass station)
-        {
-            Dictionary<string, string> detail = new Dictionary<string, string>();
-            if (station == StationClass.GetStation("Start"))
-            {
-                detail.Add("qtyPending", m_quantity.ToString());
-            }
-            else if (station == StationClass.GetStation("Finished"))
-            {
-                detail.Add("qtyPending", QuantityAt(station).ToString());
-            }
-            else
-            {
-                detail.Add("qtyPending", QuantityPendingAt(station).ToString());
-            }
+        //public string ExportStationSummary(StationClass station)
+        //{
+        //    Dictionary<string, string> detail = new Dictionary<string, string>();
+        //    if (station == StationClass.GetStation("Start"))
+        //    {
+        //        detail.Add("qtyPending", m_quantity.ToString());
+        //    }
+        //    else if (station == StationClass.GetStation("Finished"))
+        //    {
+        //        detail.Add("qtyPending", QuantityAt(station).ToString());
+        //    }
+        //    else
+        //    {
+        //        detail.Add("qtyPending", QuantityPendingAt(station).ToString());
+        //    }
             
             
-            detail.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
-            detail.Add("qtyScrapped", QuantityScrappedAt(station).ToString());
-            return detail.Stringify();
-        }
+        //    detail.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
+        //    detail.Add("qtyScrapped", QuantityScrappedAt(station).ToString());
+        //    return detail.Stringify();
+        //}
         public List<StationClass> CurrentStations()
         {
             List<StationClass> stations = new List<StationClass>();
@@ -486,85 +487,85 @@ namespace Efficient_Automatic_Traveler_System
             if (Station == StationClass.GetStation("Start")) stations.Add(Station);
             return stations;
         }
-        public List<StationClass> CurrentStations(LocalItemState viewState)
+        public List<StationClass> CurrentStations(GlobalItemState viewState)
         {
             List<StationClass> stations = new List<StationClass>();
             foreach (StationClass station in StationClass.GetStations())
             {
-                if (Items.Exists(i => i.LocalState == viewState && i.Station == station)) stations.Add(station);
+                if (Items.Exists(i => i.GlobalState == viewState && i.Station == station)) stations.Add(station);
             }
-            if ((viewState == LocalItemState.PreProcess && State == LocalItemState.PreProcess) 
-                || (viewState == LocalItemState.InProcess && State == LocalItemState.InProcess)) stations.Add(Station);
+            if ((viewState == GlobalItemState.PreProcess && State == GlobalItemState.PreProcess) 
+                || (viewState == GlobalItemState.InProcess && State == GlobalItemState.InProcess)) stations.Add(Station);
             return stations;
         }
         
         // export for clients to display
-        public virtual string Export(string clientType, StationClass station)
-        {
-            Dictionary<string, string> obj = new StringStream(ToString()).ParseJSON(false);
-            obj["type"] = obj["type"].Replace(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name.Replace(' ','_') + ".", "");
+        //public virtual string Export(string clientType, StationClass station)
+        //{
+        //    Dictionary<string, string> obj = new StringStream(ToString()).ParseJSON(false);
+        //    obj["type"] = obj["type"].Replace(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name.Replace(' ','_') + ".", "");
 
-            obj = obj.Concat(ExportProperties(station)).ToDictionary(x => x.Key, x => x.Value);
-            if (station != null) {
-                obj["station"] = station.Name.Quotate();
-                obj.Add("qtyPending", QuantityPendingAt(station).ToString());
-                obj.Add("qtyScrapped", QuantityScrapped().ToString());
-                obj.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
-                obj.Add("totalLabor",Math.Round(GetTotalLabor()).ToString());
-                obj.Add("members", '[' + ExportTableRows( station) + ']');
-            }
+        //    obj = obj.Concat(ExportProperties(station)).ToDictionary(x => x.Key, x => x.Value);
+        //    if (station != null) {
+        //        obj["station"] = station.Name.Quotate();
+        //        obj.Add("qtyPending", QuantityPendingAt(station).ToString());
+        //        obj.Add("qtyScrapped", QuantityScrapped().ToString());
+        //        obj.Add("qtyCompleted", QuantityCompleteAt(station).ToString());
+        //        obj.Add("totalLabor",Math.Round(GetTotalLabor()).ToString());
+        //        obj.Add("members", '[' + ExportTableRows( station) + ']');
+        //    }
 
-            if (clientType == "SupervisorClient") {
-                List<string> stations = new List<string>();
-                if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station.Name);
-                foreach (TravelerItem item in Items)
-                {
-                    if (!stations.Exists(x => item.Station.Is(x)))
-                    {
-                        stations.Add(item.Station.Name);
-                    }
-                }
-                obj.Add("stations", stations.Stringify<string>());
-            }
-            return obj.Stringify();
-            //string json = "";
-            //json += "{";
-            //json += "\"type\":" + this.GetType().Name.Quotate() + ',';
-            //json += "\"ID\":" + m_ID + ",";
-            //json += "\"quantity\":" + m_quantity + ",";
-            //json += "\"items\":" + Items.Stringify() + ',';
-            //json += "\"state\":" + m_state.ToString().Quotate() + ',';
-            //if (clientType == "OperatorClient")
-            //{
-            //    json += "\"laborRate\":" + GetCurrentLabor() + ",";
-            //    json += "\"station\":" + station.Name.Quotate() + ",";
-            //    json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
-            //    json += "\"qtyScrapped\":" + QuantityScrapped() + ",";
-            //    json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
-            //    json += "\"members\":[";
+        //    if (clientType == "SupervisorClient") {
+        //        List<string> stations = new List<string>();
+        //        if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station.Name);
+        //        foreach (TravelerItem item in Items)
+        //        {
+        //            if (!stations.Exists(x => item.Station.Is(x)))
+        //            {
+        //                stations.Add(item.Station.Name);
+        //            }
+        //        }
+        //        obj.Add("stations", stations.Stringify<string>());
+        //    }
+        //    return obj.Stringify();
+        //    //string json = "";
+        //    //json += "{";
+        //    //json += "\"type\":" + this.GetType().Name.Quotate() + ',';
+        //    //json += "\"ID\":" + m_ID + ",";
+        //    //json += "\"quantity\":" + m_quantity + ",";
+        //    //json += "\"items\":" + Items.Stringify() + ',';
+        //    //json += "\"state\":" + m_state.ToString().Quotate() + ',';
+        //    //if (clientType == "OperatorClient")
+        //    //{
+        //    //    json += "\"laborRate\":" + GetCurrentLabor() + ",";
+        //    //    json += "\"station\":" + station.Name.Quotate() + ",";
+        //    //    json += "\"qtyPending\":" + QuantityPendingAt(station) + ",";
+        //    //    json += "\"qtyScrapped\":" + QuantityScrapped() + ",";
+        //    //    json += "\"qtyCompleted\":" + QuantityCompleteAt(station) + ",";
+        //    //    json += "\"members\":[";
 
-            //    json += ExportTableRows(clientType, station);
+        //    //    json += ExportTableRows(clientType, station);
 
-            //    json += "]";
-            //}
-            //else if (clientType == "SupervisorClient")
-            //{
-            //    json += "\"stations\":";
-            //    List<string> stations = new List<string>();
-            //    if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station.Name);
-            //    foreach (TravelerItem item in Items)
-            //    {
-            //        if (!stations.Exists(x => item.Station.Is(x)))
-            //        {
-            //            stations.Add(item.Station.Name);
-            //        }
-            //    }
-            //    json += stations.Stringify();
-            //}
-            //json += "}";
-            //return json;
+        //    //    json += "]";
+        //    //}
+        //    //else if (clientType == "SupervisorClient")
+        //    //{
+        //    //    json += "\"stations\":";
+        //    //    List<string> stations = new List<string>();
+        //    //    if (m_station == StationClass.GetStation("Start") || QuantityPendingAt(m_station) > 0 || QuantityAt(m_station) > 0) stations.Add(m_station.Name);
+        //    //    foreach (TravelerItem item in Items)
+        //    //    {
+        //    //        if (!stations.Exists(x => item.Station.Is(x)))
+        //    //        {
+        //    //            stations.Add(item.Station.Name);
+        //    //        }
+        //    //    }
+        //    //    json += stations.Stringify();
+        //    //}
+        //    //json += "}";
+        //    //return json;
 
-        }
+        //}
         // export for JSON viewer
         public virtual string ExportHuman()
         {
@@ -757,15 +758,15 @@ namespace Efficient_Automatic_Traveler_System
                 {"qtyScrapped",Items.Count(i => i.Scrapped).ToString() }
             };
         }
-        // returns a list of stations that an item can go to
-        public List<StationClass> PendingAt(StationClass station)
+        // returns true if this traveler is pending at the given station, else false
+        public bool PendingAt(StationClass station)
         {
             //JsonObject config = (JsonObject)ConfigManager.GetJSON("stationTypes")[station.Type];
             //if (config.ContainsKey(this.GetType().Name))
             //{
             //    return StationClass.OfType(config[this.GetType().Name]["next"]);
             //}
-            return StationClass.GetStations().Where(s => s.PreRequisites(this).Contains(station)).ToList();
+            return QuantityPendingAt(station) > 0;
         }
         // pre
         public abstract void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS);
@@ -851,7 +852,7 @@ namespace Efficient_Automatic_Traveler_System
         private List<Traveler> m_childTravelers;
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         private StationClass m_station;
-        private LocalItemState m_state;
+        private GlobalItemState m_state;
         private string m_dateStarted;
         private int m_priority;
         private ushort m_lastReworkAccountedFor;
@@ -924,13 +925,13 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public LocalItemState State
+        public GlobalItemState State
         {
             get
             {
                 return m_state;
             }
-            set
+            private set
             {
                 m_state = value;
             }

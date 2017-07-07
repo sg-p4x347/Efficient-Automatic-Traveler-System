@@ -29,7 +29,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             m_stations.Sort((x, y) => string.Compare(x.Name, y.Name));
             //ConfigManager.Set("stations", m_stations.Stringify(true, true));
-
+            ConfigureRouting();
             // get the types
             m_types = ((JsonObject)ConfigManager.GetJSON("stationTypes")).Keys;
         }
@@ -47,10 +47,12 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         JsonObject travelerEntry = (JsonObject)routingTypes[travelerType];
                         JsonArray preRequisites = (JsonArray)travelerEntry["preRequisites"];
+                        bool finish = (travelerEntry.ContainsKey("finish") && travelerEntry["finish"]);
                         List<StationClass> preReqs = new List<StationClass>();
                         foreach (string preReqType in preRequisites) preReqs.AddRange(StationClass.OfType(preReqType).Where(s => !preReqs.Contains(s)));
                         foreach (StationClass station in stationsOfType)
                         {
+                            station.Finish = finish;
                             if (station.m_preRequisites.ContainsKey(travelerType))
                             {
                                 station.m_preRequisites[travelerType].AddRange(preReqs);
@@ -166,6 +168,7 @@ namespace Efficient_Automatic_Traveler_System
         private Dictionary<string, List<StationClass>> m_preRequisites;
         private static List<StationClass> m_stations = new List<StationClass>();
         private static List<string> m_types = new List<string>();
+        private bool m_finish;
 
         #endregion
         #region Interface
@@ -215,7 +218,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_laborCodes;
             }
 
-            set
+            private set
             {
                 m_laborCodes = value;
             }
@@ -228,7 +231,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_type;
             }
 
-            set
+            private set
             {
                 m_type = value;
             }
@@ -244,6 +247,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_printers = value;
+            }
+        }
+
+        public bool Finish
+        {
+            get
+            {
+                return m_finish;
+            }
+
+            private set
+            {
+                m_finish = value;
             }
         }
         #endregion

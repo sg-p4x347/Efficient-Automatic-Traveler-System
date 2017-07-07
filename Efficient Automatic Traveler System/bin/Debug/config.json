@@ -34,8 +34,8 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"102074",
-	"nextEventID":"6789",
+	"nextTravelerID":"104023",
+	"nextEventID":"6941",
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",
@@ -173,7 +173,8 @@
 				"Table":{
 					"preRequisites":[
 						"contourEdgebander"
-					]
+					],
+					"finish":true
 				}
 			}
 		},
@@ -345,6 +346,15 @@
 		},
 		{
 			"name":"Table-Pack",
+			"type":"tablePack",
+			"mode":"Serial",
+			"printers":[
+				"4x6FloorTable",
+				"4x2FloorTableBox"
+			]
+		},
+		{
+			"name":"Table-Pack2",
 			"type":"tablePack",
 			"mode":"Serial",
 			"printers":[

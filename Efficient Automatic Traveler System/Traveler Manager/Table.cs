@@ -356,11 +356,17 @@ namespace Efficient_Automatic_Traveler_System
             return total;
         }
         // Create a box traveler
-        public TableBox CreateBoxTraveler()
+        public void CreateBoxTraveler()
         {
-            TableBox box = new TableBox(this);
-            ChildTravelers.Add(box);
-            return box;
+            int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+            if (boxQuantity > 0)
+            {
+                TableBox box = new TableBox(this);
+                ChildTravelers.Add(box);
+                box.Quantity = boxQuantity;
+                box.EnterProduction(Server.TravelerManager);
+                Server.TravelerManager.GetTravelers.Add(box);
+            }
         }
         public override void EnterProduction(ITravelerManager travelerManager)
         {

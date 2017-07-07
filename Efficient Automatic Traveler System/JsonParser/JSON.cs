@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    abstract class JSON
+    public abstract class JSON
     {
         public static JSON Parse(string json)
         {

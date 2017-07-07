@@ -14,6 +14,7 @@ namespace Efficient_Automatic_Traveler_System
     }
     public enum GlobalItemState
     {
+        PreProcess,
         InProcess,
         Scrapped,
         PendingRework,
@@ -94,12 +95,15 @@ namespace Efficient_Automatic_Traveler_System
         }
         public bool PendingAt(StationClass station)
         {
-            List<StationClass> pending = Parent.PendingAt(Station);
-            if (LocalState == LocalItemState.PreProcess)
+            if (LocalState == LocalItemState.PreProcess && Station == station)
             {
-                pending.Add(Station);
+                return true;
             }
-            return pending.Contains(station);
+            else
+            {
+                return station.PreRequisites(Parent).Contains(Station);
+            }
+            
             //// get the last station that this is complete at
             //StationClass lastStation = null;
             //// Get the last k
@@ -112,9 +116,7 @@ namespace Efficient_Automatic_Traveler_System
             //    }
             //} else
             //{
-
             //}
-
         }
         public bool InProcessAt(StationClass station)
         {
@@ -196,6 +198,7 @@ namespace Efficient_Automatic_Traveler_System
         public void Start(User user, StationClass station)
         {
             LocalState = LocalItemState.InProcess;
+            GlobalState = GlobalItemState.InProcess;
             Station = station;
             History.Add(new ProcessEvent(user, station, 0, ProcessType.Started));
             
@@ -220,9 +223,9 @@ namespace Efficient_Automatic_Traveler_System
                 History.Add(new ProcessEvent(user, m_station, duration, ProcessType.Completed));
             }
             // Finish this item if its next station is finished
-            if (Parent.PendingAt(station).Contains(StationClass.GetStation("Finished")))
+            if (Parent.PendingAt(StationClass.GetStation("Finished")))
             {
-                Finish(user);
+                Finish();
             }
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
@@ -241,23 +244,46 @@ namespace Efficient_Automatic_Traveler_System
         public void Rework(User user, StationClass station)
         {
             LocalState = LocalItemState.PreProcess;
+            GlobalState = GlobalItemState.InProcess;
             Station = StationClass.GetStation("Rework");
             History.Add(new LogEvent(user, LogType.Rework, station));
             Station = station;
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void FlagRework(User user, StationClass station, string source, string reason)
+        public void FlagRework(User user, StationClass station, Form form)
         {
             GlobalState = GlobalItemState.PendingRework;
 
-            History.Add(new LogEvent(user, LogType.FlagRework, station));
+            History.Add(new Documentation(user, LogType.FlagRework, station, form.ToJSON()));
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void Finish(User user)
+        public void DeflagRework(User user, StationClass station, Form form)
+        {
+            // Finish this item if its next station is finished
+            if (Parent.PendingAt(StationClass.GetStation("Finished")))
+            {
+                GlobalState = GlobalItemState.Finished;
+            } else if (History.OfType<ScrapEvent>().Any())
+            {
+                GlobalState = GlobalItemState.Scrapped;
+            }
+            {
+                GlobalState = GlobalItemState.InProcess;
+            }
+
+            History.Add(new Documentation(user, LogType.DeflagRework, station, form.ToJSON()));
+            Server.TravelerManager.OnTravelersChanged(Parent);
+        }
+        public void Finish()
         {
             LocalState = LocalItemState.PostProcess;
             GlobalState = GlobalItemState.Finished;
             Station = StationClass.GetStation("Finished");
+            // check to see if the traveler is finished
+            if (Parent.Items.Count(i => i.GlobalState == GlobalItemState.Finished) >= Parent.Quantity)
+            {
+                Parent.Finish();
+            }
             // add this item to inventory
             InventoryManager.Add(ItemCode);
             Server.TravelerManager.OnTravelersChanged(Parent);
@@ -278,7 +304,7 @@ namespace Efficient_Automatic_Traveler_System
         private LocalItemState m_localState;
         private GlobalItemState m_globalState;
         private Traveler m_parent;
-        private string m_comment;
+        private string m_comment = "";
         private bool m_cartonPrinted = false;
 
         public ushort ID
@@ -333,6 +359,14 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return GlobalState == GlobalItemState.Finished;
             }
+        }
+        public bool BeenCompletedDuring(StationClass station, DateTime date)
+        {
+            return History.OfType<ProcessEvent>().ToList().Exists(e => e.Date.Day == date.Date.Day) && BeenCompleted(station);
+        }
+        public bool BeenCompletedDuring(List<StationClass> stations, DateTime date)
+        {
+            return stations.All(station => History.OfType<ProcessEvent>().ToList().Exists(e => e.Date.Day == date.Date.Day) && BeenCompleted(station));
         }
         public bool PendingRework
         {
@@ -474,7 +508,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public bool BeenCompleted(StationClass station = null)
+        public bool BeenCompleted(StationClass station)
         {
             // negate any events that a rework event dismisses
             // latest rework station
@@ -485,12 +519,12 @@ namespace Efficient_Automatic_Traveler_System
                 // if reworks were found, eliminate all events for the latest rework station
                 if (lastRework != null)
                 {
-                    applicableHistory.RemoveAll(e => e.Station == lastRework.Station);
+                    applicableHistory.RemoveAll(e => e.Date >= lastRework.Date);
                 }
             }
             foreach (ProcessEvent evt in applicableHistory)
             {
-                if (evt.Station == (station != null ? station : Station) && evt.Process == ProcessType.Completed)
+                if (evt.Station.Type == station.Type && evt.Process == ProcessType.Completed)
                 {
                     return true;
                 }

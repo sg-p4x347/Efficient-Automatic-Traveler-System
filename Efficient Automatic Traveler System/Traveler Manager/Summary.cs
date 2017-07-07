@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-
+using System.Data;
 namespace Efficient_Automatic_Traveler_System
 {
     enum SummarySort
@@ -30,11 +30,11 @@ namespace Efficient_Automatic_Traveler_System
             m_sort = sortType;
             m_travelerType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + travelerType);
             switch (m_sort) {
-                case SummarySort.Active: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == LocalItemState.InProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
-                case SummarySort.Available: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == LocalItemState.PreProcess && x.Station == StationClass.GetStation("Start") && x.Quantity > 0).ToList(); break;
-                case SummarySort.Sorted: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == LocalItemState.PreProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
+                case SummarySort.Active: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == GlobalItemState.InProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
+                case SummarySort.Available: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == GlobalItemState.PreProcess && x.Station == StationClass.GetStation("Start") && x.Quantity > 0).ToList(); break;
+                case SummarySort.Sorted: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == GlobalItemState.PreProcess && x.Station != StationClass.GetStation("Start")).ToList(); break;
                 case SummarySort.All: m_travelers = travelerManager.GetTravelers; break;
-                case SummarySort.PreProcess: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == LocalItemState.PreProcess && x.Quantity > 0).ToList(); break;
+                case SummarySort.PreProcess: m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && x.State == GlobalItemState.PreProcess && x.Quantity > 0).ToList(); break;
 
                 default:
                     break;
@@ -149,72 +149,118 @@ namespace Efficient_Automatic_Traveler_System
 
             return webLocation;
         }
+        public string InventorySummary()
+        {
+            string webLocation = "./inventory.csv";
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("ItemCode"));
+            foreach (StationClass station in StationClass.GetStations())
+            {
+                summary.Columns.Add(new DataColumn(station.Name));
+            }
+            foreach (string itemCode in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ItemCode).Distinct())
+            {
+                DataRow row = summary.NewRow();
+                row["ItemCode"] = itemCode;
+                foreach (StationClass station in StationClass.GetStations())
+                {
+
+                    row[station.Name] = Server.TravelerManager.GetTravelers.Where(t => t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.Station == station));
+
+                }
+                summary.Rows.Add(row);
+            }
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "inventory.csv"), summary.ToCSV());
+
+            return webLocation;
+        }
         #endregion
         #region Private methods
         public string ProductionCSV()
         {
+            //string webLocation = "./production.csv";
+            //List<string> contents = new List<string>();
+            //// add the header
+            ////contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
+            //// add each detail for each traveler
+            //List<string> fields = new List<string>() { "Part", "Quantity", "Date"};
+            //List<Dictionary<string,string>> finished = new List<Dictionary<string,string>>();
+            //foreach (Traveler traveler in m_travelers)
+            //{
+            //    if (traveler is Table)
+            //    {
+            //        Table table = (Table)traveler;
+            //        Dictionary<string, string> item = finished.Find(x => x["Part"] == table.ItemCode);
+            //        int quantity = traveler.Items.Where(x => x.LocalState == LocalItemState.PostProcess && x.History.OfType<LogEvent>().ToList().Exists(y => y.LogType == LogType.Finish && y.Date >= DateTime.Today.Date)).Count();
+            //        if (quantity > 0)
+            //        {
+            //            if (item != null)
+            //            {
+            //                item["Quantity"] = (Convert.ToInt32(item["Quantity"]) + quantity).ToString();
+            //            }
+            //            else
+            //            {
+            //                item = new Dictionary<string, string>();
+            //                item.Add("Part", table.ItemCode);
+            //                item.Add("Quantity", quantity.ToString());
+            //                foreach (string stationName in StationClass.StationNames())
+            //                {
+            //                    double sum = m_travelers.Where(t => t is Table && t.ItemCode == table.ItemCode).Sum( j => j.Items.Sum(i => i.ProcessTimeAt(StationClass.GetStation(stationName))));
+
+            //                    if (sum > 0)
+            //                    {
+            //                        string field = stationName + " (min)";
+            //                        if (!fields.Exists(x => x == field)) fields.Add(field);
+            //                        item.Add(field, sum.ToString());
+            //                    }
+            //                }
+            //                item.Add("Date", DateTime.Today.Date.ToString("MM/dd/yyyy"));
+            //            }
+            //            finished.Add(item);
+            //        }
+            //    }
+            //}
+            //// add the header
+            //contents.Add(fields.Stringify<string>().Trim('[').Trim(']'));
+
+            //foreach (Dictionary<string,string> detail in finished)
+            //{
+            //    List<string> row = new List<string>();
+            //    foreach (string field in fields)
+            //    {
+            //        if (detail.ContainsKey(field))
+            //        {
+            //            row.Add(detail[field]);
+            //        } else
+            //        {
+            //            row.Add("");
+            //        }
+            //    }
+            //    contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
+            //}
+
+            //File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "production.csv"), contents.ToArray<string>());
+
+            //return webLocation;
+
+
+            //--------------------------------------------
             string webLocation = "./production.csv";
-            List<string> contents = new List<string>();
-            // add the header
-            //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
-            // add each detail for each traveler
-            List<string> fields = new List<string>() { "Part", "Quantity", "Date"};
-            List<Dictionary<string,string>> finished = new List<Dictionary<string,string>>();
-            foreach (Traveler traveler in m_travelers)
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("ItemCode"));
+            summary.Columns.Add(new DataColumn("Quantity"));
+            summary.Columns.Add(new DataColumn("Date"));
+            foreach (string itemCode in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ItemCode).Distinct())
             {
-                if (traveler is Table)
-                {
-                    Table table = (Table)traveler;
-                    Dictionary<string, string> item = finished.Find(x => x["Part"] == table.ItemCode);
-                    int quantity = traveler.Items.Where(x => x.LocalState == LocalItemState.PostProcess && x.History.OfType<LogEvent>().ToList().Exists(y => y.LogType == LogType.Finish && y.Date >= DateTime.Today.Date)).Count();
-                    if (quantity > 0)
-                    {
-                        if (item != null)
-                        {
-                            item["Quantity"] = (Convert.ToInt32(item["Quantity"]) + quantity).ToString();
-                        }
-                        else
-                        {
-                            item = new Dictionary<string, string>();
-                            item.Add("Part", table.ItemCode);
-                            item.Add("Quantity", quantity.ToString());
-                            foreach (string stationName in StationClass.StationNames())
-                            {
-                                double sum = m_travelers.Where(t => t is Table && t.ItemCode == table.ItemCode).Sum( j => j.Items.Sum(i => i.ProcessTimeAt(StationClass.GetStation(stationName))));
+                DataRow row = summary.NewRow();
+                row["ItemCode"] = itemCode;
+                row["Quantity"] = 
+                    Server.TravelerManager.GetTravelers.Where(t => 
+                    t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.BeenCompletedDuring(StationClass.OfType("tablePack"),DateTime.Today)));
 
-                                if (sum > 0)
-                                {
-                                    string field = stationName + " (min)";
-                                    if (!fields.Exists(x => x == field)) fields.Add(field);
-                                    item.Add(field, sum.ToString());
-                                }
-                            }
-                            item.Add("Date", DateTime.Today.Date.ToString("MM/dd/yyyy"));
-                        }
-                        finished.Add(item);
-                    }
-                }
+                summary.Rows.Add(row);
             }
-            // add the header
-            contents.Add(fields.Stringify<string>().Trim('[').Trim(']'));
-
-            foreach (Dictionary<string,string> detail in finished)
-            {
-                List<string> row = new List<string>();
-                foreach (string field in fields)
-                {
-                    if (detail.ContainsKey(field))
-                    {
-                        row.Add(detail[field]);
-                    } else
-                    {
-                        row.Add("");
-                    }
-                }
-                contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
-            }
-
-            File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "production.csv"), contents.ToArray<string>());
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "inventory.csv"), summary.ToCSV());
 
             return webLocation;
         }
@@ -304,7 +350,7 @@ namespace Efficient_Automatic_Traveler_System
             // add each detail for each traveler
             List<string> fields = new List<string>() {"Traveler", "Part", "Quantity"};
             List<Dictionary<string, string>> rework = new List<Dictionary<string, string>>();
-            foreach (Traveler traveler in m_travelers.Where(t => t.State == LocalItemState.InProcess))
+            foreach (Traveler traveler in m_travelers.Where(t => t.State == GlobalItemState.InProcess))
             {
                 int unaccountedScrap = traveler.Items.Count(i => i.Scrapped && i.ID > traveler.LastReworkAccountedFor);
 

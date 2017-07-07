@@ -8,7 +8,5 @@ namespace Efficient_Automatic_Traveler_System
 {
     public interface IOperator
     {
-        //ClientMessage AddTravelerEvent(string json);
-        ClientMessage SubmitTraveler(string json);
     }
 }
