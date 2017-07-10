@@ -34,8 +34,8 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"105130",
-	"nextEventID":"6972",
+	"nextTravelerID":"109352",
+	"nextEventID":"7073",
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",
@@ -178,6 +178,22 @@
 				}
 			}
 		},
+		"bulkPack":{
+			"creates":[
+				
+			],
+			"laborCodes":[
+				
+			],
+			"routing":{
+				"Table":{
+					"preRequisites":[
+						"contourEdgebander"
+					],
+					"finish":true
+				}
+			}
+		},
 		"tNut":{
 			"creates":[
 				
@@ -198,6 +214,37 @@
 					"preRequisites":[
 						"heian",
 						"weeke"
+					]
+				}
+			}
+		},
+		"snxEdgebander":{
+			"creates":[
+				
+			],
+			"laborCodes":[
+				
+			],
+			"routing":{
+				"Table":{
+					"preRequisites":[
+						"heian",
+						"weeke"
+					]
+				}
+			}
+		},
+		"snxTrimmer":{
+			"creates":[
+				
+			],
+			"laborCodes":[
+				"/LCEB1"
+			],
+			"routing":{
+				"Table":{
+					"preRequisites":[
+						"snxEdgebander"
 					]
 				}
 			}
@@ -329,8 +376,16 @@
 			]
 		},
 		{
-			"name":"SNX",
-			"type":"contourEdgebander",
+			"name":"SNX-Band",
+			"type":"snxEdgebander",
+			"mode":"Serial",
+			"printers":[
+				"4x2Heian2"
+			]
+		},
+		{
+			"name":"SNX-Trim",
+			"type":"snxTrimmer",
 			"mode":"Serial",
 			"printers":[
 				"4x2Heian2"
@@ -347,6 +402,15 @@
 		{
 			"name":"Table-Pack",
 			"type":"tablePack",
+			"mode":"Serial",
+			"printers":[
+				"4x6FloorTable",
+				"4x2FloorTableBox"
+			]
+		},
+		{
+			"name":"Bulk-Pack",
+			"type":"bulkPack",
 			"mode":"Serial",
 			"printers":[
 				"4x6FloorTable",

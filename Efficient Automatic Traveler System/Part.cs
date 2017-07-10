@@ -18,7 +18,7 @@ namespace Efficient_Automatic_Traveler_System
             m_bill = new Bill(form.ValueOf("itemCode"), 1, Convert.ToInt32(form.ValueOf("quantity")));
            
         }
-        public Part(string json) : base(json) {
+        public Part(string json, Version version) : base(json,version) {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();
             if (obj["itemCode"] != "")
             {

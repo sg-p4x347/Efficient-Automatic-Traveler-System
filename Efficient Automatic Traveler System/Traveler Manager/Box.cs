@@ -19,7 +19,7 @@ namespace Efficient_Automatic_Traveler_System
             m_boxSize = "";
         }
         // create Box by parsing json string
-        public Box(string json) : base(json)
+        public Box(string json,Version version) : base(json,version)
         {
             try
             {

@@ -105,6 +105,16 @@ namespace Efficient_Automatic_Traveler_System
             };
             m_fields.Add(obj.Stringify());
         }
+        public void AddBox(string name, string title)
+        {
+            JsonObject obj = new JsonObject()
+            {
+                {"type","addBox" },
+                {"name",name },
+                {"title",title }
+            };
+            m_fields.Add(obj);
+        }
         public void Radio(string name, string title, List<string> options, string value = "")
         {
             Selection(name, title, options, value, "radio");

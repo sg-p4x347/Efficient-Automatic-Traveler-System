@@ -7,6 +7,12 @@ using System.IO;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    public enum Version
+    {
+        _2_4,
+        _2_6
+
+    }
     public class BackupManager
     {
         #region Public Methods
@@ -110,7 +116,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         static public void Backup(string filename, string contents)
         {
+            Version version = Version._2_6;
             CreateBackupDir();
+            contents = version.ToString() + '\n' + contents;
             File.WriteAllText(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date), filename),contents);
             // mirror this at the data dump location
             File.WriteAllText(Path.Combine(ConfigManager.Get("dataDump"), "backup", DateToString(DateTime.Today.Date), filename), contents);
@@ -146,6 +154,19 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return m_backupDates;
             }
+        }
+        public static void GetVersion(string text, out string detail, out Version version)
+        {
+            version = Version._2_4;
+            try
+            {
+                version = (Version)Enum.Parse(typeof(Version), text.GetLine());
+            }
+            catch (Exception ex)
+            {
+                version = Version._2_4;
+            }
+            detail = text;
         }
         #endregion
     }

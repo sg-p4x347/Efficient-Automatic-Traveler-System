@@ -30,7 +30,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // create Box by parsing json string
-        public TableBox(string json) : base(json)
+        public TableBox(string json,Version version) : base(json,version)
         {
             try
             {

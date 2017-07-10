@@ -229,5 +229,13 @@ namespace Efficient_Automatic_Traveler_System
             for (var day = second.Date; day.Date >= first.Date; day = day.AddDays(-1))
                 yield return day;
         }
+        public static string GetLine(this string text)
+        {
+            List<string> lines = text.Split('\n').ToList();
+            string first = lines.First();
+            lines.Remove(first);
+            text = lines.Aggregate((i, j) => i += '\n' + j);
+            return first;
+        }
     }
 }

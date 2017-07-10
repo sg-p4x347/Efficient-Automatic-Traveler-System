@@ -73,7 +73,7 @@ namespace Efficient_Automatic_Traveler_System
                         order.OrderDate = Convert.ToDateTime(reader["OrderDate"]);
                         order.ShipVia = reader["ShipVia"].ToString();
                         if (order.ShipVia == null) order.ShipVia = ""; // havent found a shipper yet, will be LTL regardless
-                        order.ShipDate = Convert.ToDateTime(reader["ShipExpireDate"]);
+                        if (!reader.IsDBNull(reader.GetOrdinal("ShipExpireDate"))) order.ShipDate = Convert.ToDateTime(reader["ShipExpireDate"]);
                         if (order.Status != OrderStatus.Removed) order.SetStatus(Convert.ToChar(reader["OrderStatus"]));
                         order.Invoicing = reader["CurrentInvoiceNo"].ToString() != String.Empty;
 

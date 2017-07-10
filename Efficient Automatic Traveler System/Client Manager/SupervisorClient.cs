@@ -192,6 +192,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             SendMessage(new ClientMessage("KanbanMonitor").ToString());
         }
+        
         #endregion
         //----------------------------------
         #region Private Methods
@@ -874,7 +875,8 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("Scrap Report", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("User Report", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}"),
                     new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}"),
-                    new Button("Inventory Report","ExportInventory",@"{""sort"":""All"",""type"":""Table""}")
+                    new Button("Inventory Report","ExportInventory",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Custom Report","CustomReportForm")
                 };
                 Column manage = new Column(style: flexStart)
                 {
@@ -913,12 +915,14 @@ namespace Efficient_Automatic_Traveler_System
                 form.Title = "Filter orders";
                 form.Date("before", "Before");
                 form.Date("after", "After");
+                form.AddBox("orders", "Orders");
                 form.Checkbox("consolidate", "Consolidate orders", true);
                 form.Checkbox("consolidatePriorityCustomers", "Consolodate priority customers (" + ((JsonArray)JSON.Parse(ConfigManager.Get("priorityCustomers"))).Print() + ") separately<br>", true);
                 List<string> customers = new List<string>
                 {
                     "ABARGAS","ACEEDUC","ADP    ","AEROBLD","AFC    ","AGILE  ","AJAXSCH","ALABOUT","ALCON  ","ALLGLAS","ALTRA  ","ALUMBAU","AMAZOND","AMERICA","AMTAB  ","ANDERSN","ANIMAL ","AQADVOH","AQRSERV","AQUABUY","AQUADEP","AQUAIMP","AQUALND","AQUARAD","AQUARIA","AQUARIU","AQUATIC","ARVEST ","ATDAMER","ATDCAPL","BARNES ","BASSETT","BEAL   ","BECKER ","BEENEES","BEIMDIK","BIMART ","BLAZARC","BLUEFIN","BLUETHB","BMCOFF ","BOTSON ","BRALEY ","BRANCO ","BRNSNGR","C&HDIST","CAROLIN","CASCO  ","CENTRAL","CENTRPT","CFM    ","CHLDCAR","CHUCK  ","CLAIMS ","CLARK  ","CLAWPAW","COFACE ","COFCROC","COLEMAN","COMMERC","COMPACK","CONTFRN","COSTCO ","COSTCOW","COWPUBS","COYOTE ","CRAFTSH","CREATMK","CREWSMA","CROSBY ","CROSS  ","CROWDER","D&WSALE","DAISYBB","DALEY  ","DALMIDW","DAVCO  ","DAVENPO","DAVIDS ","DAVIDSB","DAVIDSO","DAVIS  ","DETWILE","DFWAQUA","DIABLO ","DONLOLL","DUBOSE ","DWYER  ","EASTSID","EBAY   ","EDUCDEP","ELEGAB ","ERICKSO","EVERFUR","EXFACTO","EXOTIC ","FACTSEL","FCOONEY","FELBAPT","FIECANA","FIESTAD","FINTAST","FISHPLA","FISHTAN","FISHWIS","FOREMAN","FOSTER ","FOURSOP","FRANKS ","FRYE   ","FURNNET","GASKET ","GENERAL","GODSCRE","GODSRES","GREATOU","GRIERIN","GRILLST","GUNLOCK","H&H    ","HARRIS ","HDHAPPY","HEMBREE","HEMBREM","HEMCO  ","HERTZFN","HOMEDEP","HOMETOW","HONCOMP","HOOVER ","HUNTE  ","HUNTER ","IFD    ","IFURN  ","INDOFF ","INTEGFN","IPAEDUC","IQSI   ","JACK'S ","JAMESCH","JAMESSH","JARDEN ","JJAMESO","JMJWORK","JSATRAD","K&S    ","KAMWOOD","KAY12  ","KENDAL ","KLOG   ","KSCONDS","KURTZBR","LAKESQ ","LANDMAN","LARSON ","LATTAS ","LAVACA ","LAZBOY ","LEGGETT","LIBERTY","LOISSCH","LONESTR","LOVELAN","LOWES  ","LOZIER ","MARTIN ","MARTLUT","MATEL  ","MAVIATN","MCALIST","MCCAULE","MCCOOL ","MEIJER ","MENARDS","MIDSTAT","MILLERS","MILLERZ","MILLS' ","MISC   ","MISCELL","MODOR  ","MOP    ","MORETHN","MOSER  ","MSSC   ","NATBOND","NATWIDE","NBFLA  ","NEEL   ","NEOSHOB","NEOSHOD","NEOSHR5","NETSHOP","NEWDISP","NEXTGEN","NOAHS  ","NOBIS  ","NOLANS ","OAKRIDG","OF003  ","OF008  ","OF011  ","OF012  ","OF013  ","OF014  ","OF023  ","OF031  ","OF032  ","OF034  ","OF035  ","OF046  ","OF059  ","OF065  ","OF067  ","OF070  ","OF071  ","OF083  ","OF088  ","OF090  ","OF091  ","OF093  ","OF094  ","OF099  ","OF109  ","OF111  ","OF112  ","OF113  ","OF114  ","OF120  ","OF123  ","OF124  ","OF141  ","OF150  ","OF153  ","OF156  ","OF158  ","OF167  ","OF169  ","OF172  ","OF174  ","OF180  ","OF181  ","OF182  ","OF184  ","OF185  ","OF190  ","OF197  ","OF205  ","OF208  ","OF209  ","OF211  ","OF226  ","OF232  ","OF233  ","OF237  ","OF243  ","OF250  ","OF252  ","OF255  ","OF256  ","OF268  ","OF270  ","OF272  ","OF273  ","OF279  ","OF283  ","OF284  ","OF289  ","OF291  ","OF293  ","OF295  ","OF298  ","OF299  ","OF314  ","OF317  ","OF321  ","OF323  ","OF326  ","OF327  ","OF329  ","OF330  ","OF335  ","OF336  ","OF338  ","OF341  ","OF348  ","OF352  ","OF353  ","OF354  ","OF360  ","OF362  ","OF368  ","OF371  ","OF372  ","OF374  ","OF377  ","OF378  ","OF384  ","OF385  ","OF386  ","OF387  ","OF391  ","OF392  ","OF393  ","OF394  ","OF395  ","OF396  ","OF397  ","OF398  ","OF399  ","OF401  ","OF402  ","OF403  ","OF404  ","OF405  ","OF406  ","OF407  ","OF408  ","OF409  ","OF410  ","OF411  ","OF413  ","OF422  ","OFCCON ","OFFDEP ","OFFDEPF","OFFDEPV","OFFDPBS","OFFMAX ","OFFSOUR","OFFSTAR","OFGPART","OFGWARR","OLDTOWN","OLPI   ","ONEWAYF","OSBORNE","OSULLIV","OVATION","OVERSTO","OZRKPLS","PALLETS","PARTS  ","PAYROLL","PEOPLES","PETCOCO","PETS PA","PETSMAR","PETSPLS","PETSUPE","PETZONE","PLAYTIM","PREWETT","QL     ","R&R MAC","R.G. AP","RACCHRC","REDNECK","REYNOLD","RJRAY  ","RMIND  ","ROEBLNG","ROGARDS","ROGERS ","ROSS   ","RTC    ","SAGECC ","SAMPLES","SAMS   ","SARTINF","SCHAEFE","SCHENKE","SCHLAID","SCHLBOX","SCHLPRD","SCHLSIN","SCLHSPR","SENECR7","SHERWIN","SHICK  ","SHORE  ","SIBLEY ","SMARKET","SPORTS ","SSIFURN","SSWORLD","STANDBY","STAOFMO","STAPLBI","STAPLES","STATELI","STEELMN","STRFRKD","STRONG ","SUNBEAM","TALBOT ","TANKSTO","TARPLEY","TEACHED","TEACHLG","TEENCHA","TEST   ","THOMPSN","THORCO ","TIENLE ","TOEWS  ","TOWNSEN","TPCINC ","TRAVIS ","TROPICL","TURNING","TWIN   ","TXSHCHS","UNBEAT ","UNITY  ","UPDATPT","UPS    ","USTOYCO","VASTMKT","VEASECM","VTINDUS","WALMART","WALMCOM","WAREHSE","WAYFAIR","WBMASON","WES MAT","WESTPOR","WILDSAL","WILPPET","WOODSPE","WORLDS ","WORLDWI","WORTHCN","WORTHDR","WOZEN  ","WYLIE  ","YELLOW ","ZERO   "
                 };
+
                 form.Selection("customer", "Customer", customers);
                 return form.Dispatch("CreateTravelers");
             }
@@ -935,16 +939,31 @@ namespace Efficient_Automatic_Traveler_System
                 Form form = new Form(json);
                 DateTime before = DateTime.MaxValue;
                 DateTime after = DateTime.MinValue;
+                List<Order> specificOrders = new List<Order>();
+                foreach (string orderNo in (JsonArray)JSON.Parse(form.ValueOf("orders")))
+                {
+                    Order order = Server.OrderManager.FindOrder(orderNo);
+                    if (order != null) specificOrders.Add(order);
+
+                }
                 DateTime.TryParse(form.ValueOf("before"), out before);
                 DateTime.TryParse(form.ValueOf("after"), out after);
                 bool consolidate = Convert.ToBoolean(form.ValueOf("consolidate"));
                 bool consolidatePriorityCustomers = Convert.ToBoolean(form.ValueOf("consolidatePriorityCustomers"));
-                List<Order> orders = Server.OrderManager.GetOpenOrders().Where(o => o.ShipDate > after && o.ShipDate < before).ToList();
-                // if filtering by customer
-                if (form.ValueOf("customer") != "")
+                List<Order> orders = new List<Order>();
+                if (specificOrders.Any())
                 {
-                    orders.RemoveAll(o => o.CustomerNo != form.ValueOf("customer"));
+                    orders.Concat(specificOrders);
+                } else
+                {
+                    orders = Server.OrderManager.GetOpenOrders().Where(o => o.ShipDate > after && o.ShipDate < before).ToList();
+                    // if filtering by customer
+                    if (form.ValueOf("customer") != "")
+                    {
+                        orders.RemoveAll(o => o.CustomerNo != form.ValueOf("customer"));
+                    }
                 }
+                
                 SendMessage(new ClientMessage("Updating").ToString());
                 Program.server.CreateTravelers(consolidate, consolidatePriorityCustomers, orders);
                 return new ClientMessage("Info", "Done refactoring PreProcess travelers");
@@ -1421,57 +1440,94 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "error");
             }
         }
+        public ClientMessage ListTravelers(List<Traveler> travelers)
+        {
+            Column column = new Column();
+            foreach (Traveler traveler in travelers)
+            {
+                column.Add(new Button(traveler.PrintID(), "LoadTraveler", new JsonObject() { { "travelerID", traveler.ID } }));
+            }
+            return new ControlPanel("Travelers", column).Dispatch();
+        }
         public ClientMessage SearchSubmitted(string json)
         {
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                string[] parts = obj["searchPhrase"].Split('-');
-                Traveler traveler = null;
-                if (parts.Length > 1)
-                {
-                    int travelerID = Convert.ToInt32(parts[0]);
-                    ushort itemID = Convert.ToUInt16(parts[1]);
-                    traveler = m_travelerManager.FindTraveler(travelerID);
-                    if (traveler != null)
-                    {
-                        TravelerItem item = traveler.FindItem(itemID);
-                        if (item != null)
+                string searchPhrase = obj["searchPhrase"];
+                //string[] parts = obj["searchPhrase"].Split('-');
+
+                string[] parts = searchPhrase.Split('-');
+                if (parts.Length == 2) {
+                    int travelerID;
+                    if (int.TryParse(parts[0],out travelerID)) {
+                        Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
+                        if (traveler != null)
                         {
-                            return ItemPopup(@"{""travelerID"":" + traveler.ID + @",""itemID"":" + itemID + "}");
+                            ushort itemID;
+                            if (ushort.TryParse(parts[1],out itemID))
+                            {
+                                TravelerItem item = traveler.FindItem(itemID);
+                                if (item != null)
+                                {
+                                    return ItemPopup(@"{""travelerID"":" + traveler.ID + @",""itemID"":" + itemID + "}");
+                                }
+                            }
+                            return TravelerPopup(traveler);
                         }
-                        else
-                        {
-                            SendMessage(LoadTraveler(@"{""travelerID"":" + traveler.ID + "}").ToString());
-                            return new ClientMessage("Info", "Traveler " + travelerID.ToString("D6") + " has no item with ID: " + itemID);
-                        }
-                    }
-                    else
-                    {
-                        return new ClientMessage("Info", "Traveler " + travelerID.ToString("D6") + " could not be found");
                     }
                 }
-                else if (parts[0].Length <= 6)
+                if (Traveler.IsTable(searchPhrase) || Traveler.IsChair(searchPhrase))
                 {
-                    traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parts[0]));
-                    if (traveler != null)
-                    {
-                        return LoadTraveler(@"{""travelerID"":" + traveler.ID + "}");
-                    }
-                    else
-                    {
-                        return new ClientMessage("Info", "Traveler " + parts[0] + " could not be found");
-                    }
+                    return ListTravelers(Server.TravelerManager.GetTravelers.Where(t => t.ItemCode == searchPhrase).ToList());
                 }
-                else if (parts[0].Length == 7)
+                Order order = Server.OrderManager.FindOrder(searchPhrase);
+                if (order != null)
                 {
-                    // all orders have 7 character order numbers
-                    return OrderPopup(@"{""orderNo"":" + parts[0].Quotate() + "}");
+                    return OrderPopup(new JsonObject() { { "orderNo", order.SalesOrderNo } });
                 }
-                else
-                {
-                    return new ClientMessage("Info", "Incorrect format, please search:<br>a traveler, ex: 123456<br>a traveler item, ex: 123456-1234<br>an order, ex: 1234567");
-                }
+                return new ClientMessage("Info", "Could not identify a search target");
+                //    ushort itemID = Convert.ToUInt16(parts[1]);
+                //    traveler = m_travelerManager.FindTraveler(travelerID);
+                //    if (traveler != null)
+                //    {
+                //        TravelerItem item = traveler.FindItem(itemID);
+                //        if (item != null)
+                //        {
+                //            return ItemPopup(@"{""travelerID"":" + traveler.ID + @",""itemID"":" + itemID + "}");
+                //        }
+                //        else
+                //        {
+                //            SendMessage(LoadTraveler(@"{""travelerID"":" + traveler.ID + "}").ToString());
+                //            return new ClientMessage("Info", "Traveler " + travelerID.ToString("D6") + " has no item with ID: " + itemID);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        return new ClientMessage("Info", "Traveler " + travelerID.ToString("D6") + " could not be found");
+                //    }
+                //}
+                //else if (parts[0].Length <= 6)
+                //{
+                //    traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parts[0]));
+                //    if (traveler != null)
+                //    {
+                //        return LoadTraveler(@"{""travelerID"":" + traveler.ID + "}");
+                //    }
+                //    else
+                //    {
+                //        return new ClientMessage("Info", "Traveler " + parts[0] + " could not be found");
+                //    }
+                //}
+                //else if (parts[0].Length == 7)
+                //{
+                //    // all orders have 7 character order numbers
+                //    return OrderPopup(@"{""orderNo"":" + parts[0].Quotate() + "}");
+                //}
+                //else
+                //{
+                //    return new ClientMessage("Info", "Incorrect format, please search:<br>a traveler, ex: 123456<br>a traveler item, ex: 123456-1234<br>an order, ex: 1234567");
+                //}
             }
             catch (Exception ex)
             {
@@ -1522,6 +1578,57 @@ namespace Efficient_Automatic_Traveler_System
             return KanbanManager.DeleteKanbanItem(json);
         }
 
+        public ClientMessage CustomReportForm(string json)
+        {
+            try
+            {
+                Form form = new Form();
+                form.Title = "Custom Report";
+                form.Selection("subject", "Subject", new List<string>()
+                {
+                    "Traveler",
+                    "User",
+                    "Inventory"
+                });
+                form.Date("from", "From");
+                form.Date("to", "To");
+                return form.Dispatch("CustomReport");
+                
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading custom report form");
+            }
+        }
+        public ClientMessage CustomReport(string json)
+        {
+            try
+            {
+                Form form = new Form(json);
+                DateTime from = DateTime.Today;
+                DateTime to = DateTime.Today;
+                Form.DateRange(form, out from, out to);
+                Summary summary = new Summary(from, to);
+
+                string downloadLocation = "";
+                switch (form.ValueOf("subject"))
+                {
+                    case "Traveler": downloadLocation = summary.ProductionCSV(); break;
+                    case "User": downloadLocation = summary.UserCSV(); break;
+                    case "Inventory": downloadLocation = summary.InventorySummary(); break;
+                }
+                if (downloadLocation != String.Empty)
+                {
+                    return new ClientMessage("Redirect", downloadLocation.Quotate());
+                }
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading custom report form");
+            }
+        }
         #endregion
         //-----------------------------------
         #region Properties

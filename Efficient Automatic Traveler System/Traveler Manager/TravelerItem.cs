@@ -70,9 +70,20 @@ namespace Efficient_Automatic_Traveler_System
                         History.Add(BackupManager.ImportDerived<Event>(eventString));
                     }
                 }
-                if (History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish)) GlobalState = GlobalItemState.Finished;
                 if (obj.ContainsKey("state")) LocalState = obj["state"].ToEnum<LocalItemState>();
                 if (obj.ContainsKey("comment")) Comment = obj["comment"];
+
+                // old DB conversion
+                if (History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish)) GlobalState = GlobalItemState.Finished;
+                if (Station.Type != "heian" && LocalState == LocalItemState.InProcess && !History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started))
+                {
+                    LocalState = LocalItemState.PreProcess;
+                } else if (Station.Type == "heian" && LocalState == LocalItemState.InProcess)
+                {
+                    LocalState = LocalItemState.PostProcess;
+                }
+
+                
             }
             catch (Exception ex)
             {
@@ -232,7 +243,7 @@ namespace Efficient_Automatic_Traveler_System
             // Finish this item if this station is configured to finish the item
             if (station.Finishes(Parent))
             {
-                Finish();
+                Finish(user);
             }
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
@@ -281,11 +292,12 @@ namespace Efficient_Automatic_Traveler_System
             History.Add(new Documentation(user, LogType.DeflagRework, station, form.ToJSON()));
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void Finish()
+        public void Finish(User user)
         {
             LocalState = LocalItemState.PostProcess;
             GlobalState = GlobalItemState.Finished;
             Station = StationClass.GetStation("Finished");
+            History.Add(new LogEvent(user, LogType.Finish));
             // check to see if the traveler is finished
             if (Parent.Items.Count(i => i.GlobalState == GlobalItemState.Finished) >= Parent.Quantity)
             {
@@ -367,13 +379,23 @@ namespace Efficient_Automatic_Traveler_System
                 return GlobalState == GlobalItemState.Finished;
             }
         }
-        public bool BeenCompletedDuring(StationClass station, DateTime date)
+        public bool BeenCompletedDuring(DateTime date)
         {
-            return History.OfType<ProcessEvent>().ToList().Exists(e => e.Date.Day == date.Date.Day) && BeenCompleted(station);
+            return History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish && e.Date.Day == date.Date.Day);
         }
-        public bool BeenCompletedDuring(List<StationClass> stations, DateTime date)
+        public bool DateFinished(out DateTime date)
         {
-            return stations.All(station => History.OfType<ProcessEvent>().ToList().Exists(e => e.Date.Day == date.Date.Day) && BeenCompleted(station));
+            LogEvent finish = History.OfType<LogEvent>().ToList().Find(e => e.LogType == LogType.Finish);
+            if (finish != null)
+            {
+                date = finish.Date;
+                return true;
+            } else
+            {
+                date = DateTime.MaxValue;
+                return false;
+            }
+            
         }
         public bool PendingRework
         {

@@ -56,7 +56,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Bill = new Bill(form.ValueOf("itemCode"), 1, Convert.ToInt32(form.ValueOf("quantity")));
         }
-        public Table(string json) : base(json) {
+        public Table(string json,Version version) : base(json,version) {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();
             if (obj["itemCode"] != "")
             {
@@ -114,6 +114,7 @@ namespace Efficient_Automatic_Traveler_System
         public override Dictionary<string, Node> ExportViewProperties()
         {
             Dictionary<string, Node> list = base.ExportViewProperties();
+            list.Add("Bulk Pack", new TextNode(BulkPack() ? "Yes" : "No", new Style("orange", "shadow")));
             list.Add("Drawing", new TextNode(Bill.DrawingNo));
             list.Add("Blank Name", new TextNode(BlankNo, new Style("twoEM")));
             list.Add("Blank Size", new TextNode(BlankSize));
@@ -359,7 +360,7 @@ namespace Efficient_Automatic_Traveler_System
         public void CreateBoxTraveler()
         {
             int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
-            if (boxQuantity > 0)
+            if (!BulkPack() && boxQuantity > 0)
             {
                 TableBox box = new TableBox(this);
                 ChildTravelers.Add(box);
@@ -367,6 +368,10 @@ namespace Efficient_Automatic_Traveler_System
                 box.EnterProduction(Server.TravelerManager);
                 Server.TravelerManager.GetTravelers.Add(box);
             }
+        }
+        public bool BulkPack()
+        {
+            return ItemCode.Contains('U');
         }
         public override void EnterProduction(ITravelerManager travelerManager)
         {

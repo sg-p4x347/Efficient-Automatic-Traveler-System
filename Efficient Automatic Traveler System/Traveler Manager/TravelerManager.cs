@@ -229,11 +229,16 @@ namespace Efficient_Automatic_Traveler_System
             m_travelers.Clear();
             if (BackupManager.CurrentBackupExists("travelers.json") || date != null)
             {
-                List<string> travelerArray = (new StringStream(BackupManager.Import("travelers.json", date))).ParseJSONarray();
+                string travelerText = "";
+                Version version;
+                BackupManager.GetVersion(BackupManager.Import("travelers.json", date),out  travelerText,out version);
+
+
+                List<string> travelerArray = (new StringStream(travelerText)).ParseJSONarray();
                 Server.Write("\r{0}", "Loading travelers from backup...");
                 foreach (string travelerJSON in travelerArray)
                 {
-                    Traveler traveler = ImportTraveler(travelerJSON);
+                    Traveler traveler = ImportTraveler(travelerJSON,version);
                     if (traveler != null)
                     {
                         m_travelers.Add(traveler);
@@ -253,11 +258,15 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_travelers.Clear();
             m_importedFromPast.Clear();
-            List<string> travelerArray = (new StringStream(BackupManager.ImportPast("travelers.json"))).ParseJSONarray();
+            string travelerText = "";
+            Version version;
+            BackupManager.GetVersion(BackupManager.ImportPast("travelers.json"), out travelerText, out version);
+
+            List<string> travelerArray = new StringStream(travelerText).ParseJSONarray();
             Server.Write("\r{0}", "Loading travelers from backup...");
             foreach (string travelerJSON in travelerArray)
             {
-                Traveler traveler = ImportTraveler(travelerJSON);
+                Traveler traveler = ImportTraveler(travelerJSON, version);
                 // add this traveler to the master list if it is not null
                 if (traveler != null)
                 {
@@ -819,14 +828,14 @@ namespace Efficient_Automatic_Traveler_System
         {
             OnTravelersChanged(new List<Traveler>() { traveler });
         }
-        private Traveler ImportTraveler(string json)
+        private Traveler ImportTraveler(string json,Version version)
         {
             Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
             Traveler traveler = null;
             if (obj["type"] != "")
             {
                 Type type = Type.GetType(Server.Assembly + obj["type"]);
-                traveler = (Traveler)Activator.CreateInstance(type, json);
+                traveler = (Traveler)Activator.CreateInstance(type, json, version);
             }
             return traveler;
         }

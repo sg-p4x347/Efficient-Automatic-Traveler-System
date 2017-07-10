@@ -121,19 +121,7 @@ function PopupManager(blackout) {
 			row.appendChild(fieldTitle);
 			//------
 			var input;
-			if (field.type != "select") {
-				if (field.type != "textarea") {
-					input = document.createElement("INPUT");
-					input.type = field.type;
-					if (field.type == "number") {
-						input.min = field.min;
-						input.max = field.max;
-					}
-				} else {
-					input = document.createElement("textarea");
-				}
-					
-			} else {
+			if (field.type == "select") {
 				input = document.createElement("SELECT");
 				field.options.forEach(function (optionText) {
 					var option = document.createElement("OPTION");
@@ -141,17 +129,35 @@ function PopupManager(blackout) {
 					option.value = optionText;
 					input.appendChild(option);
 				});
-			}
-			if (field.type != "checkbox") {
-				input.value = field.value;
-			} else {
-				input.checked = field.value;
+			} else if (field.type == "textarea") {
+				input = document.createElement("textarea");
+			} else if (field.type != "addBox") {
+				input = document.createElement("INPUT");
+				input.type = field.type;
+				if (field.type == "number") {
+					input.min = field.min;
+					input.max = field.max;
+				}
 				
+			} else if (field.type == "addBox") {
+				
+				input = {
+					value:[],
+					type:field.type
+				};
+				row.appendChild( self.CreateAddBox(input.value));
 			}
-			input.onclick = function (evt) {
+			if (input.type != "addBox") {
+				if (field.type != "checkbox") {
+					input.value = field.value;
+				} else {
+					input.checked = field.value;
+				}
+				input.onclick = function (evt) {
 					evt.stopPropagation();
 				}
-			row.appendChild(input);
+				row.appendChild(input);
+			}
 			inputs.push(input);
 			//------
 			popup.appendChild(row);
@@ -496,6 +502,32 @@ function PopupManager(blackout) {
 		input.type = "date";
 		return input;
 	}
+	this.CreateAddBox = function (listArray) {
+		var addBox = document.createElement("FORM");
+		addBox.style.display = "flex";
+		addBox.className = "mediumBorder";
+		var list = document.createElement("UL");
+		var input = document.createElement("INPUT");
+		input.type = "textbox";
+		var add = document.createElement("Button");
+		add.innerHTML = "Add";
+		add.className = "dark button";
+		
+		add.onclick = function () {
+			var item = document.createElement("LI");
+			item.innerHTML = input.value;
+			listArray.push(input.value);
+			list.appendChild(item);
+		}
+		
+		add.type = "submit";
+		addBox.appendChild(list);
+		addBox.appendChild(add);
+		addBox.appendChild(input);
+		
+		
+		return addBox;
+	}
 	//=========================================
 	
 	// sets scroll positions for elements with ids
@@ -645,6 +677,7 @@ function PopupRadioButtons(name, options, value, callback) {
 }
 // calls the callback with: callback(object,value);
 PopupRadioButtons.prototype.Initialize = function (popupManager, object) {
+	
 	var self = this;
 	self.element = document.createElement("DIV");
 	self.element.className = "dark oneEM";

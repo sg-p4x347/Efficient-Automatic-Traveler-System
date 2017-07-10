@@ -94,14 +94,14 @@ namespace Efficient_Automatic_Traveler_System
 
                 List<TravelerItem> items = new List<TravelerItem>();
                 // InProcess queue items
-                items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.LocalState == LocalItemState.InProcess)).ToList();
+                items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.InProcessAt(m_station))).ToList();
 
                 // sort the items by start event time (most recent on top)
                 try
                 {
                     if (items.Count(i => i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station)) >= 2)
                     {
-                        items.Sort((a, b) => a.History.OfType<ProcessEvent>().Last(e => e.Process == ProcessType.Started && e.Station == m_station).Date.CompareTo(b.History.OfType<ProcessEvent>().Last(e => e.Process == ProcessType.Started && e.Station == m_station).Date));
+                        items.Sort((a, b) => a.History.Last().Date.CompareTo(b.History.Last().Date));
                     }
                 }
                 catch (Exception ex) { }

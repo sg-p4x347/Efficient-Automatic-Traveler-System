@@ -178,71 +178,6 @@ namespace Efficient_Automatic_Traveler_System
         #region Private methods
         public string ProductionCSV()
         {
-            //string webLocation = "./production.csv";
-            //List<string> contents = new List<string>();
-            //// add the header
-            ////contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
-            //// add each detail for each traveler
-            //List<string> fields = new List<string>() { "Part", "Quantity", "Date"};
-            //List<Dictionary<string,string>> finished = new List<Dictionary<string,string>>();
-            //foreach (Traveler traveler in m_travelers)
-            //{
-            //    if (traveler is Table)
-            //    {
-            //        Table table = (Table)traveler;
-            //        Dictionary<string, string> item = finished.Find(x => x["Part"] == table.ItemCode);
-            //        int quantity = traveler.Items.Where(x => x.LocalState == LocalItemState.PostProcess && x.History.OfType<LogEvent>().ToList().Exists(y => y.LogType == LogType.Finish && y.Date >= DateTime.Today.Date)).Count();
-            //        if (quantity > 0)
-            //        {
-            //            if (item != null)
-            //            {
-            //                item["Quantity"] = (Convert.ToInt32(item["Quantity"]) + quantity).ToString();
-            //            }
-            //            else
-            //            {
-            //                item = new Dictionary<string, string>();
-            //                item.Add("Part", table.ItemCode);
-            //                item.Add("Quantity", quantity.ToString());
-            //                foreach (string stationName in StationClass.StationNames())
-            //                {
-            //                    double sum = m_travelers.Where(t => t is Table && t.ItemCode == table.ItemCode).Sum( j => j.Items.Sum(i => i.ProcessTimeAt(StationClass.GetStation(stationName))));
-
-            //                    if (sum > 0)
-            //                    {
-            //                        string field = stationName + " (min)";
-            //                        if (!fields.Exists(x => x == field)) fields.Add(field);
-            //                        item.Add(field, sum.ToString());
-            //                    }
-            //                }
-            //                item.Add("Date", DateTime.Today.Date.ToString("MM/dd/yyyy"));
-            //            }
-            //            finished.Add(item);
-            //        }
-            //    }
-            //}
-            //// add the header
-            //contents.Add(fields.Stringify<string>().Trim('[').Trim(']'));
-
-            //foreach (Dictionary<string,string> detail in finished)
-            //{
-            //    List<string> row = new List<string>();
-            //    foreach (string field in fields)
-            //    {
-            //        if (detail.ContainsKey(field))
-            //        {
-            //            row.Add(detail[field]);
-            //        } else
-            //        {
-            //            row.Add("");
-            //        }
-            //    }
-            //    contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
-            //}
-
-            //File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "production.csv"), contents.ToArray<string>());
-
-            //return webLocation;
-
 
             //--------------------------------------------
             string webLocation = "./production.csv";
@@ -252,15 +187,17 @@ namespace Efficient_Automatic_Traveler_System
             summary.Columns.Add(new DataColumn("Date"));
             foreach (string itemCode in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ItemCode).Distinct())
             {
-                DataRow row = summary.NewRow();
-                row["ItemCode"] = itemCode;
-                row["Quantity"] = 
-                    Server.TravelerManager.GetTravelers.Where(t => 
-                    t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.BeenCompletedDuring(StationClass.OfType("tablePack"),DateTime.Today)));
-
-                summary.Rows.Add(row);
+                int qty = Server.TravelerManager.GetTravelers.Where(t => 
+                    t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.BeenCompletedDuring(DateTime.Today)));
+                if (qty > 0) {
+                    DataRow row = summary.NewRow();
+                    row["ItemCode"] = itemCode;
+                    row["Quantity"] = qty;
+                    row["Date"] = DateTime.Today.ToString("MM/dd/yyyy");
+                    summary.Rows.Add(row);
+                }
             }
-            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "inventory.csv"), summary.ToCSV());
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "production.csv"), summary.ToCSV());
 
             return webLocation;
         }

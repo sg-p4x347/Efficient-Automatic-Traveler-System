@@ -20,7 +20,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Bill = new Bill(form.ValueOf("itemCode"), 1, Convert.ToInt32(form.ValueOf("quantity")));
         }
-        public Chair(string json) : base(json) {
+        public Chair(string json,Version version) : base(json,version) {
         }
         public Chair(string itemCode, int quantity) : base(itemCode,quantity) {
         }

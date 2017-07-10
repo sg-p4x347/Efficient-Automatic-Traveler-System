@@ -80,7 +80,7 @@ namespace Efficient_Automatic_Traveler_System
             Update(form);
         }
         // Gets the base properties and orders of the traveler from a json string
-        public Traveler(string json) : this()
+        public Traveler(string json, Version version) : this()
         {
             Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
             m_ID = Convert.ToInt32(obj["ID"]);
@@ -277,7 +277,7 @@ namespace Efficient_Automatic_Traveler_System
 
         public static bool IsTable(string s)
         {
-            return s != null && ((s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-")));
+            return s != null && ((s.Length <= 12 && s.Substring(0, 2) == "MG") || (s.Length <= 12 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-")));
         }
         public static bool IsChair(string s)
         {
@@ -413,8 +413,8 @@ namespace Efficient_Automatic_Traveler_System
         }
         public int QuantityPendingAt(StationClass station)
         {
-            int quantityPending = 0;
-            quantityPending += Server.TravelerManager.GetTravelers.Sum(t => t.Items.Count(i => i.PendingAt(station)));
+
+            int quantityPending = Items.Count(i => i.PendingAt(station));
             //these stations can create items
             if (station.Creates.Count > 0 && m_station == station)
             {
@@ -458,7 +458,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public int QuantityCompletedAt(StationClass station, DateTime date)
         {
-            return Items.Count(i => i.BeenCompletedDuring(station, date));
+            return Items.Count(i => i.BeenCompletedDuring(date));
         }
         public int QuantityOrdered()
         {

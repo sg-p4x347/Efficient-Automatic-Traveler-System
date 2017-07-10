@@ -43,67 +43,75 @@ namespace Efficient_Automatic_Traveler_System
                 try
                 {
                     // get bill information from MAS
-                    try
                     {
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand command = MAS.CreateCommand();
                         command.CommandText = "SELECT BillType, BillDesc1, CurrentBillRevision, DrawingNo, Revision FROM BM_billHeader WHERE billno = '" + m_billNo + "'";
-                        OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SequentialAccess);
-                        // read info
-                        while (reader.Read())
+                        using (OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SequentialAccess))
                         {
-                            string currentRev = reader.GetString(4);
-                            string thisRev = reader.GetString(2);
-                            // only use the current bill revision
-                            if (currentRev == thisRev) // if (current bill revision == this revision)
+                            try
                             {
-                                m_billType = reader.GetString(0)[0];
-                                m_billDesc = reader.GetString(1);
-                                m_currentBillRevision = reader.GetString(2);
-                                if (!reader.IsDBNull(3))
+                                // read info
+                                while (reader.Read())
                                 {
-                                    m_drawingNo = reader.GetString(3);
+                                    string currentRev = reader.GetString(4);
+                                    string thisRev = reader.GetString(2);
+                                    // only use the current bill revision
+                                    if (currentRev == thisRev) // if (current bill revision == this revision)
+                                    {
+                                        m_billType = reader.GetString(0)[0];
+                                        m_billDesc = reader.GetString(1);
+                                        m_currentBillRevision = reader.GetString(2);
+                                        if (!reader.IsDBNull(3))
+                                        {
+                                            m_drawingNo = reader.GetString(3);
+                                        }
+                                        break;
+                                    }
                                 }
-                                break;
+                            }
+                            catch (Exception ex)
+                            {
+                                Server.LogException(ex);
                             }
                         }
-                        reader.Close();
-                    } catch (Exception ex)
-                    {
-                        Server.LogException(ex);
                     }
                     // add the components from MAS
-                    try
                     {
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand command = MAS.CreateCommand();
                         command.CommandText = "SELECT ItemType, BillType, Revision, ComponentItemCode, QuantityPerBill FROM BM_billDetail WHERE billno = '" + m_billNo + "'";
-                        OdbcDataReader reader = command.ExecuteReader();
-                        // begin to read
-                        while (reader.Read())
+                        using (OdbcDataReader reader = command.ExecuteReader())
                         {
-                            // exclude items of type '4' (comments) and revision numbers that don't match the bill's revision number
-                            if (reader.GetInt32(0) != 4 && m_currentBillRevision == reader.GetString(2))
+                            try
                             {
-                                // determine if the component has a bill
-                                if (!reader.IsDBNull(1))
+                                // begin to read
+                                while (reader.Read())
                                 {
-                                    // Component has a bill
-                                    m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), m_totalQuantity,  MAS,this));
-                                }
-                                else
-                                {
-                                    // Component is an item
-                                    m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, MAS));
+                                    // exclude items of type '4' (comments) and revision numbers that don't match the bill's revision number
+                                    if (reader.GetInt32(0) != 4 && m_currentBillRevision == reader.GetString(2))
+                                    {
+                                        // determine if the component has a bill
+                                        if (!reader.IsDBNull(1))
+                                        {
+                                            // Component has a bill
+                                            m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, MAS, this));
+                                        }
+                                        else
+                                        {
+                                            // Component is an item
+                                            m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, MAS));
+                                        }
+                                    }
                                 }
                             }
+                            catch (Exception ex)
+                            {
+                                Server.LogException(ex);
+                            }
                         }
-                        reader.Close();
                     }
-                    catch (Exception ex)
-                    {
-                        Server.LogException(ex);
-                    }
+                    
                     // success
                     m_imported = true;
                 }
