@@ -227,6 +227,9 @@ input.searchBox:focus {
 	background-color: whitesmoke;
 	border: 2px outset white;
 }
+.greyBack {
+	background-color: lightgrey;
+}
 .blackBack {
 	background-color: black;
 	border-top: 2px solid #202020;
@@ -491,6 +494,9 @@ div.queue__item__desc {
 	border-style: solid;
 	border-image:
       linear-gradient(to bottom,transparent, silver, transparent) 1 100%;
+}
+.stdRadius {
+	border-radius: 8px;
 }
 /*text outline*/
 .whiteOutline {

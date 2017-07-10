@@ -202,13 +202,26 @@ namespace Efficient_Automatic_Traveler_System
 
                 groupOne.Add(new Row()
                 {
-                    // Qty pending
-                    {new TextNode(traveler.QuantityPendingAt(station).ToString(),style: new Style("queue__item__qty","white","blackOutline")) },
-                    // slash "/"
-                    { new TextNode("/",style: new Style("white", "blackOutline")) },
+                    {new TextNode("Total: ",style: new Style("queue__item__qty","white","blackOutline")) },
                     // Total Qty
                     {new TextNode(traveler.Quantity.ToString(),style: new Style("queue__item__qty","lime","blackOutline")) }
+
                 });
+
+                groupOne.Add(new Row(style: new Style("greyBack","stdRadius", "justify-center"))
+                {
+                    // Qty locally Pending
+                    {new TextNode(traveler.QuantityPendingAt(station).ToString(),style: new Style("queue__item__qty","blue","blackOutline")) },
+                    // pipe "|"
+                    { new TextNode("|",style: new Style("white", "blackOutline")) },
+                    // Qty locally InProcess
+                    {new TextNode(traveler.QuantityInProcessAt(station).ToString(),style: new Style("queue__item__qty","red","blackOutline")) },
+                    // pipe "|"
+                    { new TextNode("|",style: new Style("white", "blackOutline")) },
+                    // Qty locally PostProcess
+                    {new TextNode(traveler.QuantityPostProcessAt(station).ToString(),style: new Style("queue__item__qty","green","blackOutline")) },
+                });
+                
                 queueItem.Add(groupOne);
 
                 Column groupTwo = new Column();

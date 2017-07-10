@@ -46,12 +46,15 @@ namespace Efficient_Automatic_Traveler_System
                 if (obj.ContainsKey("replacement")) Replacement = obj["replacement"];
 
                 // Convert old DB
-                if (obj.ContainsKey("scrapped"))
+                if (obj.ContainsKey("scrapped") && obj["scrapped"])
                 {
                     GlobalState = GlobalItemState.Scrapped;
                 } else if (obj.ContainsKey("globalState"))
                 {
                     GlobalState = obj["globalState"].ToEnum<GlobalItemState>();
+                } else
+                {
+                    GlobalState = GlobalItemState.InProcess;
                 }
                 if (obj.ContainsKey("station")) Station = StationClass.GetStation(obj["station"]);
                 if (obj.ContainsKey("itemCode")) ItemCode = obj["itemCode"];
@@ -67,6 +70,7 @@ namespace Efficient_Automatic_Traveler_System
                         History.Add(BackupManager.ImportDerived<Event>(eventString));
                     }
                 }
+                if (History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish)) GlobalState = GlobalItemState.Finished;
                 if (obj.ContainsKey("state")) LocalState = obj["state"].ToEnum<LocalItemState>();
                 if (obj.ContainsKey("comment")) Comment = obj["comment"];
             }
@@ -99,9 +103,12 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return true;
             }
-            else
+            else if (LocalState == LocalItemState.PostProcess)
             {
                 return station.PreRequisites(Parent).Contains(Station);
+            } else
+            {
+                return false;
             }
             
             //// get the last station that this is complete at
@@ -222,8 +229,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 History.Add(new ProcessEvent(user, m_station, duration, ProcessType.Completed));
             }
-            // Finish this item if its next station is finished
-            if (Parent.PendingAt(StationClass.GetStation("Finished")))
+            // Finish this item if this station is configured to finish the item
+            if (station.Finishes(Parent))
             {
                 Finish();
             }

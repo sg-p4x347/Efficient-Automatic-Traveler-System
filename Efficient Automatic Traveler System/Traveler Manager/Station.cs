@@ -47,12 +47,13 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         JsonObject travelerEntry = (JsonObject)routingTypes[travelerType];
                         JsonArray preRequisites = (JsonArray)travelerEntry["preRequisites"];
+
                         bool finish = (travelerEntry.ContainsKey("finish") && travelerEntry["finish"]);
                         List<StationClass> preReqs = new List<StationClass>();
                         foreach (string preReqType in preRequisites) preReqs.AddRange(StationClass.OfType(preReqType).Where(s => !preReqs.Contains(s)));
                         foreach (StationClass station in stationsOfType)
                         {
-                            station.Finish = finish;
+                            if (finish) station.m_finish.Add(travelerType);
                             if (station.m_preRequisites.ContainsKey(travelerType))
                             {
                                 station.m_preRequisites[travelerType].AddRange(preReqs);
@@ -111,6 +112,10 @@ namespace Efficient_Automatic_Traveler_System
             }
             return stations;
         }
+        public bool Finishes(Traveler traveler)
+        {
+            return m_finish.Contains(traveler.GetType().Name);
+        }
         // Equality
         public override int GetHashCode()
         {
@@ -168,7 +173,7 @@ namespace Efficient_Automatic_Traveler_System
         private Dictionary<string, List<StationClass>> m_preRequisites;
         private static List<StationClass> m_stations = new List<StationClass>();
         private static List<string> m_types = new List<string>();
-        private bool m_finish;
+        private List<string> m_finish = new List<string>();
 
         #endregion
         #region Interface
@@ -247,19 +252,6 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_printers = value;
-            }
-        }
-
-        public bool Finish
-        {
-            get
-            {
-                return m_finish;
-            }
-
-            private set
-            {
-                m_finish = value;
             }
         }
         #endregion

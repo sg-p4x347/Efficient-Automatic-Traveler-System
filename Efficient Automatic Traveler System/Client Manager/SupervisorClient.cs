@@ -122,11 +122,13 @@ namespace Efficient_Automatic_Traveler_System
                     }
                     else if (m_viewState == GlobalItemState.InProcess)
                     {
-                        if (traveler.State == GlobalItemState.InProcess && traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
+                        if (traveler.QuantityPendingAt(station) > 0 || traveler.QuantityInProcessAt(station) > 0) travelers.Add(traveler);
+                        //if (traveler.State == GlobalItemState.InProcess && traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
                     }
                     else if (m_viewState == GlobalItemState.Finished)
                     {
-                        if (traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station)) travelers.Add(traveler);
+                        if (traveler.Items.Exists( i => i.Finished && i.Station == station)) travelers.Add(traveler);
+                        //if (traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station)) travelers.Add(traveler);
                     }
                 }
             }

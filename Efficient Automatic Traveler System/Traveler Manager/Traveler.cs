@@ -432,11 +432,19 @@ namespace Efficient_Automatic_Traveler_System
             //}
             //return quantityPending;
         }
+        public int QuantityInProcessAt(StationClass station)
+        {
+            return Items.Count(i => i.Station == station && i.LocalState == LocalItemState.InProcess);
+        }
+        public int QuantityPostProcessAt(StationClass station)
+        {
+            return Items.Count(i => i.Station == station && i.LocalState == LocalItemState.PostProcess);
+        }
         public int QuantityAt(StationClass station)
         {
             if (station != null)
             {
-                return Items.Where(x => x.Station == station).Count();
+                return Items.Count(x => x.Station == station);
             }
             return 0;
         }

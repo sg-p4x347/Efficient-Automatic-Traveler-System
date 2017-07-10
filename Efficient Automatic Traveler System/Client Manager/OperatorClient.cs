@@ -93,22 +93,30 @@ namespace Efficient_Automatic_Traveler_System
 
 
                 List<TravelerItem> items = new List<TravelerItem>();
-                if (m_station.Mode == StationMode.Serial)
-                {
-                    // InProcess queue items
-                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.LocalState == LocalItemState.InProcess)).ToList();
+                // InProcess queue items
+                items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.LocalState == LocalItemState.InProcess)).ToList();
 
-                    // sort the items by start event time (most recent on top)
-                    items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started).Date));
-                }
-                else if (m_station.Mode == StationMode.Batch)
+                // sort the items by start event time (most recent on top)
+                try
                 {
-                    // PostProcess queue items
-                    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.LocalState == LocalItemState.PostProcess)).ToList();
-
-                    // sort the items by completed event time (most recent on top)
-                    items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date));
+                    if (items.Count(i => i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station)) >= 2)
+                    {
+                        items.Sort((a, b) => a.History.OfType<ProcessEvent>().Last(e => e.Process == ProcessType.Started && e.Station == m_station).Date.CompareTo(b.History.OfType<ProcessEvent>().Last(e => e.Process == ProcessType.Started && e.Station == m_station).Date));
+                    }
                 }
+                catch (Exception ex) { }
+                //else if (m_station.Mode == StationMode.Batch)
+                //{
+                //    // PostProcess queue items
+                //    items = m_travelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Station == m_station && !i.Scrapped && i.LocalState == LocalItemState.PostProcess)).ToList();
+
+                //    // sort the items by completed event time (most recent on top)
+                //    try
+                //    {
+                //        if (items.Any()) items.Sort((a, b) => a.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date.CompareTo(b.History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Completed).Date));
+                //    }
+                //    catch (Exception ex) { }
+                //}
                 if (m_item != null && !items.Contains(m_item)) ClearTravelerView();
 
                 NodeList inProcess = CreateItemQueue(items);
