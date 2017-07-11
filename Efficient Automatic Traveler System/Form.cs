@@ -30,6 +30,16 @@ namespace Efficient_Automatic_Traveler_System
                 m_fields = new StringStream(((JsonArray)((JsonObject)obj["form"])["fields"])).ParseJSONarray();
             }
         }
+        public virtual Dictionary<string, Node> ExportViewProperties()
+        {
+            Dictionary<string, Node> list = new Dictionary<string, Node>();
+            foreach (string json in m_fields)
+            {
+                JsonObject field = (JsonObject)JSON.Parse(json);
+                list.Add(field["title"], new TextNode(field["value"]));
+            }
+            return list;
+        }
         public override string ToString()
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {

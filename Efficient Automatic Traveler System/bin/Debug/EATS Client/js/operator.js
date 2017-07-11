@@ -457,8 +457,8 @@ function Application () {
 	}
 	this.DisableUI = function () {
 		document.getElementById("completeItemBtn").classList.add("disabled");
-		document.getElementById("scrapItemBtn").classList.add("disabled");
-		document.getElementById("reworkItemBtn").classList.add("disabled");
+		//document.getElementById("scrapItemBtn").classList.add("disabled");
+		document.getElementById("flagItemBtn").classList.add("disabled");
 	}
 	this.DisableMoreInfoBtn = function () {
 		document.getElementById("moreInfoBtn").classList.add("disabled");
@@ -471,8 +471,8 @@ function Application () {
 	}
 	this.EnableUI = function () {
 		document.getElementById("completeItemBtn").classList.remove("disabled");
-		document.getElementById("scrapItemBtn").classList.remove("disabled");
-		document.getElementById("reworkItemBtn").classList.remove("disabled");
+		//document.getElementById("scrapItemBtn").classList.remove("disabled");
+		document.getElementById("flagItemBtn").classList.remove("disabled");
 	}
 	this.EnableMoreInfoBtn = function () {
 		document.getElementById("moreInfoBtn").classList.remove("disabled");
@@ -969,7 +969,7 @@ function TravelerView() {
 		//document.getElementById("completeItemBtn").innerHTML = "Complete item #" + self.item.ID;
 		//document.getElementById("scrapItemBtn").innerHTML = "Scrap item #" + self.item.ID;
 		document.getElementById("completeItemBtn").innerHTML = "Complete item"
-		document.getElementById("scrapItemBtn").innerHTML = "Scrap item"
+		//document.getElementById("scrapItemBtn").innerHTML = "Scrap item"
 		//self.LoadTable(sequenceID);
 	}
 	this.Load = function (traveler) {
@@ -1120,14 +1120,14 @@ function TravelerView() {
 			//-----------------------------------------------
 		}
 		// scrapping a traveler item
-		document.getElementById("scrapItemBtn").onclick = function () {
+		/* document.getElementById("scrapItemBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
 			var message = new InterfaceCall("DisplayScrapReport");
 			//-----------------------------------------------
-		}
-		document.getElementById("reworkItemBtn").onclick = function () {
+		} */
+		document.getElementById("flagItemBtn").onclick = function () {
 			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("ReworkForm");
+			var message = new InterfaceCall("FlagItemForm");
 			//-----------------------------------------------
 		}
 		

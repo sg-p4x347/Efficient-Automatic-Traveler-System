@@ -640,5 +640,162 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error displaying rework details");
             }
         }
+        public ClientMessage FlagItemForm(string json)
+        {
+            try
+            {
+                JsonObject reworkReport = (JsonObject)ConfigManager.GetJSON("scrapReport");
+                JsonArray vendorReasons = (JsonArray)reworkReport["vendor"];
+                JsonArray productionReasons = (JsonArray)reworkReport["production"];
+
+                Form form = new Form();
+                form.Title = "Flag item problem";
+                form.Selection("source", "Source", new List<string>() { "vendor", "production" }, "production");
+                form.Selection("reason", "Reason", productionReasons.ToList().Concat(vendorReasons.ToList()).ToList());
+                form.Checkbox("startedWork", "Started Work", false);
+
+                return form.Dispatch("FlagItem",json);
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading rework form");
+            }
+        }
+        public ClientMessage DeflagItemForm(string json)
+        {
+            try
+            {
+                return Form.CommentForm("Deflag rework", "reason", "Reason").Dispatch("DeflagItem", json);
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading rework form");
+            }
+        }
+        public bool GetItem(string json, out TravelerItem item)
+        {
+            JsonObject obj = (JsonObject)JSON.Parse(json);
+            Traveler traveler = Server.TravelerManager.FindTraveler(obj["travelerID"]);
+            if (traveler != null)
+            {
+                TravelerItem trItem = traveler.FindItem((ushort)obj["itemID"]);
+                if (trItem != null)
+                {
+                    item = trItem;
+                    return true;
+                } else
+                {
+                    item = null;
+                    return false;
+                }
+            }
+            item = null;
+            return false;
+        }
+        public bool GetStation(string json, out StationClass station)
+        {
+            try
+            {
+                JsonObject obj = (JsonObject)JSON.Parse(json);
+                station = StationClass.GetStation(obj["station"]);
+                return station != null;
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                station = null;
+                return false;
+            }
+        }
+        public NodeList FlagItemOptions(TravelerItem item, StationClass station = null)
+        {
+            JsonObject returnParams = new JsonObject() { { "travelerID", item.Parent.ID }, { "itemID", item.ID } };
+            if (station != null) returnParams.Add("station", returnParams);
+
+
+            string text = "";
+            Dictionary<string, string> options = new Dictionary<string, string>();
+            
+            if (!item.Flagged)
+            {
+                // IF not flagged
+                text = "Item not flagged";
+                options.Add("Flag an issue", "FlagItemForm");
+                options.Add("Close", "CloseAll");
+            }
+            else
+            {
+                // IF flagged
+                text = "Item flagged";
+                if (station != null && item.BeenCompleted(station))
+                {
+                    options.Add("Rework Now", "Rework");
+                }
+                options.Add("Deflag Item", "DeflagItemForm");
+                options.Add("View Details", "ViewFlagDetails");
+                options.Add("Close", "CloseAll");
+            }
+
+            return ControlPanel.Options(text, options, returnParams);
+        }
+        public ClientMessage FlagItem(string json)
+        {
+            try
+            {
+                JsonObject obj = (JsonObject)JSON.Parse(json)["parameters"];
+                TravelerItem item;
+                if (GetItem(obj, out item))
+                {
+                    StationClass station;
+                    item.Flag(m_user, GetStation(obj, out station) ? station : null, new Form(json));
+                }
+                    
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error reworking part");
+            }
+        }
+        public ClientMessage DeflagItem(string json)
+        {
+            try
+            {
+                JsonObject obj = (JsonObject)JSON.Parse(json)["parameters"];
+                TravelerItem item;
+                if (GetItem(obj, out item))
+                {
+                    StationClass station;
+                    item.Deflag(m_user, GetStation(obj, out station) ? station : null, new Form(json));
+                }
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error cancelling rework status");
+            }
+        }
+        public ClientMessage ViewFlagDetails(string json)
+        {
+            try
+            {
+                TravelerItem item;
+                if (GetItem(json, out item))
+                {
+                    Documentation flagEvent = item.History.OfType<Documentation>().Last(e => e.LogType == LogType.FlagItem);
+                    return new ControlPanel("Flagged details",ControlPanel.CreateDictionary(flagEvent.ExportViewProperties())).Dispatch();
+                }
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading rework details");
+            }
+
+        }
     }
 }

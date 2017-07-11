@@ -19,11 +19,18 @@ namespace Efficient_Automatic_Traveler_System
         {
             Data = data;
         }
+
         public override string ToString()
         {
             JsonObject obj = (JsonObject)JSON.Parse(base.ToString());
             obj.Add("data",Data != null ?  Data : new JsonObject());
             return obj.ToString();
+        }
+        public override Dictionary<string, Node> ExportViewProperties()
+        {
+            Dictionary<string, Node> properties = base.ExportViewProperties();
+            properties.Add("Documentation", ControlPanel.FormatJSON(Data));
+            return properties;
         }
         private JSON m_data;
 

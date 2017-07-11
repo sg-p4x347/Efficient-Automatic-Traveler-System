@@ -383,7 +383,7 @@ namespace Efficient_Automatic_Traveler_System
             };
             return new ControlPanel("", column).Dispatch();
         }
-        public static ClientMessage Options(string text, Dictionary<string,string> options, string returnParam = "{}")
+        public static NodeList Options(string text, Dictionary<string,string> options, string returnParam = "{}")
         {
             Column column = new Column()
             {
@@ -395,7 +395,7 @@ namespace Efficient_Automatic_Traveler_System
                 row.Add(new Button(option.Key, option.Value, returnParam));
             }
             column.Add(row);
-            return new ControlPanel("", column).Dispatch();
+            return column;
         }
         public static ClientMessage PrintForm(Form form)
         {
@@ -405,6 +405,29 @@ namespace Efficient_Automatic_Traveler_System
                 list.Add(field["title"], new TextNode(field["value"], new Style("white","shadow")));
             }
             return new ControlPanel(form.Title, ControlPanel.CreateDictionary(list)).Dispatch();
+        }
+        public static Node FormatJSON(JSON obj)
+        {
+            Dictionary<string, Node> list = new Dictionary<string, Node>();
+            if (obj is JsonObject)
+            {
+                foreach (string key in ((JsonObject)obj).Keys)
+                {
+                    list.Add(key, FormatJSON(obj[key]));
+                }
+            } else if (obj is JsonArray)
+            {
+                int index = 0;
+                foreach (JSON sub in ((JsonArray)obj))
+                {
+                    list.Add(index.ToString(), FormatJSON(sub));
+                    index++;
+                }
+            } else
+            {
+                return new TextNode(obj);
+            }
+            return ControlPanel.CreateDictionary(list);
         }
     }
 

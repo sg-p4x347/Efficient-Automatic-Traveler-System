@@ -33,6 +33,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Start()
         {
+            Server.WriteLine("Client manager started");
             m_server.Start();
             ConnectAsync();
             Poll();

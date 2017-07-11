@@ -39,8 +39,10 @@ namespace Efficient_Automatic_Traveler_System
                 // Subscribe events
                 m_travelerManager.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
 
+                
                 m_clientManagerThread = new Thread(m_clientManager.Start);
                 m_clientManagerThread.Name = "Client Manager";
+
                 m_updateInterval = new TimeSpan(24, 0, 0);
 
                 m_userManager = new UserManager();
@@ -49,6 +51,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (Exception ex)
             {
+                WriteLine("Exception constructing server");
                 LogException(ex);
             }
         }
@@ -56,10 +59,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Server.WriteLine("Server started on " + m_ip + ":80");
-                Server.WriteLine("websocket on " + m_ip + ":" + m_port.ToString());
-                m_clientManagerThread.Start();
+                WriteLine("Server started on " + m_ip + ":80");
+                WriteLine("websocket on " + m_ip + ":" + m_port.ToString());
 
+                m_clientManagerThread.Start();
 
                 Update(); // immediately create travelers upon server start
                 UpdateTimer(); // start the update loop
@@ -67,7 +70,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_outputLog.Flush();
                 KanbanManager.Start();
                 Listen(); // start listening for http requests on port 80
-
+                
 
             }
             catch (Exception ex)
@@ -303,8 +306,6 @@ namespace Efficient_Automatic_Traveler_System
         private bool ConnectToData()
         {
             Server.Write("\r{0}", "Connecting to MAS...");
-
-
             try
             {
                 // initialize the MAS connection

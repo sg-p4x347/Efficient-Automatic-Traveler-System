@@ -716,6 +716,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     new Button("Print Labels","LabelPopup",json)
                 };
+                foreach (Node node in FlagItemOptions(item)) controls.Add(node);
 
                 return new ClientMessage("ControlPanel", new ControlPanel(traveler.PrintSequenceID(item), new Row() { fields, controls }).ToString());
             }

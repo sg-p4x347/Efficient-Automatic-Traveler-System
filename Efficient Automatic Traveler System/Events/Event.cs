@@ -47,6 +47,13 @@ namespace Efficient_Automatic_Traveler_System
             };
             return obj.Stringify();
         }
+        public virtual Dictionary<string, Node> ExportViewProperties()
+        {
+            return new Dictionary<string, Node>()
+            {
+                {"Date",new TextNode(Date.ToString("MM/dd/yyyy @ hh:mm tt")) }
+            };
+        }
         public static bool operator ==(Event A, Event B)
         {
             if (!object.ReferenceEquals(A,null) && !object.ReferenceEquals(B, null))

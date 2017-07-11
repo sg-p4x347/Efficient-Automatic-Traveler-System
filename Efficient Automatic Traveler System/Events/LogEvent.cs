@@ -11,8 +11,8 @@ namespace Efficient_Automatic_Traveler_System
         Login,
         Logout,
         Finish,
-        FlagRework,
-        DeflagRework,
+        FlagItem,
+        DeflagItem,
         Rework
     }
     public class LogEvent : Event
@@ -54,10 +54,18 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> obj = new StringStream(base.ExportHuman()).ParseJSON(false);
             if (m_user != null) obj.Add("User", m_user.Name.Quotate());
-            obj.Add("Station", m_station.Name.Quotate());
+            obj.Add("Station", (m_station != null ? m_station.Name : "").Quotate());
             obj.Add("Client", m_client.Quotate());
             obj.Add("Log type", m_logType.ToString().Quotate());
             return obj.Stringify();
+        }
+        public override Dictionary<string, Node> ExportViewProperties()
+        {
+            Dictionary<string, Node> properties = base.ExportViewProperties();
+            properties.Add("User", new TextNode(m_user.Name));
+            properties.Add("Station", new TextNode(m_station != null ? m_station.Name : ""));
+            properties.Add("Log Type", new TextNode(m_logType.ToString()));
+            return properties;
         }
         #endregion
 

@@ -794,11 +794,13 @@ namespace Efficient_Automatic_Traveler_System
             }
             else if (item.BeenCompleted(m_station))
             {
-                return ReworkOptions(item, item.Parent.PrintID(item) + " has been completed at this station");
+                NodeList options = FlagItemOptions(item, m_station);
+                return new ControlPanel("Item not completed", new Column() { new TextNode(item.Parent.PrintID(item) + " has been completed at this station"), options }).Dispatch();
             }
             else
             {
-                return ReworkOptions(item, item.Parent.PrintID(item) + " has not been completed at any of its prerequisites");
+                NodeList options = FlagItemOptions(item, m_station);
+                return new ControlPanel("Item not completed", new Column() { new TextNode(item.Parent.PrintID(item) + "  has not been completed at any of its prerequisites"), options }).Dispatch();
             }
             return new ClientMessage();
         }
@@ -841,38 +843,35 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error processing search event");
             }
         }
-        private ClientMessage ReworkOptions(TravelerItem item, string message)
-        {
-            if (item.PendingRework)
-            {
-                Dictionary<string, string> options = new Dictionary<string, string>() {
-                    
-                    {"Deflag Rework Status","DeflagReworkForm" },
-                    {"View Details","ViewReworkDetails" },
-                    {"Close","CloseAll"}
-                };
-                if (item.BeenCompleted(m_station))
-                {
-                    options.Add("Rework Now", "Rework");
-                }
-                return ControlPanel.Options(
-                    message + "<br>This item has been flagged as reworkable, y a y!<br>What would you like to do?",
-                    options
-                );
-            }
-            else
-            {
-                return ControlPanel.Options(
-                    message + "<br>What would you like to do?",
-                    new Dictionary<string, string>()
-                    {
-                        {"Flag as rework","ReworkForm"},
-                        {"Close","CloseAll" }
-                    }
-                );
-            }
+            //if (item.PendingRework)
+            //{
+            //    Dictionary<string, string> options = new Dictionary<string, string>();
+            //    if (item.BeenCompleted(m_station))
+            //    {
+            //        options.Add("Rework Now", "Rework");
+            //    }
+            //    options.Add("Deflag Item", "DeflagItemForm");
+            //    options.Add("View Details", "ViewFlagDetails");
+            //    options.Add("Close", "CloseAll");
+            //    return new ControlPanel("Item Options",ControlPanel.Options(
+            //        message + "<br>This item has been flagged for an issue<br>What would you like to do?",
+            //        options,
+            //        new JsonObject() { { "travelerID", SearchedItem.Parent.ID }, { "itemID", SearchedItem.ID }, { "station",m_station.Name} }
+            //    )).Dispatch();
+            //}
+            //else
+            //{
+            //    return new ControlPanel("Item Options", ControlPanel.Options(
+            //        message + "<br>What would you like to do?",
+            //        new Dictionary<string, string>()
+            //        {
+            //            {"Flag an issue","FlagItemForm"},
+            //            {"Close","CloseAll" }
+            //        },
+            //        new JsonObject() { { "travelerID", SearchedItem.Parent.ID }, { "itemID", SearchedItem.ID }, { "station", m_station.Name } }
+            //    )).Dispatch();
+            //}
             // return new Cl
-        }
         public ClientMessage LabelPopup(string json)
         {
             try
@@ -912,8 +911,6 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-               
-
                 Column options = new Column()
                 {
                     new Button("Undo", "Undo",style: new Style("undoImg"))
@@ -974,89 +971,7 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Can't undo..");
             }
         }
-        public ClientMessage ReworkForm(string json)
-        {
-            try
-            {
-                m_partTimer.Stop("StopPartTimer");
-                JsonObject reworkReport = (JsonObject)ConfigManager.GetJSON("scrapReport");
-                JsonArray vendorReasons = (JsonArray)reworkReport["vendor"];
-                JsonArray productionReasons = (JsonArray)reworkReport["production"];
-
-                Form form = new Form();
-                form.Title = "Rework";
-                form.Selection("source", "Source", new List<string>() { "vendor", "production" }, "production");
-                form.Selection("reason", "Reason", productionReasons.ToList().Concat(vendorReasons.ToList()).ToList());
-                form.Checkbox("startedWork", "Started Work", false);
-
-                return form.Dispatch("FlagRework");
-            }
-            catch (Exception ex)
-            {
-                Server.LogException(ex);
-                return new ClientMessage("Info", "Error loading rework form");
-            }
-        }
-        public ClientMessage DeflagReworkForm(string json)
-        {
-            try
-            {
-                return Form.CommentForm("Deflag rework","reason","Reason").Dispatch("DeflagRework", json);
-            }
-            catch (Exception ex)
-            {
-                Server.LogException(ex);
-                return new ClientMessage("Info", "Error loading rework form");
-            }
-        }
-        public ClientMessage FlagRework(string json)
-        {
-            try
-            {
-                if (SearchedItem != null)
-                {
-                    SearchedItem.FlagRework(m_user, m_station, new Form(json));
-                }
-                return new ClientMessage();
-            }
-            catch (Exception ex)
-            {
-                Server.LogException(ex);
-                return new ClientMessage("Info", "Error reworking part");
-            }
-        }
-        public ClientMessage DeflagRework(string json)
-        {
-            try
-            {
-                if (SearchedItem != null)
-                {
-                    SearchedItem.DeflagRework(m_user, m_station, new Form(json));
-                }
-                return new ClientMessage();
-            }
-            catch (Exception ex)
-            {
-                Server.LogException(ex);
-                return new ClientMessage("Info", "Error cancelling rework status");
-            }
-        }
-        public ClientMessage ViewReworkDetails(string json)
-        {
-            try
-            {
-                if (SearchedItem != null)
-                {
-                    return PrintForm(new Form(SearchedItem.History.OfType<Documentation>().Last(e => e.LogType == LogType.FlagRework).Data));
-                }
-                return new ClientMessage();
-            } catch (Exception ex)
-            {
-                Server.LogException(ex);
-                return new ClientMessage("Info", "Error loading rework details");
-            }
-            
-        }
+        
         public ClientMessage Rework(string json)
         {
             try

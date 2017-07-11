@@ -17,7 +17,7 @@ namespace Efficient_Automatic_Traveler_System
         PreProcess,
         InProcess,
         Scrapped,
-        PendingRework,
+        Flagged,
         Finished
     }
     public class TravelerItem
@@ -268,14 +268,14 @@ namespace Efficient_Automatic_Traveler_System
             Station = station;
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void FlagRework(User user, StationClass station, Form form)
+        public void Flag(User user, StationClass station, Form form)
         {
-            GlobalState = GlobalItemState.PendingRework;
+            GlobalState = GlobalItemState.Flagged;
 
-            History.Add(new Documentation(user, LogType.FlagRework, station, form.ToJSON()));
+            History.Add(new Documentation(user, LogType.FlagItem, station, form.ToJSON()));
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void DeflagRework(User user, StationClass station, Form form)
+        public void Deflag(User user, StationClass station, Form form)
         {
             // Finish this item if its next station is finished
             if (Parent.PendingAt(StationClass.GetStation("Finished")))
@@ -289,7 +289,7 @@ namespace Efficient_Automatic_Traveler_System
                 GlobalState = GlobalItemState.InProcess;
             }
 
-            History.Add(new Documentation(user, LogType.DeflagRework, station, form.ToJSON()));
+            History.Add(new Documentation(user, LogType.DeflagItem, station, form.ToJSON()));
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public void Finish(User user)
@@ -379,6 +379,13 @@ namespace Efficient_Automatic_Traveler_System
                 return GlobalState == GlobalItemState.Finished;
             }
         }
+        public bool Flagged
+        {
+            get
+            {
+                return GlobalState == GlobalItemState.Flagged;
+            }
+        }
         public bool BeenCompletedDuring(DateTime date)
         {
             return History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish && e.Date.Day == date.Date.Day);
@@ -401,7 +408,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return GlobalState == GlobalItemState.PendingRework;
+                return GlobalState == GlobalItemState.Flagged;
             }
         }
         public bool Started(StationClass station)
