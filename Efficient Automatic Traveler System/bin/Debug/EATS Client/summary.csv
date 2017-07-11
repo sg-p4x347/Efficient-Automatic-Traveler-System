@@ -1,9 +1,35 @@
-"Name","UID","Access Level","Scrapped parts","Completed parts","Heian2(min)","Table-Pack(min)","Vector(min)",
-"Gage Coates","gage","Administrator","0","3","0.04917786","0.167444045","0.453450688333333",
-"Nate Dillon","nate","Supervisor","0","0","","","",
-"Gage Belcher","gbelcher","Operator","0","15","37.499322975","","",
-"greg vincent","gvincent","Operator","0","0","","","",
-"amy proznyk","jadacy","Operator","0","0","","","",
-"Brandon Green","brandon005","Operator","0","0","","","",
-"stephanie","boxmaker","Operator","0","0","","","",
-"Len Coates","len","Administrator","0","0","","","",
+Traveler,Quantity,Soonest Ship,Orders,Station,Comment,Part,Description,Color,Banding Color,Blank,Blank Size,Blank Qty,Labor
+"100986","2","06/27/2017","(6  5039434 06/27/2017 WORTHDR)","Start","","MG2228-50","24x60 Rect,Map/Blk","Fusion Maple","Black","MAGR9","9-1244x1532",1,27.2044
+"100989","12","06/29/2017","(14  5039456 06/29/2017 UNITY)","Start","","38-2222-60","Apex,20x60 Rect","Wild Cherry","Black","CHOK8","8-1549x1532",4,149.9664
+"100993","1","06/29/2017","(1  5039175 06/29/2017 SCHLSIN)","Start","","38-2237-22","Apex,30x60 Rect","Marker Board","Black","WRIT8","8-1549x1532",1,12.3581
+"100999","4","06/30/2017","(5  5039515 06/30/2017 WORTHDR)","Start","","MG2238-82","30x72 Rect,GG/Nav","Gray Glace","Navy","MAGR7","7-1549x1838",2,78.1708
+"101001","2","06/30/2017","(9  5039504 06/30/2017 SAMCOBP)","Start","","MG2268-82","48x72 Kdny,GG/Nav","Gray Glace","Navy","MAGR3","3-1244x1838",2,46.5388
+"101003","3","06/30/2017","(4  5039476 06/30/2017 NEXTGEN)","Start","","MG2270-55","60x66Hshoe,GG/Blk","Gray Glace","Black","MAGR7","7-1549x1838",3,84.7839
+"101004","23","06/30/2017","(30  5039506 06/30/2017 WBMASON)(2  5037003 07/03/2017 SSIFURN)","Start","","MG2237-49","30x60 Rect,Oak/Blk","Solar Oak","Black","CHOK8","8-1549x1532",12,284.2363
+"101005","2","06/30/2017","(24  5039510 06/30/2017 WORTHDR)","Start","","38-2310-60","Apex,24x28 Bone","Wild Cherry","Black","CHOKF","F-1244x2460",0,23.1724
+"101007","7","07/03/2017","(8  5038133 07/03/2017 WORTHDR)","Start","","38-2270-50","Apex,60x66Hshoe","Fusion Maple","Black","MAGR7","7-1549x1838",7,197.8291
+"101008","49","07/03/2017","(64  5037003 07/03/2017 SSIFURN)","Start","","MG2228-49","24x60 Rect,Oak/Blk","Solar Oak","Black","CHOK9","9-1244x1532",25,666.5078
+"101009","27","07/03/2017","(28  5037003 07/03/2017 SSIFURN)","Start","","MG2248-49","36x72 Rect,Oak/Blk","Solar Oak","Black","CHOK4","4-925x1838",27,583.2486
+"101010","9","07/03/2017","(3  5037003 07/03/2017 SSIFURN)(5  5039367 07/05/2017 HERTZFN)(2  5039623 07/10/2017 HERTZFN)","Start","","MG2227-49","48x72Hshoe,Oak/Blk","Solar Oak","Black","CHOK7","7-1549x1838",9,235.9017
+"101011","44","07/03/2017","(43  5037003 07/03/2017 SSIFURN)(2  5039667 07/07/2017 WBMASON)","Start","","MG2207-49","60 Round,Oak/Blk","Solar Oak","Black","CHOK8","8-1549x1532",44,966.8032
+"101012","1","07/03/2017","(5  5037003 07/03/2017 SSIFURN)","Start","","MG2268-49","48x72 Kdny,Oak/Blk","Solar Oak","Black","CHOK3","3-1244x1838",1,23.2694
+"101013","21","07/03/2017","(23  5037003 07/03/2017 SSIFURN)","Start","","MG2208-49","60 Flower,Oak/Blk","Solar Oak","Black","CHOK8","8-1549x1532",21,578.5584
+"101014","20","07/03/2017","(21  5037003 07/03/2017 SSIFURN)","Start","","MG2287-49","30x60 Trpz,Oak/Blk","Solar Oak","Black","CHOK8","8-1549x1532",10,266.01
+"101015","9","07/03/2017","(9  5039560 07/03/2017 HERTZFN)","Start","","38-2228-78","Apex,24x60 Rect","Grey Nebula","Grey","GENS9","9-1244x1532",5,122.4198
+"101018","1","07/05/2017","(1  5039600 07/05/2017 SCHLSIN)","Start","","MG2227-50","48x72Hshoe,Map/Blk","Fusion Maple","Black","MAGR7","7-1549x1838",1,26.2113
+"101024","13","07/06/2017","(3  WF00894 07/06/2017 WAYFAIR)(7  WF00901 07/10/2017 WAYFAIR)(3  5039625 07/11/2017 AMAZOND)","Start","","MG2248-51","36x72 Rect,GG/Blu","Gray Glace","Blue","MAGR4","4-925x1838",13,280.8234
+"101025","30","07/06/2017","(32  5039608 07/06/2017 KLOG)","Start","","38-2310-55","Apex,24x28 Bone","Gray Glace","Black","MAGRF","F-1244x2460",0,347.586
+"101031","2","07/07/2017","(2  WF00899 07/07/2017 WAYFAIR)","Start","","MG2237-50","30x60 Rect,Map/Blk","Fusion Maple","Black","MAGR8","8-1549x1532",1,24.7162
+"101033","1","07/07/2017","(1  WF00900 07/07/2017 WAYFAIR)","Start","","MG2238-49","30x72 Rect,Oak/Blk","Solar Oak","Black","CHOK7","7-1549x1838",1,19.5427
+"101036","15","07/07/2017","(15  5039665 07/07/2017 WORTHDR)","Start","","38-2223-77","Desktop,Apex,20x30 Rect","Grey Nebula","Black","GENS8","8-1549x1532",3,154.053
+"101037","5","07/07/2017","(6  5039667 07/07/2017 WBMASON)","Start","","MG2250-49","42x60 Rect,Oak/Blk","Solar Oak","Black","CHOK12","12-1549x1080",5,70.211
+"101042","3","07/07/2017","(5  5039666 07/07/2017 WORTHDR)","Start","","MG2221-50","20x54 Rect,Map/Blk","Fusion Maple","Black","MAGR8","8-1549x1532",1,42.1242
+"101046","1","07/07/2017","(2  5038310 07/07/2017 LONESTR)","Start","","MG2268-60","48x72Kdy,WdChy/Blk","Wild Cherry","Black","CHOK3","3-1244x1838",1,23.2694
+"101051","3","07/07/2017","(8  5039512 07/07/2017 WORTHDR)","Start","","38-2222-78","Apex,20x60 Rect","Grey Nebula","Grey","GENS8","8-1549x1532",1,37.4916
+"101052","1","07/07/2017","(1  5039512 07/07/2017 WORTHDR)","Start","","41-2422-78","Desktop,Apex,SD 20x60","Grey Nebula","Grey","GENS8","8-1549x1532",1,15.0188
+"101053","2","07/10/2017","(5  WF00902 07/10/2017 WAYFAIR)","Start","","MG2237-51","30x60 Rect,GG/Blu","Gray Glace","Blue","MAGR8","8-1549x1532",1,24.7162
+"101056","1","07/10/2017","(1  5039557 07/10/2017 WORTHDR)","Start","","38-2251-23","Apex,60 Delta","Marker Board","Grey","WRIT8","8-1549x1532",1,24.0395
+"101057","6","07/10/2017","(6  5039559 07/10/2017 WORTHDR)","Start","","38-2268-23","Apex,48x72 Kdny","Marker Board","Grey","WRIT3","3-1244x1838",6,139.6164
+"101060","1","07/11/2017","(1  5039578 07/11/2017 AMAZOND)","Start","","MG2212-54","36 Square,GG/Yel","Gray Glace","Yellow","MAGR4","4-925x1838",1,12.7698
+"101061","1","07/11/2017","(1  5039591 07/11/2017 WORTHDR)","Start","","38-2247-22","Apex,36x60 Rect","Marker Board","Black","WRIT7","7-1549x1838",1,15.9022
+"101062","1","07/11/2017","(1  5039591 07/11/2017 WORTHDR)","Start","","38-2251-22","Apex,60 Delta","Marker Board","Black","WRIT8","8-1549x1532",1,24.0395

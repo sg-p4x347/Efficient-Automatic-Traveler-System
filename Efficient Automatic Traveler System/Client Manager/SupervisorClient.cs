@@ -535,7 +535,8 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("More Info","LoadTravelerJSON",returnParam),
                     new Button("Disintegrate","DisintegrateTraveler",returnParam),
                     new Button("Enter Production","EnterProduction",returnParam),
-                    new Button("Add Comment","AddComment")
+                    new Button("Add Comment","AddComment"),
+                    new Button("Manually Finish","Finish",returnParam)
                 };
 
                 ControlPanel panel = new ControlPanel(traveler.GetType().Name, new Row() { fields, controls });
@@ -1094,7 +1095,40 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error Disintegrating traveler");
             }
         }
+        public ClientMessage Finish (string json)
+        {
+            try
+            {
 
+                if (m_current != null)
+                {
+                    foreach (TravelerItem item in m_current.Items)
+                    {
+                        if (!item.Finished)
+                        {
+                            m_current.FinishItem(item.ID);
+                        }
+                    }
+                }
+                Server.TravelerManager.OnTravelersChanged();
+                if (m_current != null && m_current.State == ItemState.PostProcess)
+                {
+                    return new ClientMessage("Info", "Successfully finished all items");
+                } else
+                {
+                    return new ClientMessage("Info", "Successfully finished existing items");
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                m_selected.Clear();
+                m_current = null;
+                CloseAllPopups();
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error Disintegrating traveler");
+            }
+        }
         public ClientMessage EnterProduction(string json)
         {
             if (m_current != null) m_selected.Add(m_current);

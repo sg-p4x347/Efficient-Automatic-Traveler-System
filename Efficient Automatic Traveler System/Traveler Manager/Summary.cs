@@ -167,7 +167,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     Table table = (Table)traveler;
                     Dictionary<string, string> item = finished.Find(x => x["Part"] == table.ItemCode);
-                    int quantity = traveler.Items.Where(x => x.State == ItemState.PostProcess && x.History.OfType<LogEvent>().ToList().Exists(y => y.LogType == LogType.Finish && y.Date >= DateTime.Today.Date)).Count();
+                    int quantity = traveler.Items.Where(x => x.Finished && x.History.OfType<LogEvent>().ToList().Exists(y => y.LogType == LogType.Finish && y.Date.Day == DateTime.Today.Date.Day)).Count();
                     if (quantity > 0)
                     {
                         if (item != null)
