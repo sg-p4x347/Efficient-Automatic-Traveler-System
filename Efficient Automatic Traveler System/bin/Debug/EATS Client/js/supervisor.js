@@ -28,6 +28,7 @@ function Application () {
 	this.view = {
 		filterState: true,
 		filterType: true,
+		filterLocalState: false,
 		viewState:undefined,
 		viewType:undefined
 	}
@@ -496,11 +497,30 @@ function Application () {
 			}
 		}
 		
+		var viewLocalStateRadios = document.getElementsByName("viewLocalState");
+		for (var i = 0; i < viewLocalStateRadios.length; i++) {
+			if (viewLocalStateRadios[i].checked) {
+				self.view.viewType = viewLocalStateRadios[i].value;
+				break;
+			}
+			
+		}
+		// disable/enable
+		for (var i = 0; i < viewLocalStateRadios.length; i++) {
+			if (!filterType) {
+				viewLocalStateRadios[i].disabled = true;
+			} else {
+				viewLocalStateRadios[i].disabled = false;
+			}
+		}
+		
+		
 		//----------INTERFACE CALL-----------------------
 		var message = new InterfaceCall("SetViewFilter",
 		{
 			filterState: true,
 			filterType: filterType,
+			filterLocalState: filterLocalState,
 			viewState: self.view.viewState,
 			viewType: self.view.viewType
 		},"This");

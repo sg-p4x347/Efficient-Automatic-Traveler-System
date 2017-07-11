@@ -29,7 +29,7 @@ namespace Efficient_Automatic_Traveler_System
         public override Dictionary<string, Node> ExportViewProperties()
         {
             Dictionary<string, Node> properties = base.ExportViewProperties();
-            properties.Add("Documentation", ControlPanel.FormatJSON(Data));
+            properties.Add("Documentation", ControlPanel.PrintForm(new Form(Data)));
             return properties;
         }
         private JSON m_data;

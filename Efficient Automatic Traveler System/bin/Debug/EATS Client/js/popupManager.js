@@ -507,6 +507,7 @@ function PopupManager(blackout) {
 		addBox.style.display = "flex";
 		addBox.className = "mediumBorder";
 		var list = document.createElement("UL");
+		list.style.display = "flex";
 		var input = document.createElement("INPUT");
 		input.type = "textbox";
 		var add = document.createElement("Button");

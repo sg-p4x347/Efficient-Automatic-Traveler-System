@@ -397,14 +397,14 @@ namespace Efficient_Automatic_Traveler_System
             column.Add(row);
             return column;
         }
-        public static ClientMessage PrintForm(Form form)
+        public static Node PrintForm(Form form)
         {
             Dictionary<string, Node> list = new Dictionary<string, Node>();
             foreach (JsonObject field in (JsonArray)form.ToJSON()["fields"])
             {
                 list.Add(field["title"], new TextNode(field["value"], new Style("white","shadow")));
             }
-            return new ControlPanel(form.Title, ControlPanel.CreateDictionary(list)).Dispatch();
+            return ControlPanel.CreateDictionary(list);
         }
         public static Node FormatJSON(JSON obj)
         {

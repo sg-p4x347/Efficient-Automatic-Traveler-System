@@ -20,6 +20,7 @@ namespace Efficient_Automatic_Traveler_System
             AccessLevel = AccessLevel.Supervisor;
             m_travelerManager = travelerManager;
             m_viewState = GlobalItemState.PreProcess;
+            m_viewLocalState = LocalItemState.InProcess;
             m_viewType = typeof(Table);
             m_selected = new List<Traveler>();
             SendMessage((new ClientMessage("InitStations", StationClass.GetStations().Stringify())).ToString());
@@ -90,8 +91,11 @@ namespace Efficient_Automatic_Traveler_System
             {
                 queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
                 {
-                    {"Qty at this station:",new TextNode(travelers.Sum(t => t.Quantity).ToString(),new Style("beige") )}
+                    {"Qty at this station:",new TextNode(travelers.Sum(t => t.QuantityAt(station)).ToString(),new Style("beige") )}
                 }));
+            } else if (state == GlobalItemState.Finished)
+            {
+
             }
             queueContainer.Add(new Checkbox("Select All", "SelectAll", new JsonObject() { { "station", station.Name } }, VisibleTravelers(station).All(t => m_selected.Contains(t))));
             NodeList queue = CreateTravelerQueue(travelers, station);
@@ -125,10 +129,9 @@ namespace Efficient_Automatic_Traveler_System
                         if (traveler.QuantityPendingAt(station) > 0 || traveler.QuantityInProcessAt(station) > 0) travelers.Add(traveler);
                         //if (traveler.State == GlobalItemState.InProcess && traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
                     }
-                    else if (m_viewState == GlobalItemState.Finished)
+                    else
                     {
-                        if (traveler.Items.Exists( i => i.Finished && i.Station == station)) travelers.Add(traveler);
-                        //if (traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station)) travelers.Add(traveler);
+                        if (traveler.Items.Exists( i => i.GlobalState == m_viewState && i.Station == station)) travelers.Add(traveler);
                     }
                 }
             }
@@ -223,6 +226,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_viewState = (GlobalItemState)Enum.Parse(typeof(GlobalItemState), obj["viewState"]);
                 m_viewType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + obj["viewType"]);
                 m_filterState = Convert.ToBoolean(obj["filterState"]);
+                m_filterLocalState = Convert.ToBoolean(obj["filterLocalState"]);
                 m_filterType = Convert.ToBoolean(obj["filterType"]);
                 HandleTravelersChanged();
                 return new ClientMessage();
@@ -923,7 +927,6 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     "ABARGAS","ACEEDUC","ADP    ","AEROBLD","AFC    ","AGILE  ","AJAXSCH","ALABOUT","ALCON  ","ALLGLAS","ALTRA  ","ALUMBAU","AMAZOND","AMERICA","AMTAB  ","ANDERSN","ANIMAL ","AQADVOH","AQRSERV","AQUABUY","AQUADEP","AQUAIMP","AQUALND","AQUARAD","AQUARIA","AQUARIU","AQUATIC","ARVEST ","ATDAMER","ATDCAPL","BARNES ","BASSETT","BEAL   ","BECKER ","BEENEES","BEIMDIK","BIMART ","BLAZARC","BLUEFIN","BLUETHB","BMCOFF ","BOTSON ","BRALEY ","BRANCO ","BRNSNGR","C&HDIST","CAROLIN","CASCO  ","CENTRAL","CENTRPT","CFM    ","CHLDCAR","CHUCK  ","CLAIMS ","CLARK  ","CLAWPAW","COFACE ","COFCROC","COLEMAN","COMMERC","COMPACK","CONTFRN","COSTCO ","COSTCOW","COWPUBS","COYOTE ","CRAFTSH","CREATMK","CREWSMA","CROSBY ","CROSS  ","CROWDER","D&WSALE","DAISYBB","DALEY  ","DALMIDW","DAVCO  ","DAVENPO","DAVIDS ","DAVIDSB","DAVIDSO","DAVIS  ","DETWILE","DFWAQUA","DIABLO ","DONLOLL","DUBOSE ","DWYER  ","EASTSID","EBAY   ","EDUCDEP","ELEGAB ","ERICKSO","EVERFUR","EXFACTO","EXOTIC ","FACTSEL","FCOONEY","FELBAPT","FIECANA","FIESTAD","FINTAST","FISHPLA","FISHTAN","FISHWIS","FOREMAN","FOSTER ","FOURSOP","FRANKS ","FRYE   ","FURNNET","GASKET ","GENERAL","GODSCRE","GODSRES","GREATOU","GRIERIN","GRILLST","GUNLOCK","H&H    ","HARRIS ","HDHAPPY","HEMBREE","HEMBREM","HEMCO  ","HERTZFN","HOMEDEP","HOMETOW","HONCOMP","HOOVER ","HUNTE  ","HUNTER ","IFD    ","IFURN  ","INDOFF ","INTEGFN","IPAEDUC","IQSI   ","JACK'S ","JAMESCH","JAMESSH","JARDEN ","JJAMESO","JMJWORK","JSATRAD","K&S    ","KAMWOOD","KAY12  ","KENDAL ","KLOG   ","KSCONDS","KURTZBR","LAKESQ ","LANDMAN","LARSON ","LATTAS ","LAVACA ","LAZBOY ","LEGGETT","LIBERTY","LOISSCH","LONESTR","LOVELAN","LOWES  ","LOZIER ","MARTIN ","MARTLUT","MATEL  ","MAVIATN","MCALIST","MCCAULE","MCCOOL ","MEIJER ","MENARDS","MIDSTAT","MILLERS","MILLERZ","MILLS' ","MISC   ","MISCELL","MODOR  ","MOP    ","MORETHN","MOSER  ","MSSC   ","NATBOND","NATWIDE","NBFLA  ","NEEL   ","NEOSHOB","NEOSHOD","NEOSHR5","NETSHOP","NEWDISP","NEXTGEN","NOAHS  ","NOBIS  ","NOLANS ","OAKRIDG","OF003  ","OF008  ","OF011  ","OF012  ","OF013  ","OF014  ","OF023  ","OF031  ","OF032  ","OF034  ","OF035  ","OF046  ","OF059  ","OF065  ","OF067  ","OF070  ","OF071  ","OF083  ","OF088  ","OF090  ","OF091  ","OF093  ","OF094  ","OF099  ","OF109  ","OF111  ","OF112  ","OF113  ","OF114  ","OF120  ","OF123  ","OF124  ","OF141  ","OF150  ","OF153  ","OF156  ","OF158  ","OF167  ","OF169  ","OF172  ","OF174  ","OF180  ","OF181  ","OF182  ","OF184  ","OF185  ","OF190  ","OF197  ","OF205  ","OF208  ","OF209  ","OF211  ","OF226  ","OF232  ","OF233  ","OF237  ","OF243  ","OF250  ","OF252  ","OF255  ","OF256  ","OF268  ","OF270  ","OF272  ","OF273  ","OF279  ","OF283  ","OF284  ","OF289  ","OF291  ","OF293  ","OF295  ","OF298  ","OF299  ","OF314  ","OF317  ","OF321  ","OF323  ","OF326  ","OF327  ","OF329  ","OF330  ","OF335  ","OF336  ","OF338  ","OF341  ","OF348  ","OF352  ","OF353  ","OF354  ","OF360  ","OF362  ","OF368  ","OF371  ","OF372  ","OF374  ","OF377  ","OF378  ","OF384  ","OF385  ","OF386  ","OF387  ","OF391  ","OF392  ","OF393  ","OF394  ","OF395  ","OF396  ","OF397  ","OF398  ","OF399  ","OF401  ","OF402  ","OF403  ","OF404  ","OF405  ","OF406  ","OF407  ","OF408  ","OF409  ","OF410  ","OF411  ","OF413  ","OF422  ","OFCCON ","OFFDEP ","OFFDEPF","OFFDEPV","OFFDPBS","OFFMAX ","OFFSOUR","OFFSTAR","OFGPART","OFGWARR","OLDTOWN","OLPI   ","ONEWAYF","OSBORNE","OSULLIV","OVATION","OVERSTO","OZRKPLS","PALLETS","PARTS  ","PAYROLL","PEOPLES","PETCOCO","PETS PA","PETSMAR","PETSPLS","PETSUPE","PETZONE","PLAYTIM","PREWETT","QL     ","R&R MAC","R.G. AP","RACCHRC","REDNECK","REYNOLD","RJRAY  ","RMIND  ","ROEBLNG","ROGARDS","ROGERS ","ROSS   ","RTC    ","SAGECC ","SAMPLES","SAMS   ","SARTINF","SCHAEFE","SCHENKE","SCHLAID","SCHLBOX","SCHLPRD","SCHLSIN","SCLHSPR","SENECR7","SHERWIN","SHICK  ","SHORE  ","SIBLEY ","SMARKET","SPORTS ","SSIFURN","SSWORLD","STANDBY","STAOFMO","STAPLBI","STAPLES","STATELI","STEELMN","STRFRKD","STRONG ","SUNBEAM","TALBOT ","TANKSTO","TARPLEY","TEACHED","TEACHLG","TEENCHA","TEST   ","THOMPSN","THORCO ","TIENLE ","TOEWS  ","TOWNSEN","TPCINC ","TRAVIS ","TROPICL","TURNING","TWIN   ","TXSHCHS","UNBEAT ","UNITY  ","UPDATPT","UPS    ","USTOYCO","VASTMKT","VEASECM","VTINDUS","WALMART","WALMCOM","WAREHSE","WAYFAIR","WBMASON","WES MAT","WESTPOR","WILDSAL","WILPPET","WOODSPE","WORLDS ","WORLDWI","WORTHCN","WORTHDR","WOZEN  ","WYLIE  ","YELLOW ","ZERO   "
                 };
-
                 form.Selection("customer", "Customer", customers);
                 return form.Dispatch("CreateTravelers");
             }
@@ -1634,13 +1637,28 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------------------
         #region Properties
         private GlobalItemState m_viewState;
+        private LocalItemState m_viewLocalState;
         private Type m_viewType;
         private bool m_filterState;
+        private bool m_filterLocalState;
         private bool m_filterType;
         private Order m_order;
         private List<Traveler> m_selected;
         private Traveler m_current = null;
         private StationClass m_currentStation = null;
+
+        public bool FilterLocalState
+        {
+            get
+            {
+                return m_filterLocalState;
+            }
+
+            set
+            {
+                m_filterLocalState = value;
+            }
+        }
         #endregion
         //----------
         // Events

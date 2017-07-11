@@ -629,17 +629,17 @@ namespace Efficient_Automatic_Traveler_System
 
 
         // Common UI functions
-        public ClientMessage PrintForm(Form form)
-        {
-            try
-            {
-                return ControlPanel.PrintForm(form);
-            } catch (Exception ex)
-            {
-                Server.LogException(ex);
-                return new ClientMessage("Info", "Error displaying rework details");
-            }
-        }
+        //public ClientMessage PrintForm(Form form)
+        //{
+        //    try
+        //    {
+        //        return ControlPanel.PrintForm(form);
+        //    } catch (Exception ex)
+        //    {
+        //        Server.LogException(ex);
+        //        return new ClientMessage("Info", "Error displaying rework details");
+        //    }
+        //}
         public ClientMessage FlagItemForm(string json)
         {
             try
