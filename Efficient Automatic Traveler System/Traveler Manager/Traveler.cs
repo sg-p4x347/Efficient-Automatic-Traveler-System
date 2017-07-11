@@ -278,7 +278,7 @@ namespace Efficient_Automatic_Traveler_System
 
         public static bool IsTable(string s)
         {
-            return s != null && ((s.Length == 9 && s.Substring(0, 2) == "MG") || (s.Length == 10 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-")));
+            return s != null && ((s.Length <= 12 && s.Substring(0, 2) == "MG") || (s.Length <= 12 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-")));
         }
         public static bool IsChair(string s)
         {
