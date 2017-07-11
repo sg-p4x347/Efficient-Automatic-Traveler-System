@@ -47,6 +47,7 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                         OdbcCommand command = MAS.CreateCommand();
+                        command.CommandTimeout = 30; // seconds
                         command.CommandText = "SELECT BillType, BillDesc1, CurrentBillRevision, DrawingNo, Revision FROM BM_billHeader WHERE billno = '" + m_billNo + "'";
                         OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SequentialAccess);
                         // read info
@@ -103,6 +104,7 @@ namespace Efficient_Automatic_Traveler_System
                     catch (Exception ex)
                     {
                         Server.LogException(ex);
+                        Server.WriteLine("Caught in the bill");
                     }
                     // success
                     m_imported = true;

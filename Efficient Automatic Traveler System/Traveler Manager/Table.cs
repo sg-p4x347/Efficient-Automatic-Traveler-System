@@ -351,14 +351,17 @@ namespace Efficient_Automatic_Traveler_System
         // Create a box traveler
         public void CreateBoxTraveler()
         {
-            int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
-            if (boxQuantity > 0)
+            if (!ItemCode.Contains('U'))
             {
-                TableBox box = new TableBox(this);
-                ChildTravelers.Add(box);
-                box.Quantity = boxQuantity;
-                box.EnterProduction(Server.TravelerManager);
-                Server.TravelerManager.GetTravelers.Add(box);
+                int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+                if (boxQuantity > 0)
+                {
+                    TableBox box = new TableBox(this);
+                    ChildTravelers.Add(box);
+                    box.Quantity = boxQuantity;
+                    box.EnterProduction(Server.TravelerManager);
+                    Server.TravelerManager.GetTravelers.Add(box);
+                }
             }
         }
         public override void EnterProduction(ITravelerManager travelerManager)

@@ -36,7 +36,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_ID = Convert.ToUInt16(obj["ID"]);
                 m_sequenceNo = obj.ContainsKey("sequenceNo") ? Convert.ToUInt16(obj["sequenceNo"]) : (ushort)0;
                 m_replacement = obj.ContainsKey("replacement") ? Convert.ToBoolean(obj["replacement"]) : false;
-                m_scrapped = Convert.ToBoolean(obj["scrapped"]);
+                m_scrapped = obj.ContainsKey("scrapped") && Convert.ToBoolean(obj["scrapped"]);
                 m_station = StationClass.GetStation(obj["station"]);
                 m_itemCode = obj["itemCode"];
                 m_lastStation = StationClass.GetStation(obj["lastStation"]);
