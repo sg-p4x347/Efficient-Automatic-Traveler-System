@@ -471,7 +471,7 @@ namespace Efficient_Automatic_Traveler_System
 
                     evt = new ProcessEvent(m_user, m_station, duration.TotalMinutes, ProcessType.Completed);
                 }
-                m_travelerManager.AddTravelerEvent(evt, m_current, item).ToString();
+                if (!(!m_station.CreatesThis(m_current) && item == null)) m_travelerManager.AddTravelerEvent(evt, m_current, item).ToString();
                 UpdateUI();
                 NewPartStarted(); // timers
                 if (m_station.Mode == StationMode.Serial)
