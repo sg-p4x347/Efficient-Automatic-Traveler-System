@@ -19,15 +19,14 @@ namespace Efficient_Automatic_Traveler_System
         {
             AccessLevel = AccessLevel.Supervisor;
             m_travelerManager = travelerManager;
-            m_viewState = GlobalItemState.PreProcess;
-            m_viewLocalState = LocalItemState.InProcess;
-            m_viewType = typeof(Table);
+            ViewFilter = new Form();
             m_selected = new List<Traveler>();
             SendMessage((new ClientMessage("InitStations", StationClass.GetStations().Stringify())).ToString());
             SendMessage((new ClientMessage("InitLabelTypes", ExtensionMethods.Stringify<LabelType>())).ToString());
             SendMessage((new ClientMessage("InterfaceOpen")).ToString());
             HandleTravelersChanged();
             KanbanManager.KanbanChanged += new KanbanChangedSubscriber(HandleKanbanChanged);
+            SetFilterForm();
         }
         public void HandleTravelersChanged()
         {
@@ -67,10 +66,27 @@ namespace Efficient_Automatic_Traveler_System
             queueArray.ID = "queueArray";
             foreach (StationClass station in StationClass.GetStations())
             {
-                queueArray.Add(CreateStation(station, m_viewState));
+                GlobalItemState GlobalState;
+                if (Enum.TryParse(ViewFilter.ValueOf("globalState"), out GlobalState))
+                {
+                    queueArray.Add(CreateStation(station, GlobalState));
+                }
             }
             SendMessage(new ControlPanel("queueArray", queueArray, "body").Dispatch().ToString());
             //if (m_current != null) SendMessage(TravelerPopup(m_current));
+        }
+        private void SetFilterForm()
+        {
+            Form form = new Form();
+            form.ID = "filterForm";
+            // global state
+            form.Radio("globalState", "Global State", ExtensionMethods.GetNames<GlobalItemState>(), GlobalItemState.PreProcess.ToString());
+            // type
+            form.Radio("type", "Type", new List<string>() { "Table", "Chair", "TableBox" },"Table");
+            // filterType
+            form.Checkbox("filterType", "Filter Type", true);
+            
+            SendMessage(form.Dispatch("SetViewFilter"));
         }
         public Node CreateStation(StationClass station, GlobalItemState state)
         {
@@ -116,22 +132,30 @@ namespace Efficient_Automatic_Traveler_System
         public List<Traveler> VisibleTravelers(StationClass station)
         {
             List<Traveler> travelers = new List<Traveler>();
-            foreach (Traveler traveler in m_travelerManager.GetTravelers)
+            GlobalItemState GlobalState;
+            bool filterType;
+            Type type = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + ViewFilter.ValueOf("type"));
+            if (Enum.TryParse(ViewFilter.ValueOf("globalState"), out GlobalState)
+                && Boolean.TryParse(ViewFilter.ValueOf("filterType"), out filterType)
+            )
             {
-                //if (traveler.GetType() == m_viewType)
+                foreach (Traveler traveler in m_travelerManager.GetTravelers)
                 {
-                    if (m_viewState == GlobalItemState.PreProcess)
+                    if (!filterType || traveler.GetType() == type)
                     {
-                        if (traveler.State == GlobalItemState.PreProcess && traveler.Station == station) travelers.Add(traveler);
-                    }
-                    else if (m_viewState == GlobalItemState.InProcess)
-                    {
-                        if (traveler.QuantityPendingAt(station) > 0 || traveler.QuantityInProcessAt(station) > 0) travelers.Add(traveler);
-                        //if (traveler.State == GlobalItemState.InProcess && traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
-                    }
-                    else
-                    {
-                        if (traveler.Items.Exists( i => i.GlobalState == m_viewState && i.Station == station)) travelers.Add(traveler);
+                        if (GlobalState == GlobalItemState.PreProcess)
+                        {
+                            if (traveler.State == GlobalItemState.PreProcess && traveler.Station == station) travelers.Add(traveler);
+                        }
+                        else if (GlobalState == GlobalItemState.InProcess)
+                        {
+                            if (traveler.QuantityPendingAt(station) > 0 || traveler.QuantityInProcessAt(station) > 0) travelers.Add(traveler);
+                            //if (traveler.State == GlobalItemState.InProcess && traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
+                        }
+                        else
+                        {
+                            if (traveler.Items.Exists(i => i.GlobalState == GlobalState && i.Station == station)) travelers.Add(traveler);
+                        }
                     }
                 }
             }
@@ -222,12 +246,14 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                m_viewState = (GlobalItemState)Enum.Parse(typeof(GlobalItemState), obj["viewState"]);
-                m_viewType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + obj["viewType"]);
-                m_filterState = Convert.ToBoolean(obj["filterState"]);
-                //m_filterLocalState = Convert.ToBoolean(obj["filterLocalState"]);
-                m_filterType = Convert.ToBoolean(obj["filterType"]);
+                ViewFilter = new Form(json);
+
+                //m_viewState 
+                //m_viewState = (GlobalItemState)Enum.Parse(typeof(GlobalItemState), obj["viewState"]);
+                //m_viewType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + obj["viewType"]);
+                //m_filterState = Convert.ToBoolean(obj["filterState"]);
+                ////m_filterLocalState = Convert.ToBoolean(obj["filterLocalState"]);
+                //m_filterType = Convert.ToBoolean(obj["filterType"]);
                 HandleTravelersChanged();
                 return new ClientMessage();
             }
@@ -674,7 +700,7 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
-
+                SelectedItem = item;
                 Column fields = new Column(true);
                 fields.Add(
                     new Row(style: new Style("justify-space-between"))
@@ -1478,20 +1504,24 @@ namespace Efficient_Automatic_Traveler_System
                                 TravelerItem item = traveler.FindItem(itemID);
                                 if (item != null)
                                 {
+                                    SendMessage(new ClientMessage("ClearSearch"));
                                     return ItemPopup(@"{""travelerID"":" + traveler.ID + @",""itemID"":" + itemID + "}");
                                 }
                             }
+                            SendMessage(new ClientMessage("ClearSearch"));
                             return TravelerPopup(traveler);
                         }
                     }
                 }
                 if (Traveler.IsTable(searchPhrase) || Traveler.IsChair(searchPhrase))
                 {
+                    SendMessage(new ClientMessage("ClearSearch"));
                     return ListTravelers(Server.TravelerManager.GetTravelers.Where(t => t.ItemCode == searchPhrase).ToList());
                 }
                 Order order = Server.OrderManager.FindOrder(searchPhrase);
                 if (order != null)
                 {
+                    SendMessage(new ClientMessage("ClearSearch"));
                     return OrderPopup(new JsonObject() { { "orderNo", order.SalesOrderNo } });
                 }
                 return new ClientMessage("Info", "Could not identify a search target");
@@ -1640,27 +1670,23 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //-----------------------------------
         #region Properties
-        private GlobalItemState m_viewState;
-        private LocalItemState m_viewLocalState;
-        private Type m_viewType;
-        private bool m_filterState;
-        private bool m_filterLocalState;
-        private bool m_filterType;
+        private Form m_viewFilter;
+
         private Order m_order;
         private List<Traveler> m_selected;
         private Traveler m_current = null;
         private StationClass m_currentStation = null;
 
-        public bool FilterLocalState
+        public Form ViewFilter
         {
             get
             {
-                return m_filterLocalState;
+                return m_viewFilter;
             }
 
             set
             {
-                m_filterLocalState = value;
+                m_viewFilter = value;
             }
         }
         #endregion

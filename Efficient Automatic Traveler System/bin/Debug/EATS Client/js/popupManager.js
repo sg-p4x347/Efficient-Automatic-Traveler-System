@@ -107,11 +107,17 @@ function PopupManager(blackout) {
 		return false;
 	}
 	// displays a form in the format provided by the formData object
-	this.Form = function (format,submitCallback) {
+	this.Form = function (format,submitCallback,id) {
 		var self = this;
-		self.CloseAll();
+		var element = document.getElementById(id);
+		if (element == undefined) {
+			self.CloseAll();
+		} else {
+			ClearChildren(element);
+		}
 		var popup = self.CreatePopup(format.name,true);
 		var inputs = [];
+		var radios = {};
 		format.fields.forEach(function (field) {
 			// for each field in the form
 			var row = self.CreateHorizontalList();
@@ -121,61 +127,108 @@ function PopupManager(blackout) {
 			row.appendChild(fieldTitle);
 			//------
 			var input;
-			if (field.type == "select") {
-				input = document.createElement("SELECT");
-				field.options.forEach(function (optionText) {
-					var option = document.createElement("OPTION");
-					option.innerHTML = optionText;
-					option.value = optionText;
-					input.appendChild(option);
-				});
-			} else if (field.type == "textarea") {
-				input = document.createElement("textarea");
-			} else if (field.type != "addBox") {
-				input = document.createElement("INPUT");
-				input.type = field.type;
-				if (field.type == "number") {
-					input.min = field.min;
-					input.max = field.max;
+			if (field.type != "radio") {
+				if (field.type == "select") {
+					input = document.createElement("SELECT");
+					field.options.forEach(function (optionText) {
+						var option = document.createElement("OPTION");
+						option.innerHTML = optionText;
+						option.value = optionText;
+						input.appendChild(option);
+					});
+				} else if (field.type == "textarea") {
+					input = document.createElement("textarea");
+				} else if (field.type != "addBox") {
+					input = document.createElement("INPUT");
+					input.type = field.type;
+					if (field.type == "number") {
+						input.min = field.min;
+						input.max = field.max;
+					}
+				} else if (field.type == "addBox") {
+					input = {
+						value:[],
+						type:field.type
+					};
+					row.appendChild( self.CreateAddBox(input.value));
 				}
-				
-			} else if (field.type == "addBox") {
-				
-				input = {
-					value:[],
-					type:field.type
+				if (input.type != "addBox") {
+					if (field.type != "checkbox") {
+						input.value = field.value;
+					} else {
+						input.checked = field.value;
+					}
+					input.onclick = function (evt) {
+						evt.stopPropagation();
+					}
+					row.appendChild(input);
+				}
+				inputs.push(input);
+			} else {
+				// Radio
+				var radio = {
+					type: field.type,
+					value: field.value
 				};
-				row.appendChild( self.CreateAddBox(input.value));
+				radio.onchange = function () {}
+				var radioDiv = document.createElement("DIV");
+				field.options.forEach(function (optionText) {
+					var option = document.createElement("INPUT");
+					option.type = "radio";
+					option.name = field.name;
+					option.value = optionText;
+					var title = self.CreateP(optionText);
+					var radioItem = self.CreateHorizontalList();
+					radioItem.appendChild(title);
+					radioItem.appendChild(option);
+					radioDiv.appendChild(radioItem);
+					option.onclick = function () {
+						if (this.checked) {
+							radio.value = this.value;
+							radio.onchange();
+						}
+						previous = this.value;
+					}
+				});
+				inputs.push(radio);
+				row.appendChild(radioDiv);
 			}
-			if (input.type != "addBox") {
-				if (field.type != "checkbox") {
-					input.value = field.value;
-				} else {
-					input.checked = field.value;
-				}
-				input.onclick = function (evt) {
-					evt.stopPropagation();
-				}
-				row.appendChild(input);
-			}
-			inputs.push(input);
 			//------
-			popup.appendChild(row);
+			if (element != undefined) {
+				element.appendChild(row);
+			} else {
+				popup.appendChild(row);
+			}
 		});
-		var submit = self.CreateButton("Submit");
-		submit.onclick = function () {
-			format.fields.forEach(function (field,i) {
+		
+		if (element == undefined) {
+			var submit = self.CreateButton("Submit");
+			submit.onclick = function () {
+				self.SubmitForm(format,inputs,submitCallback);
 				self.Close(popup);
-				if (inputs[i].type != "checkbox") {
-					format.fields[i].value = inputs[i].value;
-				} else {
-					format.fields[i].value = inputs[i].checked;
+			}
+			popup.appendChild(submit);
+			self.Open(popup);
+		} else {
+			inputs.forEach(function (input,i) {
+				inputs[i].onchange = function () {
+					self.SubmitForm(format,inputs,submitCallback);
 				}
 			});
-			submitCallback(format);
+			// submit form to initialize
+			self.SubmitForm(format,inputs,submitCallback);
 		}
-		popup.appendChild(submit);
-		self.Open(popup);
+	}
+	this.SubmitForm = function (format, inputs, submitCallback) {
+		var self = this;
+		format.fields.forEach(function (field,i) {
+			if (inputs[i].type != "checkbox") {
+				format.fields[i].value = inputs[i].value;
+			} else {
+				format.fields[i].value = inputs[i].checked;
+			}
+		});
+		submitCallback(format);
 	}
 	// displays a search box; calls a callback with the search phrase
 	this.Search = function (message,callback) {

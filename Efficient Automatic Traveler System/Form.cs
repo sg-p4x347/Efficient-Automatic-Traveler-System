@@ -14,20 +14,27 @@ namespace Efficient_Automatic_Traveler_System
             m_title = "";
             m_source = "";
             m_fields = new List<string>();
+            ID = "";
         }
         public Form(string json)
         {
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                m_title = obj["name"];
-                //m_source = obj["source"];
-                m_fields = new StringStream(obj["fields"]).ParseJSONarray();
+                if (obj.ContainsKey("name"))
+                {
+                    m_title = obj["name"];
+                    //m_source = obj["source"];
+                    m_fields = new StringStream(obj["fields"]).ParseJSONarray();
+                } else
+                {
+                    JsonObject obj2 = (JsonObject)JSON.Parse(json);
+                    m_title = ((JsonObject)obj2["form"])["name"];
+                    m_fields = new StringStream(((JsonArray)((JsonObject)obj2["form"])["fields"])).ParseJSONarray();
+                }
             } catch (Exception ex)
             {
-                JsonObject obj = (JsonObject)JSON.Parse(json);
-                m_title = ((JsonObject)obj["form"])["name"];
-                m_fields = new StringStream(((JsonArray)((JsonObject)obj["form"])["fields"])).ParseJSONarray();
+                Server.LogException(ex);
             }
         }
         public virtual Dictionary<string, Node> ExportViewProperties()
@@ -44,7 +51,8 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> obj = new Dictionary<string, string>() {
                 {"name",m_title.Quotate() },
-                {"fields",m_fields.Stringify(false) }
+                {"fields",m_fields.Stringify(false) },
+                {"id",ID.Quotate() }
             };
             return obj.Stringify();
         }
@@ -179,6 +187,7 @@ namespace Efficient_Automatic_Traveler_System
         private string m_title;
         private List<string> m_fields;
         private string m_source;
+        private string m_id;
         public string Name
         {
             get
@@ -223,6 +232,19 @@ namespace Efficient_Automatic_Traveler_System
             get
             {
                 return m_fields;
+            }
+        }
+
+        public string ID
+        {
+            get
+            {
+                return m_id;
+            }
+
+            set
+            {
+                m_id = value;
             }
         }
 

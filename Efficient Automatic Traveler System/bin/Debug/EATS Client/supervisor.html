@@ -75,34 +75,10 @@
 				<input id = "searchBox" class = "twoEM dark white searchBox" type = "text" placeholder="Search.."><!---->
 			</form>
 			<!-- VIEW FORM -->
-			<form id = "viewForm" class = "ribbonItem" style = "white-space: nowrap;" onchange = "application.ViewChanged(this)">
+			<form id = "viewForm" class = "ribbonItem" style = "white-space: nowrap;">
 				<p class = "bold darkGrey">Filter</p>
-				<div class = "list--horizontal justify-space-around">
-					<div>
-					<p class = "bold">Global State</p><br>
-					<input 	id = "viewPreProcess"	 type = "radio" name = "viewState" value = "PreProcess" checked>Pre-Process<br>
-					<input 	id = "viewInProcess" 	type = "radio" name = "viewState" value = "InProcess">In-Process<br>
-					<input 	id = "viewFinished" 	type = "radio" name = "viewState" value = "Finished">Finished<br>
-					<input 	id = "viewScrapped" 	type = "radio" name = "viewState" value = "Scrapped">Scrapped<br>
-					<input 	id = "viewPendingRework" type = "radio" name = "viewState" value = "PendingRework">Pending Rework<br>
-					</div>
-					<div>
+				<div id = "filterForm" class = "list--horizontal justify-space-around">
 					
-					<input id = "filterLocalState" type = "checkbox">
-					<p class = "bold">Local State</p><br>
-					<input 	id = "viewPreProcess"	 type = "radio" name = "viewLocalState" value = "PreProcess" checked>Pre-Process<br>
-					<input 	id = "viewInProcess" 	type = "radio" name = "viewLocalState" value = "InProcess">In-Process<br>
-					<input 	id = "viewPostProcess" 	type = "radio" name = "viewLocalState" value = "PostProcess">Post-Process<br>
-					</div>
-					
-					<div>
-					<input id = "filterType" type = "checkbox" checked>
-					<p class = "bold">Type</p><br>
-					<input 	id = "viewTables"	 type = "radio" name = "viewType" value = "Table" checked>Table<br>
-					<input 	id = "viewChairs" 	type = "radio" name = "viewType" value = "Chair">Chair<br>
-					<input 	id = "viewParts" 	type = "radio" name = "viewType" value = "Part">Part<br>
-					<input 	id = "viewChairs" 	type = "radio" name = "viewType" value = "TableBox">Table Box
-					</div>
 				</div>
 			</form>
 			<!-- LOGOUT BUTTON -->

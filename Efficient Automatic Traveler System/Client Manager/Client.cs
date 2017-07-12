@@ -626,6 +626,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.UserManager.Backup();
                 m_user = null;
             }
+            Deselect();
             return new ClientMessage();
         }
 
@@ -653,6 +654,14 @@ namespace Efficient_Automatic_Traveler_System
             javascript += "}";
 
             SendMessage(new ClientMessage("Evaluate", javascript.Quotate()).ToString());
+        }
+        protected void Deselect()
+        {
+            SelectedItem = null;
+
+            Traveler traveler = SelectedTraveler;
+            SelectedTraveler = null;
+            Server.TravelerManager.OnTravelersChanged(traveler);
         }
         //public string AddUID(string json)
         //{
@@ -760,32 +769,37 @@ namespace Efficient_Automatic_Traveler_System
         }
         public NodeList FlagItemOptions()
         {
+           
             string text = "";
             Dictionary<string, string> options = new Dictionary<string, string>();
-            
-            if (!SelectedItem.Flagged)
-            {
-                // IF not flagged
-                text = "Item not flagged";
-                options.Add("Flag an issue", "FlagItemForm");
-                options.Add("Close", "CloseAll");
-            }
-            else
-            {
-                // IF flagged
-                text = "Item flagged";
-                if (CurrentStation != null && SelectedItem.BeenCompleted(CurrentStation))
-                {
-                    options.Add("Rework Now", "Rework");
-                }
-                options.Add("Deflag Item", "DeflagItemForm");
-                options.Add("View Details", "ViewFlagDetails");
-                options.Add("Close", "CloseAll");
-            }
 
+            if (SelectedItem != null)
+            {
+                if (!SelectedItem.Flagged)
+                {
+                    // IF not flagged
+                    text = "Item not flagged";
+                    options.Add("Flag an issue", "FlagItemForm");
+                    options.Add("Close", "CloseAll");
+                }
+                else
+                {
+                    // IF flagged
+                    text = "Item flagged";
+                    if (CurrentStation != null && SelectedItem.BeenCompleted(CurrentStation))
+                    {
+                        options.Add("Rework Now", "Rework");
+                    }
+                    options.Add("Deflag Item", "DeflagItemForm");
+                    options.Add("View Details", "ViewFlagDetails");
+                    if (this is SupervisorClient) options.Add("Scrap Item", "ScrapItem");
+                    options.Add("Close", "CloseAll");
+                }
+            }
             return ControlPanel.Options(text, options);
+            
         }
-        public ClientMessage FlagItem(string json)
+        public virtual ClientMessage FlagItem(string json)
         {
             try
             {
@@ -835,6 +849,22 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error loading rework details");
             }
 
+        }
+        public ClientMessage ScrapItem(string json)
+        {
+            try
+            {
+                if (SelectedItem != null)
+                {
+                    SelectedItem.Scrap(m_user, CurrentStation);
+                }
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error scrapping item");
+            }
         }
     }
 }

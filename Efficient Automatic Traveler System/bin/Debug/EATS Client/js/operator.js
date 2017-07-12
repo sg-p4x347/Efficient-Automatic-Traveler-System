@@ -213,8 +213,14 @@ function Application () {
 			document.getElementById(controlPanel.ID).scrollTop = self.scrollPos[controlPanel.ID];
 		} else {
 			// add this id to the list of scroll positions
-			document.getElementById(controlPanel.ID).onscroll = function () {
-				self.scrollPos[controlPanel.ID] = this.scrollTop;
+			try {
+				var element = document.getElementById(controlPanel.ID);
+				if (element) {
+					element.onscroll = function () {
+						self.scrollPos[controlPanel.ID] = this.scrollTop;
+					}
+				}
+			} catch (ex) {
 			}
 		}
 	}

@@ -382,7 +382,7 @@ function Application () {
 			});
 			//-----------------------------------------------
 			self.StartAutofocus();
-		});
+		}, params.form.id);
 	}
 	this.EditUserForm = function (format) {
 		this.UserForm(format,"EditUser");
@@ -453,6 +453,9 @@ function Application () {
 		
 		self.popupManager.AddCustom(popup);
 	}
+	this.ClearSearch = function() {
+		document.getElementById("searchBox").value = "";
+	}
 	// Utility
 	this.GetSelectedIDs = function () {
 		var self = this;
@@ -470,7 +473,7 @@ function Application () {
 	// DOM events
 	//----------------
 
-	this.FilterChanged = function () {
+	/* this.FilterChanged = function () {
 		var self = this;
 		var filterType = document.getElementById("filterType").checked;
 		var viewStateRadios = document.getElementsByName("viewState");
@@ -525,7 +528,7 @@ function Application () {
 			viewType: self.view.viewType
 		},"This");
 		//-----------------------------------------------
-	}
+	} */
 	this.Redirect = function(location) {
 		window.location = location;
 	}
@@ -534,7 +537,7 @@ function Application () {
 	}
 	this.InterfaceOpen = function () {
 		// configure the default view settings with the server
-		document.getElementById("viewForm").onchange();
+		//document.getElementById("viewForm").onchange();
 	}
 	this.PrintLabelPopup = function (params) {
 		var self = this;
@@ -791,12 +794,6 @@ function Application () {
 			popup.appendChild(newTravelerBtn);
 			
 			self.popupManager.AddCustom(popup); */
-		//----------------
-		// View filter
-		//----------------
-		document.getElementById("viewForm").onchange = function () {
-			self.FilterChanged();
-		}
 		//----------------
 		// queueArray
 		//----------------

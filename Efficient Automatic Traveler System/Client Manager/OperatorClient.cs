@@ -117,7 +117,7 @@ namespace Efficient_Automatic_Traveler_System
                 //    }
                 //    catch (Exception ex) { }
                 //}
-                if (SelectedItem != null && !items.Contains(SelectedItem)) ClearTravelerView();
+               // if (!(SelectedItem != null && items.Contains(SelectedItem))) ClearTravelerView();
 
                 NodeList inProcess = CreateItemQueue(items);
                 ControlPanel cp = new ControlPanel("inProcess", inProcess, "inProcessQueue");
@@ -441,20 +441,36 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 
+                
                 // deselect the selected item
                 if (SelectedItem == null && CurrentStation.CreatesThis(SelectedTraveler))
                 {
                     SelectedItem = SelectedTraveler.AddItem(CurrentStation);
+                } else if (SelectedItem != null && SelectedItem.BeenCompleted(CurrentStation) && !SelectedItem.Flagged)
+                {
+                    // this should't happen
+                    Deselect();
+                    return new ClientMessage();
                 }
+                if (SelectedItem != null)
+                {
+                    SelectedItem.Complete(m_user, CurrentStation, m_partTimer.Stopwatch.Elapsed.TotalMinutes);
+                    UpdateUI();
+                    m_partTimer.Clear("ClearPartTimer");
 
-                SelectedItem.Complete(m_user, CurrentStation, m_partTimer.Stopwatch.Elapsed.TotalMinutes);
-                UpdateUI();
-                NewPartStarted(); // timers
-                //if (CurrentStation.Mode == StationMode.Serial)
-                //{
-                //    SubmitTraveler("");
-                //}
-                SelectedItem = null;
+                    // IF this station creates items, start a new timer
+                    if (CurrentStation.CreatesThis(SelectedTraveler))
+                    {
+                        NewPartStarted(); // timers
+                    }
+                    else
+                    {
+                        m_partTimer.Clear("ClearPartTimer");
+                    }
+
+
+                    Deselect();
+                }
                 return new ClientMessage();
             }
             catch (Exception ex)
@@ -687,23 +703,29 @@ namespace Efficient_Automatic_Traveler_System
         }
         private ClientMessage LoadItem(TravelerItem item)
         {
-            LoadTraveler(item.Parent);
-            SelectedItem = item;
+            if (item != null)
+            {
+                LoadTraveler(item.Parent);
+
+                SelectedItem = item;
+                SelectedTraveler = SelectedItem.Parent;
+
+                //Dictionary<string, string> returnParams = new Dictionary<string, string>()
+                //{
+                //    {"traveler", ExportTraveler(item.Parent)},
+                //    {"item",SelectedItem.ToString() },
+                //    {"sequenceID",item.Parent.PrintSequenceID(SelectedItem).Quotate() }
+                //};
+
+                if (CurrentStation.Mode == StationMode.Serial) LoadTimerFor(SelectedItem);
+
+                HandleTravelersChanged();
+                //return new ClientMessage("LoadItem", returnParams.Stringify());
+            }
             
-
-            //Dictionary<string, string> returnParams = new Dictionary<string, string>()
-            //{
-            //    {"traveler", ExportTraveler(item.Parent)},
-            //    {"item",SelectedItem.ToString() },
-            //    {"sequenceID",item.Parent.PrintSequenceID(SelectedItem).Quotate() }
-            //};
-
-            if (CurrentStation.Mode == StationMode.Serial) LoadTimerFor(SelectedItem);
-
-            HandleTravelersChanged();
-            //return new ClientMessage("LoadItem", returnParams.Stringify());
             return new ClientMessage();
         }
+        
         //public ClientMessage LoadCurrent(string json)
         //{
         //    try
@@ -734,8 +756,6 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                SelectedItem = item;
-                SelectedTraveler = SelectedItem.Parent;
                 if (item.PendingAt(CurrentStation) || item.InProcessAt(CurrentStation))
                 {
                     if (!item.Started(CurrentStation))
@@ -753,9 +773,9 @@ namespace Efficient_Automatic_Traveler_System
 
                         // this is Table pack station, print Table label on search submission 
 
-                        if (CurrentStation == StationClass.GetStation("Table-Pack"))
+                        if (CurrentStation.Type == "tablePack")
                         {
-                            item.Parent.PrintLabel(SelectedItem.ID, LabelType.Table);
+                            item.Parent.PrintLabel(item.ID, LabelType.Table);
                         }
                     }
                     else if (SelectedItem != item)
@@ -780,11 +800,13 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 else if (item.BeenCompleted(CurrentStation))
                 {
+                    SelectedItem = item;
                     NodeList options = FlagItemOptions();
                     return new ControlPanel("Item completed at " + CurrentStation.Name, new Column() { new TextNode(item.Parent.PrintID(item) + " has been completed at this station"), options }).Dispatch();
                 }
                 else
                 {
+                    SelectedItem = item;
                     NodeList options = FlagItemOptions();
                     return new ControlPanel("Item not pending at " + CurrentStation.Name, new Column() { new TextNode(item.Parent.PrintID(item) + "  is not pending work at your station" + "<br>It is " + item.LocalState.ToString() + " at " + item.Station.Name), options }).Dispatch();
                 }
@@ -811,7 +833,13 @@ namespace Efficient_Automatic_Traveler_System
                         if (ushort.TryParse(obj["itemID"], out itemID))
                         {
                             item = traveler.FindItem(itemID);
-                            return SelectItem(item);
+                            if (item != null)
+                            {
+                                return SelectItem(item);
+                            } else
+                            {
+                                return new ClientMessage("Info", item.PrintID() + " could not be found");
+                            }
                         }
                         else
                         {
@@ -973,12 +1001,6 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     // Add the rework event
                     SelectedItem.Rework(m_user, CurrentStation);
-                    // deselect item
-                    if (SelectedItem == SelectedItem)
-                    {
-                        SelectedItem = null;
-                        HandleTravelersChanged();
-                    }
 
                     SendMessage(CloseAll());
                     // Re-search and take action
@@ -991,6 +1013,13 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error reworking part");
             }
         }
+        public override ClientMessage FlagItem(string json)
+        {
+            ClientMessage message = base.FlagItem(json);
+            Deselect();
+            return message;
+        }
+        
         public override ClientMessage Logout(string json)
         {
             m_partTimer.Clear("ClearPartTimer");
