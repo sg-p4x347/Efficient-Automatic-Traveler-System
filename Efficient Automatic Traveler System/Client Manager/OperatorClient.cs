@@ -28,7 +28,6 @@ namespace Efficient_Automatic_Traveler_System
             m_stationTimer = new ClientStopwatch(this);
             SendMessage((new ClientMessage("InitStations", StationClass.GetStations().Stringify())).ToString());
         }
-
         public string SetStation(string json)
         {
             try

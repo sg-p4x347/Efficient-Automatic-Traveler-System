@@ -264,8 +264,10 @@ namespace Efficient_Automatic_Traveler_System
 
                     CloseMAS();
                 }
-            } catch (Exception ex)
+            } catch (AccessViolationException ex)
             {
+                Server.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+                Server.WriteLine("Caught the odbc Exception");
                 Server.LogException(ex);
                 CloseMAS();
             }

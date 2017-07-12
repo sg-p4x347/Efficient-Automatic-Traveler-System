@@ -49,17 +49,17 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>PfBG07Q4laoHLJLZ5k/Nlo+ZllAZotjs/xtKovAc1Ro=</dsig:DigestValue>
+        <dsig:DigestValue>AvM36EbQb+DfCNOIgsnDfQ6Vu2QYxznkayI+yCb7tX0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="Efficient Automatic Traveler System.exe.config" size="189">
+  <file name="Efficient Automatic Traveler System.exe.config" size="286">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>6N7MliNbVJSIAIPrecIshMbZ7zEoKLr5SQvud4LDUOw=</dsig:DigestValue>
+      <dsig:DigestValue>5bpxy1yGBYheLI8sLvQnYsFAkP1VmdZNOBM5JGxRoHo=</dsig:DigestValue>
     </hash>
   </file>
 </asmv1:assembly>
