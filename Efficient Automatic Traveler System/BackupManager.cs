@@ -158,12 +158,7 @@ namespace Efficient_Automatic_Traveler_System
         public static void GetVersion(string text, out string detail, out Version version)
         {
             version = Version._2_4;
-            try
-            {
-                version = (Version)Enum.Parse(typeof(Version), text.GetLine());
-            }
-            catch (Exception ex)
-            {
+            if (!Enum.TryParse(text.GetLine(),out version )) {
                 version = Version._2_4;
             }
             detail = text;
