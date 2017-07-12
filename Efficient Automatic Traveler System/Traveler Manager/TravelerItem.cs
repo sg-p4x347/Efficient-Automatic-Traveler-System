@@ -268,14 +268,14 @@ namespace Efficient_Automatic_Traveler_System
             Station = station;
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void Flag(User user, StationClass station, Form form)
+        public void Flag(User user, Form form)
         {
             GlobalState = GlobalItemState.Flagged;
 
-            History.Add(new Documentation(user, LogType.FlagItem, station, form.ToJSON()));
+            History.Add(new Documentation(user, LogType.FlagItem, Station, form.ToJSON()));
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void Deflag(User user, StationClass station, Form form)
+        public void Deflag(User user, Form form)
         {
             // Finish this item if its next station is finished
             if (Parent.PendingAt(StationClass.GetStation("Finished")))
@@ -289,7 +289,7 @@ namespace Efficient_Automatic_Traveler_System
                 GlobalState = GlobalItemState.InProcess;
             }
 
-            History.Add(new Documentation(user, LogType.DeflagItem, station, form.ToJSON()));
+            History.Add(new Documentation(user, LogType.DeflagItem, Station, form.ToJSON()));
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public void Finish(User user)
@@ -310,6 +310,10 @@ namespace Efficient_Automatic_Traveler_System
         public void Undo()
         {
 
+        }
+        public string PrintID()
+        {
+            return Parent.PrintID(this);
         }
         // Properties
         private UInt16 m_ID;

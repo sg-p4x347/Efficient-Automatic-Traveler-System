@@ -121,6 +121,10 @@ namespace Efficient_Automatic_Traveler_System
             m_connected = true;
             m_history = new List<UserAction>();
 
+            SelectedItem = null;
+            SelectedTraveler = null;
+            CurrentStation = null;
+
         }
 
         public void SendMessage(string message)
@@ -512,6 +516,9 @@ namespace Efficient_Automatic_Traveler_System
 
         protected List<UserAction> m_history;
         private AccessLevel m_accessLevel;
+        private TravelerItem m_selectedItem;
+        private Traveler m_selectedTraveler;
+        private StationClass m_currentStation;
         public bool Connected
         {
             get
@@ -538,6 +545,45 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_accessLevel = value;
+            }
+        }
+
+        public TravelerItem SelectedItem
+        {
+            get
+            {
+                return m_selectedItem;
+            }
+
+            set
+            {
+                m_selectedItem = value;
+            }
+        }
+
+        public Traveler SelectedTraveler
+        {
+            get
+            {
+                return m_selectedTraveler;
+            }
+
+            set
+            {
+                m_selectedTraveler = value;
+            }
+        }
+
+        public StationClass CurrentStation
+        {
+            get
+            {
+                return m_currentStation;
+            }
+
+            set
+            {
+                m_currentStation = value;
             }
         }
 
@@ -644,17 +690,21 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                JsonObject reworkReport = (JsonObject)ConfigManager.GetJSON("scrapReport");
-                JsonArray vendorReasons = (JsonArray)reworkReport["vendor"];
-                JsonArray productionReasons = (JsonArray)reworkReport["production"];
+                if (SelectedItem != null)
+                {
+                    JsonObject reworkReport = (JsonObject)ConfigManager.GetJSON("scrapReport");
+                    JsonArray vendorReasons = (JsonArray)reworkReport["vendor"];
+                    JsonArray productionReasons = (JsonArray)reworkReport["production"];
 
-                Form form = new Form();
-                form.Title = "Flag item problem";
-                form.Selection("source", "Source", new List<string>() { "vendor", "production" }, "production");
-                form.Selection("reason", "Reason", productionReasons.ToList().Concat(vendorReasons.ToList()).ToList());
-                form.Checkbox("startedWork", "Started Work", false);
+                    Form form = new Form();
+                    form.Title = "Flag " + SelectedItem.PrintID();
+                    form.Selection("source", "Source", new List<string>() { "vendor", "production" }, "production");
+                    form.Selection("reason", "Reason", productionReasons.ToList().Concat(vendorReasons.ToList()).ToList());
+                    form.Checkbox("startedWork", "Started Work", false);
 
-                return form.Dispatch("FlagItem",json);
+                    return form.Dispatch("FlagItem");
+                }
+                return new ClientMessage("Info", "Selected item was null");
             }
             catch (Exception ex)
             {
@@ -708,16 +758,12 @@ namespace Efficient_Automatic_Traveler_System
                 return false;
             }
         }
-        public NodeList FlagItemOptions(TravelerItem item, StationClass station = null)
+        public NodeList FlagItemOptions()
         {
-            JsonObject returnParams = new JsonObject() { { "travelerID", item.Parent.ID }, { "itemID", item.ID } };
-            if (station != null) returnParams.Add("station", station.Name);
-
-
             string text = "";
             Dictionary<string, string> options = new Dictionary<string, string>();
             
-            if (!item.Flagged)
+            if (!SelectedItem.Flagged)
             {
                 // IF not flagged
                 text = "Item not flagged";
@@ -728,7 +774,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 // IF flagged
                 text = "Item flagged";
-                if (station != null && item.BeenCompleted(station))
+                if (CurrentStation != null && SelectedItem.BeenCompleted(CurrentStation))
                 {
                     options.Add("Rework Now", "Rework");
                 }
@@ -737,18 +783,15 @@ namespace Efficient_Automatic_Traveler_System
                 options.Add("Close", "CloseAll");
             }
 
-            return ControlPanel.Options(text, options, returnParams);
+            return ControlPanel.Options(text, options);
         }
         public ClientMessage FlagItem(string json)
         {
             try
             {
-                JsonObject obj = (JsonObject)JSON.Parse(json)["parameters"];
-                TravelerItem item;
-                if (GetItem(obj, out item))
+                if (SelectedItem != null)
                 {
-                    StationClass station;
-                    item.Flag(m_user, GetStation(obj, out station) ? station : null, new Form(json));
+                    SelectedItem.Flag(m_user, new Form(json));
                 }
                     
                 return new ClientMessage();
@@ -763,12 +806,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                JsonObject obj = (JsonObject)JSON.Parse(json)["parameters"];
-                TravelerItem item;
-                if (GetItem(obj, out item))
+                if (SelectedItem != null)
                 {
-                    StationClass station;
-                    item.Deflag(m_user, GetStation(obj, out station) ? station : null, new Form(json));
+                    SelectedItem.Deflag(m_user, new Form(json));
                 }
                 return new ClientMessage();
             }
@@ -782,10 +822,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                TravelerItem item;
-                if (GetItem(json, out item))
+                if (SelectedItem != null)
                 {
-                    Documentation flagEvent = item.History.OfType<Documentation>().Last(e => e.LogType == LogType.FlagItem);
+                    Documentation flagEvent = SelectedItem.History.OfType<Documentation>().Last(e => e.LogType == LogType.FlagItem);
                     return new ControlPanel("Flagged details",ControlPanel.CreateDictionary(flagEvent.ExportViewProperties())).Dispatch();
                 }
                 return new ClientMessage();

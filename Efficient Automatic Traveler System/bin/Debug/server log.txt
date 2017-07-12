@@ -3,7 +3,7 @@ Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
 Client manager started
 
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	07/12/2017 @ 10:57
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	07/12/2017 @ 01:18
 
 EATS inventory loaded from backup
 Kanban Monitor loaded from backup
@@ -14,7 +14,7 @@ Users loaded from backup
 Loading orders from backup...Loading orders from backup...Finished
 Importing orders...Importing orders...Finished
 Loading travelers from backup...Loading travelers from backup...Finished
-Gathering Info...20%Gathering Info...40%Gathering Info...60%Gathering Info...80%Gathering Info...100%Gathering Info...Finished
+Gathering Info...7%Gathering Info...13%Gathering Info...20%Gathering Info...27%Gathering Info...33%Gathering Info...40%Gathering Info...47%Gathering Info...53%Gathering Info...60%Gathering Info...67%Gathering Info...73%Gathering Info...80%Gathering Info...87%Gathering Info...93%Gathering Info...100%Gathering Info...Finished
 Disconnected from MAS
 
 <<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
