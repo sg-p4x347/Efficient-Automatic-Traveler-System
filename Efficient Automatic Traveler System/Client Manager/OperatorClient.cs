@@ -795,12 +795,12 @@ namespace Efficient_Automatic_Traveler_System
             else if (item.BeenCompleted(m_station))
             {
                 NodeList options = FlagItemOptions(item, m_station);
-                return new ControlPanel("Item not completed", new Column() { new TextNode(item.Parent.PrintID(item) + " has been completed at this station"), options }).Dispatch();
+                return new ControlPanel("Item completed at " + m_station.Name, new Column() { new TextNode(item.Parent.PrintID(item) + " has been completed at this station"), options }).Dispatch();
             }
             else
             {
                 NodeList options = FlagItemOptions(item, m_station);
-                return new ControlPanel("Item not completed", new Column() { new TextNode(item.Parent.PrintID(item) + "  has not been completed at any of its prerequisites"), options }).Dispatch();
+                return new ControlPanel("Item not pending at " + m_station.Name, new Column() { new TextNode(item.Parent.PrintID(item) + "  is not pending work at your station" + "<br>It is " + item.LocalState.ToString() + " at " + item.Station.Name), options }).Dispatch();
             }
             return new ClientMessage();
         }

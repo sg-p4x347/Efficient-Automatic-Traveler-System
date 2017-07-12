@@ -231,11 +231,17 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static string GetLine(this string text)
         {
-            List<string> lines = text.Split('\n').ToList();
-            string first = lines.First();
-            lines.Remove(first);
-            text = lines.Aggregate((i, j) => i += '\n' + j);
-            return first;
+            if (text.Any())
+            {
+                List<string> lines = text.Split('\n').ToList();
+                string first = lines.First();
+                lines.Remove(first);
+                text = lines.Aggregate((i, j) => i += '\n' + j);
+                return first;
+            } else
+            {
+                return "";
+            }
         }
     }
 }

@@ -711,7 +711,7 @@ namespace Efficient_Automatic_Traveler_System
         public NodeList FlagItemOptions(TravelerItem item, StationClass station = null)
         {
             JsonObject returnParams = new JsonObject() { { "travelerID", item.Parent.ID }, { "itemID", item.ID } };
-            if (station != null) returnParams.Add("station", returnParams);
+            if (station != null) returnParams.Add("station", station.Name);
 
 
             string text = "";

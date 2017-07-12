@@ -118,7 +118,7 @@ namespace Efficient_Automatic_Traveler_System
             List<Traveler> travelers = new List<Traveler>();
             foreach (Traveler traveler in m_travelerManager.GetTravelers)
             {
-                if (traveler.GetType() == m_viewType)
+                //if (traveler.GetType() == m_viewType)
                 {
                     if (m_viewState == GlobalItemState.PreProcess)
                     {
@@ -918,9 +918,9 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Form form = new Form();
                 form.Title = "Filter orders";
-                form.Date("before", "Before");
-                form.Date("after", "After");
-                form.AddBox("orders", "Orders");
+                form.Textbox("order", "Order Number");
+                form.Date("before", "Ship Before");
+                form.Date("orderBefore", "Order Before");
                 form.Checkbox("consolidate", "Consolidate orders", true);
                 form.Checkbox("consolidatePriorityCustomers", "Consolodate priority customers (" + ((JsonArray)JSON.Parse(ConfigManager.Get("priorityCustomers"))).Print() + ") separately<br>", true);
                 List<string> customers = new List<string>
@@ -942,32 +942,36 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Form form = new Form(json);
                 DateTime before = DateTime.MaxValue;
-                DateTime after = DateTime.MinValue;
-                List<Order> specificOrders = new List<Order>();
-                foreach (string orderNo in (JsonArray)JSON.Parse(form.ValueOf("orders")))
-                {
-                    Order order = Server.OrderManager.FindOrder(orderNo);
-                    if (order != null) specificOrders.Add(order);
+                DateTime orderBefore = DateTime.MaxValue;
+                List<Order> orders = Server.OrderManager.GetOpenOrders();
 
+                if (form.ValueOf("order") != string.Empty)
+                {
+                    // Just a single order
+                    Order order = Server.OrderManager.FindOrder(form.ValueOf("order"));
+                    if (order != null) orders.RemoveAll(o => o.SalesOrderNo != order.SalesOrderNo);
                 }
-                DateTime.TryParse(form.ValueOf("before"), out before);
-                DateTime.TryParse(form.ValueOf("after"), out after);
-                bool consolidate = Convert.ToBoolean(form.ValueOf("consolidate"));
-                bool consolidatePriorityCustomers = Convert.ToBoolean(form.ValueOf("consolidatePriorityCustomers"));
-                List<Order> orders = new List<Order>();
-                if (specificOrders.Any())
+                else
                 {
-                    orders.Concat(specificOrders);
-                } else
-                {
-                    orders = Server.OrderManager.GetOpenOrders().Where(o => o.ShipDate > after && o.ShipDate < before).ToList();
-                    // if filtering by customer
-                    if (form.ValueOf("customer") != "")
+                    if (DateTime.TryParse(form.ValueOf("before"), out before))
                     {
-                        orders.RemoveAll(o => o.CustomerNo != form.ValueOf("customer"));
+                        // remove all orders that ship on or after this date
+                        orders.RemoveAll(o => o.ShipDate >= before);
+                    }
+                    if (DateTime.TryParse(form.ValueOf("orderBefore"), out orderBefore))
+                    {
+                        // remove all orders that were ordered on or after this date
+                        orders.RemoveAll(o => o.OrderDate >= orderBefore);
                     }
                 }
-                
+                bool consolidate = Convert.ToBoolean(form.ValueOf("consolidate"));
+                bool consolidatePriorityCustomers = Convert.ToBoolean(form.ValueOf("consolidatePriorityCustomers"));
+
+                if (form.ValueOf("customer") != "")
+                {
+                    // remove all orders that are not the selected customer
+                    orders.RemoveAll(o => o.CustomerNo != form.ValueOf("customer"));
+                }
                 SendMessage(new ClientMessage("Updating").ToString());
                 Program.server.CreateTravelers(consolidate, consolidatePriorityCustomers, orders);
                 return new ClientMessage("Info", "Done refactoring PreProcess travelers");

@@ -69,7 +69,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            return Value.ToString();
+            return Value != null ? Value.ToString() : "";
         }
         private object m_value;
 

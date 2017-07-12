@@ -34,8 +34,8 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"113893",
-	"nextEventID":"7099",
+	"nextTravelerID":"115199",
+	"nextEventID":"7154",
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",
@@ -172,7 +172,8 @@
 			"routing":{
 				"Table":{
 					"preRequisites":[
-						"contourEdgebander"
+						"contourEdgebander",
+						"snxTrimmer"
 					],
 					"finish":true
 				}
@@ -188,7 +189,8 @@
 			"routing":{
 				"Table":{
 					"preRequisites":[
-						"contourEdgebander"
+						"contourEdgebander",
+						"snxTrimmer"
 					],
 					"finish":true
 				}

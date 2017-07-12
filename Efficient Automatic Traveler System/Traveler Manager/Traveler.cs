@@ -811,16 +811,13 @@ namespace Efficient_Automatic_Traveler_System
         #region Private Methods
         protected double GetRate(Bill bill, StationClass station,bool total = false)
         {
-            try
+            if (bill.ComponentItems != null)
             {
                 foreach (Item componentItem in bill.ComponentItems)
                 {
                     double rate = GetRate(componentItem, station, total);
                     if (rate > 0.0) return rate;
                 }
-            } catch (Exception ex)
-            {
-                Server.LogException(ex);
             }
             return 0.0;
         }
