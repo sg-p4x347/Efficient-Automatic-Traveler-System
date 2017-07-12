@@ -260,18 +260,21 @@ namespace Efficient_Automatic_Traveler_System
                     // first, sort the orders by priority customer
                     orders.Sort((a, b) => a.CompareTo(b));
                     // Create, and combine all travelers
-                    m_travelerManager.CompileTravelers(consolodate, consolidatePriorityCustomers, orders);
+                    List<Traveler> newTravelers = m_travelerManager.CompileTravelers(consolodate, consolidatePriorityCustomers, orders);
 
                     // Finalize the travelers by importing external information
-                    m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
+                    m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS,newTravelers);
 
                     m_orderManager.Backup();
 
                     CloseMAS();
                 }
             }
-            catch (Exception ex)
+            catch (AccessViolationException ex)
             {
+                Server.WriteLine("");
+                Server.WriteLine("CAUGHT THE ALMIGHTY ACCESS VIOLATION EXCEPTION!");
+                Server.WriteLine("");
                 Server.LogException(ex);
                 CloseMAS();
             }

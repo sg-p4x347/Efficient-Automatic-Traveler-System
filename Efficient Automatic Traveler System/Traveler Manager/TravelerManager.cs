@@ -61,7 +61,8 @@ namespace Efficient_Automatic_Traveler_System
             m_importedFromPast = new List<Traveler>();
             m_orderManager = orderManager;
         }
-        public void CompileTravelers(bool consolodate, bool consolidatePriorityCustomers,  List<Order> orders)
+        // returns list of new travelers
+        public List<Traveler> CompileTravelers(bool consolodate, bool consolidatePriorityCustomers,  List<Order> orders)
         {
 
             List<Traveler> newTravelers = new List<Traveler>();
@@ -143,11 +144,13 @@ namespace Efficient_Automatic_Traveler_System
             
             Backup();
             Server.Write("\r{0}", "Compiling Travelers...Finished\n");
+            return newTravelers;
         }
-        public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS)
+        public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS,List<Traveler> travelers = null)
         {
+            if (travelers == null) travelers = m_travelers;
             int index = 0;
-            foreach (Traveler traveler in m_travelers)
+            foreach (Traveler traveler in travelers)
             {
                 try
                 {
@@ -185,7 +188,7 @@ namespace Efficient_Automatic_Traveler_System
                     // import part info
                     traveler.ImportInfo(this as ITravelerManager, orderManager, MAS);
                     index++;
-                    Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_travelers.Count)) * 100));
+                    Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(travelers.Count)) * 100));
                 }
                 catch (Exception ex)
                 {
@@ -194,7 +197,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             Server.Write("\r{0}", "Gathering Info...Finished\n");
             // travelers have changed
-            OnTravelersChanged(m_travelers);
+            OnTravelersChanged(travelers);
         }
         //// Update this travelers quantities dynamically
         //public void UpdateTraveler(Traveler traveler)

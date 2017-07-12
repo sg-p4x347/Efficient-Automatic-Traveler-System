@@ -226,7 +226,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_viewState = (GlobalItemState)Enum.Parse(typeof(GlobalItemState), obj["viewState"]);
                 m_viewType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + obj["viewType"]);
                 m_filterState = Convert.ToBoolean(obj["filterState"]);
-                m_filterLocalState = Convert.ToBoolean(obj["filterLocalState"]);
+                //m_filterLocalState = Convert.ToBoolean(obj["filterLocalState"]);
                 m_filterType = Convert.ToBoolean(obj["filterType"]);
                 HandleTravelersChanged();
                 return new ClientMessage();

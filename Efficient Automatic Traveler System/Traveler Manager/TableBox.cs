@@ -19,7 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public TableBox(Table table) : base(table) {
             TableSize = table.Size;
-            GetBoxSize("Table Reference.csv", table.ItemCode);
+            ImportBoxSize("Table Reference.csv", table.ItemCode);
             foreach (Item componentItem in table.CommonBill.ComponentItems)
             {
                 if (StationClass.GetStation("Box").LaborCodes.Exists(x => x == componentItem.ItemCode))
@@ -56,6 +56,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Dictionary<string, string> obj = new StringStream(base.ExportTableRows(station)).ParseJSON(false);
                 List<string> members = new StringStream(obj["members"]).ParseJSONarray(false);
+
                 Table parentTable = ((Table)ParentTravelers[0]);
                 members.Add(new NameValueQty<string, string>("Table", parentTable.ItemCode, "").ToString());
                 members.Add(new NameValueQty<string, string>("Table Shape", parentTable.Shape, "").ToString());
@@ -73,6 +74,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             Table parentTable = ParentTravelers.FirstOrDefault() as Table;
             Dictionary<string, Node> list = base.ExportViewProperties();
+            list.Add("Fold Type", new TextNode(FoldType.ToString()));
+            if (TwoPer) list.Add("Two per top/bottom", new TextNode("Yes"));
+            list.Add("Pads", new TextNode(Pads.ToString()));
             if (parentTable != null)
             {
                 list.Add("Table Shape", new TextNode(parentTable.Shape));
@@ -110,11 +114,44 @@ namespace Efficient_Automatic_Traveler_System
         #endregion
         //--------------------------------------------------------
         #region Private Methods
+        protected override void ImportBoxSize(string csvTable, string itemCode)
+        {
+            // open the table ref csv file
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, csvTable));
+            // read past the header
+            List<string> header = tableRef.ReadLine().Split(',').ToList();
+            string line = tableRef.ReadLine();
+            while (line != "" && line != null)
+            {
+                string[] row = line.Split(',');
+                if (itemCode.Contains(row[header.IndexOf("Table")]))
+                {
+                    //--------------------------------------------
+                    // PACK & BOX INFO
+                    //--------------------------------------------
+                    BoxSize = row[header.IndexOf("Super Pack")];
+                    // Fold type
+                    FoldType foldType;
+                    if (!Enum.TryParse(row[header.IndexOf("Box Type")], out foldType)) foldType = FoldType.TD;
+                    FoldType = foldType;
+                    // 2 per top/btm
+                    TwoPer = Convert.ToBoolean(row[header.IndexOf("2PerTopBottom")]);
+                    // pads
+                    Pads = Convert.ToInt32(row[header.IndexOf("Pads")]);
+                    break;
+                }
+                line = tableRef.ReadLine();
+            }
+            tableRef.Close();
+        }
         #endregion
         //--------------------------------------------------------
         #region Properties
         // table size
         private string m_tableSize;
+        private bool m_twoPer; // 2 tops and 2 bottoms
+        private int m_pads;
         #endregion
         //--------------------------------------------------------
         #region Interface
@@ -128,6 +165,32 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_tableSize = value;
+            }
+        }
+
+        private bool TwoPer
+        {
+            get
+            {
+                return m_twoPer;
+            }
+
+            set
+            {
+                m_twoPer = value;
+            }
+        }
+
+        private int Pads
+        {
+            get
+            {
+                return m_pads;
+            }
+
+            set
+            {
+                m_pads = value;
             }
         }
         #endregion

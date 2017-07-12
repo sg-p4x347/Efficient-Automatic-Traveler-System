@@ -10,6 +10,11 @@ using Marshal = System.Runtime.InteropServices.Marshal;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    public enum FoldType
+    {
+        FPF,
+        TD
+    }
     public class Box : Traveler
     {
         #region Public Methods
@@ -145,29 +150,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             return base.ExportProperties(station);
         }
-        protected void GetBoxSize(string csvTable, string itemCode)
+        protected virtual void ImportBoxSize(string csvTable, string itemCode)
         {
-            // open the table ref csv file
-            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            System.IO.StreamReader tableRef = new StreamReader(System.IO.Path.Combine(exeDir, csvTable));
-            // read past the header
-            List<string> header = tableRef.ReadLine().Split(',').ToList();
-            string line = tableRef.ReadLine();
-            while (line != "" && line != null)
-            {
-                string[] row = line.Split(',');
-                if (itemCode.Contains(row[header.IndexOf("Table")]))
-                {
-                    //--------------------------------------------
-                    // PACK & BOX INFO
-                    //--------------------------------------------
-                    m_boxSize = row[header.IndexOf("Super Pack")];
-                    break;
-                }
-                line = tableRef.ReadLine();
-            }
-            tableRef.Close();
+
         }
+        
 
 
 
@@ -183,13 +170,14 @@ namespace Efficient_Automatic_Traveler_System
 
         // Box
         private string m_boxSize;
+        private FoldType m_foldType;
         private string m_contents;
         // labor
         private Item m_boxLabor;
         #endregion
         //--------------------------------------------------------
         #region Interface
-        public string BoxSize
+        public virtual string BoxSize
         {
             get
             {
@@ -224,6 +212,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_boxLabor = value;
+            }
+        }
+
+        public FoldType FoldType
+        {
+            get
+            {
+                return m_foldType;
+            }
+
+            set
+            {
+                m_foldType = value;
             }
         }
         #endregion
