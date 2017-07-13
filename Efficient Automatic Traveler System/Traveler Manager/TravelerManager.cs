@@ -147,6 +147,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS)
         {
+            
             int index = 0;
             foreach (Traveler traveler in m_travelers)
             {
@@ -231,12 +232,27 @@ namespace Efficient_Automatic_Traveler_System
                     if (traveler != null)
                     {
                         m_travelers.Add(traveler);
+                        LinkOrders(traveler);
                     }
                 }
                 Server.Write("\r{0}", "Loading travelers from backup...Finished" + Environment.NewLine);
             } else
             {
                 ImportPast();
+            }
+        }
+        private void LinkOrders(Traveler traveler)
+        {
+            foreach (Order order in traveler.ParentOrders)
+            {
+                foreach (OrderItem item in order.Items)
+                {
+
+                    if (item.ItemCode == traveler.ItemCode)
+                    {
+                        item.ChildTraveler = traveler.ID;
+                    }
+                }
             }
         }
         public void ImportPast()
@@ -248,6 +264,7 @@ namespace Efficient_Automatic_Traveler_System
             foreach (string travelerJSON in travelerArray)
             {
                 Traveler traveler = ImportTraveler(travelerJSON);
+                LinkOrders(traveler);
                 // add this traveler to the master list if it is not complete or has dependencies
                 if (traveler != null && (traveler.State != ItemState.PostProcess && traveler.Quantity > 0))
                 {

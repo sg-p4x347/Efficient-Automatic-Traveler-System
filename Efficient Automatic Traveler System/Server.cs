@@ -241,7 +241,7 @@ namespace Efficient_Automatic_Traveler_System
             // No more data is needed at this time
             CloseMAS();
 
-            m_orderManager.ReleaseDanglingTravelers();
+            //m_orderManager.ReleaseDanglingTravelers();
             // Store current state of data into backup folder
             Backup();
             Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
