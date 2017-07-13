@@ -20,6 +20,7 @@ namespace Efficient_Automatic_Traveler_System
         //void CreateScrapChild(Traveler parent, int qtyScrapped);
         //Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time);
         Traveler FindTraveler(int ID);
+        bool FindTraveler(int ID, out Traveler traveler);
         void RemoveTraveler(Traveler traveler, bool backup = true);
         Traveler AddTraveler(string itemCode, int quantity);
         List<Traveler> GetTravelers
@@ -146,7 +147,7 @@ namespace Efficient_Automatic_Traveler_System
             Server.Write("\r{0}", "Compiling Travelers...Finished\n");
             return newTravelers;
         }
-        public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS,List<Traveler> travelers = null)
+        public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
         {
             if (travelers == null) travelers = m_travelers;
             int index = 0;
@@ -188,7 +189,11 @@ namespace Efficient_Automatic_Traveler_System
                     // import part info
                     traveler.ImportInfo(this as ITravelerManager, orderManager, MAS);
                     index++;
-                    Server.Write("\r{0}%", "Gathering Info..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(travelers.Count)) * 100));
+                    double percent = (Convert.ToDouble(index) / Convert.ToDouble(travelers.Count));
+                    ReportProgress?.Invoke(percent);
+
+
+                    Server.Write("\r{0}%", "Gathering Info..." + Math.Round(percent * 100));
                 }
                 catch (Exception ex)
                 {
@@ -303,6 +308,11 @@ namespace Efficient_Automatic_Traveler_System
         public Traveler FindTraveler(int ID)
         {
             return m_travelers.Find(x => x.ID == ID);
+        }
+        public bool FindTraveler(int ID, out Traveler traveler)
+        {
+            traveler = m_travelers.Find(x => x.ID == ID);
+            return traveler != null;
         }
         public void RemoveTravelers(List<Traveler> travelers)
         {

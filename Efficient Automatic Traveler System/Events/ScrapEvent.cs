@@ -44,6 +44,11 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("reason", m_reason.Quotate());
             return obj.Stringify();
         }
+        public override Dictionary<string, Node> ExportViewProperties()
+        {
+            Dictionary<string, Node> list = base.ExportViewProperties();
+            return list;
+        }
         // IForm
         //public Form CreateForm()
         //{

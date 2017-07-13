@@ -69,8 +69,14 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Add(string key, object value)
         {
-            StringStream stream = new StringStream(value is string ? (value as string).Quotate() : value.ToString());
-            Add(key, JSON.Import(ref stream));
+            if (value != null)
+            {
+                StringStream stream = new StringStream(value is string ? (value as string).Quotate() : value.ToString());
+                Add(key, JSON.Import(ref stream));
+            } else
+            {
+                Add(key, new JsonNull());
+            }
         }
         public new JSON this[string key]
         {

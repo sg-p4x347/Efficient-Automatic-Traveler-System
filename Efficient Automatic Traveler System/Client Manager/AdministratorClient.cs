@@ -13,6 +13,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             AccessLevel = AccessLevel.Administrator;
         }
+        public override void HandleTravelersChanged(bool changed = false)
+        {
+            throw new NotImplementedException();
+        }
         //public override ClientMessage Login(string json)
         //{
         //    try

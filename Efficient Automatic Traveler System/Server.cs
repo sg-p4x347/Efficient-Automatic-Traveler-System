@@ -251,7 +251,7 @@ namespace Efficient_Automatic_Traveler_System
             Backup();
             Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
         }
-        public void CreateTravelers(bool consolodate = true, bool consolidatePriorityCustomers = true, List<Order> orders = null)
+        public void CreateTravelers(bool consolodate = true, bool consolidatePriorityCustomers = true, List<Order> orders = null,Action<double> ReportProgress = null)
         {
             try
             {
@@ -263,7 +263,7 @@ namespace Efficient_Automatic_Traveler_System
                     List<Traveler> newTravelers = m_travelerManager.CompileTravelers(consolodate, consolidatePriorityCustomers, orders);
 
                     // Finalize the travelers by importing external information
-                    m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS,newTravelers);
+                    m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS,newTravelers,ReportProgress);
 
                     m_orderManager.Backup();
 

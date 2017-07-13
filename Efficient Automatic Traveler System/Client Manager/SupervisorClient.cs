@@ -28,7 +28,7 @@ namespace Efficient_Automatic_Traveler_System
             KanbanManager.KanbanChanged += new KanbanChangedSubscriber(HandleKanbanChanged);
             SetFilterForm();
         }
-        public void HandleTravelersChanged()
+        public override void HandleTravelersChanged(bool changed = false)
         {
             //bool mirror = true; // travelers.Count == m_currentManager.GetTravelers.Count;
             //travelers = m_currentManager.GetTravelers;
@@ -479,6 +479,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     // Orders
                     Column orders = new Column(style: new Style("blackout__popup__controlPanel__list"));
+                    orders.Add(new Expand());
                     foreach (Order order in traveler.ParentOrders)
                     {
                         Row orderListing = new Row() {
@@ -498,6 +499,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (traveler.ParentTravelers.Count > 0)
                 {
                     Column parents = new Column(style: new Style("blackout__popup__controlPanel__list"));
+                    parents.Add(new Expand());
                     foreach (Traveler parent in traveler.ParentTravelers)
                     {
                         parents.Add(new Button(parent.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + parent.ID + "}"));
@@ -513,6 +515,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (traveler.ChildTravelers.Count > 0)
                 {
                     Column children = new Column(style: new Style("blackout__popup__controlPanel__list"));
+                    children.Add(new Expand());
                     foreach (Traveler child in traveler.ChildTravelers)
                     {
                         children.Add(new Button(child.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + child.ID + "}"));
@@ -551,6 +554,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (traveler.Items.Count > 0)
                 {
                     Column items = new Column(style: new Style("blackout__popup__controlPanel__list"));
+                    items.Add(new Expand());
                     foreach (TravelerItem item in traveler.Items)
                     {
                         items.Add(new Button(traveler.PrintSequenceID(item), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}"));
@@ -729,6 +733,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (item.History.Count > 0)
                 {
                     Column history = new Column(style: new Style("blackout__popup__controlPanel__list"));
+                    history.Add(new Expand());
                     int index = 0;
                     foreach (Event evt in item.History)
                     {
@@ -746,7 +751,10 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     new Button("Print Labels","LabelPopup",json)
                 };
-                foreach (Node node in FlagItemOptions()) controls.Add(node);
+                if (!item.Scrapped)
+                {
+                    foreach (Node node in FlagItemOptions()) controls.Add(node);
+                }
 
                 return new ClientMessage("ControlPanel", new ControlPanel(traveler.PrintSequenceID(item), new Row() { fields, controls }).ToString());
             }
@@ -998,8 +1006,11 @@ namespace Efficient_Automatic_Traveler_System
                     // remove all orders that are not the selected customer
                     orders.RemoveAll(o => o.CustomerNo != form.ValueOf("customer"));
                 }
-                SendMessage(new ClientMessage("Updating").ToString());
-                Program.server.CreateTravelers(consolidate, consolidatePriorityCustomers, orders);
+                SendMessage(new ClientMessage("Updating","".Quotate()).ToString());
+                Program.server.CreateTravelers(consolidate, consolidatePriorityCustomers, orders,delegate(double percent)
+                {
+                    ReportProgress(percent);
+                });
                 return new ClientMessage("Info", "Done refactoring PreProcess travelers");
             }
             catch (Exception ex)

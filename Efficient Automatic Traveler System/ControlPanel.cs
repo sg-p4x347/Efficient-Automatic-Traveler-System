@@ -33,6 +33,12 @@ namespace Efficient_Automatic_Traveler_System
         public List<string> ClassNames;
         public Dictionary<string,string> UniqueStyles;
     }
+    public class Expand : Node
+    {
+        public Expand(Style style = null, string DOMtype = "div", string id = null) : base(style, DOMtype, id)
+        {
+        }
+    }
     public class Node
     {
         public Node() {

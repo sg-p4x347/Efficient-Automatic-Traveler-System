@@ -177,6 +177,7 @@ function PopupManager(blackout) {
 					option.type = "radio";
 					option.name = field.name;
 					option.value = optionText;
+					if (option.value == radio.value) option.checked = true;
 					var title = self.CreateP(optionText);
 					var radioItem = self.CreateHorizontalList();
 					radioItem.appendChild(title);
@@ -336,6 +337,8 @@ function PopupManager(blackout) {
 			self.Open(popup);
 		}
 	}
+	// set the selected element to the control panel
+	this.SetControlPanel = function (
 	// helper for the control panel
 	this.AddControlNode = function (node,parent,callback,highestLevel) {
 		var self = this;
@@ -343,6 +346,22 @@ function PopupManager(blackout) {
 		var nodeElement;
 		
 		switch (node.type) {
+			case "Expand":
+				var expand = document.createElement("DIV");
+				expand.classList.add("expand");
+				expand.onclick = function () {
+					if (parent.classList.contains("focused")) {
+						parent.classList.remove("focused");
+						expand.classList.remove("collapse");
+						expand.classList.add("expand");
+					} else {
+						parent.classList.add("focused");
+						expand.classList.remove("expand");
+						expand.classList.add("collapse");
+					}
+				}
+				parent.appendChild(expand);
+				break;
 			case "NodeList":
 				nodeElement = document.createElement(node.DOMtype);
 				nodeElement.innerHTML = node.innerHTML;
@@ -410,37 +429,38 @@ function PopupManager(blackout) {
 				nodeElement.className += " blackout__popup__controlPanel__node";
 				break;
 		}
-		
-		node.styleClasses.forEach(function (styleClass) {
-			nodeElement.className += " " + styleClass;
-		});
-		if (node.type == "Checkbox") {
-			nodeElement.onclick = function (event) {event.stopPropagation();}
-		}
-		node.eventListeners.forEach(function (evtListener) {
-			nodeElement.addEventListener(evtListener.type,function (evt) {
-				if (node.type == "Selection") {
-					evtListener.returnParam.value = nodeElement.value;
-				} else if (node.type == "Checkbox") {
-					evtListener.returnParam.value = nodeElement.checked;
-				}
-				new InterfaceCall(evtListener.callback,evtListener.returnParam);
-				evt.stopPropagation();
+		if (nodeElement) {
+			node.styleClasses.forEach(function (styleClass) {
+				nodeElement.className += " " + styleClass;
 			});
-		});
-		if (node.style) {
-			for (var style in node.style) {
-				nodeElement.style[style] = node.style[style];
+			if (node.type == "Checkbox") {
+				nodeElement.onclick = function (event) {event.stopPropagation();}
 			}
+			node.eventListeners.forEach(function (evtListener) {
+				nodeElement.addEventListener(evtListener.type,function (evt) {
+					if (node.type == "Selection") {
+						evtListener.returnParam.value = nodeElement.value;
+					} else if (node.type == "Checkbox") {
+						evtListener.returnParam.value = nodeElement.checked;
+					}
+					new InterfaceCall(evtListener.callback,evtListener.returnParam);
+					evt.stopPropagation();
+				});
+			});
+			if (node.style) {
+				for (var style in node.style) {
+					nodeElement.style[style] = node.style[style];
+				}
+			}
+			if (node.id) {
+				nodeElement.id = node.id;
+			}
+			if (highestLevel) {
+				nodeElement.style.overflowX = "auto";
+				nodeElement.style.overflowY = "auto";
+			}
+			parent.appendChild(nodeElement);
 		}
-		if (node.id) {
-			nodeElement.id = node.id;
-		}
-		if (highestLevel) {
-			nodeElement.style.overflowX = "auto";
-			nodeElement.style.overflowY = "auto";
-		}
-		parent.appendChild(nodeElement);
 	}
 	
 	
@@ -645,8 +665,8 @@ function PopupManager(blackout) {
 	}
 	this.Open = function (popup) {
 		var self = this;
-		if (self.Exists("loading")) {
-			self.Close(document.getElementById("loading"));
+		if (self.Exists("updatingPopup")) {
+			self.Close(document.getElementById("updatingPopup"));
 		}
 		self.popupCount++;
 		self.blackout.appendChild(popup);

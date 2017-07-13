@@ -599,4 +599,31 @@ div.queue__item__desc {
 .topLeft {
 	align-self: flex-start;
 }
-	
+.focused {
+
+	max-height: none;
+	max-width: none;
+}
+.expand {
+	position: absolute;
+	margin-top: -12px;
+	margin-left: -12px;
+	background-image: url("../img/expand.png");
+	background-size: contain;
+	background-repeat: no-repeat;
+	width: 0.5em;
+	min-height: 0.5em;
+}
+.expand:hover, .collapse:hover {
+	background-color: silver;
+}
+.collapse {
+	position: absolute;
+	margin-top: -12px;
+	margin-left: -12px;
+	background-image: url("../img/collapse.png");
+	background-size: contain;
+	background-repeat: no-repeat;
+	width: 0.5em;
+	min-height: 0.5em;
+}

@@ -34,8 +34,8 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"117514",
-	"nextEventID":"7300",
+	"nextTravelerID":"122632",
+	"nextEventID":"7498",
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",
@@ -315,14 +315,6 @@
 		},
 		{
 			"name":"Finished",
-			"type":"virtual",
-			"mode":"Batch",
-			"printers":[
-				"4x2Heian2"
-			]
-		},
-		{
-			"name":"Rework",
 			"type":"virtual",
 			"mode":"Batch",
 			"printers":[

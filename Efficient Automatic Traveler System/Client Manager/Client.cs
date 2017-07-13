@@ -101,7 +101,7 @@ namespace Efficient_Automatic_Traveler_System
     public interface ITravelers
     {
         event TravelersChangedSubscriber TravelersChanged;
-        void HandleTravelersChanged();
+        void HandleTravelersChanged(bool changed = false);
     }
     // The base class for a TcpClient that connects to the EATS server
     public abstract class Client : IClient
@@ -126,7 +126,7 @@ namespace Efficient_Automatic_Traveler_System
             CurrentStation = null;
 
         }
-
+        public abstract void HandleTravelersChanged(bool changed = false);
         public void SendMessage(string message)
         {
             try
@@ -145,6 +145,12 @@ namespace Efficient_Automatic_Traveler_System
         public void SendMessage(ClientMessage message)
         {
             SendMessage(message.ToString());
+        }
+
+        public void ReportException(Exception ex)
+        {
+            StackTrace stackTrace = new StackTrace();
+            SendMessage(new ClientMessage("Info","Exception in " + this.GetType().Name + "." + stackTrace.GetFrame(1).GetMethod().Name));
         }
         public static async Task<string> RecieveMessageAsync(NetworkStream stream)
         {
@@ -252,6 +258,7 @@ namespace Efficient_Automatic_Traveler_System
             foreach (TravelerItem item in items)
             {
                 NodeList queueItem = CreateItemQueueItem(item.GlobalState, item);
+                queueItem.ID = item.PrintID();
                 queueItem.EventListeners.Add(new EventListener("click", "LoadItem", @"{""travelerID"":" + item.Parent.ID + @",""itemID"":" + item.ID + "}"));
                 queueItem.Add(new TextNode(item.Parent.PrintSequenceID(item)));
                 queue.Add(queueItem);
@@ -270,6 +277,7 @@ namespace Efficient_Automatic_Traveler_System
         private Row CreateQueueItem(GlobalItemState state, Traveler traveler)
         {
             Row queueItem = new Row(style: new Style("queue__item", "align-items-center"));
+            queueItem.ID = traveler.ID.ToString();
             if (traveler.ChildTravelers.Exists(child => child.Items.Exists(i => i.Finished)))
             {
                 // has at least one finished box item
@@ -284,7 +292,6 @@ namespace Efficient_Automatic_Traveler_System
                     case GlobalItemState.Finished: queueItem.Style += new Style("greenBack"); break;
                     default: queueItem.Style += new Style("ghostBack"); break;
                 }
-
             }
             if (traveler is Table)
             {
@@ -661,7 +668,72 @@ namespace Efficient_Automatic_Traveler_System
 
             Traveler traveler = SelectedTraveler;
             SelectedTraveler = null;
-            Server.TravelerManager.OnTravelersChanged(traveler);
+            HandleTravelersChanged(true);
+        }
+        protected void DeselectItem()
+        {
+            SelectedItem = null;
+            HandleTravelersChanged(true);
+        }
+        //==============================================
+        // Common functionality
+        
+        protected virtual void SelectItem(TravelerItem item)
+        {
+            SelectedItem = item;
+            SelectedTraveler = item.Parent;
+
+            // update the queue item
+            SendMessage(new ControlPanel.("", CreateItemQueueItem(GlobalItemState.InProcess, SelectedItem), SelectedItem.PrintID()).Dispatch());
+        }
+        protected virtual void SelectTraveler(Traveler traveler)
+        {
+            SelectedTraveler = traveler;
+            HandleTravelersChanged(true);
+        }
+        protected virtual void SearchItem(TravelerItem item)
+        {
+
+        }
+        protected virtual void SearchTraveler(Traveler traveler)
+        {
+
+        }
+        public ClientMessage SearchSubmitted(string json)
+        {
+            try
+            {
+                if (json.Length > 0)
+                {
+                    Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                    int travelerID;
+                    Traveler traveler;
+                    if (int.TryParse(obj["travelerID"],out travelerID) && Server.TravelerManager.FindTraveler(travelerID,out traveler))
+                    {
+                        ushort itemID;
+                        TravelerItem item;
+                        if (ushort.TryParse(obj["itemID"], out itemID) && traveler.FindItem(itemID, out item))
+                        {
+                            SearchItem(item);
+                        }
+                        else
+                        {
+                            SearchTraveler(traveler);
+                            if (itemID > 0) return new ClientMessage("Info", traveler.PrintID() + "-" + obj["itemID"] + " could not be found");
+                        }
+                    }
+                    else
+                    {
+                        return new ClientMessage("Info", obj["travelerID"] + " does not exist");
+                    }
+                }
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error processing search event");
+            }
         }
         //public string AddUID(string json)
         //{
@@ -786,7 +858,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     // IF flagged
                     text = "Item flagged";
-                    if (CurrentStation != null && SelectedItem.BeenCompleted(CurrentStation))
+                    if (CurrentStation != null && SelectedItem.BeenWorkedOn(CurrentStation))
                     {
                         options.Add("Rework Now", "Rework");
                     }
@@ -856,7 +928,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (SelectedItem != null)
                 {
-                    SelectedItem.Scrap(m_user, CurrentStation);
+                    SelectedItem.Scrap();
                 }
                 return new ClientMessage();
             }
@@ -866,5 +938,16 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error scrapping item");
             }
         }
+        public void ReportProgress(double percent)
+        {
+            if (percent == 1)
+            {
+                CloseAll();
+            } else
+            {
+                SendMessage(new ClientMessage("Updating", (Math.Round(percent * 100).ToString() + "%").Quotate()));
+            }
+        }
+        //==============================================
     }
 }

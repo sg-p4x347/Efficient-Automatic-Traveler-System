@@ -306,6 +306,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             return Items.Find(x => x.ID == ID);
         }
+        public bool FindItem(ushort ID, out TravelerItem item)
+        {
+            item = Items.Find(x => x.ID == ID);
+            return item != null;
+        }
         public string PrintSequenceID(TravelerItem item)
         {
             string sequenceID = ID.ToString("D6");

@@ -234,8 +234,9 @@ function Application () {
 	this.Info = function (message) {
 		this.popupManager.Info(message);
 	}
-	this.Updating = function () {
-		this.popupManager.Loading();
+	this.Updating = function (text) {
+		document.getElementById("updatingPopup").innerHTML = text;
+		this.popupManager.AddSpecific("updatingPopup");
 	}
 	this.InitLabelTypes = function (labelTypes) {
 		this.labelTypes = labelTypes;

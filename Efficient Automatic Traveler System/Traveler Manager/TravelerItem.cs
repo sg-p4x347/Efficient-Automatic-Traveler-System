@@ -29,7 +29,6 @@ namespace Efficient_Automatic_Traveler_System
             m_sequenceNo = sequenceNo;
             m_replacement = replacement;
             m_station = station;
-            m_lastStation = StationClass.GetStation("Start");
             m_history = new List<Event>();
             m_order = null;
             m_localState = LocalItemState.PreProcess;
@@ -58,8 +57,6 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 if (obj.ContainsKey("station")) Station = StationClass.GetStation(obj["station"]);
                 if (obj.ContainsKey("itemCode")) ItemCode = obj["itemCode"];
-                if (obj.ContainsKey("lastStation")) LastStation = StationClass.GetStation(obj["lastStation"]);
-                
                 
                 //m_order = Server.OrderManager.FindOrder(obj["order"]);
                 History = new List<Event>();
@@ -100,7 +97,6 @@ namespace Efficient_Automatic_Traveler_System
                 {"globalState", GlobalState.ToString().Quotate()},
                 {"station",Station.Name.Quotate() },
                 {"itemCode",m_itemCode.Quotate() },
-                {"lastStation",m_lastStation.Name.Quotate() },
                 {"history",m_history.ToList<Event>().Stringify<Event>() },
                 {"order",(m_order != null ? m_order.SalesOrderNo : "").Quotate() },
                 {"state",m_localState.ToString().Quotate() }
@@ -110,13 +106,20 @@ namespace Efficient_Automatic_Traveler_System
         }
         public bool PendingAt(StationClass station)
         {
-            if (LocalState == LocalItemState.PreProcess && Station == station)
+            if (GlobalState == GlobalItemState.InProcess)
             {
-                return true;
-            }
-            else if (LocalState == LocalItemState.PostProcess)
-            {
-                return station.PreRequisites(Parent).Contains(Station);
+                if (LocalState == LocalItemState.PreProcess && Station == station)
+                {
+                    return true;
+                }
+                else if (LocalState == LocalItemState.PostProcess)
+                {
+                    return station.PreRequisites(Parent).Contains(Station);
+                }
+                else
+                {
+                    return false;
+                }
             } else
             {
                 return false;
@@ -138,11 +141,12 @@ namespace Efficient_Automatic_Traveler_System
         }
         public bool InProcessAt(StationClass station)
         {
-            return LocalState == LocalItemState.InProcess && Station == station;
+            return GlobalState == GlobalItemState.InProcess && LocalState == LocalItemState.InProcess && Station == station;
         }
+        //
         public bool CompleteAt(StationClass station)
         {
-            return LocalState == LocalItemState.PostProcess && Station == station;
+            return GlobalState == GlobalItemState.InProcess && LocalState == LocalItemState.PostProcess && Station == station;
         }
         public string ExportTableRows(StationClass station)
         {
@@ -171,7 +175,6 @@ namespace Efficient_Automatic_Traveler_System
                 {"Global State",GlobalState.ToString().Quotate()},
                 {"Station",Station.Name.Quotate() },
                 {"ItemCode",m_itemCode.Quotate() },
-                {"Last station",m_lastStation.Name.Quotate() },
                 {"History",history.Stringify(false) },
                 {"Order",(m_order != null ? m_order.SalesOrderNo : "").Quotate() },
                 {"State",m_localState.ToString().Quotate() }
@@ -225,16 +228,20 @@ namespace Efficient_Automatic_Traveler_System
         public void Complete(User user, StationClass station, double duration = 0.0)
         {
             LocalState = LocalItemState.PostProcess;
-            // remove the start event
-
             if (Started(station))
             {
-                ProcessEvent startEvent = History.OfType<ProcessEvent>().First(e => e.Process == ProcessType.Started);
+                // remove the start event and add a completion process
+                ProcessEvent startEvent = History.OfType<ProcessEvent>().LastOrDefault(e => e.Process == ProcessType.Started && e.Station == station);
+                if (startEvent != null)
+                {
+                    TimeSpan timeSpan = DateTime.Now - startEvent.Date; // difference between start and now
 
-                TimeSpan timeSpan = DateTime.Now - startEvent.Date; // difference between start and now
-
-                History.Add(new ProcessEvent(user, m_station, timeSpan.TotalMinutes, ProcessType.Completed));
-                History.Remove(startEvent);
+                    History.Add(new ProcessEvent(user, m_station, timeSpan.TotalMinutes, ProcessType.Completed));
+                    History.Remove(startEvent);
+                } else
+                {
+                    History.Add(new ProcessEvent(user, m_station, duration, ProcessType.Completed));
+                }
             }
             else
             {
@@ -247,32 +254,63 @@ namespace Efficient_Automatic_Traveler_System
             }
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void Scrap(User user, StationClass station)
+        public void Scrap()
         {
             LocalState = LocalItemState.PostProcess;
             GlobalState = GlobalItemState.Scrapped;
             Station = StationClass.GetStation("Scrapped");
 
-            // Notify everyone who wants to be notified
-            Server.NotificationManager.PushNotification("Scrap", Summary.HumanizeDictionary(Summary.ScrapDetail(Parent, this)));
-            // print le label
-            Parent.PrintLabel(ID, LabelType.Scrap);
-            Server.TravelerManager.OnTravelersChanged(Parent);
+            Documentation flagEvent;
+            if (CurrentFlagEvent(out flagEvent))
+            {
+                // figure out who done it
+
+                ProcessEvent lastProcess = History.OfType<ProcessEvent>().LastOrDefault();
+
+
+                History.Add(new ScrapEvent(
+                    lastProcess.User,
+                    Station,
+                    0.0,
+                    Convert.ToBoolean(flagEvent.Data.ValueOf("startedWork")),
+                    flagEvent.Data.ValueOf("source"),
+                    flagEvent.Data.ValueOf("reason")
+                ));
+                // Notify everyone who wants to be notified
+                Server.NotificationManager.PushNotification("Scrap", Summary.HumanizeDictionary(Summary.ScrapDetail(Parent, this)));
+                // print le label
+                Parent.PrintLabel(ID, LabelType.Scrap);
+                Server.TravelerManager.OnTravelersChanged(Parent);
+            }
+           
         }
         public void Rework(User user, StationClass station)
         {
             LocalState = LocalItemState.PreProcess;
             GlobalState = GlobalItemState.InProcess;
-            Station = StationClass.GetStation("Rework");
-            History.Add(new LogEvent(user, LogType.Rework, station));
             Station = station;
+
+            Documentation flagEvent;
+            bool startedWork;
+            // try to parse the started work field, but then check that it was false -- remove the start event
+            if (CurrentFlagEvent(out flagEvent) && bool.TryParse(flagEvent.Data.ValueOf("startedWork"),out startedWork) && !startedWork)
+            {
+                // remove the last start event
+                ProcessEvent startEvent = History.OfType<ProcessEvent>().LastOrDefault(e => e.Process == ProcessType.Started);
+                if (startEvent != null && startEvent.Station == station)
+                {
+                    History.Remove(startEvent);
+                }
+            }
+            History.Add(new LogEvent(user, LogType.Rework, station));
+            
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public void Flag(User user, Form form)
         {
             GlobalState = GlobalItemState.Flagged;
 
-            History.Add(new Documentation(user, LogType.FlagItem, Station, form.ToJSON()));
+            History.Add(new Documentation(user, LogType.FlagItem, form, Station));
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public void Deflag(User user, Form form)
@@ -289,7 +327,7 @@ namespace Efficient_Automatic_Traveler_System
                 GlobalState = GlobalItemState.InProcess;
             }
 
-            History.Add(new Documentation(user, LogType.DeflagItem, Station, form.ToJSON()));
+            History.Add(new Documentation(user, LogType.DeflagItem, form, Station));
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public void Finish(User user)
@@ -321,7 +359,6 @@ namespace Efficient_Automatic_Traveler_System
         private bool m_replacement;
         private StationClass m_station;
         private string m_itemCode;
-        private StationClass m_lastStation;
         private List<Event> m_history;
         private Order m_order;
         private LocalItemState m_localState;
@@ -351,21 +388,7 @@ namespace Efficient_Automatic_Traveler_System
 
             private set
             {
-                m_lastStation = m_station;
                 m_station = value;
-            }
-        }
-
-        public StationClass LastStation
-        {
-            get
-            {
-                return m_lastStation;
-            }
-
-            set
-            {
-                m_lastStation = value;
             }
         }
 
@@ -394,6 +417,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             return History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish && e.Date.Day == date.Date.Day);
         }
+        public bool CurrentFlagEvent(out Documentation flagEvent)
+        {
+            flagEvent = History.OfType<Documentation>().LastOrDefault(e => e.LogType == LogType.FlagItem);
+            return flagEvent != null;
+        }
         public bool DateFinished(out DateTime date)
         {
             LogEvent finish = History.OfType<LogEvent>().ToList().Find(e => e.LogType == LogType.Finish);
@@ -408,16 +436,14 @@ namespace Efficient_Automatic_Traveler_System
             }
             
         }
-        public bool PendingRework
-        {
-            get
-            {
-                return GlobalState == GlobalItemState.Flagged;
-            }
-        }
         public bool Started(StationClass station)
         {
-            return History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Started && e.Station == m_station);
+            // only considered to have started if the very last process event was a started event
+            if (History.OfType<ProcessEvent>().Any()) {
+                ProcessEvent last = History.OfType<ProcessEvent>().LastOrDefault(e => e.Process == ProcessType.Started);
+                if (last != null) return (last.Station == station);
+            }
+            return false;
         }
         public List<Event> History
         {
@@ -550,26 +576,35 @@ namespace Efficient_Automatic_Traveler_System
 
         public bool BeenCompleted(StationClass station)
         {
+            return TimesCompleted(station) > 0;
             // negate any events that a rework event dismisses
             // latest rework station
-            List<ProcessEvent> applicableHistory = History.OfType<ProcessEvent>().ToList();
-            if (History.Any())
-            {
-                LogEvent lastRework = History.OfType<LogEvent>().LastOrDefault(e => e.LogType == LogType.Rework);
-                // if reworks were found, eliminate all events for the latest rework station
-                if (lastRework != null)
-                {
-                    applicableHistory.RemoveAll(e => e.Date >= lastRework.Date);
-                }
-            }
-            foreach (ProcessEvent evt in applicableHistory)
-            {
-                if (evt.Station.Type == station.Type && evt.Process == ProcessType.Completed)
-                {
-                    return true;
-                }
-            }
-            return false;
+            //List<ProcessEvent> applicableHistory = History.OfType<ProcessEvent>().ToList();
+            //if (History.Any())
+            //{
+            //    LogEvent lastRework = History.OfType<LogEvent>().LastOrDefault(e => e.LogType == LogType.Rework);
+            //    // if reworks were found, eliminate all events for the latest rework station
+            //    if (lastRework != null)
+            //    {
+            //        applicableHistory.RemoveAll(e => e.Date >= lastRework.Date);
+            //    }
+            //}
+            //foreach (ProcessEvent evt in applicableHistory)
+            //{
+            //    if (evt.Station.Type == station.Type && evt.Process == ProcessType.Completed)
+            //    {
+            //        return true;
+            //    }
+            //}
+            // return false;
+        }
+        public int TimesCompleted(StationClass station)
+        {
+            return History.OfType<ProcessEvent>().Count(e => e.Station == station && e.Process == ProcessType.Completed);
+        }
+        public bool BeenWorkedOn(StationClass station)
+        {
+            return BeenCompleted(station) || Started(station);
         }
     }
 }
