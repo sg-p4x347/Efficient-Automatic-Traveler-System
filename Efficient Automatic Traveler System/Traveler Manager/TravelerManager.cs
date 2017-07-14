@@ -372,7 +372,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             foreach (Traveler traveler in new List<Traveler>(GetTravelers.Where(t => t.State == GlobalItemState.PreProcess && t.Station == StationClass.GetStation("Start"))))
             {
-                RemoveTraveler(traveler);
+                RemoveTraveler(traveler,false);
             }
             OnTravelersChanged();
         }

@@ -186,7 +186,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"parentTravelers",m_parentTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
                 {"childTravelers",m_childTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
                 {"station",m_station.Name.Quotate() },
-                {"state",m_state.ToString().Quotate() },
+                {"state",GetGlobalState().ToString().Quotate() },
                 {"type",this.GetType().Name.Quotate()},
                 {"dateStarted",DateStarted.Quotate() },
                 {"comment",Comment.Quotate() },
@@ -271,6 +271,22 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
             return result;
+        }
+        public GlobalItemState GetGlobalState()
+        {
+            if (State != GlobalItemState.PreProcess)
+            {
+                // determine if this is finished
+                if (Items.Count(i => i.Finished) >= Quantity)
+                {
+                    return GlobalItemState.Finished;
+                }
+                else
+                {
+                    return GlobalItemState.InProcess;
+                }
+            }
+            return GlobalItemState.PreProcess;
         }
         // print a traveler pack label
         public abstract string GetLabelFields(ushort itemID, LabelType type);
@@ -816,7 +832,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Private Methods
         protected double GetRate(Bill bill, StationClass station,bool total = false)
         {
-            if (bill.ComponentItems != null)
+            if (bill != null && bill.ComponentItems != null)
             {
                 foreach (Item componentItem in bill.ComponentItems)
                 {

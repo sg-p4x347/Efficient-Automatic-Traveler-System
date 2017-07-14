@@ -113,3 +113,10 @@
 	overflow-y: auto;
 	background-color: #b37400; /*light brown*/
 }
+.form__radioTitle {
+	border-bottom: 2px solid gray;
+}
+.form__radio {
+	text-align: right;
+	margin: 2px;
+}

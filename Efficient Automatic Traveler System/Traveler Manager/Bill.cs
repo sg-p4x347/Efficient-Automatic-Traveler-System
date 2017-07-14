@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.Odbc;
+using System.Runtime.ExceptionServices;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -36,89 +37,118 @@ namespace Efficient_Automatic_Traveler_System
             m_parent = parent;
             Import(MAS);
         }
+        
         public void Import(OdbcConnection MAS)
         {
-            if (!m_imported)
+            if (!Imported)
             {
-                try
+                // Import header
+                var headerTask = Task.Run(() => ImportHeader(MAS));
+                if (headerTask.Wait(TimeSpan.FromSeconds(3)) && !headerTask.Result)
                 {
-                    // get bill information from MAS
+                    // Trying again
+
+                }
+            }
+        }
+        private bool IsImported(OdbcConnection MAS)
+        {
+            if (!Imported)
+            {
+                Server.WriteLine("-Bill import timed out-");
+            }
+            return Imported;
+        }
+        [HandleProcessCorruptedStateExceptions]
+        private bool ImportHeader(OdbcConnection MAS)
+        {
+            try
+            {
+                // get bill information from MAS
+                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                OdbcCommand command = MAS.CreateCommand();
+                command.CommandTimeout = 30;
+                command.CommandText = "SELECT BillType, BillDesc1, CurrentBillRevision, DrawingNo, Revision FROM BM_billHeader WHERE billno = '" + m_billNo + "'";
+
+                using (OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SequentialAccess))
+                {
+                    // read info
+                    while (reader.Read())
                     {
-                        if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-                        OdbcCommand command = MAS.CreateCommand();
-                        command.CommandText = "SELECT BillType, BillDesc1, CurrentBillRevision, DrawingNo, Revision FROM BM_billHeader WHERE billno = '" + m_billNo + "'";
-                        using (OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SequentialAccess))
+                        string currentRev = reader.GetString(4);
+                        string thisRev = reader.GetString(2);
+                        // only use the current bill revision
+                        if (currentRev == thisRev) // if (current bill revision == this revision)
                         {
-                            try
+                            m_billType = reader.GetString(0)[0];
+                            m_billDesc = reader.GetString(1);
+                            m_currentBillRevision = reader.GetString(2);
+                            if (!reader.IsDBNull(3))
                             {
-                                // read info
-                                while (reader.Read())
-                                {
-                                    string currentRev = reader.GetString(4);
-                                    string thisRev = reader.GetString(2);
-                                    // only use the current bill revision
-                                    if (currentRev == thisRev) // if (current bill revision == this revision)
-                                    {
-                                        m_billType = reader.GetString(0)[0];
-                                        m_billDesc = reader.GetString(1);
-                                        m_currentBillRevision = reader.GetString(2);
-                                        if (!reader.IsDBNull(3))
-                                        {
-                                            m_drawingNo = reader.GetString(3);
-                                        }
-                                        break;
-                                    }
-                                }
+                                m_drawingNo = reader.GetString(3);
                             }
-                            catch (Exception ex)
-                            {
-                                Server.LogException(ex);
-                            }
+                            break;
                         }
                     }
-                    // add the components from MAS
-                    {
-                        if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-                        OdbcCommand command = MAS.CreateCommand();
-                        command.CommandText = "SELECT ItemType, BillType, Revision, ComponentItemCode, QuantityPerBill FROM BM_billDetail WHERE billno = '" + m_billNo + "'";
-                        using (OdbcDataReader reader = command.ExecuteReader())
-                        {
-                            try
-                            {
-                                // begin to read
-                                while (reader.Read())
-                                {
-                                    // exclude items of type '4' (comments) and revision numbers that don't match the bill's revision number
-                                    if (reader.GetInt32(0) != 4 && m_currentBillRevision == reader.GetString(2))
-                                    {
-                                        // determine if the component has a bill
-                                        if (!reader.IsDBNull(1))
-                                        {
-                                            // Component has a bill
-                                            m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, MAS, this));
-                                        }
-                                        else
-                                        {
-                                            // Component is an item
-                                            m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, MAS));
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Server.LogException(ex);
-                            }
-                        }
-                    }
+                }
+                return true;
+            }
+            catch (AccessViolationException ex)
+            {
+                Server.HandleODBCexception(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return false;
+            }
+        }
+        // add the components from MAS
+        [HandleProcessCorruptedStateExceptions]
+        private bool ImportDetail(OdbcConnection MAS)
+        {
+            try
+            {
+                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                OdbcCommand command = MAS.CreateCommand();
+                command.CommandText = "SELECT \"ItemType\", \"BillType\", \"Revision\", \"ComponentItemCode\", \"QuantityPerBill\" FROM \"BM_billDetail\" WHERE \"billno\" = '" + m_billNo + "'";
+
+                using (OdbcDataReader reader = command.ExecuteReader())
+                {
                     
-                    // success
-                    m_imported = true;
+                    // begin to read
+                    while (reader.Read())
+                    {
+                        // exclude items of type '4' (comments) and revision numbers that don't match the bill's revision number
+                        if (reader.GetInt32(0) != 4 && m_currentBillRevision == reader.GetString(2))
+                        {
+                            // determine if the component has a bill
+                            if (!reader.IsDBNull(1))
+                            {
+                                // Component has a bill
+                                m_componentBills.Add(new Bill(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, MAS, this));
+                            }
+                            else
+                            {
+                                // Component is an item
+                                m_componentItems.Add(new Item(reader.GetString(3), reader.GetDouble(4), m_totalQuantity, MAS));
+                            }
+                        }
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Server.WriteLine("An error occured when retrieving Bill information from MAS: " + ex.Message);
-                }
+                // Success!
+                return true;
+            }
+            catch (AccessViolationException ex)
+            {
+                Server.HandleODBCexception(ex);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return false;
             }
         }
         // Find components, returns true if found, false if not found

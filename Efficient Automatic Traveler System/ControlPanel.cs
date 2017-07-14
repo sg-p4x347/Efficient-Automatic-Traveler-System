@@ -435,6 +435,28 @@ namespace Efficient_Automatic_Traveler_System
             }
             return ControlPanel.CreateDictionary(list);
         }
+
+        // Edit HTML element by ID
+        public static ClientMessage EditHTML(string id, string method, string parameters)
+        {
+            return new ClientMessage("EditHTML", new JsonObject() { { "id", id }, { "method", method }, { "params", parameters } });
+        }
+        public static ClientMessage AddStyle(string id, Style style)
+        {
+            if (style.ClassNames.Any())
+            {
+                return new ClientMessage("AddStyle", new JsonObject() { { "id", id }, { "style", style.ClassNames.First() } });
+            }
+            return new ClientMessage();
+        }
+        public static ClientMessage RemoveStyle(string id, Style style)
+        {
+            if (style.ClassNames.Any())
+            {
+                return new ClientMessage("RemoveStyle", new JsonObject() { { "id", id }, { "style", style.ClassNames.First() } });
+            }
+            return new ClientMessage();
+        }
     }
 
     public class EventListener

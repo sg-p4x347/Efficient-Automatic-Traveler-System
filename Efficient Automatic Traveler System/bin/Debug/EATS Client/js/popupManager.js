@@ -17,9 +17,11 @@ function PopupManager(blackout) {
 	// opens a pre-formatted popup from an id
 	this.AddSpecific = function (id) {
 		var self = this;
-		var popup = document.getElementById(id);
-		popup.style.display = "inherit";
-		self.Open(popup);
+		if (!self.Exists(id)) {
+			var popup = document.getElementById(id);
+			popup.style.display = "inherit";
+			self.Open(popup);
+		}
 		return function() {self.Close(popup);} // return the close function
 	}
 	// displays a message with an "OK" button
@@ -123,8 +125,10 @@ function PopupManager(blackout) {
 			var row = self.CreateHorizontalList();
 			row.className = "list--horizontal";
 			row.className = "justify-space-between";
-			var fieldTitle = self.CreateP(field.title);
-			row.appendChild(fieldTitle);
+			if (field.type != "radio") {
+				var fieldTitle = self.CreateP(field.title);
+				row.appendChild(fieldTitle);
+			}
 			//------
 			var input;
 			if (field.type != "radio") {
@@ -170,18 +174,26 @@ function PopupManager(blackout) {
 					type: field.type,
 					value: field.value
 				};
+				
+				
 				radio.onchange = function () {}
 				var radioDiv = document.createElement("DIV");
+				var fieldTitle = self.CreateP(field.title);
+				fieldTitle.classList.add("form__radioTitle");
+				radioDiv.appendChild(fieldTitle);
 				field.options.forEach(function (optionText) {
 					var option = document.createElement("INPUT");
+					option.classList.add("form__radio");
 					option.type = "radio";
 					option.name = field.name;
 					option.value = optionText;
 					if (option.value == radio.value) option.checked = true;
 					var title = self.CreateP(optionText);
+					title.style.margin = "0px";
 					var radioItem = self.CreateHorizontalList();
-					radioItem.appendChild(title);
 					radioItem.appendChild(option);
+					radioItem.appendChild(title);
+					
 					radioDiv.appendChild(radioItem);
 					option.onclick = function () {
 						if (this.checked) {
@@ -192,7 +204,7 @@ function PopupManager(blackout) {
 					}
 				});
 				inputs.push(radio);
-				row.appendChild(radioDiv);
+				element.appendChild(radioDiv);
 			}
 			//------
 			if (element != undefined) {
@@ -336,9 +348,7 @@ function PopupManager(blackout) {
 			self.CloseAll();
 			self.Open(popup);
 		}
-	}
-	// set the selected element to the control panel
-	this.SetControlPanel = function (
+	}
 	// helper for the control panel
 	this.AddControlNode = function (node,parent,callback,highestLevel) {
 		var self = this;

@@ -110,7 +110,7 @@ namespace Efficient_Automatic_Traveler_System
             return queueItem;
         }
         // Direct UI control vvvvvvvvvvvvvvvvvvvvvvvvvv
-        private void UpdateUI()
+        protected override void UpdateUI()
         {
             if (SelectedTraveler == null || (SelectedItem == null && !CurrentStation.CreatesThis(SelectedTraveler)))
             {
@@ -455,7 +455,6 @@ namespace Efficient_Automatic_Traveler_System
                 if (SelectedItem != null)
                 {
                     SelectedItem.Complete(m_user, CurrentStation, m_partTimer.Stopwatch.Elapsed.TotalMinutes);
-                    UpdateUI();
                     m_partTimer.Clear("ClearPartTimer");
 
                     // IF this station creates items, start a new timer

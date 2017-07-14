@@ -224,6 +224,15 @@ function Application () {
 			}
 		}
 	}
+	this.EditHTML = function (params) {
+		EditHTML(params);
+	}
+	this.AddStyle = function (params) {
+		AddStyle(params);
+	}
+	this.RemoveStyle = function (params) {
+		RemoveStyle(params);
+	}
 	this.Autofocus = function (evt) {
 		if (document.getElementById("travelerSearchBox") != document.activeElement)  {
 			application.FocusOnSearch();

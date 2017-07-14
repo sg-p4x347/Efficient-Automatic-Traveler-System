@@ -171,6 +171,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             SendMessage("{\"ping\":true}");
         }
+        protected virtual void UpdateUI()
+        {
+
+        }
         //------------------------------
         // Private members
         //------------------------------
@@ -565,6 +569,7 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_selectedItem = value;
+                UpdateUI();
             }
         }
 
@@ -664,16 +669,20 @@ namespace Efficient_Automatic_Traveler_System
         }
         protected void Deselect()
         {
+            if (SelectedItem != null)
+            {
+                SendMessage(ControlPanel.RemoveStyle(SelectedItem.PrintID(), new Style("selected")));
+            }
             SelectedItem = null;
-
+            
             Traveler traveler = SelectedTraveler;
             SelectedTraveler = null;
-            HandleTravelersChanged(true);
+            UpdateUI();
         }
         protected void DeselectItem()
         {
             SelectedItem = null;
-            HandleTravelersChanged(true);
+            UpdateUI();
         }
         //==============================================
         // Common functionality
@@ -684,12 +693,15 @@ namespace Efficient_Automatic_Traveler_System
             SelectedTraveler = item.Parent;
 
             // update the queue item
-            SendMessage(new ControlPanel.("", CreateItemQueueItem(GlobalItemState.InProcess, SelectedItem), SelectedItem.PrintID()).Dispatch());
+            SendMessage(ControlPanel.AddStyle(item.PrintID(), new Style("selected")));
+            UpdateUI();
+           // SendMessage(new ControlPanel.("", CreateItemQueueItem(GlobalItemState.InProcess, SelectedItem), SelectedItem.PrintID()).Dispatch());
         }
         protected virtual void SelectTraveler(Traveler traveler)
         {
             SelectedTraveler = traveler;
-            HandleTravelersChanged(true);
+            SendMessage(ControlPanel.AddStyle(traveler.ID.ToString(), new Style("selected")));
+            UpdateUI();
         }
         protected virtual void SearchItem(TravelerItem item)
         {

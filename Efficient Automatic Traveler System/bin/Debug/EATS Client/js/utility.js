@@ -362,3 +362,32 @@ function Selection(array,callback) {
 	}
 	return selection;
 }	
+
+function EditHTML(params) {
+	var element = document.getElementById(params.id);
+	if (element) {
+		if (element[params.method] != undefined) {
+			element[params.method](params.params);
+		} else {
+			console.log(element.id + " does not have a property or method: " + params.method);
+		}
+	} else {
+		console.log("No element by id: " + params.id);
+	}
+}
+function AddStyle(params) {
+	var element = document.getElementById(params.id);
+	if (element) {
+		element.classList.add(params.style);
+	} else {
+		console.log("No element by id: " + params.id);
+	}
+}
+function RemoveStyle(params) {
+	var element = document.getElementById(params.id);
+	if (element) {
+		element.classList.remove(params.style);
+	} else {
+		console.log("No element by id: " + params.id);
+	}
+}

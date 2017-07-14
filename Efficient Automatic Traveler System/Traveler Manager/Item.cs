@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.Odbc;
+using System.Runtime.ExceptionServices;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -24,6 +25,7 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("An error occured when retrieving item information from MAS: " + ex.Message);
             }
         }
+        [HandleProcessCorruptedStateExceptions]
         public void Import(OdbcConnection MAS)
         {
             try
@@ -32,7 +34,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                 OdbcCommand command = MAS.CreateCommand();
                 command.CommandText = "SELECT ItemCodeDesc, StandardUnitOfMeasure FROM CI_item WHERE itemCode = '" + m_itemCode + "'";
-                OdbcDataReader reader = command.ExecuteReader();
+                OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SingleRow);
 
                 // begin to read
                 if (reader.Read())
@@ -44,6 +46,11 @@ namespace Efficient_Automatic_Traveler_System
 
                 }
                 reader.Close();
+            }
+            catch (AccessViolationException ex)
+            {
+                Server.HandleODBCexception(ex);
+                Import(MAS);
             } catch (Exception ex)
             {
                 Server.LogException(ex);

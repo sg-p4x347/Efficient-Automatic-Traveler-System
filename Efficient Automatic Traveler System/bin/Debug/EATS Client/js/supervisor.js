@@ -616,7 +616,9 @@ function Application () {
 			}
 		} */
 	}
-	
+	this.EditHTML = function (params) {
+		EditHTML(params);
+	}
 	this.SearchPopup = function (params) {
 		var self = this;
 		self.StopAutofocus();
