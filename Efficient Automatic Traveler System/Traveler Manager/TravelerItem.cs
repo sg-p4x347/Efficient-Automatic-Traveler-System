@@ -225,6 +225,16 @@ namespace Efficient_Automatic_Traveler_System
             
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
+        public bool GetStartEvent(StationClass station, out ProcessEvent start)
+        {
+            start = null;
+            if (History.OfType<ProcessEvent>().Any())
+            {
+                start = History.OfType<ProcessEvent>().LastOrDefault(e => e.Process == ProcessType.Started);
+                if (start != null) return start.Station == station;
+            }
+            return false;
+        }
         public void Complete(User user, StationClass station, double duration = 0.0)
         {
             LocalState = LocalItemState.PostProcess;
@@ -439,11 +449,8 @@ namespace Efficient_Automatic_Traveler_System
         public bool Started(StationClass station)
         {
             // only considered to have started if the very last process event was a started event
-            if (History.OfType<ProcessEvent>().Any()) {
-                ProcessEvent last = History.OfType<ProcessEvent>().LastOrDefault(e => e.Process == ProcessType.Started);
-                if (last != null) return (last.Station == station);
-            }
-            return false;
+            ProcessEvent start;
+            return GetStartEvent(station, out start);
         }
         public List<Event> History
         {

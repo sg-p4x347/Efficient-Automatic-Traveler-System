@@ -63,6 +63,7 @@ namespace Efficient_Automatic_Traveler_System
         // Poll the clients periodically to test connection
         private void Poll()
         {
+
             DateTime current = DateTime.Now;
             TimeSpan timeToGo = current.RoundUp(m_pollInterval).TimeOfDay - current.TimeOfDay;
             if (timeToGo.Ticks < 0) timeToGo = timeToGo.Add(new TimeSpan(24, 0, 0));
@@ -70,19 +71,19 @@ namespace Efficient_Automatic_Traveler_System
             {
                 for (int i = 0; i < m_clients.Count; i++)
                 {
-                    //m_clients[i].Poll();
-                    if (!m_clients[i].Connected)
+                //m_clients[i].Poll();
+                if (!m_clients[i].Connected)
                     {
-                        
-                        // handle clients that implement ITravelers----------
-                        var obj = m_clients[i] as ITravelers;
+
+                    // handle clients that implement ITravelers----------
+                    var obj = m_clients[i] as ITravelers;
                         if (obj != null)
                         {
                             obj.TravelersChanged -= HandleTravelersChanged;
                         }
-                        //---------------------------------------------------
-                        // remove this client
-                        m_clients.RemoveAt(i);
+                    //---------------------------------------------------
+                    // remove this client
+                    m_clients.RemoveAt(i);
                         Console.WriteLine("An operator disconnected (" + m_clients.Count + " total)");
                     }
                 }

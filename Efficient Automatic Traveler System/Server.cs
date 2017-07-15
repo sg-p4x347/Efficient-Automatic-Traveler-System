@@ -339,10 +339,10 @@ namespace Efficient_Automatic_Traveler_System
             Server.WriteLine("");
             Server.WriteLine(new string('-', 50));
             Server.WriteLine("An error occured when retrieving information from MAS: " + ex.Message);
-            TimeSpan delay = new TimeSpan(0, 0, 3);
-            Server.WriteLine("Trying again in " + delay.TotalSeconds + " seconds");
-            Server.WriteLine(new string('-', 50));
-            System.Threading.Thread.Sleep(delay);
+            //TimeSpan delay = new TimeSpan(0, 0, 3);
+            //Server.WriteLine("Trying again in " + delay.TotalSeconds + " seconds");
+            //Server.WriteLine(new string('-', 50));
+            //System.Threading.Thread.Sleep(delay);
         }
         public static OdbcConnection GetMasConnection()
         {

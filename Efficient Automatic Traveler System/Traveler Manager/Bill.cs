@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Odbc;
 using System.Runtime.ExceptionServices;
+using System.Threading;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -43,11 +44,32 @@ namespace Efficient_Automatic_Traveler_System
             if (!Imported)
             {
                 // Import header
-                var headerTask = Task.Run(() => ImportHeader(MAS));
-                if (headerTask.Wait(TimeSpan.FromSeconds(3)) && !headerTask.Result)
+                if (!HeaderImported)
                 {
-                    // Trying again
+                    var tokenSource = new CancellationTokenSource();
 
+                    var headerTask = Task.Run(() => ImportHeader(MAS),tokenSource.Token);
+                    if (headerTask.Wait(TimeSpan.FromSeconds(3)) && !HeaderImported)
+                    {
+                        // Trying again
+                        tokenSource.Cancel();
+                        Server.WriteLine("-Bill header timed out, trying again-");
+                        Import(MAS);
+                    }
+                }
+                // Import detail
+                if (!DetailImported)
+                {
+                    var tokenSource = new CancellationTokenSource();
+
+                    var detailTask = Task.Run(() => ImportDetail(MAS), tokenSource.Token);
+                    if (detailTask.Wait(TimeSpan.FromSeconds(3)) && !DetailImported)
+                    {
+                        // Trying again
+                        tokenSource.Cancel();
+                        Server.WriteLine("-Bill detail import timed out, trying again-");
+                        Import(MAS);
+                    }
                 }
             }
         }
@@ -60,7 +82,7 @@ namespace Efficient_Automatic_Traveler_System
             return Imported;
         }
         [HandleProcessCorruptedStateExceptions]
-        private bool ImportHeader(OdbcConnection MAS)
+        private void ImportHeader(OdbcConnection MAS)
         {
             try
             {
@@ -91,22 +113,21 @@ namespace Efficient_Automatic_Traveler_System
                         }
                     }
                 }
-                return true;
+                // Success!
+                HeaderImported = true;
             }
             catch (AccessViolationException ex)
             {
                 Server.HandleODBCexception(ex);
-                return false;
             }
             catch (Exception ex)
             {
                 Server.LogException(ex);
-                return false;
             }
         }
         // add the components from MAS
         [HandleProcessCorruptedStateExceptions]
-        private bool ImportDetail(OdbcConnection MAS)
+        private void ImportDetail(OdbcConnection MAS)
         {
             try
             {
@@ -120,6 +141,8 @@ namespace Efficient_Automatic_Traveler_System
                     // begin to read
                     while (reader.Read())
                     {
+                        // Success for this detail
+                        DetailImported = true;
                         // exclude items of type '4' (comments) and revision numbers that don't match the bill's revision number
                         if (reader.GetInt32(0) != 4 && m_currentBillRevision == reader.GetString(2))
                         {
@@ -137,18 +160,14 @@ namespace Efficient_Automatic_Traveler_System
                         }
                     }
                 }
-                // Success!
-                return true;
             }
             catch (AccessViolationException ex)
             {
                 Server.HandleODBCexception(ex);
-                return false;
             }
             catch (Exception ex)
             {
                 Server.LogException(ex);
-                return false;
             }
         }
         // Find components, returns true if found, false if not found
@@ -177,6 +196,8 @@ namespace Efficient_Automatic_Traveler_System
         }
         // Properties
         private bool m_imported = false;
+        private bool m_headerImported = false;
+        private bool m_detailImported = false;
         private string m_billNo = "";
         private string m_drawingNo = "";
         private double m_quantityPerBill = 0.0;
@@ -357,6 +378,32 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_parent = value;
+            }
+        }
+
+        public bool HeaderImported
+        {
+            get
+            {
+                return m_headerImported;
+            }
+
+            set
+            {
+                m_headerImported = value;
+            }
+        }
+
+        public bool DetailImported
+        {
+            get
+            {
+                return m_detailImported;
+            }
+
+            set
+            {
+                m_detailImported = value;
             }
         }
     }

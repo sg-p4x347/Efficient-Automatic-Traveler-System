@@ -8,6 +8,8 @@ using System.Data.Odbc;
 //using Excel = Microsoft.Office.Interop.Excel;
 //using Marshal = System.Runtime.InteropServices.Marshal;
 using System.Text.RegularExpressions;
+using System.Runtime.ExceptionServices;
+using System.Threading;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -197,6 +199,8 @@ namespace Efficient_Automatic_Traveler_System
             m_colorNo = Convert.ToInt32(colorNo);
             // Table info in the table csv
             GetColorInfo();
+            // Import Blank info from mas
+            ImportBlankInfo(MAS);
             GetBlankInfo(MAS);
             GetPackInfo(orderManager);
             // for work rates
@@ -439,19 +443,40 @@ namespace Efficient_Automatic_Traveler_System
             colorRef.Close();
         }
         // calculate how many actual tables will be produced from the blanks
+
+        private void ImportBlankInfo(OdbcConnection MAS)
+        {
+            // Import
+            if (!Imported)
+            {
+                var tokenSource = new CancellationTokenSource();
+
+                var task = Task.Run(() => GetBlankInfo(MAS),tokenSource.Token);
+                if (task.Wait(TimeSpan.FromSeconds(3)) && !Imported)
+                {
+                    // Trying again
+                    Server.WriteLine("-Blank info import timed out, trying again-");
+                    ImportBlankInfo(MAS);
+                }
+            }
+        }
+        [HandleProcessCorruptedStateExceptions]
         private void GetBlankInfo(OdbcConnection MAS)
         {
             // open a MAS connection
             OdbcCommand command = MAS.CreateCommand();
             command.CommandText = "SELECT UDF_TABLE_BLANK_NAME, UDF_TABLE_BLANK_SIZE, UDF_TABLE_SHAPE FROM CI_item WHERE itemCode = '" + ItemCode + "'";
-            OdbcDataReader reader = command.ExecuteReader();
-            // read info
-            if (reader.Read())
+            using (OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SingleRow))
             {
-                if (!reader.IsDBNull(0)) BlankNo = reader.GetString(0);
-                if (!reader.IsDBNull(1)) BlankSize = reader.GetString(1);
-                if (!reader.IsDBNull(2)) Shape = reader.GetString(2);
-                if (BlankNo == "") BlankNo = "Missing blank info";
+                // read info
+                if (reader.Read())
+                {
+                    Imported = true;
+                    if (!reader.IsDBNull(0)) BlankNo = reader.GetString(0);
+                    if (!reader.IsDBNull(1)) BlankSize = reader.GetString(1);
+                    if (!reader.IsDBNull(2)) Shape = reader.GetString(2);
+                    if (BlankNo == "") BlankNo = "Missing blank info";
+                }
             }
             // get blank quantity from bill
             Bill blank = Bill.ComponentBills.Find(b => b.BillNo == BlankNo);
@@ -809,6 +834,8 @@ namespace Efficient_Automatic_Traveler_System
         private string m_palletSize = "";
         private int m_palletQty = 0;
 
+        private bool m_imported = false;
+
         #endregion
         //--------------------------------------------------------
         #region Interface
@@ -1068,6 +1095,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_color = value;
+            }
+        }
+
+        public bool Imported
+        {
+            get
+            {
+                return m_imported;
+            }
+
+            set
+            {
+                m_imported = value;
             }
         }
         #endregion

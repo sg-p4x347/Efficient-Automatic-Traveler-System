@@ -157,8 +157,8 @@ div.queue {
 #updatingPopup {
 	display: flex;
 	justify-content: center;
+	align-items: center;
 	font-size: 2em;
-	position: fixed;
 	background-image: url("../img/loading.gif");
 	background-position: center;
 	background-repeat: no-repeat;

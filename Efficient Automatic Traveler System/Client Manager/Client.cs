@@ -27,12 +27,15 @@ namespace Efficient_Automatic_Traveler_System
         public string Method;
         public Dictionary<string,object> Parameters;
     }
-    public struct ClientStopwatch
+    public class ClientStopwatch
     {
         public ClientStopwatch(Client client)
         {
             Client = client;
             Stopwatch = new Stopwatch();
+        }
+        public ClientStopwatch()
+        {
         }
         public void Start(string method = null, double minutes = 0.0)
         {
@@ -61,10 +64,10 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void CallMethod(string method = null, double minutes = 0.0)
         {
-            if (method != null) Client.SendMessage(new ClientMessage(method,minutes.ToString()).ToString());
+            if (method != null && Client != null) Client.SendMessage(new ClientMessage(method,minutes.ToString()).ToString());
         }
-        public Client Client;
-        public Stopwatch Stopwatch;
+        public Client Client = null;
+        public Stopwatch Stopwatch = new Stopwatch();
     }
     public struct ClientMessage
     {
@@ -527,8 +530,13 @@ namespace Efficient_Automatic_Traveler_System
 
         protected List<UserAction> m_history;
         private AccessLevel m_accessLevel;
+
         private TravelerItem m_selectedItem;
+        private TravelerItem m_lastSelectedItem = null;
+
         private Traveler m_selectedTraveler;
+        private Traveler m_lastSelectedTraveler = null;
+
         private StationClass m_currentStation;
         public bool Connected
         {
@@ -569,7 +577,6 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_selectedItem = value;
-                UpdateUI();
             }
         }
 
@@ -596,6 +603,32 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_currentStation = value;
+            }
+        }
+
+        public TravelerItem LastSelectedItem
+        {
+            get
+            {
+                return m_lastSelectedItem;
+            }
+
+            set
+            {
+                m_lastSelectedItem = value;
+            }
+        }
+
+        public Traveler LastSelectedTraveler
+        {
+            get
+            {
+                return m_lastSelectedTraveler;
+            }
+
+            set
+            {
+                m_lastSelectedTraveler = value;
             }
         }
 
@@ -669,18 +702,15 @@ namespace Efficient_Automatic_Traveler_System
         }
         protected void Deselect()
         {
-            if (SelectedItem != null)
-            {
-                SendMessage(ControlPanel.RemoveStyle(SelectedItem.PrintID(), new Style("selected")));
-            }
+            LastSelectedItem = SelectedItem;
             SelectedItem = null;
-            
-            Traveler traveler = SelectedTraveler;
+            LastSelectedTraveler = SelectedTraveler;
             SelectedTraveler = null;
             UpdateUI();
         }
         protected void DeselectItem()
         {
+            LastSelectedItem = SelectedItem;
             SelectedItem = null;
             UpdateUI();
         }
@@ -691,17 +721,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             SelectedItem = item;
             SelectedTraveler = item.Parent;
-
-            // update the queue item
-            SendMessage(ControlPanel.AddStyle(item.PrintID(), new Style("selected")));
-            UpdateUI();
-           // SendMessage(new ControlPanel.("", CreateItemQueueItem(GlobalItemState.InProcess, SelectedItem), SelectedItem.PrintID()).Dispatch());
         }
         protected virtual void SelectTraveler(Traveler traveler)
         {
             SelectedTraveler = traveler;
-            SendMessage(ControlPanel.AddStyle(traveler.ID.ToString(), new Style("selected")));
-            UpdateUI();
         }
         protected virtual void SearchItem(TravelerItem item)
         {
@@ -720,18 +743,18 @@ namespace Efficient_Automatic_Traveler_System
                     Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                     int travelerID;
                     Traveler traveler;
-                    if (int.TryParse(obj["travelerID"],out travelerID) && Server.TravelerManager.FindTraveler(travelerID,out traveler))
+                    if (obj.ContainsKey("travelerID") && int.TryParse(obj["travelerID"],out travelerID) && Server.TravelerManager.FindTraveler(travelerID,out traveler))
                     {
                         ushort itemID;
                         TravelerItem item;
-                        if (ushort.TryParse(obj["itemID"], out itemID) && traveler.FindItem(itemID, out item))
+                        if (obj.ContainsKey("itemID") && ushort.TryParse(obj["itemID"], out itemID) && traveler.FindItem(itemID, out item))
                         {
-                            SearchItem(item);
+                            SelectItem(item);
                         }
                         else
                         {
-                            SearchTraveler(traveler);
-                            if (itemID > 0) return new ClientMessage("Info", traveler.PrintID() + "-" + obj["itemID"] + " could not be found");
+                            SelectTraveler(traveler);
+                            //if (itemID > 0) return new ClientMessage("Info", traveler.PrintID() + "-" + obj["itemID"] + " could not be found");
                         }
                     }
                     else
