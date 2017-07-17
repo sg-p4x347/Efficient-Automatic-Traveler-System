@@ -49,7 +49,7 @@ namespace Efficient_Automatic_Traveler_System
                     var tokenSource = new CancellationTokenSource();
 
                     var headerTask = Task.Run(() => ImportHeader(MAS),tokenSource.Token);
-                    if (headerTask.Wait(TimeSpan.FromSeconds(3)) && !HeaderImported)
+                    if (!headerTask.Wait(TimeSpan.FromSeconds(3)) || !HeaderImported)
                     {
                         // Trying again
                         tokenSource.Cancel();
@@ -63,7 +63,7 @@ namespace Efficient_Automatic_Traveler_System
                     var tokenSource = new CancellationTokenSource();
 
                     var detailTask = Task.Run(() => ImportDetail(MAS), tokenSource.Token);
-                    if (detailTask.Wait(TimeSpan.FromSeconds(3)) && !DetailImported)
+                    if (!detailTask.Wait(TimeSpan.FromSeconds(3)) || !DetailImported)
                     {
                         // Trying again
                         tokenSource.Cancel();

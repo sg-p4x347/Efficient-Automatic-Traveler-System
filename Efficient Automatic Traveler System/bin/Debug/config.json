@@ -34,8 +34,9 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"131207",
-	"nextEventID":"7650",
+	"nextTravelerID":"132258",
+	"nextEventID":"7858",
+	"boxTravelerSize":2,
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",
@@ -172,7 +173,7 @@
 			"routing":{
 				"Table":{
 					"preRequisites":[
-						"contourEdgebander",
+						"Vector",
 						"snxTrimmer"
 					],
 					"finish":true
@@ -189,7 +190,7 @@
 			"routing":{
 				"Table":{
 					"preRequisites":[
-						"contourEdgebander",
+						"Vector",
 						"snxTrimmer"
 					],
 					"finish":true
@@ -220,22 +221,6 @@
 				}
 			}
 		},
-		"snxEdgebander":{
-			"creates":[
-				
-			],
-			"laborCodes":[
-				
-			],
-			"routing":{
-				"Table":{
-					"preRequisites":[
-						"heian",
-						"weeke"
-					]
-				}
-			}
-		},
 		"snxTrimmer":{
 			"creates":[
 				
@@ -246,7 +231,7 @@
 			"routing":{
 				"Table":{
 					"preRequisites":[
-						"snxEdgebander"
+						"contourEdgebander"
 					]
 				}
 			}
@@ -371,7 +356,7 @@
 		},
 		{
 			"name":"SNX-Band",
-			"type":"snxEdgebander",
+			"type":"contourEdgebander",
 			"mode":"Serial",
 			"printers":[
 				"4x2Heian2"

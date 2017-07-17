@@ -613,5 +613,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             return BeenCompleted(station) || Started(station);
         }
+        // returns true if this item has been completed or started by any station of the specified type
+        public bool BeenProcessedBy(string stationType)
+        {
+            return StationClass.OfType(stationType).Any(s => BeenWorkedOn(s));
+        }
     }
 }

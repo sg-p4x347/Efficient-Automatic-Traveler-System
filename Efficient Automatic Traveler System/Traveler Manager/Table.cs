@@ -201,7 +201,7 @@ namespace Efficient_Automatic_Traveler_System
             GetColorInfo();
             // Import Blank info from mas
             ImportBlankInfo(MAS);
-            GetBlankInfo(MAS);
+            //GetBlankInfo(MAS);
             GetPackInfo(orderManager);
             // for work rates
             //FindComponents(Bill);
@@ -363,14 +363,26 @@ namespace Efficient_Automatic_Traveler_System
         // Create a box traveler
         public void CreateBoxTraveler()
         {
-            int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
-            if (!BulkPack() && boxQuantity > 0)
+            m_boxCounter++;
+
+            int qtyQueued = ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+            int applicableQty = Items.Count(i => !i.Scrapped);
+            int boxTravelerSize = ConfigManager.GetJSON("boxTravelerSize");
+
+            if (m_boxCounter >= boxTravelerSize || (Quantity - Items.Count(i => !i.Scrapped)) - qtyQueued < boxTravelerSize)
             {
-                TableBox box = new TableBox(this);
-                ChildTravelers.Add(box);
-                box.Quantity = boxQuantity;
-                box.EnterProduction(Server.TravelerManager);
-                Server.TravelerManager.GetTravelers.Add(box);
+                m_boxCounter -= boxTravelerSize;
+                int boxQty = Math.Max(0, Math.Min(applicableQty - qtyQueued, boxTravelerSize));
+                if (!BulkPack() && boxQty > 0)
+                {
+                    TableBox box = new TableBox(this);
+
+                    box.Quantity = boxQty;
+                    box.EnterProduction(Server.TravelerManager);
+                    Server.TravelerManager.GetTravelers.Add(box);
+
+                    AddChild(box);
+                }
             }
         }
         public bool BulkPack()
@@ -452,7 +464,7 @@ namespace Efficient_Automatic_Traveler_System
                 var tokenSource = new CancellationTokenSource();
 
                 var task = Task.Run(() => GetBlankInfo(MAS),tokenSource.Token);
-                if (task.Wait(TimeSpan.FromSeconds(3)) && !Imported)
+                if (!task.Wait(TimeSpan.FromSeconds(3)) || !Imported)
                 {
                     // Trying again
                     Server.WriteLine("-Blank info import timed out, trying again-");
@@ -836,6 +848,7 @@ namespace Efficient_Automatic_Traveler_System
 
         private bool m_imported = false;
 
+        private int m_boxCounter = 0;
         #endregion
         //--------------------------------------------------------
         #region Interface

@@ -117,11 +117,11 @@ namespace Efficient_Automatic_Traveler_System
 
             if (SelectedTraveler != null)
             {
-                //if (!SelectedTraveler.PendingAt(CurrentStation))
-                //{
-                //    Deselect();
-                //    return;
-                //}
+                if (!SelectedTraveler.PendingAt(CurrentStation) && SelectedTraveler.QuantityInProcessAt(CurrentStation) == 0)
+                {
+                    Deselect();
+                    return;
+                }
                 // TRAVELER ----------------------------------------------
                 // visually select the traveler queue item
                 SendMessage(ControlPanel.AddStyle(SelectedTraveler.ID.ToString(), new Style("selected")));
@@ -686,7 +686,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void LoadTraveler(Traveler traveler)
         {
-            DeselectItem();
+            SelectTraveler(traveler);
             
             if (SelectedTraveler == null || (traveler != null && traveler.ID != SelectedTraveler.ID))
             {
@@ -699,11 +699,6 @@ namespace Efficient_Automatic_Traveler_System
                     SendMessage( new ClientMessage("Info", "Traveler " + traveler.ID.ToString("D6") + " is not at this station  :("));
                 }
             }
-        }
-        protected override void SelectTraveler(Traveler traveler)
-        {
-            base.SelectTraveler(traveler);
-            LoadTraveler(traveler);
         }
         public ClientMessage LoadItem(string json)
         {
@@ -730,16 +725,12 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void LoadItem(TravelerItem item)
         {
+            SelectItem(item);
             if (item != null)
             {
                 if (CurrentStation.Mode == StationMode.Serial) LoadTimerFor(SelectedItem);
             }
             UpdateUI();
-        }
-        protected override void SelectItem(TravelerItem item)
-        {
-            base.SelectItem(item);
-            SearchItem(item);
         }
         //public ClientMessage LoadCurrent(string json)
         //{
@@ -771,6 +762,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
+                SelectTraveler(item.Parent);
                 if (item.PendingAt(CurrentStation) || item.InProcessAt(CurrentStation))
                 {
                     if (!item.Started(CurrentStation))
@@ -783,11 +775,18 @@ namespace Efficient_Automatic_Traveler_System
                         item.Start(m_user, CurrentStation);
 
                         // this is Table pack station, print Table label on search submission
-                        if (CurrentStation.Type == "tablePack")
+                        if (SelectedTraveler is Table)
                         {
-                            item.Parent.PrintLabel(item.ID, LabelType.Table);
+                            if (CurrentStation.Type == "tablePack")
+                            {
+                                item.Parent.PrintLabel(item.ID, LabelType.Table);
+                            }
+                            else if (CurrentStation.Type == "contourEdgebander")
+                            {
+
+                                (SelectedTraveler as Table).CreateBoxTraveler();
+                            }
                         }
-                        DeselectItem();
                     }
                     else if (SelectedItem != item)
                     {
@@ -811,11 +810,13 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 else if (item.BeenCompleted(CurrentStation))
                 {
+                    SelectItem(item);
                     NodeList options = FlagItemOptions();
                     SendMessage(new ControlPanel("Item completed at " + CurrentStation.Name, new Column() { new TextNode(item.Parent.PrintID(item) + " has been completed at this station"), options }).Dispatch());
                 }
                 else
                 {
+                    SelectItem(item);
                     NodeList options = FlagItemOptions();
                     SendMessage(new ControlPanel("Item not pending at " + CurrentStation.Name, new Column() { new TextNode(item.Parent.PrintID(item) + "  is not pending work at your station" + "<br>It is " + item.LocalState.ToString() + " at " + item.Station.Name), options }).Dispatch());
                 }

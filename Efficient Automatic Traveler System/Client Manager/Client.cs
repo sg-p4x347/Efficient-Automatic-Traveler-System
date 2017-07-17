@@ -728,7 +728,6 @@ namespace Efficient_Automatic_Traveler_System
         }
         protected virtual void SearchItem(TravelerItem item)
         {
-
         }
         protected virtual void SearchTraveler(Traveler traveler)
         {
@@ -749,11 +748,11 @@ namespace Efficient_Automatic_Traveler_System
                         TravelerItem item;
                         if (obj.ContainsKey("itemID") && ushort.TryParse(obj["itemID"], out itemID) && traveler.FindItem(itemID, out item))
                         {
-                            SelectItem(item);
+                            SearchItem(item);
                         }
                         else
                         {
-                            SelectTraveler(traveler);
+                            SearchTraveler(traveler);
                             //if (itemID > 0) return new ClientMessage("Info", traveler.PrintID() + "-" + obj["itemID"] + " could not be found");
                         }
                     }
@@ -893,7 +892,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     // IF flagged
                     text = "Item flagged";
-                    if (CurrentStation != null && SelectedItem.BeenWorkedOn(CurrentStation))
+                    if (CurrentStation != null && SelectedItem.BeenProcessedBy(CurrentStation.Type))
                     {
                         options.Add("Rework Now", "Rework");
                     }

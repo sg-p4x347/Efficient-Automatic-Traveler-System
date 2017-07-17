@@ -156,36 +156,7 @@ namespace Efficient_Automatic_Traveler_System
                 try
                 {
 
-                    // link with orders
-                    traveler.ParentOrders.Clear();
-                    foreach (string orderNum in traveler.ParentOrderNums)
-                    {
-                        Order parent = m_orderManager.FindOrder(orderNum);
-                        if (parent != null)
-                        {
-                            traveler.ParentOrders.Add(parent);
-                        }
-                    }
-                    // link with parent travelers
-                    traveler.ParentTravelers.Clear();
-                    foreach (int id in traveler.ParentIDs)
-                    {
-                        Traveler parent = FindTraveler(id);
-                        if (parent != null)
-                        {
-                            traveler.ParentTravelers.Add(parent);
-                        }
-                    }
-                    // link with child travelers
-                    traveler.ChildTravelers.Clear();
-                    foreach (int id in traveler.ChildIDs)
-                    {
-                        Traveler child = FindTraveler(id);
-                        if (child != null)
-                        {
-                            traveler.ChildTravelers.Add(child);
-                        }
-                    }
+                    traveler.InitializeDependencies();
                     // import part info
                     traveler.ImportInfo(this as ITravelerManager, orderManager, MAS);
                     index++;

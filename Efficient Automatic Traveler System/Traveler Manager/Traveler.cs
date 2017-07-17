@@ -182,9 +182,9 @@ namespace Efficient_Automatic_Traveler_System
                 {"itemCode",m_itemCode.Quotate() },
                 {"quantity",m_quantity.ToString() },
                 {"items",Items.Stringify<TravelerItem>() },
-                {"parentOrders",m_parentOrders.Select(o => o.SalesOrderNo).ToList<string>().Stringify<string>() },
-                {"parentTravelers",m_parentTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
-                {"childTravelers",m_childTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
+                {"parentOrders",ParentOrderNums.Stringify<string>() },
+                {"parentTravelers",ParentIDs.Stringify<int>() }, // stringifies a list of IDs
+                {"childTravelers",ChildIDs.Stringify<int>() }, // stringifies a list of IDs
                 {"station",m_station.Name.Quotate() },
                 {"state",GetGlobalState().ToString().Quotate() },
                 {"type",this.GetType().Name.Quotate()},
@@ -751,6 +751,17 @@ namespace Efficient_Automatic_Traveler_System
             form.Selection("station", "Starting Station",new List<string>(), m_station.Name);
             return form;
         }
+
+        protected void AddChild(Traveler child)
+        {
+            // add child as child on this
+            ChildTravelers.Add(child);
+            if (!ChildIDs.Contains(child.ID)) ChildIDs.Add(child.ID);
+
+            // add this as parent on child
+            child.ParentTravelers.Add(this);
+            if (!child.ParentIDs.Contains(this.ID)) child.ParentIDs.Add(this.ID);
+        }
         #endregion
         //--------------------------------------------------------
         #region Abstract Methods
@@ -799,6 +810,40 @@ namespace Efficient_Automatic_Traveler_System
         }
         // pre
         public abstract void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS);
+        
+        public void InitializeDependencies()
+        {
+            // link with orders
+            ParentOrders.Clear();
+            foreach (string orderNum in ParentOrderNums)
+            {
+                Order parent = Server.OrderManager.FindOrder(orderNum);
+                if (parent != null)
+                {
+                    ParentOrders.Add(parent);
+                }
+            }
+            // link with parent travelers
+            ParentTravelers.Clear();
+            foreach (int id in ParentIDs)
+            {
+                Traveler parent = Server.TravelerManager.FindTraveler(id);
+                if (parent != null)
+                {
+                    ParentTravelers.Add(parent);
+                }
+            }
+            // link with child travelers
+            ChildTravelers.Clear();
+            foreach (int id in ChildIDs)
+            {
+                Traveler child = Server.TravelerManager.FindTraveler(id);
+                if (child != null)
+                {
+                    ChildTravelers.Add(child);
+                }
+            }
+        }
         // get a list of fields from the label DB
         protected string GetLabelFields(List<string> fieldNames)
         {
@@ -996,7 +1041,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_parentTravelers;
             }
 
-            set
+            protected set
             {
                 m_parentTravelers = value;
             }
@@ -1009,7 +1054,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_childTravelers;
             }
 
-            set
+            protected set
             {
                 m_childTravelers = value;
             }
@@ -1022,7 +1067,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_parentIDs;
             }
 
-            set
+            protected set
             {
                 m_parentIDs = value;
             }
@@ -1035,7 +1080,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_childIDs;
             }
 
-            set
+            protected set
             {
                 m_childIDs = value;
             }
@@ -1048,7 +1093,7 @@ namespace Efficient_Automatic_Traveler_System
                 return m_parentOrders;
             }
 
-            set
+            protected set
             {
                 m_parentOrders = value;
             }
