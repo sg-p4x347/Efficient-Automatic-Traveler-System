@@ -85,16 +85,18 @@ namespace Efficient_Automatic_Traveler_System
         {
             TravelerItem item = FindItem(itemID);
             string json = "\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
+            Table parent = (Table)ParentTravelers[0];
+            if (parent == null) parent = (Table)Server.TravelerManager.GetTravelers.Find(t => t.ChildTravelers.Contains(this));
             switch (type)
             {
                 case LabelType.Box:
-                    json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6") + "\"";
+                    json += ",\"ID\":\"" + (parent != null ? "Box for " + parent.ID.ToString("D6") : "") + "\"" ;
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
-                    json += ",\"Desc2\":\"" + ((Table)ParentTravelers[0]).ItemCode + " (" + ((Table)ParentTravelers[0]).Size + ")" + "\"";
+                    json += ",\"Desc2\":\"" + (parent != null ? parent.ItemCode + " (" + parent.Size + ")" : "")+ "\"";
                     json += ",\"Desc3\":\"" + "BOX" + "\"";
                     break;
                 case LabelType.Scrap:
-                    json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6")+ "\"";
+                    //json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6")+ "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) + " !!" + "\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
