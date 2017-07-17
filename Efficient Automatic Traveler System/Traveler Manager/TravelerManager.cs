@@ -65,7 +65,6 @@ namespace Efficient_Automatic_Traveler_System
         // returns list of new travelers
         public List<Traveler> CompileTravelers(bool consolodate, bool consolidatePriorityCustomers,  List<Order> orders)
         {
-
             List<Traveler> newTravelers = new List<Traveler>();
             int index = 0;
             foreach (Order order in orders)
@@ -149,8 +148,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void CullFinishedTravelers()
         {
-            // remove all traveler trees that are finished
-            m_travelers.RemoveAll(t => t.Finished && t.ChildTravelers.All(child => child.Finished) && t.ParentTravelers.All(parent => parent.Finished));
+            // remove all traveler trees that were finished before today
+            List<Traveler> travelers = m_travelers.Where(t => t.FinishedBefore(DateTime.Today) && t.ChildTravelers.All(child => child.FinishedBefore(DateTime.Today)) && t.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today))).ToList();
+            Server.WriteLine(travelers.Stringify());
         }
         public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
         {
@@ -232,8 +232,6 @@ namespace Efficient_Automatic_Traveler_System
             } else
             {
                 ImportPast();
-                // remove travelers that have been complete
-                m_travelers.RemoveAll(t => t.State == GlobalItemState.Finished);
             }
             // link dem
             LinkTravelers();
@@ -261,6 +259,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
             Server.Write("\r{0}", "Loading travelers from backup...Finished" + Environment.NewLine);
+            
         }
         public void EnterProduction()
         {

@@ -238,7 +238,7 @@ namespace Efficient_Automatic_Traveler_System
             // import stored travelers
             m_travelerManager.Import();
 
-            // Remove any finished traveler trees
+            // Remove any finished traveler trees 
             m_travelerManager.CullFinishedTravelers();
 
             // Import information from MAS

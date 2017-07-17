@@ -432,6 +432,19 @@ namespace Efficient_Automatic_Traveler_System
             State = GlobalItemState.Finished;
             Server.TravelerManager.OnTravelersChanged(this);
         }
+        public bool FinishedBefore(DateTime date)
+        {
+            if (!Finished) return false;
+            foreach (TravelerItem item in Items)
+            {
+                DateTime d;
+                if (!item.Scrapped && (!item.DateFinished(out d) || d.Day >= date.Day))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
         public int QuantityPendingAt(StationClass station)
         {
 
