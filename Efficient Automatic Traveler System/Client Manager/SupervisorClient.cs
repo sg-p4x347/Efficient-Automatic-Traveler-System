@@ -111,7 +111,10 @@ namespace Efficient_Automatic_Traveler_System
                 }));
             } else if (state == GlobalItemState.Finished)
             {
-
+                queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
+                {
+                    {"Qty at this station:",new TextNode(travelers.Sum(t => t.QuantityAt(station)).ToString(),new Style("beige") )}
+                }));
             }
             queueContainer.Add(new Checkbox("Select All", "SelectAll", new JsonObject() { { "station", station.Name } }, VisibleTravelers(station).All(t => m_selected.Contains(t))));
             NodeList queue = CreateTravelerQueue(travelers, station);
@@ -575,8 +578,7 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("Add Comment","AddComment")
                 };
 
-                ControlPanel panel = new ControlPanel(traveler.GetType().Name, new Row() { fields, controls });
-                return new ClientMessage("ControlPanel", panel.ToString());
+                return new ControlPanel(traveler.GetType().Name, new Row() { fields, controls }).Dispatch();
             }
             catch (Exception ex)
             {
@@ -683,7 +685,7 @@ namespace Efficient_Automatic_Traveler_System
                         lineItems.Add(row);
                     }
                     orderPopup.Add(lineItems);
-                    return new ClientMessage("ControlPanel", new ControlPanel("Order " + m_order.SalesOrderNo, orderPopup).ToString());
+                    return new ControlPanel("Order " + m_order.SalesOrderNo, orderPopup).Dispatch();
                 }
                 else
                 {
@@ -756,7 +758,7 @@ namespace Efficient_Automatic_Traveler_System
                     foreach (Node node in FlagItemOptions()) controls.Add(node);
                 }
 
-                return new ClientMessage("ControlPanel", new ControlPanel(traveler.PrintSequenceID(item), new Row() { fields, controls }).ToString());
+                return new ControlPanel(traveler.PrintSequenceID(item), new Row() { fields, controls }).Dispatch(false);
             }
             catch (Exception ex)
             {
@@ -861,7 +863,7 @@ namespace Efficient_Automatic_Traveler_System
                         }
                     );
                 }
-                return new ClientMessage("ControlPanel", new ControlPanel(traveler.PrintSequenceID(item) + " Event", fields).ToString());
+                return new ControlPanel(traveler.PrintSequenceID(item) + " Event", fields).Dispatch(false);
             }
             catch (Exception ex)
             {

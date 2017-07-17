@@ -288,9 +288,11 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("ID", m_ID.Quotate());
             return obj.Stringify();
         }
-        public ClientMessage Dispatch()
+        public ClientMessage Dispatch(bool closeAll = true)
         {
-            return new ClientMessage("ControlPanel", ToString());
+            JsonObject obj = (JsonObject)JSON.Parse(ToString());
+            obj.Add("closeAll", closeAll);
+            return new ClientMessage("ControlPanel", obj);
         }
         private string m_title;
         private Node m_body;

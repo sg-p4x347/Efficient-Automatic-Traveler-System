@@ -238,6 +238,10 @@ namespace Efficient_Automatic_Traveler_System
             // import stored travelers
             m_travelerManager.Import();
 
+            // Remove any finished traveler trees
+            m_travelerManager.CullFinishedTravelers();
+
+            // Import information from MAS
             m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
 
             // Push planned travelers from the previous day into production

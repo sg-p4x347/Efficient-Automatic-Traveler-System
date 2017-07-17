@@ -345,7 +345,9 @@ function PopupManager(blackout) {
 		horizontal.appendChild(controlDiv);
 		popup.appendChild(horizontal); */
 		if (!DOMparent) {
-			self.CloseAll();
+			if (format.closeAll) {
+				self.CloseAll();
+			}
 			self.Open(popup);
 		}
 	}

@@ -147,6 +147,11 @@ namespace Efficient_Automatic_Traveler_System
             Server.Write("\r{0}", "Compiling Travelers...Finished\n");
             return newTravelers;
         }
+        public void CullFinishedTravelers()
+        {
+            // remove all traveler trees that are finished
+            m_travelers.RemoveAll(t => t.Finished && t.ChildTravelers.All(child => child.Finished) && t.ParentTravelers.All(parent => parent.Finished));
+        }
         public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
         {
             if (travelers == null) travelers = m_travelers;

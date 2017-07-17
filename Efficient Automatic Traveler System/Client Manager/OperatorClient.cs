@@ -117,7 +117,7 @@ namespace Efficient_Automatic_Traveler_System
 
             if (SelectedTraveler != null)
             {
-                if (!SelectedTraveler.PendingAt(CurrentStation) && SelectedTraveler.QuantityInProcessAt(CurrentStation) == 0)
+                if (!creates && (SelectedTraveler.QuantityPendingAt(CurrentStation) == 0 && SelectedTraveler.QuantityInProcessAt(CurrentStation) == 0))
                 {
                     Deselect();
                     return;
@@ -467,27 +467,15 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     // Create a new item
                     SelectedItem = SelectedTraveler.AddItem(CurrentStation);
+                    NewPartStarted(); // timers
                 } else if (SelectedItem != null && SelectedItem.BeenCompleted(CurrentStation) && !SelectedItem.Flagged)
                 {
-                    // this should't happen
-                    DeselectItem();
-                    return new ClientMessage();
+                    // this is a rework
                 }
                 if (SelectedItem != null)
                 {
                     SelectedItem.Complete(m_user, CurrentStation, m_partTimer.Stopwatch.Elapsed.TotalMinutes);
                     m_partTimer.Clear("ClearPartTimer");
-
-                    // IF this station creates items, start a new timer
-                    if (CurrentStation.CreatesThis(SelectedTraveler))
-                    {
-                        NewPartStarted(); // timers
-                    }
-                    else
-                    {
-                        m_partTimer.Clear("ClearPartTimer");
-                    }
-
 
                     DeselectItem();
                 }
@@ -686,25 +674,18 @@ namespace Efficient_Automatic_Traveler_System
         }
         private void LoadTraveler(Traveler traveler)
         {
-            SelectTraveler(traveler);
-            
+
             if (SelectedTraveler == null || (traveler != null && traveler.ID != SelectedTraveler.ID))
             {
-                if (traveler.CurrentStations().Exists(t => t == CurrentStation))
-                {
-                    DisplayChecklist();
-                }
-                else
-                {
-                    SendMessage( new ClientMessage("Info", "Traveler " + traveler.ID.ToString("D6") + " is not at this station  :("));
-                }
+                SelectTraveler(traveler);
+                DisplayChecklist();
             }
+            UpdateUI();
         }
         public ClientMessage LoadItem(string json)
         {
             try
             {
-                
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 if (traveler != null)
@@ -712,7 +693,7 @@ namespace Efficient_Automatic_Traveler_System
                     TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
                     if (item != null)
                     {
-                        SelectItem(item);
+                        LoadItem(item);
                     }
                 }
                 return new ClientMessage("Could not find item");
@@ -827,7 +808,23 @@ namespace Efficient_Automatic_Traveler_System
         }
         protected override void SearchTraveler(Traveler traveler)
         {
-            LoadTraveler(traveler);
+            if (traveler.CurrentStations().Exists(t => t == CurrentStation))
+            {
+                LoadTraveler(traveler);
+            }
+            else
+            {
+                SelectTraveler(traveler);
+                Row options = new Row()
+                {
+                    new Button("Rework","ReworkTraveler")
+                };
+                SendMessage(new ControlPanel(traveler.PrintID(), new Column()
+                {
+                    new TextNode("Traveler " + traveler.PrintID() + " is not at this station  :(<br>What would you like to do?"),
+                    options
+                }).Dispatch());
+            }
         }
         //if (item.PendingRework)
         //{
@@ -956,6 +953,11 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Can't undo..");
             }
+        }
+        public ClientMessage ReworkTraveler(string json)
+        {
+            LoadTraveler(SelectedTraveler);
+            return new ClientMessage();
         }
         
         public ClientMessage Rework(string json)

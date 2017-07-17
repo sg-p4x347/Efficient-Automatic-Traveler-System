@@ -1007,6 +1007,27 @@ namespace Efficient_Automatic_Traveler_System
                 m_state = value;
             }
         }
+        public bool Finished
+        {
+            get
+            {
+                return State == GlobalItemState.Finished;
+            }
+        }
+        public bool PreProcess
+        {
+            get
+            {
+                return State == GlobalItemState.PreProcess;
+            }
+        }
+        public bool InProcess
+        {
+            get
+            {
+                return State == GlobalItemState.InProcess;
+            }
+        }
 
         public string DateStarted
         {
