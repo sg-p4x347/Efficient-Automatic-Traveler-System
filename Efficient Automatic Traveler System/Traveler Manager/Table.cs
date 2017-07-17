@@ -8,6 +8,8 @@ using System.Data.Odbc;
 //using Excel = Microsoft.Office.Interop.Excel;
 //using Marshal = System.Runtime.InteropServices.Marshal;
 using System.Text.RegularExpressions;
+using System.Runtime.ExceptionServices;
+using System.Threading;
 
 namespace Efficient_Automatic_Traveler_System
 {
@@ -351,7 +353,7 @@ namespace Efficient_Automatic_Traveler_System
         // Create a box traveler
         public void CreateBoxTraveler()
         {
-            if (!ItemCode.Contains('U'))
+            if (!ItemCode.ToUpper().Contains('U'))
             {
                 int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
                 if (boxQuantity > 0)
@@ -430,19 +432,23 @@ namespace Efficient_Automatic_Traveler_System
             colorRef.Close();
         }
         // calculate how many actual tables will be produced from the blanks
+        [HandleProcessCorruptedStateExceptions]
         private void GetBlankInfo(OdbcConnection MAS)
         {
             // open a MAS connection
             OdbcCommand command = MAS.CreateCommand();
             command.CommandText = "SELECT UDF_TABLE_BLANK_NAME, UDF_TABLE_BLANK_SIZE, UDF_TABLE_SHAPE FROM CI_item WHERE itemCode = '" + ItemCode + "'";
-            OdbcDataReader reader = command.ExecuteReader();
-            // read info
-            if (reader.Read())
+            using (OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SingleRow))
             {
-                if (!reader.IsDBNull(0)) BlankNo = reader.GetString(0);
-                if (!reader.IsDBNull(1)) BlankSize = reader.GetString(1);
-                if (!reader.IsDBNull(2)) Shape = reader.GetString(2);
-                if (BlankNo == "") BlankNo = "Missing blank info";
+                // read info
+                if (reader.Read())
+                {
+                    Imported = true;
+                    if (!reader.IsDBNull(0)) BlankNo = reader.GetString(0);
+                    if (!reader.IsDBNull(1)) BlankSize = reader.GetString(1);
+                    if (!reader.IsDBNull(2)) Shape = reader.GetString(2);
+                    if (BlankNo == "") BlankNo = "Missing blank info";
+                }
             }
             // get blank quantity from bill
             Bill blank = Bill.ComponentBills.Find(b => b.BillNo == BlankNo);
@@ -467,7 +473,7 @@ namespace Efficient_Automatic_Traveler_System
                     //--------------------------------------------
                     // BLANK INFO
                     //--------------------------------------------
-                    
+
                     //BlankSize = row[header.IndexOf("Blank Size")];
                     //SheetSize = row[header.IndexOf("Sheet Size")];
                     //// [column 3 contains # of blanks per sheet]
@@ -512,7 +518,8 @@ namespace Efficient_Automatic_Traveler_System
                     if (boxType == "TD")
                     {
                         m_boxPieceQty = 2;
-                    } else if (boxType == "FPF")
+                    }
+                    else if (boxType == "FPF")
                     {
                         m_boxPieceQty = 1;
                     }
@@ -1061,6 +1068,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_color = value;
             }
         }
+        public bool Imported = false;
         #endregion
         //--------------------------------------------------------
     }

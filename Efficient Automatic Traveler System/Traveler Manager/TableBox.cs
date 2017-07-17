@@ -85,7 +85,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             TravelerItem item = FindItem(itemID);
             string json = "\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
-            Table parent = (Table)ParentTravelers[0];
+            Table parent = (Table)ParentTravelers.FirstOrDefault();
             if (parent == null) parent = (Table)Server.TravelerManager.GetTravelers.Find(t => t.ChildTravelers.Contains(this));
             switch (type)
             {

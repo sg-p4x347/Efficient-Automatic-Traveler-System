@@ -182,8 +182,8 @@ namespace Efficient_Automatic_Traveler_System
                 {"quantity",m_quantity.ToString() },
                 {"items",Items.Stringify<TravelerItem>() },
                 {"parentOrders",m_parentOrders.Select(o => o.SalesOrderNo).ToList<string>().Stringify<string>() },
-                {"parentTravelers",m_parentTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
-                {"childTravelers",m_childTravelers.Select( x => x.ID).ToList().Stringify<int>() }, // stringifies a list of IDs
+                {"parentTravelers",ParentIDs.Concat(ParentTravelers.Where(p => !ParentIDs.Contains(p.ID)).Select(p => p.ID)).ToList().Stringify<int>() }, // stringifies a list of IDs
+                {"childTravelers",ChildIDs.Concat(ChildTravelers.Where(p => !ChildIDs.Contains(p.ID)).Select(p => p.ID)).ToList().Stringify<int>() }, // stringifies a list of IDs
                 {"station",m_station.Name.Quotate() },
                 {"state",m_state.ToString().Quotate() },
                 {"type",this.GetType().Name.Quotate()},

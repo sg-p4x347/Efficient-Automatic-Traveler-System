@@ -266,7 +266,7 @@ namespace Efficient_Automatic_Traveler_System
                 Traveler traveler = ImportTraveler(travelerJSON);
                 LinkOrders(traveler);
                 // add this traveler to the master list if it is not complete or has dependencies
-                if (traveler != null && (traveler.State != ItemState.PostProcess && traveler.Quantity > 0))
+                if (traveler != null && traveler.Quantity > 0)
                 {
                     // add this traveler to the imported list
                     m_importedFromPast.Add(traveler);

@@ -166,6 +166,12 @@ namespace Efficient_Automatic_Traveler_System
         //        }
         //    }
         //}
+        public static void HandleODBCexception(AccessViolationException ex)
+        {
+            Server.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+            Server.WriteLine(ex.Message);
+            Server.WriteLine("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+        }
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
