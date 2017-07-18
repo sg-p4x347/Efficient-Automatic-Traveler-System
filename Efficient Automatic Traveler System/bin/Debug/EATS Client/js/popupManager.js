@@ -350,7 +350,16 @@ function PopupManager(blackout) {
 			}
 			self.Open(popup);
 		}
-	}
+	}	// displays an image
+	this.Image = function (filename, timeout) {
+		var self = this;
+		var img = document.createElement("IMG");
+		img.src = "./img/" + filename;
+		if (timeout) {
+			setTimeout(function() {self.Close(img);},timeout * 1000);
+		}
+		self.Open(img);
+	}
 	// helper for the control panel
 	this.AddControlNode = function (node,parent,callback,highestLevel) {
 		var self = this;

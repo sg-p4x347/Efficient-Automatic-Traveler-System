@@ -720,7 +720,37 @@ namespace Efficient_Automatic_Traveler_System
         }
         //==============================================
         // Common functionality
-        
+        protected Column TravelerView(Traveler traveler, TravelerItem item = null)
+        {
+            Column travelerView = new Column();
+            travelerView.Style.AddStyle("width", "100%");
+            travelerView.Style.AddStyle("overflow-x", "hidden");
+            // traveler ID
+            TextNode travelerID = new TextNode(traveler.PrintSequenceID(item), new Style("yellow"));
+            travelerView.Add(travelerID);
+            // table
+            Node viewTable = ControlPanel.CreateDictionary(traveler.ExportViewProperties());
+            viewTable.Style.AddStyle("width", "100%");
+            travelerView.Add(viewTable);
+
+            // item table
+            if (item != null)
+            {
+                Dictionary<string, Node> itemProperties = item.ExportViewProperties();
+                if (itemProperties.Any())
+                {
+
+                    // item table title
+                    TextNode itemTitle = new TextNode("Item specific", new Style("yellow"));
+                    travelerView.Add(itemTitle);
+
+                    Node itemTable = ControlPanel.CreateDictionary(itemProperties);
+                    itemTable.Style.AddStyle("width", "100%");
+                    travelerView.Add(itemTable);
+                }
+            }
+            return travelerView;
+        }
         protected virtual void SelectItem(TravelerItem item)
         {
             SelectedItem = item;
@@ -882,6 +912,8 @@ namespace Efficient_Automatic_Traveler_System
            
             string text = "";
             Dictionary<string, string> options = new Dictionary<string, string>();
+
+            // view traveler information
 
             if (SelectedItem != null)
             {

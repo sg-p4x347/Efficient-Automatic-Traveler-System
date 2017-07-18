@@ -362,8 +362,8 @@ namespace Efficient_Automatic_Traveler_System
         
         public virtual void EnterProduction(ITravelerManager travelerManager)
         {
-            m_state = GlobalItemState.InProcess;
-            m_dateStarted = DateTime.Today.ToString("MM/dd/yyyy");
+            State = GlobalItemState.InProcess;
+            DateStarted = DateTime.Today.ToString("MM/dd/yyyy");
         }
         // advances all completed items at the specified station
         //public virtual void Advance(StationClass station, ITravelerManager travelerManager = null)
@@ -914,6 +914,21 @@ namespace Efficient_Automatic_Traveler_System
             // returns the quantity of items that have a scrap event at or prior to this item's scrap event
             List<TravelerItem> items  =  Items.Where(x => x.History.Exists(y => y is ScrapEvent && y.Date <= scrapEvent.Date)).ToList();
             return items.Count;
+        }
+
+        internal void UpdateState()
+        {
+            if (State != GlobalItemState.PreProcess)
+            {
+                // if all items are scrapped or finished, and there are enough finished items to conclude the traveler
+                if (Items.All(i => i.Scrapped || i.Finished) && Items.Count(i => i.Finished) >= Quantity)
+                {
+                    State = GlobalItemState.Finished;
+                } else
+                {
+                    State = GlobalItemState.InProcess;
+                }
+            }
         }
         #endregion
         //--------------------------------------------------------

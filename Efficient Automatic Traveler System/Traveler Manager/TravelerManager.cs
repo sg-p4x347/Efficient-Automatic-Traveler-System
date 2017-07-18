@@ -130,7 +130,6 @@ namespace Efficient_Automatic_Traveler_System
             // allocate inventory and set final traveler quantities
             foreach (Traveler newTraveler in newTravelers)
             {
-                
                 // quantity to add to the traveler maxes out at qty ordered, taking into account what
                 // is on hand that hasnt been allocated for another traveler;
 

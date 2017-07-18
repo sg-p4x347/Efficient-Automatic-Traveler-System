@@ -224,33 +224,7 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("ID", (item != null ? traveler.PrintSequenceID(item) : traveler.ID.ToString("D6")).Quotate());
             if (item != null) obj.Add("itemMembers", item.ExportTableRows(CurrentStation));
 
-            Column travelerView = new Column();
-            travelerView.Style.AddStyle("width", "100%");
-            travelerView.Style.AddStyle("overflow-x", "hidden");
-            // traveler ID
-            TextNode travelerID = new TextNode(traveler.PrintSequenceID(item), new Style("yellow"));
-            travelerView.Add(travelerID);
-            // table
-            Node viewTable = ControlPanel.CreateDictionary(traveler.ExportViewProperties());
-            viewTable.Style.AddStyle("width", "100%");
-            travelerView.Add(viewTable);
-
-            // item table
-            if (item != null)
-            {
-                Dictionary<string, Node> itemProperties = item.ExportViewProperties();
-                if (itemProperties.Any())
-                {
-
-                    // item table title
-                    TextNode itemTitle = new TextNode("Item specific", new Style("yellow"));
-                    travelerView.Add(itemTitle);
-
-                    Node itemTable = ControlPanel.CreateDictionary(itemProperties);
-                    itemTable.Style.AddStyle("width", "100%");
-                    travelerView.Add(itemTable);
-                }
-            }
+            Column TravelerView = TravelerView()
             // buttons
             if (item != null && CurrentStation.Type == "tablePack")
             {
@@ -775,6 +749,7 @@ namespace Efficient_Automatic_Traveler_System
                         // Second scan loads the item
                         // ******************************
                         LoadItem(item);
+                        SendMessage(new ClientMessage("Image",new JsonObject() { { "filename", "travelerLoaded.png" }, { "timeout",3} }));
                         if (CurrentStation.Type == "tablePack" && !SelectedItem.CartonPrinted)
                         {
                             SelectedTraveler.PrintLabel(SelectedItem.ID, LabelType.Pack);

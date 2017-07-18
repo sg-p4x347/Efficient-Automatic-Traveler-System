@@ -305,6 +305,9 @@ function Application () {
 	this.CloseAll = function () {
 		this.popupManager.CloseAll();
 	}
+	this.Image = function (params) {
+		this.popupManager.Image(params.filename,params.timeout);
+	}
 	// displays a station checklist
 	this.checklistSubmits = 0;
 	this.DisplayChecklist = function (list) {
