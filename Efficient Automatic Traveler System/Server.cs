@@ -135,8 +135,11 @@ namespace Efficient_Automatic_Traveler_System
                     List<Box> post = new List<Box>(TravelerManager.GetTravelers.OfType<Box>());
                     Server.WriteLine("Created " + post.Count(p => !pre.Contains(p)) + " Box travelers");
                     break;
+                case "relinkOrders":
+                    RelinkOrders();
+                    break;
                 default:
-                    Console.WriteLine("Invalid; commands are [update, reset]");
+                    Console.WriteLine("Invalid; commands are [update, reset, CreateBoxTravelers]");
                     break;
             }
             GetInputAsync();
@@ -255,7 +258,7 @@ namespace Efficient_Automatic_Traveler_System
             Backup();
             Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
         }
-        public void CreateTravelers(bool consolodate = true, bool consolidatePriorityCustomers = true, List<Order> orders = null,Action<double> ReportProgress = null)
+        public void CreateTravelers(bool tables = true, bool consolodate = true, bool consolidatePriorityCustomers = true, List<Order> orders = null,Action<double> ReportProgress = null)
         {
             try
             {
@@ -264,7 +267,7 @@ namespace Efficient_Automatic_Traveler_System
                     // first, sort the orders by priority customer
                     orders.Sort((a, b) => a.CompareTo(b));
                     // Create, and combine all travelers
-                    List<Traveler> newTravelers = m_travelerManager.CompileTravelers(consolodate, consolidatePriorityCustomers, orders);
+                    List<Traveler> newTravelers = m_travelerManager.CompileTravelers(tables, consolodate, consolidatePriorityCustomers, orders);
 
                     // Finalize the travelers by importing external information
                     m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS,newTravelers,ReportProgress);
@@ -389,6 +392,28 @@ namespace Efficient_Automatic_Traveler_System
             config.WriteLine("};");
             config.Close();
         }
+
+        // Hot fixes
+        private void RelinkOrders()
+        {
+            foreach (Traveler traveler in m_travelerManager.GetTravelers)
+            {
+                foreach (Order parentOrder in traveler.ParentOrders)
+                {
+                    foreach (OrderItem item in parentOrder.Items.Where(i => i.ItemCode == traveler.ItemCode))
+                    {
+                        if (item.ChildTraveler == -1)
+                        {
+                            // assign this order item to this traveler
+                            item.ChildTraveler = traveler.ID;
+                            WriteLine("Relinked order: " + parentOrder.SalesOrderNo + " to traveler: " + traveler.PrintID() + " (" + traveler.ItemCode + ")");
+                        }
+                    }
+                }
+            }
+            Backup();
+        }
+
         // HTTP file serving
         private void Listen()
         {

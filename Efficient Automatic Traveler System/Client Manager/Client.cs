@@ -753,11 +753,18 @@ namespace Efficient_Automatic_Traveler_System
         }
         protected virtual void SelectItem(TravelerItem item)
         {
+            if (SelectedItem != null) DeselectItem();
             SelectedItem = item;
-            SelectedTraveler = item.Parent;
+            SelectTraveler(item.Parent);
         }
         protected virtual void SelectTraveler(Traveler traveler)
         {
+            if (SelectedTraveler != null)
+            {
+                LastSelectedTraveler = SelectedTraveler;
+                SelectedTraveler = null;
+                UpdateUI();
+            }
             SelectedTraveler = traveler;
         }
         protected virtual void SearchItem(TravelerItem item)
@@ -850,8 +857,28 @@ namespace Efficient_Automatic_Traveler_System
                     form.Selection("source", "Source", new List<string>() { "vendor", "production" }, "production");
                     form.Selection("reason", "Reason", productionReasons.ToList().Concat(vendorReasons.ToList()).ToList());
                     form.Checkbox("startedWork", "Started Work", false);
-
+                    form.Textbox("comment", "Comment");
                     return form.Dispatch("FlagItem");
+                }
+                return new ClientMessage("Info", "Selected item was null");
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error loading rework form");
+            }
+        }
+        public ClientMessage ReworkItemForm(string json)
+        {
+            try
+            {
+                if (SelectedItem != null)
+                {
+                    Form form = new Form();
+                    form.Title = "Rework " + SelectedItem.PrintID();
+                    form.Selection("station", "Station",StationClass.GetStations().Select(s => s.Name).ToList());
+
+                    return form.Dispatch("ReworkItem");
                 }
                 return new ClientMessage("Info", "Selected item was null");
             }
@@ -928,13 +955,7 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     // IF flagged
                     text = "Item flagged";
-                    if (CurrentStation != null && SelectedItem.BeenProcessedBy(CurrentStation.Type))
-                    {
-                        options.Add("Rework Now", "Rework");
-                    }
-                    options.Add("Deflag Item", "DeflagItemForm");
                     options.Add("View Details", "ViewFlagDetails");
-                    if (this is SupervisorClient) options.Add("Scrap Item", "ScrapItem");
                     options.Add("Close", "CloseAll");
                 }
             }
@@ -981,7 +1002,20 @@ namespace Efficient_Automatic_Traveler_System
                 if (SelectedItem != null)
                 {
                     Documentation flagEvent = SelectedItem.History.OfType<Documentation>().Last(e => e.LogType == LogType.FlagItem);
-                    return new ControlPanel("Flagged details",ControlPanel.CreateDictionary(flagEvent.ExportViewProperties())).Dispatch();
+                    Column column = new Column()
+                    {
+                        ControlPanel.CreateDictionary(flagEvent.ExportViewProperties())
+                    };
+
+                    Dictionary<string, string> options = new Dictionary<string, string>();
+                    if (this is SupervisorClient) {
+                        options.Add("Rework Now", "ReworkItemForm");
+                        options.Add("Deflag Item", "DeflagItemForm");
+                        options.Add("Scrap Item", "ScrapItem");
+                    }
+                    
+                    column.Add(ControlPanel.Options("Options", options));
+                    return new ControlPanel("Flagged details",column).Dispatch();
                 }
                 return new ClientMessage();
             }
@@ -1006,6 +1040,24 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error scrapping item");
+            }
+        }
+        public ClientMessage ReworkItem(string json)
+        {
+            try
+            {
+                Form form = new Form(json);
+                StationClass station = StationClass.GetStation(form.ValueOf("station"));
+                if (SelectedItem != null && station != null)
+                {
+                    SelectedItem.Rework(m_user, station);
+                }
+                return new ClientMessage();
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error reworking item");
             }
         }
         public void ReportProgress(double percent)

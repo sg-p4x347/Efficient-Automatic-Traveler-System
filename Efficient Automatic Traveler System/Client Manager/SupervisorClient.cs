@@ -560,7 +560,13 @@ namespace Efficient_Automatic_Traveler_System
                     items.Add(new Expand());
                     foreach (TravelerItem item in traveler.Items)
                     {
-                        items.Add(new Button(traveler.PrintSequenceID(item), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}"));
+                        Style style = new Style();
+                        switch (item.GlobalState)
+                        {
+                            case GlobalItemState.InProcess: style = new Style("redBack");break;
+                            case GlobalItemState.Finished: style = new Style("greenBack");break;
+                        }
+                        items.Add(new Button(traveler.PrintSequenceID(item), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}", style));
                     }
                     fields.Add(
                         new Row(style: spaceBetween)
@@ -862,6 +868,10 @@ namespace Efficient_Automatic_Traveler_System
                         new TextNode("Log type",style: new Style("leftAlign")), new TextNode(log.LogType.ToString(),style: new Style("white","rightAlign","shadow"))
                         }
                     );
+                    if (evt is Documentation)
+                    {
+                        fields.Add(ControlPanel.CreateDictionary(evt.ExportViewProperties()));
+                    }
                 }
                 return new ControlPanel(traveler.PrintSequenceID(item) + " Event", fields).Dispatch(false);
             }
@@ -954,6 +964,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Form form = new Form();
                 form.Title = "Filter orders";
+                form.Checkbox("tables", "Tables", true);
                 form.Textbox("order", "Order Number");
                 form.Date("before", "Ship Before");
                 form.Date("orderBefore", "Order Before");
@@ -1009,7 +1020,7 @@ namespace Efficient_Automatic_Traveler_System
                     orders.RemoveAll(o => o.CustomerNo != form.ValueOf("customer"));
                 }
                 SendMessage(new ClientMessage("Updating","".Quotate()).ToString());
-                Program.server.CreateTravelers(consolidate, consolidatePriorityCustomers, orders,delegate(double percent)
+                Program.server.CreateTravelers(Convert.ToBoolean(form.ValueOf("tables")),consolidate, consolidatePriorityCustomers, orders,delegate(double percent)
                 {
                     ReportProgress(percent);
                 });
@@ -1496,7 +1507,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return new ControlPanel("Travelers", column).Dispatch();
         }
-        public ClientMessage SearchSubmitted(string json)
+        public new ClientMessage SearchSubmitted(string json)
         {
             try
             {
@@ -1505,14 +1516,14 @@ namespace Efficient_Automatic_Traveler_System
                 //string[] parts = obj["searchPhrase"].Split('-');
 
                 string[] parts = searchPhrase.Split('-');
-                if (parts.Length == 2) {
+                if (parts.Length == 1 || parts.Length == 2) {
                     int travelerID;
                     if (int.TryParse(parts[0],out travelerID)) {
                         Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
                         if (traveler != null)
                         {
                             ushort itemID;
-                            if (ushort.TryParse(parts[1],out itemID))
+                            if (parts.Length == 2 && ushort.TryParse(parts[1],out itemID))
                             {
                                 TravelerItem item = traveler.FindItem(itemID);
                                 if (item != null)

@@ -124,6 +124,8 @@ namespace Efficient_Automatic_Traveler_System
             list.Add("Color", new TextNode(Color));
             list.Add("Banding", new TextNode(BandingColor));
             list.Add("Pallet size", new TextNode(PalletSize));
+            List<Item> purchasedBoxes = PurchasedBoxes();
+            //if (purchasedBoxes.Any()) list.Add("Purchased box", new TextNode(JSON.Parse(purchasedBoxes.Select(i => i.ItemCode).ToList().Stringify()).Humanize()));
             return list;
         }
         public override string ExportHuman()
@@ -363,28 +365,57 @@ namespace Efficient_Automatic_Traveler_System
         // Create a box traveler
         public void CreateBoxTraveler()
         {
-            m_boxCounter++;
-
-            int qtyQueued = ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
-            int applicableQty = Items.Count(i => !i.Scrapped);
-            int boxTravelerSize = ConfigManager.GetJSON("boxTravelerSize");
-
-            if (m_boxCounter >= boxTravelerSize || (Quantity - Items.Count(i => !i.Scrapped)) - qtyQueued < boxTravelerSize)
+            if (!BulkPack() && !PurchasedBoxes().Any())
             {
-                m_boxCounter -= boxTravelerSize;
-                int boxQty = Math.Max(0, Math.Min(applicableQty - qtyQueued, boxTravelerSize));
-                if (!BulkPack() && boxQty > 0)
+                //m_boxCounter--;
+
+                int qtyQueued = ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+                int applicableQty = Math.Max(Quantity,Items.Count(i => !i.Scrapped));
+
+                int qtyCovered = Items.Count(i => i.BeenProcessedBy("contourEdgebander"));
+                int boxTravelerSize = ConfigManager.GetJSON("boxTravelerSize");
+
+                if (qtyCovered > qtyQueued)
                 {
-                    TableBox box = new TableBox(this);
+                    int boxQty = Math.Max(0, Math.Min(applicableQty - qtyQueued, boxTravelerSize));
+                    if (boxQty > 0)
+                    {
+                        TableBox box = new TableBox(this);
 
-                    box.Quantity = boxQty;
-                    box.EnterProduction(Server.TravelerManager);
-                    Server.TravelerManager.GetTravelers.Add(box);
+                        box.Quantity = boxQty;
+                        box.EnterProduction(Server.TravelerManager);
+                        Server.TravelerManager.GetTravelers.Add(box);
 
-                    AddChild(box);
+                        AddChild(box);
+                    }
                 }
             }
+            //if (!PurchasedBoxes().Any())
+            //{
+            //    m_boxCounter--;
+
+            //    int qtyQueued = ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
+            //    int applicableQty = Items.Count(i => !i.Scrapped);
+            //    int boxTravelerSize = ConfigManager.GetJSON("boxTravelerSize");
+
+            //    if (m_boxCounter <= 0 || (Quantity - Items.Count(i => !i.Scrapped)) - qtyQueued < boxTravelerSize)
+            //    {
+            //        m_boxCounter += boxTravelerSize;
+            //        int boxQty = Math.Max(0, Math.Min(applicableQty - qtyQueued, boxTravelerSize));
+            //        if (!BulkPack() && boxQty > 0)
+            //        {
+            //            TableBox box = new TableBox(this);
+
+            //            box.Quantity = boxQty;
+            //            box.EnterProduction(Server.TravelerManager);
+            //            Server.TravelerManager.GetTravelers.Add(box);
+
+            //            AddChild(box);
+            //        }
+            //    }
+            //}
         }
+       
         public bool BulkPack()
         {
             return ItemCode.Contains('U');
@@ -452,6 +483,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 line = colorRef.ReadLine();
             }
+            if (Color == "") Server.WriteLine("No color definition for " + ItemCode);
             colorRef.Close();
         }
         // calculate how many actual tables will be produced from the blanks
@@ -802,7 +834,15 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        
+        private List<Item> PurchasedBoxes()
+        {
+            List<Item> boxes = new List<Item>();
+            if (!CommonBill.ComponentItems.Exists(i => StationClass.GetStation("Box").LaborCodes.Exists(l => l == i.ItemCode)))
+            {
+                boxes = CommonBill.ComponentItems.Where(comp => Box.IsBox(comp.ItemCode)).ToList();
+            }
+            return boxes;
+        }
         #endregion
         //--------------------------------------------------------
         #region Properties

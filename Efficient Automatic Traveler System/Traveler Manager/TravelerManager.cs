@@ -63,7 +63,7 @@ namespace Efficient_Automatic_Traveler_System
             m_orderManager = orderManager;
         }
         // returns list of new travelers
-        public List<Traveler> CompileTravelers(bool consolodate, bool consolidatePriorityCustomers,  List<Order> orders)
+        public List<Traveler> CompileTravelers(bool tables, bool consolodate, bool consolidatePriorityCustomers,  List<Order> orders)
         {
             List<Traveler> newTravelers = new List<Traveler>();
             int index = 0;
@@ -71,7 +71,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (order.Status == OrderStatus.Open)
                 {
-                    foreach (OrderItem item in order.Items.Where(i => i.ItemStatus == OrderStatus.Open))
+                    foreach (OrderItem item in order.Items.Where(i => i.ItemStatus == OrderStatus.Open && (!tables || Traveler.IsTable(i.ItemCode))))
                     {
                         // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
                         if (item.ChildTraveler < 0)
@@ -300,13 +300,13 @@ namespace Efficient_Automatic_Traveler_System
         public void RemoveTraveler(Traveler traveler, bool backup = true)
         {
             // remove itself from order items
-            foreach (Order parentOrder in traveler.ParentOrders)
-            {
-                foreach (OrderItem item in parentOrder.FindItems(traveler.ID))
-                {
-                    item.ChildTraveler = -1;
-                }
-            }
+            //foreach (Order parentOrder in traveler.ParentOrders)
+            //{
+            //    foreach (OrderItem item in parentOrder.FindItems(traveler.ID))
+            //    {
+            //        item.ChildTraveler = -1;
+            //    }
+            //}
             foreach (Traveler child in traveler.ChildTravelers)
             {
                 traveler.ChildTravelers.Remove(child);

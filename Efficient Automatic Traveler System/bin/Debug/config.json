@@ -34,16 +34,15 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"136762",
-	"nextEventID":"7981",
-	"boxTravelerSize":2,
+	"nextTravelerID":"143437",
+	"nextEventID":"8204",
+	"boxTravelerSize":5,
 	"scrapReport":{
 		"vendor":[
 			"SCRATCHES/DENTS/CHIPS",
 			"OIL SPOTS",
 			"DEFORMED/PROFILE/BOW",
-			"DISCOLOR",
-			"OTHER"
+			"DISCOLOR"
 		],
 		"production":[
 			"MACHINE DAMAGE",
@@ -311,7 +310,7 @@
 			"type":"heian",
 			"mode":"Batch",
 			"printers":[
-				"4x2Heian2"
+				"4x2IT"
 			]
 		},
 		{

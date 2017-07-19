@@ -178,13 +178,13 @@ namespace Efficient_Automatic_Traveler_System
         #region Private methods
         public string ProductionCSV()
         {
-
             //--------------------------------------------
             string webLocation = "./production.csv";
             DataTable summary = new DataTable();
             summary.Columns.Add(new DataColumn("ItemCode"));
             summary.Columns.Add(new DataColumn("Quantity"));
             summary.Columns.Add(new DataColumn("Date"));
+            summary.Columns.Add(new DataColumn("Travelers"));
             foreach (string itemCode in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ItemCode).Distinct())
             {
                 int qty = Server.TravelerManager.GetTravelers.Where(t => 
@@ -194,6 +194,8 @@ namespace Efficient_Automatic_Traveler_System
                     row["ItemCode"] = itemCode;
                     row["Quantity"] = qty;
                     row["Date"] = DateTime.Today.ToString("MM/dd/yyyy");
+                    row["Travelers"] = Server.TravelerManager.GetTravelers.Where(t =>
+                    t.ItemCode == itemCode && t.Items.Exists(i => i.BeenCompletedDuring(DateTime.Today))).Select(t => t.ID).ToList().Stringify();
                     summary.Rows.Add(row);
                 }
             }
@@ -239,6 +241,22 @@ namespace Efficient_Automatic_Traveler_System
             //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
             // add each detail for each traveler
             List<string> fields = new List<string>() {"Item","Part", "User","Station","Date","Time","Started Work","Source","Reason" };
+
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("Item ID"));
+            summary.Columns.Add(new DataColumn("ItemCode"));
+            summary.Columns.Add(new DataColumn("User"));
+            summary.Columns.Add(new DataColumn("Station"));
+            summary.Columns.Add(new DataColumn("Date"));
+            summary.Columns.Add(new DataColumn("Time invested"));
+            summary.Columns.Add(new DataColumn("Started Work"));
+            summary.Columns.Add(new DataColumn("Source"));
+            summary.Columns.Add(new DataColumn("Reason"));
+
+            foreach (TravelerItem item in Server.TravelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Scrapped)))
+            {
+
+            }
             List<Dictionary<string, string>> scrapped = new List<Dictionary<string, string>>();
             foreach (Traveler traveler in m_travelers)
             {

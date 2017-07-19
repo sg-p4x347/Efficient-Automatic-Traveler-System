@@ -18,6 +18,10 @@ namespace Efficient_Automatic_Traveler_System
     public class Box : Traveler
     {
         #region Public Methods
+        public static bool IsBox(string itemCode)
+        {
+            return itemCode.Length >= 2 && itemCode.Substring(0, 2) == "90";
+        }
         public Box() : base()
         {
             Station = StationClass.GetStation("Box");

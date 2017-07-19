@@ -224,7 +224,7 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("ID", (item != null ? traveler.PrintSequenceID(item) : traveler.ID.ToString("D6")).Quotate());
             if (item != null) obj.Add("itemMembers", item.ExportTableRows(CurrentStation));
 
-            Column TravelerView = TravelerView()
+            Column travelerView = TravelerView(traveler,item);
             // buttons
             if (item != null && CurrentStation.Type == "tablePack")
             {
