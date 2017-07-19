@@ -34,9 +34,12 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void PushNotification(string subject, string body)
         {
-            foreach (MailAddress subscriber in m_mailingList)
+            if (!ConfigManager.GetJSON("debug"))
             {
-                SendMail(subject, body, subscriber);
+                foreach (MailAddress subscriber in m_mailingList)
+                {
+                    SendMail(subject, body, subscriber);
+                }
             }
         }
         #endregion

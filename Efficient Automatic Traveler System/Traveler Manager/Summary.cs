@@ -203,6 +203,38 @@ namespace Efficient_Automatic_Traveler_System
 
             return webLocation;
         }
+        public string PartialProductionCSV()
+        {
+            //--------------------------------------------
+            string webLocation = "./partial production.csv";
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("ItemCode"));
+            summary.Columns.Add(new DataColumn("Travelers"));
+            foreach (string station in StationClass.GetStations().Select(s => s.Name))
+            {
+                summary.Columns.Add(new DataColumn(station));
+            }
+            foreach (string itemCode in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ItemCode).Distinct())
+            {
+                foreach (StationClass station in StationClass.GetStations())
+                {
+                    int qty = Server.TravelerManager.GetTravelers.Where(t =>
+                        t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.BeenCompletedAtDuring(station,DateTime.Today)));
+                    if (qty > 0)
+                    {
+                        DataRow row = summary.NewRow();
+                        row["ItemCode"] = itemCode;
+                        row["Travelers"] = Server.TravelerManager.GetTravelers.Where(t =>
+                        t.ItemCode == itemCode && t.Items.Exists(i => i.BeenCompletedAtDuring(station,DateTime.Today))).Select(t => t.ID).ToList().Stringify();
+                        summary.Rows.Add(row);
+                        row[station.Name] = qty;
+                    }
+                }
+            }
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "partial production.csv"), summary.ToCSV());
+
+            return webLocation;
+        }
         public static string HumanizeDictionary<Tkey,TValue>(Dictionary<Tkey,TValue> dictionary)
         {
             string result = "";
@@ -264,8 +296,8 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (scrap.Scrapped)
                     {
-                        ScrapEvent scrapEvent = scrap.History.OfType<ScrapEvent>().ToList().First();
-                        if (scrapEvent.Date >= DateTime.Today)
+                        ScrapEvent scrapEvent = scrap.History.OfType<ScrapEvent>().ToList().FirstOrDefault();
+                        if (scrapEvent != null && scrapEvent.Date >= DateTime.Today)
                         {
                             scrapped.Add(Summary.ScrapDetail(traveler,scrap));
                         }

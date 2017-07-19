@@ -112,6 +112,17 @@ namespace Efficient_Automatic_Traveler_System
         private async void GetInputAsync()
         {
             string input = await Task.Run(() => Console.ReadLine());
+            string[] commands =
+            {
+                "update",
+                "backup",
+                "reset",
+                "configure",
+                "CreateBoxTravelers",
+                "relinkOrders",
+                "complete",
+                "printLabels"
+            };
             switch (input)
             {
                 case "update":
@@ -152,18 +163,48 @@ namespace Efficient_Automatic_Traveler_System
                                 {
                                     for (int i = traveler.QuantityPendingAt(traveler.Station); i > 0; i--)
                                     {
-                                        traveler.AddItem(traveler.Station);
+                                        traveler.AddItem(traveler.Station, parts.Length >= 3 ? parts[2] : "");
                                     }
+                                    m_travelerManager.Backup();
                                     Server.WriteLine("The deed is done.");
                                     break;
                                 }
                             }
                         }
                         Server.WriteLine("Please enter a valid traveler ID");
+                    } else if (input.Contains("printLabels"))
+                    {
+                        // [command] [traveler] [from item id] [to item id] [printer]
+                        string[] parts = input.Split(' ');
+                        if (parts.Length >= 5)
+                        {
+                            int travelerID;
+                            if (int.TryParse(parts[1], out travelerID))
+                            {
+                                Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
+                                if (traveler != null)
+                                {
+                                    ushort fromID;
+                                    ushort toID;
+                                    if (ushort.TryParse(parts[2], out fromID) && ushort.TryParse(parts[3], out toID)) {
+                                        for (ushort i = fromID; i <= toID; i++)
+                                        {
+                                            TravelerItem item = traveler.FindItem(i);
+                                            if (item != null)
+                                            {
+                                                Thread.Sleep(2000);
+                                                traveler.PrintLabel(i, LabelType.Tracking, printer: parts[4]);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Server.WriteLine("Invalid parameter list");
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("Invalid; commands are [update, reset, CreateBoxTravelers]");
+                        Console.WriteLine("Invalid; commands are " + commands.ToList().Stringify());
 
                     }
                     break;

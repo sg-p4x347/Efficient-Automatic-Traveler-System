@@ -199,7 +199,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             foreach (Table table in new List<Table>(m_travelers.OfType<Table>()))
             {
-                table.CreateBoxTraveler();
+                table.CreateBoxTraveler(true);
             }
             OnTravelersChanged();
         }

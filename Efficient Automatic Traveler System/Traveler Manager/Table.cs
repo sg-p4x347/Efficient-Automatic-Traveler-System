@@ -362,8 +362,8 @@ namespace Efficient_Automatic_Traveler_System
             }
             return total;
         }
-        // Create a box traveler
-        public void CreateBoxTraveler()
+        // Create a box traveler returns true when enough boxes supplied
+        public bool CreateBoxTraveler(bool all = false)
         {
             if (!BulkPack() && !PurchasedBoxes().Any())
             {
@@ -373,7 +373,7 @@ namespace Efficient_Automatic_Traveler_System
                 int applicableQty = Math.Max(Quantity,Items.Count(i => !i.Scrapped));
 
                 int qtyCovered = Items.Count(i => i.BeenProcessedBy("contourEdgebander"));
-                int boxTravelerSize = ConfigManager.GetJSON("boxTravelerSize");
+                int boxTravelerSize = (all ? int.MaxValue : (int)ConfigManager.GetJSON("boxTravelerSize"));
 
                 if (qtyCovered > qtyQueued)
                 {
@@ -388,8 +388,10 @@ namespace Efficient_Automatic_Traveler_System
 
                         AddChild(box);
                     }
+                    return true;
                 }
             }
+            return false;
             //if (!PurchasedBoxes().Any())
             //{
             //    m_boxCounter--;
@@ -424,9 +426,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             base.EnterProduction(travelerManager);
         }
-        public override string PrintLabel(ushort itemID, LabelType type, int? qty, bool forcePrint = false,StationClass station = null)
+        public override string PrintLabel(ushort itemID, LabelType type, int? qty, bool forcePrint = false,StationClass station = null, string printer = "")
         {
-            return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint,station);
+            return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint,station, printer);
         }
         public override bool HasDrawing()
         {

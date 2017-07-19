@@ -152,7 +152,9 @@ namespace Efficient_Automatic_Traveler_System
                         }
                         else if (GlobalState == GlobalItemState.InProcess)
                         {
-                            if (traveler.QuantityPendingAt(station) > 0 || traveler.QuantityInProcessAt(station) > 0) travelers.Add(traveler);
+                            if (traveler.QuantityInProcessAt(station) > 0 
+                                || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)
+                                || traveler.QuantityCompleteAt(station) > 0) travelers.Add(traveler);
                             //if (traveler.State == GlobalItemState.InProcess && traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
                         }
                         else
@@ -581,6 +583,7 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("More Info","LoadTravelerJSON",returnParam),
                     new Button("Disintegrate","DisintegrateTraveler",returnParam),
                     new Button("Enter Production","EnterProduction",returnParam),
+                    new Button("Finish","Finish",returnParam),
                     new Button("Add Comment","AddComment")
                 };
 
@@ -923,6 +926,7 @@ namespace Efficient_Automatic_Traveler_System
                     new TextNode("Download"),
                     new Button("Pre-Process Tables","DownloadSummary",@"{""sort"":""PreProcess"",""type"":""Table""}"),
                     new Button("Production Report", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Partial Production", "ExportPartialProduction",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("Scrap Report", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("User Report", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}"),
                     new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}"),
@@ -1045,7 +1049,6 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
                 return new ClientMessage("Info", "Error clearing start queue");
             }
-
         }
         public ClientMessage RefactorTravelers(string json)
         {
@@ -1173,7 +1176,6 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error Disintegrating traveler");
             }
         }
-
         public ClientMessage EnterProduction(string json)
         {
             if (m_current != null) m_selected.Add(m_current);
@@ -1187,7 +1189,44 @@ namespace Efficient_Automatic_Traveler_System
             Server.TravelerManager.OnTravelersChanged();
             return new ClientMessage();
         }
+        public ClientMessage Finish(string json)
+        {
+            try
+            {
 
+                if (SelectedTraveler != null)
+                {
+
+                    foreach (TravelerItem item in SelectedTraveler.Items)
+                    {
+                        if (!item.Finished)
+                        {
+                            item.Finish(m_user,false);
+                        }
+                    }
+                    SelectedTraveler.UpdateState();
+                    Server.TravelerManager.OnTravelersChanged(SelectedTraveler);
+                }
+                
+                if (SelectedTraveler != null && SelectedTraveler.Finished)
+                {
+                    return new ClientMessage("Info", "Successfully finished all items");
+                }
+                else
+                {
+                    return new ClientMessage("Info", "Successfully finished existing items");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                m_selected.Clear();
+                m_current = null;
+                CloseAllPopups();
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error Disintegrating traveler");
+            }
+        }
         public ClientMessage DownloadSummary(string json)
         {
             return m_travelerManager.DownloadSummary(json);
@@ -1283,7 +1322,7 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> parameters = new StringStream(obj["parameters"]).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parameters["travelerID"]));
                 int qty = Convert.ToInt32(form.ValueOf("quantity"));
-                return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(parameters["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), form.ValueOf("labelType")), qty > 0 ? qty : 1, true));
+                return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(parameters["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), form.ValueOf("labelType")), qty > 0 ? qty : 1, true,printer:form.ValueOf("printer")));
 
             }
             catch (Exception ex)
@@ -1300,6 +1339,23 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
                 Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
                 string downloadLocation = summary.ProductionCSV();
+                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+        public ClientMessage ExportPartialProduction(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                string downloadLocation = summary.PartialProductionCSV();
                 returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
             }
             catch (Exception ex)

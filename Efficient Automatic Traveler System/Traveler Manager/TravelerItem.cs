@@ -363,7 +363,7 @@ namespace Efficient_Automatic_Traveler_System
             History.Add(new Documentation(user, LogType.DeflagItem, form, Station));
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void Finish(User user)
+        public void Finish(User user,bool sync = true)
         {
             LocalState = LocalItemState.PostProcess;
             GlobalState = GlobalItemState.Finished;
@@ -373,7 +373,7 @@ namespace Efficient_Automatic_Traveler_System
             Parent.UpdateState();
             // add this item to inventory
             InventoryManager.Add(ItemCode);
-            Server.TravelerManager.OnTravelersChanged(Parent);
+            if (sync) Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public void Undo()
         {
@@ -446,6 +446,11 @@ namespace Efficient_Automatic_Traveler_System
         public bool BeenCompletedDuring(DateTime date)
         {
             return History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish && e.Date.Day == date.Date.Day);
+        }
+        // returns true if the item was completed at the station on the given date
+        public bool BeenCompletedAtDuring(StationClass station ,DateTime date)
+        {
+            return History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed && e.Date.Day == date.Date.Day);
         }
         public bool CurrentFlagEvent(out Documentation flagEvent)
         {

@@ -371,12 +371,13 @@ namespace Efficient_Automatic_Traveler_System
                                     // UPDATING... popup
                                     SendMessage(new ClientMessage("Updating").ToString());
                                     // Await the slow operation
-                                    ClientMessage reutrnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                                    string messageString = reutrnMessage.ToString();
+                                    ClientMessage returnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { obj["parameters"] }));
+                                    string messageString = returnMessage.ToString();
                                     if (messageString != "") SendMessage(messageString);
                                 }
                                 else
                                 {
+                                    
                                     ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
                                     string messageString = returnMessage.ToString();
                                     if (messageString != "") SendMessage(messageString);
@@ -405,7 +406,6 @@ namespace Efficient_Automatic_Traveler_System
                 // something went wrong, it is best to just listen for a new message
                 ListenAsync();
             }
-            
         }
         protected void LostConnection()
         {

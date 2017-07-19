@@ -35,8 +35,15 @@ namespace Efficient_Automatic_Traveler_System
         {
             Server.WriteLine("Client manager started");
             m_server.Start();
-            ConnectAsync();
             Poll();
+            ConnectClients();
+        }
+        public async void ConnectClients()
+        {
+            while (true)
+            {
+                await ConnectAsync();
+            }
         }
         public void HandleTravelersChanged(List<Traveler> travelers) {
             for( int i = 0; i < m_clients.Count; i++)
@@ -91,7 +98,7 @@ namespace Efficient_Automatic_Traveler_System
             }, null, timeToGo, Timeout.InfiniteTimeSpan);
         }
         // Recursive async function that connects and adds websocket clients
-        private async void ConnectAsync()
+        private async Task ConnectAsync()
         {
             
             // Wait for a client to connect
@@ -136,7 +143,6 @@ namespace Efficient_Automatic_Traveler_System
                 }
 
             }
-            ConnectAsync();
         }
         // returns true if the handshake was successful, else false
         private bool HandShake(TcpClient tcpClient)

@@ -195,7 +195,7 @@ namespace Efficient_Automatic_Traveler_System
             return obj.Stringify();
         }
         // print a label for this traveler
-        public virtual string PrintLabel(ushort itemID, LabelType type, int? qty = null, bool forcePrint = false, StationClass station = null)
+        public virtual string PrintLabel(ushort itemID, LabelType type, int? qty = null, bool forcePrint = false, StationClass station = null, string printer = "")
         {
             string result = "";
             try
@@ -206,37 +206,40 @@ namespace Efficient_Automatic_Traveler_System
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
                     string json = "{";
                     string fields = GetLabelFields(itemID, type);
-                    string printer = "";
                     string template = "";
                     // TEMP
                     //type = LabelType.Test;
                     string size = "";
                     switch (type)
                     {
-                        case LabelType.Tracking:    template = "4x2 Table Travel1";             break; // 4x2Pack --> in hall
-                        case LabelType.Scrap:       template = "4x2 Table Scrap1";              break;
-                        case LabelType.Pack:        template = "4x2 Table Carton EATS";
+                        case LabelType.Tracking: template = "4x2 Table Travel1"; break; // 4x2Pack --> in hall
+                        case LabelType.Scrap: template = "4x2 Table Scrap1"; break;
+                        case LabelType.Pack:
+                            template = "4x2 Table Carton EATS";
                             if (qty == null)
                             {
                                 qty = 2;
                             }
                             break;
-                        case LabelType.Table:       template = "4x6 Table EATS";                break;
-                        case LabelType.Chair:       template = "4x2 EdChair EATS";              break;
-                        case LabelType.ChairCarton: template = "4x6 EdChair Pack Carton EATS";  break;
-                        case LabelType.Box:         template = "4x2 Table Travel Box";          break;
+                        case LabelType.Table: template = "4x6 Table EATS"; break;
+                        case LabelType.Chair: template = "4x2 EdChair EATS"; break;
+                        case LabelType.ChairCarton: template = "4x6 EdChair Pack Carton EATS"; break;
+                        case LabelType.Box: template = "4x2 Table Travel Box"; break;
                     }
                     if (qty == null) qty = 1;
                     size = template.Substring(0, 3).ToLower();
                     if (station == null) station = item.Station;
-                    printer = station.Printers.Find(x => x.ToLower().Contains(size));
                     if (printer == "")
                     {
-                        throw new Exception("Could not find a " + size + " printer for this station when printing a [" + template + "] , check the config.json file for a printer listing on this station");
-                    }
-                    if (Convert.ToBoolean(ConfigManager.Get("debug")))
-                    {
-                        printer = "4x2IT";
+                        printer = station.Printers.Find(x => x.ToLower().Contains(size));
+                        if (printer == "")
+                        {
+                            throw new Exception("Could not find a " + size + " printer for this station when printing a [" + template + "] , check the config.json file for a printer listing on this station");
+                        }
+                        if (Convert.ToBoolean(ConfigManager.Get("debug")))
+                        {
+                            printer = "4x2IT";
+                        }
                     }
                     //switch (type)
                     //{
@@ -253,14 +256,18 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"template\":\"" + template + "\"";
                     json += ",\"qty\":" + qty.Value;
                     json += '}';
-                    Dictionary < string, string> labelConfigs = (new StringStream(ConfigManager.Get("print"))).ParseJSON();
+                    Dictionary<string, string> labelConfigs = (new StringStream(ConfigManager.Get("print"))).ParseJSON();
                     // only print if the config says so
                     if (forcePrint || (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()])))
                     {
                         result = client.UploadString(new StringStream(ConfigManager.Get("labelServer")).ParseJSON()["address"], "POST", json);
                         result += " at " + printer + " printer";
-                        Server.WriteLine(result);
-                    } else
+                        if (ConfigManager.GetJSON("debug"))
+                        {
+                            Server.WriteLine(result);
+                        }
+                    }
+                    else
                     {
                         result = type.ToString() + " Labels disabled";
                     }
@@ -374,7 +381,7 @@ namespace Efficient_Automatic_Traveler_System
         //        AdvanceItem(item.ID, travelerManager);
         //    }
         //}
-        public TravelerItem AddItem(StationClass station,string printer = null)
+        public TravelerItem AddItem(StationClass station,string printer = "")
         {
             // find the highest id
             // and find the smallest available sequence number
@@ -413,7 +420,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 labelType = LabelType.Box;
             }
-            PrintLabel(newItem.ID, labelType);
+            PrintLabel(newItem.ID, labelType,printer:printer);
             //if (station.CreatesThis(this) && this is Table)
             //{
             //    int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
@@ -490,6 +497,10 @@ namespace Efficient_Automatic_Traveler_System
         public int QuantityScrappedAt(StationClass station)
         {
             return Items.Where(x => x.Station == station && x.History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Scrapped)).Count();
+        }
+        public int QuantityCompleteAt(StationClass station)
+        {
+            return Items.Count(x => x.Station == station && x.LocalState == LocalItemState.PostProcess);
         }
         public int QuantityCompletedAt(StationClass station, DateTime date)
         {

@@ -27,7 +27,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_date = DateTime.Now;
             m_id = Convert.ToInt32(ConfigManager.Get("nextEventID"));
-            ConfigManager.Set("nextEventID", (m_id + 1).ToString());
+            //ConfigManager.Set("nextEventID", (m_id + 1).ToString());
         }
         public override string ToString()
         {
