@@ -729,19 +729,7 @@ namespace Efficient_Automatic_Traveler_System
                         // add a flag event
                         item.Start(m_user, CurrentStation);
 
-                        // this is Table pack station, print Table label on search submission
-                        if (SelectedTraveler is Table)
-                        {
-                            if (CurrentStation.Type == "tablePack")
-                            {
-                                item.Parent.PrintLabel(item.ID, LabelType.Table);
-                            }
-                            else if (CurrentStation.Type == "contourEdgebander")
-                            {
-
-                                (SelectedTraveler as Table).CreateBoxTraveler();
-                            }
-                        }
+                        
                     }
                     else if (SelectedItem != item)
                     {
@@ -749,12 +737,7 @@ namespace Efficient_Automatic_Traveler_System
                         // Second scan loads the item
                         // ******************************
                         LoadItem(item);
-                        SendMessage(new ClientMessage("Image",new JsonObject() { { "filename", "travelerLoaded.png" }, { "timeout",3} }));
-                        if (CurrentStation.Type == "tablePack" && !SelectedItem.CartonPrinted)
-                        {
-                            SelectedTraveler.PrintLabel(SelectedItem.ID, LabelType.Pack);
-                            SelectedItem.CartonPrinted = true;
-                        }
+                        //SendMessage(new ClientMessage("Image",new JsonObject() { { "filename", "travelerLoaded.png" }, { "timeout",3} }));
                     }
                     else
                     {

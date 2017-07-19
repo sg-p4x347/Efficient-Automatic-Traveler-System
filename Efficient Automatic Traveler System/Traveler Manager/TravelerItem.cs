@@ -55,8 +55,15 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     GlobalState = GlobalItemState.InProcess;
                 }
-                if (obj.ContainsKey("station")) Station = StationClass.GetStation(obj["station"]);
-                if (obj.ContainsKey("itemCode")) ItemCode = obj["itemCode"];
+                if (obj.ContainsKey("station"))
+                {
+                    Station = StationClass.GetStation(obj["station"]);
+                    if (Station == null)
+                    {
+                        var caught = "";
+                    }
+                }
+                    if (obj.ContainsKey("itemCode")) ItemCode = obj["itemCode"];
                 
                 //m_order = Server.OrderManager.FindOrder(obj["order"]);
                 History = new List<Event>();
@@ -222,7 +229,23 @@ namespace Efficient_Automatic_Traveler_System
             GlobalState = GlobalItemState.InProcess;
             Station = station;
             History.Add(new ProcessEvent(user, station, 0, ProcessType.Started));
-            
+            // this is Table pack station, print Table label on search submission
+            if (Parent is Table)
+            {
+                if (Station.Type == "tablePack")
+                {
+                    Parent.PrintLabel(ID, LabelType.Table);
+                    if (!CartonPrinted)
+                    {
+                        Parent.PrintLabel(ID, LabelType.Pack);
+                        CartonPrinted = true;
+                    }
+                }
+                else if (Station.Type == "contourEdgebander")
+                {
+                    (Parent as Table).CreateBoxTraveler();
+                }
+            }
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public bool GetStartEvent(StationClass station, out ProcessEvent start)

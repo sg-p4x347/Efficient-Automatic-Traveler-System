@@ -259,6 +259,7 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         result = client.UploadString(new StringStream(ConfigManager.Get("labelServer")).ParseJSON()["address"], "POST", json);
                         result += " at " + printer + " printer";
+                        Server.WriteLine(result);
                     } else
                     {
                         result = type.ToString() + " Labels disabled";
@@ -373,7 +374,7 @@ namespace Efficient_Automatic_Traveler_System
         //        AdvanceItem(item.ID, travelerManager);
         //    }
         //}
-        public TravelerItem AddItem(StationClass station)
+        public TravelerItem AddItem(StationClass station,string printer = null)
         {
             // find the highest id
             // and find the smallest available sequence number

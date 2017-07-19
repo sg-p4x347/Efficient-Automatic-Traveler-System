@@ -139,7 +139,33 @@ namespace Efficient_Automatic_Traveler_System
                     RelinkOrders();
                     break;
                 default:
-                    Console.WriteLine("Invalid; commands are [update, reset, CreateBoxTravelers]");
+                    if (input.Contains("complete"))
+                    {
+                        string[] parts = input.Split(' ');
+                        if (parts.Length >= 2)
+                        {
+                            int travelerID;
+                            if (int.TryParse(parts[1], out travelerID))
+                            {
+                                Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
+                                if (traveler != null)
+                                {
+                                    for (int i = traveler.QuantityPendingAt(traveler.Station); i > 0; i--)
+                                    {
+                                        traveler.AddItem(traveler.Station);
+                                    }
+                                    Server.WriteLine("The deed is done.");
+                                    break;
+                                }
+                            }
+                        }
+                        Server.WriteLine("Please enter a valid traveler ID");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid; commands are [update, reset, CreateBoxTravelers]");
+
+                    }
                     break;
             }
             GetInputAsync();

@@ -1530,10 +1530,16 @@ namespace Efficient_Automatic_Traveler_System
                                 {
                                     SendMessage(new ClientMessage("ClearSearch"));
                                     return ItemPopup(@"{""travelerID"":" + traveler.ID + @",""itemID"":" + itemID + "}");
+                                } else
+                                {
+                                    // Try to look up legacy item
                                 }
                             }
                             SendMessage(new ClientMessage("ClearSearch"));
                             return TravelerPopup(traveler);
+                        } else
+                        {
+                            // Try to look up legacy traveler
                         }
                     }
                 }
