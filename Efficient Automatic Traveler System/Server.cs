@@ -121,7 +121,8 @@ namespace Efficient_Automatic_Traveler_System
                 "CreateBoxTravelers",
                 "relinkOrders",
                 "complete",
-                "printLabels"
+                "printLabels",
+                "delete"
             };
             switch (input)
             {
@@ -172,7 +173,8 @@ namespace Efficient_Automatic_Traveler_System
                             }
                         }
                         Server.WriteLine("Please enter a valid traveler ID");
-                    } else if (input.Contains("printLabels"))
+                    }
+                    else if (input.Contains("printLabels"))
                     {
                         // [command] [traveler] [from item id] [to item id] [printer]
                         string[] parts = input.Split(' ');
@@ -186,7 +188,8 @@ namespace Efficient_Automatic_Traveler_System
                                 {
                                     ushort fromID;
                                     ushort toID;
-                                    if (ushort.TryParse(parts[2], out fromID) && ushort.TryParse(parts[3], out toID)) {
+                                    if (ushort.TryParse(parts[2], out fromID) && ushort.TryParse(parts[3], out toID))
+                                    {
                                         for (ushort i = fromID; i <= toID; i++)
                                         {
                                             TravelerItem item = traveler.FindItem(i);
@@ -200,6 +203,24 @@ namespace Efficient_Automatic_Traveler_System
                                 }
                             }
                             Server.WriteLine("Invalid parameter list");
+                        }
+                    }
+                    else if (input.Contains("delete"))
+                    {
+                        string[] parts = input.Split(' ');
+                        if (parts.Length == 2)
+                        {
+                            int travelerID;
+                            if (int.TryParse(parts[1], out travelerID))
+                            {
+                                Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
+                                if (traveler != null)
+                                {
+                                    m_travelerManager.RemoveTraveler(traveler);
+                                    m_travelerManager.OnTravelersChanged(traveler);
+                                    Server.WriteLine(traveler.PrintID() + " was deleted");
+                                }
+                            }
                         }
                     }
                     else

@@ -80,6 +80,12 @@ namespace Efficient_Automatic_Traveler_System
             return  (m_backupDates.Exists(x => x == DateTime.Today.Date)
                 && File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date),file)));
         }
+        // returns true if the file exists
+        static public bool BackupExists(string file, DateTime date)
+        {
+            return (m_backupDates.Exists(x => x == date)
+                && File.Exists(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date), file)));
+        }
         // returns the requested file from current day backup
         static public string Import(string filename,DateTime? d = null)
         {

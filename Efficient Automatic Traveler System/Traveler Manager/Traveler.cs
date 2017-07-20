@@ -58,15 +58,15 @@ namespace Efficient_Automatic_Traveler_System
     {
         #region Public Methods
         public Traveler() {
-            NewID();
+            
             m_itemCode = "";
             m_quantity = 0;
             items = new List<TravelerItem>();
-            m_parentOrderNums = new List<string>();
+            ParentOrderNums1 = new List<string>();
             m_parentOrders = new List<Order>();
-            m_parentIDs = new List<int>();
+            ParentIDs1 = new List<int>();
             m_parentTravelers = new List<Traveler>();
-            m_childIDs = new List<int>();
+            ChildIDs1 = new List<int>();
             m_childTravelers = new List<Traveler>();
             m_station = null;
             m_state = 0;
@@ -93,15 +93,15 @@ namespace Efficient_Automatic_Traveler_System
                 itemObj.Parent = this;
                 Items.Add(itemObj);
             }
-            m_parentOrderNums = (new StringStream(obj["parentOrders"])).ParseJSONarray();
+            ParentOrderNums1 = (new StringStream(obj["parentOrders"])).ParseJSONarray();
             foreach (string id in (new StringStream(obj["parentTravelers"])).ParseJSONarray())
             {
-                m_parentIDs.Add(Convert.ToInt32(id));
+                ParentIDs1.Add(Convert.ToInt32(id));
             }
            
             foreach (string id in (new StringStream(obj["childTravelers"])).ParseJSONarray())
             {
-                m_childIDs.Add(Convert.ToInt32(id));
+                ChildIDs1.Add(Convert.ToInt32(id));
             }
             
             m_station = StationClass.GetStation(obj["station"]);
@@ -110,6 +110,7 @@ namespace Efficient_Automatic_Traveler_System
             m_dateStarted = obj["dateStarted"];
             m_comment = obj["comment"];
             m_lastReworkAccountedFor = (ushort)(obj.ContainsKey("lastReworkAccountedFor") ? Convert.ToUInt16(obj["lastReworkAccountedFor"]) : 0);
+            if (obj.ContainsKey("onHand")) OnHand = Convert.ToInt32(obj["onHand"]);
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
         //public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
@@ -124,6 +125,7 @@ namespace Efficient_Automatic_Traveler_System
         //}
         public Traveler(string itemCode, int quantity) : this()
         {
+            NewID();
             m_itemCode = itemCode;
             m_quantity = quantity;
             m_station = StationClass.GetStation("Start");
@@ -190,7 +192,8 @@ namespace Efficient_Automatic_Traveler_System
                 {"type",this.GetType().Name.Quotate()},
                 {"dateStarted",DateStarted.Quotate() },
                 {"comment",Comment.Quotate() },
-                {"lastReworkAccountedFor",m_lastReworkAccountedFor.ToString() }
+                {"lastReworkAccountedFor",m_lastReworkAccountedFor.ToString() },
+                {"onHand",m_onHand.ToString() }
             };
             return obj.Stringify();
         }
@@ -633,7 +636,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"Date started", m_dateStarted.Quotate() },
                 {"ID",m_ID.ToString() },
                 {"Qty on traveler",m_quantity.ToString() },
-                {"Orders",m_parentOrderNums.Stringify() },
+                {"Orders",ParentOrderNums1.Stringify() },
                 {"Items",items.Stringify(false) },
                 {"Starting station",m_station.Name.Quotate() }
             };
@@ -653,7 +656,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"In process",qtyInProcess.ToString()},
                 {"Scrapped",QuantityScrapped().ToString() },
                 {"Complete",qtyComplete.ToString() },
-                {"Orders",m_parentOrderNums.Stringify() }
+                {"Orders",ParentOrderNums1.Stringify() }
             };
             return obj.Stringify();
         }
@@ -967,6 +970,8 @@ namespace Efficient_Automatic_Traveler_System
         private string m_dateStarted;
         private int m_priority;
         private ushort m_lastReworkAccountedFor;
+
+        private int m_onHand;
        
         #endregion
         //--------------------------------------------------------
@@ -1014,12 +1019,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return m_parentOrderNums;
+                return ParentOrderNums1;
             }
 
             set
             {
-                m_parentOrderNums = value;
+                ParentOrderNums1 = value;
             }
         }
 
@@ -1125,12 +1130,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return m_parentIDs;
+                return ParentIDs1;
             }
 
             protected set
             {
-                m_parentIDs = value;
+                ParentIDs1 = value;
             }
         }
 
@@ -1138,12 +1143,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return m_childIDs;
+                return ChildIDs1;
             }
 
             protected set
             {
-                m_childIDs = value;
+                ChildIDs1 = value;
             }
         }
 
@@ -1203,6 +1208,58 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_lastReworkAccountedFor = value;
+            }
+        }
+
+        public int OnHand
+        {
+            get
+            {
+                return m_onHand;
+            }
+
+            set
+            {
+                m_onHand = value;
+            }
+        }
+
+        public List<string> ParentOrderNums1
+        {
+            get
+            {
+                return m_parentOrderNums;
+            }
+
+            set
+            {
+                m_parentOrderNums = value;
+            }
+        }
+
+        public List<int> ParentIDs1
+        {
+            get
+            {
+                return m_parentIDs;
+            }
+
+            set
+            {
+                m_parentIDs = value;
+            }
+        }
+
+        public List<int> ChildIDs1
+        {
+            get
+            {
+                return m_childIDs;
+            }
+
+            set
+            {
+                m_childIDs = value;
             }
         }
         #endregion

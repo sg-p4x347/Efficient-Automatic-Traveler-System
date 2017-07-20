@@ -380,6 +380,7 @@ namespace Efficient_Automatic_Traveler_System
                     int boxQty = Math.Max(0, Math.Min(applicableQty - qtyQueued, boxTravelerSize));
                     if (boxQty > 0)
                     {
+                        Server.WriteLine("- Box made for " + PrintID());
                         TableBox box = new TableBox(this);
 
                         box.Quantity = boxQty;

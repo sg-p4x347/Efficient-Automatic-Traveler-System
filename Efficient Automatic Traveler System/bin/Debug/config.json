@@ -34,7 +34,7 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"151144",
+	"nextTravelerID":"154371",
 	"nextEventID":"8374",
 	"boxTravelerSize":5,
 	"scrapReport":{
@@ -69,7 +69,43 @@
 			],
 			"laborCodes":[
 				"/LBOX1"
-			]
+			],
+			"routing":{
+				"TableBox":{
+					"preRequisites":[
+						
+					],
+					"finish":true
+				}
+			}
+		},
+		"debug":{
+			"creates":[
+				
+			],
+			"laborCodes":[
+				
+			],
+			"routing":{
+				"Table":{
+					"preRequisites":[
+						"heian",
+						"weeke",
+						"box",
+						"vector",
+						"snxEdgebander",
+						"snxTrimmer",
+						"tablePack",
+						"bulkPack"
+					]
+				},
+				"TableBox":{
+					"preRequisites":[
+						
+					],
+					"finish":true
+				}
+			}
 		},
 		"chairs":{
 			"creates":[
@@ -310,7 +346,7 @@
 			"type":"heian",
 			"mode":"Batch",
 			"printers":[
-				"4x2IT"
+				"4x2Heian2"
 			]
 		},
 		{
@@ -431,6 +467,14 @@
 		{
 			"name":"Weeke2",
 			"type":"weeke",
+			"mode":"Batch",
+			"printers":[
+				"4x2Heian2"
+			]
+		},
+		{
+			"name":"Debug",
+			"type":"debug",
 			"mode":"Batch",
 			"printers":[
 				"4x2Heian2"

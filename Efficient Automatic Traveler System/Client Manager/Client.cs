@@ -542,6 +542,8 @@ namespace Efficient_Automatic_Traveler_System
         private Traveler m_lastSelectedTraveler = null;
 
         private StationClass m_currentStation;
+
+        private static List<CancellationToken> m_cancelTokens;
         public bool Connected
         {
             get
@@ -634,6 +636,24 @@ namespace Efficient_Automatic_Traveler_System
             {
                 m_lastSelectedTraveler = value;
             }
+        }
+
+        protected static List<CancellationToken> CancelTokens
+        {
+            get
+            {
+                return m_cancelTokens;
+            }
+
+            set
+            {
+                m_cancelTokens = value;
+            }
+        }
+        protected static void BeginTask(Task task)
+        {
+            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
         }
 
         public virtual ClientMessage Login(string json)
@@ -1032,9 +1052,9 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (SelectedItem != null)
                 {
-                    SelectedItem.Scrap();
+                    return new ClientMessage("Info",SelectedItem.Scrap());
                 }
-                return new ClientMessage();
+                return new ClientMessage("Info","Selected item was null");
             }
             catch (Exception ex)
             {
@@ -1060,14 +1080,18 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error reworking item");
             }
         }
-        public void ReportProgress(double percent)
+        public void ReportProgress(double percent,string cancelTask = "")
         {
             if (percent == 1)
             {
                 CloseAll();
             } else
             {
-                SendMessage(new ClientMessage("Updating", (Math.Round(percent * 100).ToString() + "%").Quotate()));
+                SendMessage(new ClientMessage("Updating", 
+                    new JsonObject() {
+                        { "text", (Math.Round(percent * 100).ToString() + "%") },
+                        { "cancelTask", cancelTask }
+                    }));
             }
         }
         //==============================================

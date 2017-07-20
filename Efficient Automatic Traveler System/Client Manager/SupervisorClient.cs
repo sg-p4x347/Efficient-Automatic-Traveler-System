@@ -61,19 +61,24 @@ namespace Efficient_Automatic_Traveler_System
             //message.Add("stations", stations.Stringify(false));
             //message.Add("mirror", mirror.ToString().ToLower());
             //SendMessage(new ClientMessage("HandleTravelersChanged",message.Stringify()).ToString());
-
-            NodeList queueArray = new NodeList(new Style("queueArray"));
-            queueArray.ID = "queueArray";
-            foreach (StationClass station in StationClass.GetStations())
+            try
             {
-                GlobalItemState GlobalState;
-                if (Enum.TryParse(ViewFilter.ValueOf("globalState"), out GlobalState))
+                NodeList queueArray = new NodeList(new Style("queueArray"));
+                queueArray.ID = "queueArray";
+                foreach (StationClass station in StationClass.GetStations())
                 {
-                    queueArray.Add(CreateStation(station, GlobalState));
+                    GlobalItemState GlobalState;
+                    if (Enum.TryParse(ViewFilter.ValueOf("globalState"), out GlobalState))
+                    {
+                        queueArray.Add(CreateStation(station, GlobalState));
+                    }
                 }
+                SendMessage(new ControlPanel("queueArray", queueArray, "body").Dispatch().ToString());
+                //if (m_current != null) SendMessage(TravelerPopup(m_current));
+            } catch (Exception ex)
+            {
+
             }
-            SendMessage(new ControlPanel("queueArray", queueArray, "body").Dispatch().ToString());
-            //if (m_current != null) SendMessage(TravelerPopup(m_current));
         }
         private void SetFilterForm()
         {
@@ -152,9 +157,9 @@ namespace Efficient_Automatic_Traveler_System
                         }
                         else if (GlobalState == GlobalItemState.InProcess)
                         {
-                            if (traveler.QuantityInProcessAt(station) > 0 
+                            if (traveler.Items.Any(i => i.Station == station && i.GlobalState == GlobalItemState.InProcess)
                                 || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)
-                                || traveler.QuantityCompleteAt(station) > 0) travelers.Add(traveler);
+                            ) travelers.Add(traveler);
                             //if (traveler.State == GlobalItemState.InProcess && traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
                         }
                         else
@@ -224,7 +229,25 @@ namespace Efficient_Automatic_Traveler_System
         {
             SendMessage(new ClientMessage("KanbanMonitor").ToString());
         }
-        
+        public void LegacyTravelerPopup(int travelerID)
+        {
+            SendMessage(ControlPanel.YesOrNo("Would you like to search EATS history for this traveler?",
+                "LookupLegacyTraveler", returnParam: new JsonObject() { { "travelerID", travelerID } }));
+        }
+        public ClientMessage LookupLegacyTraveler(string json)
+        {
+            JsonObject obj = (JsonObject)JSON.Parse(json);
+            Traveler traveler = Server.TravelerManager.FindLegacyTraveler(obj["travelerID"]);
+            if (traveler != null)
+            {
+                SelectTraveler(traveler);
+                TravelerPopup(SelectedTraveler);
+                return new ClientMessage();
+            } else
+            {
+                return new ClientMessage("Info", "Could not find traveler " + obj["travelerID"]);
+            }
+        }
         #endregion
         //----------------------------------
         #region Private Methods
@@ -485,10 +508,14 @@ namespace Efficient_Automatic_Traveler_System
                     // Orders
                     Column orders = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     orders.Add(new Expand());
-                    foreach (Order order in traveler.ParentOrders)
+                    foreach (string orderNo in traveler.ParentOrderNums)
                     {
+                        Order order = traveler.ParentOrders.Find(o => o.SalesOrderNo == orderNo);
+                        Node orderLink = order != null ?
+                            (Node)new Button(orderNo, "OrderPopup", @"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}")
+                            : new TextNode(orderNo);
                         Row orderListing = new Row() {
-                            new Button(order.SalesOrderNo,"OrderPopup",@"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"),
+                            orderLink,
                             new Button("", "RemoveOrderFromTraveler",new JsonObject() { { "order", order.SalesOrderNo } }, style: new Style("deleteBtn"))
                         };
                         orders.Add(orderListing);
@@ -505,9 +532,12 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     Column parents = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     parents.Add(new Expand());
-                    foreach (Traveler parent in traveler.ParentTravelers)
+                    foreach (int parentID in traveler.ParentIDs)
                     {
-                        parents.Add(new Button(parent.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + parent.ID + "}"));
+                        Traveler parent = traveler.ParentTravelers.Find(p => p.ID == parentID);
+                        Node parentLink = parent != null ? (Node)new Button(parentID.ToString(), "LoadTraveler", "{\"travelerID\":" + parent.ID + "}")
+                            : new TextNode(parentID.ToString());
+                        parents.Add(parentLink);
                     }
                     fields.Add(
                         new Row(style: spaceBetween)
@@ -521,9 +551,12 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     Column children = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     children.Add(new Expand());
-                    foreach (Traveler child in traveler.ChildTravelers)
+                    foreach (int childID in traveler.ChildIDs)
                     {
-                        children.Add(new Button(child.ID.ToString(), "LoadTraveler", "{\"travelerID\":" + child.ID + "}"));
+                        Traveler parent = traveler.ParentTravelers.Find(p => p.ID == childID);
+                        Node childLink = parent != null ? (Node)new Button(childID.ToString(), "LoadTraveler", "{\"travelerID\":" + parent.ID + "}")
+                            : new TextNode(childID.ToString());
+                        children.Add(childLink);
                     }
                     fields.Add(
                         new Row(style: spaceBetween)
@@ -888,7 +921,6 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-
                 //foreach (string selectedID in selectedIDs)
                 //{
                 //    Traveler traveler = m_currentManager.FindTraveler(Convert.ToInt32(selectedID));
@@ -924,13 +956,13 @@ namespace Efficient_Automatic_Traveler_System
                 Column download = new Column(style: flexStart)
                 {
                     new TextNode("Download"),
-                    new Button("Pre-Process Tables","DownloadSummary",@"{""sort"":""PreProcess"",""type"":""Table""}"),
-                    new Button("Production Report", "ExportProduction",@"{""sort"":""All"",""type"":""Table""}"),
-                    new Button("Partial Production", "ExportPartialProduction",@"{""sort"":""All"",""type"":""Table""}"),
-                    new Button("Scrap Report", "ExportScrap",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Traveler Summary","TravelerSummaryForm"),
+                    new Button("Production Report", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "production" } }),
+                    new Button("Partial Production", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "partialProduction" } }),
+                    new Button("Scrap Report", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "scrap" } }),
                     new Button("User Report", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}"),
                     new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}"),
-                    new Button("Inventory Report","ExportInventory",@"{""sort"":""All"",""type"":""Table""}"),
+                    new Button("Inventory Report","ExportCSV",new JsonObject() { { "sort", "all" }, { "type", "Table" }, { "csv", "inventory" } }),
                     new Button("Custom Report","CustomReportForm")
                 };
                 Column manage = new Column(style: flexStart)
@@ -1193,7 +1225,6 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-
                 if (SelectedTraveler != null)
                 {
 
@@ -1323,7 +1354,6 @@ namespace Efficient_Automatic_Traveler_System
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parameters["travelerID"]));
                 int qty = Convert.ToInt32(form.ValueOf("quantity"));
                 return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(parameters["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), form.ValueOf("labelType")), qty > 0 ? qty : 1, true,printer:form.ValueOf("printer")));
-
             }
             catch (Exception ex)
             {
@@ -1331,14 +1361,62 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Could not print label(s) due to a pesky error :(");
             }
         }
-        public ClientMessage ExportProduction(string json)
+        //public ClientMessage ExportProduction(string json)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+        //        string downloadLocation = summary.ProductionCSV();
+        //        returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
+        //public ClientMessage ExportPartialProduction(string json)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+        //        string downloadLocation = summary.PartialProductionCSV();
+        //        returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
+        public ClientMessage ExportCSV(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
             try
             {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                JsonObject obj = (JsonObject)JSON.Parse(json);
                 Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-                string downloadLocation = summary.ProductionCSV();
+
+
+                string downloadLocation = "";
+                string csv = obj.ContainsKey("csv") ? (string)obj["csv"] : "";
+                switch (csv)
+                {
+                    case "production":
+                        downloadLocation = summary.ProductionCSV(); break;
+                    case "scrap":
+                        downloadLocation = summary.ScrapCSV(); break;
+                    case "partialProduction":
+                        downloadLocation = summary.PartialProductionCSV(); break;
+                    case "inventory":
+                        downloadLocation = summary.InventorySummary(); break;
+                }
                 returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
             }
             catch (Exception ex)
@@ -1348,57 +1426,59 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        public ClientMessage ExportPartialProduction(string json)
+        public ClientMessage TravelerSummaryForm(string json)
         {
-            ClientMessage returnMessage = new ClientMessage();
-            try
-            {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-                string downloadLocation = summary.PartialProductionCSV();
-                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
-            }
-            catch (Exception ex)
-            {
-                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("Info", "error");
-            }
-            return returnMessage;
+            //JsonObject obj = (JsonObject)JSON.Parse(json);
+            //Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+            Form form = new Form();
+            form.Title = "Traveler Summary";
+            form.Selection("summary", "Summary type", ExtensionMethods.GetNames<SummaryType>(), SummaryType.Traveler.ToString());
+            form.Radio("type", "Type", new List<string>() { "Table" },"Table");
+            form.Radio("state", "State", ExtensionMethods.GetNames<GlobalItemState>(), GlobalItemState.PreProcess.ToString());
+            form.Selection("station", "Station", StationClass.StationNames());
+            return form.Dispatch("TravelerSummary");
         }
-        public ClientMessage ExportScrap(string json)
+        public ClientMessage TravelerSummary(string json)
         {
-            //ClientMessage returnMessage = new ClientMessage();
-            //try
-            //{
-            //    Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-            //    Summary summary = new Summary(m_currentManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-            //    string downloadLocation = summary.CSV("test.csv", new List<SummaryColumn>() {
-            //        new SummaryColumn("ID","ID"),
-            //        new SummaryColumn("ItemCode","ItemCode")
-            //    });
-            //    returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
-            //}
-            //catch (Exception ex)
-            //{
-            //    Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-            //    returnMessage = new ClientMessage("Info", "error");
-            //}
-            //return returnMessage;
-            ClientMessage returnMessage = new ClientMessage();
-            try
-            {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-                string downloadLocation = summary.ScrapCSV();
-                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
-            }
-            catch (Exception ex)
-            {
-                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("Info", "error");
-            }
-            return returnMessage;
+            Form form = new Form(json);
+            Summary summary = new Summary(m_travelerManager as ITravelerManager, form.ValueOf("type"), (GlobalItemState)Enum.Parse(typeof(GlobalItemState), form.ValueOf("state")),StationClass.GetStation(form.ValueOf("station")));
+            //string downloadLocation = summary.ExportCSV((SummaryType)Enum.Parse(typeof(SummaryType), form.ValueOf("summary")));
+            return new ClientMessage("Redirect",summary.ExportCSV((SummaryType)Enum.Parse(typeof(SummaryType), form.ValueOf("summary"))).Quotate());
         }
+        //public ClientMessage ExportScrap(string json)
+        //{
+        //    //ClientMessage returnMessage = new ClientMessage();
+        //    //try
+        //    //{
+        //    //    Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //    //    Summary summary = new Summary(m_currentManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+        //    //    string downloadLocation = summary.CSV("test.csv", new List<SummaryColumn>() {
+        //    //        new SummaryColumn("ID","ID"),
+        //    //        new SummaryColumn("ItemCode","ItemCode")
+        //    //    });
+        //    //    returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //    //    returnMessage = new ClientMessage("Info", "error");
+        //    //}
+        //    //return returnMessage;
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+        //        string downloadLocation = summary.ScrapCSV();
+        //        returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
         public ClientMessage ExportTest(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
@@ -1434,23 +1514,23 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error exporting rework report");
             }
         }
-        public ClientMessage ExportInventory(string json)
-        {
-            ClientMessage returnMessage = new ClientMessage();
-            try
-            {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-                string downloadLocation = summary.InventorySummary();
-                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
-            }
-            catch (Exception ex)
-            {
-                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                returnMessage = new ClientMessage("Info", "error");
-            }
-            return returnMessage;
-        }
+        //public ClientMessage ExportInventory(string json)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+        //        string downloadLocation = summary.InventorySummary();
+        //        returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
         public ClientMessage QuantityAt(string json)
         {
             ClientMessage returnMessage = new ClientMessage();
@@ -1596,6 +1676,7 @@ namespace Efficient_Automatic_Traveler_System
                         } else
                         {
                             // Try to look up legacy traveler
+                            //LegacyTravelerPopup(travelerID);
                         }
                     }
                 }

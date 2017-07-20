@@ -287,7 +287,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public void Scrap()
+        public string Scrap()
         {
             LocalState = LocalItemState.PostProcess;
             GlobalState = GlobalItemState.Scrapped;
@@ -311,9 +311,13 @@ namespace Efficient_Automatic_Traveler_System
                 ));
                 // Notify everyone who wants to be notified
                 Server.NotificationManager.PushNotification("Scrap", Summary.HumanizeDictionary(Summary.ScrapDetail(Parent, this)));
-                // print le label
-                Parent.PrintLabel(ID, LabelType.Scrap);
+                
                 Server.TravelerManager.OnTravelersChanged(Parent);
+                // print le label
+                return Parent.PrintLabel(ID, LabelType.Scrap);
+            } else
+            {
+                return "Flag event could not be found";
             }
            
         }

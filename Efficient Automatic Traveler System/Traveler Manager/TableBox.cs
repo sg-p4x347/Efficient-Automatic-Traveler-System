@@ -57,11 +57,13 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new StringStream(base.ExportTableRows(station)).ParseJSON(false);
                 List<string> members = new StringStream(obj["members"]).ParseJSONarray(false);
 
-                Table parentTable = ((Table)ParentTravelers[0]);
-                members.Add(new NameValueQty<string, string>("Table", parentTable.ItemCode, "").ToString());
-                members.Add(new NameValueQty<string, string>("Table Shape", parentTable.Shape, "").ToString());
-                members.Add(new NameValueQty<string, string>("Table Size", m_tableSize, "").ToString());
-
+                Table parentTable = (Table)ParentTravelers.FirstOrDefault();
+                if (parentTable != null)
+                {
+                    members.Add(new NameValueQty<string, string>("Table", parentTable.ItemCode, "").ToString());
+                    members.Add(new NameValueQty<string, string>("Table Shape", parentTable.Shape, "").ToString());
+                    members.Add(new NameValueQty<string, string>("Table Size", m_tableSize, "").ToString());
+                }
                 obj["members"] = members.Stringify(false);
                 return obj.Stringify();
             } catch (Exception ex)
@@ -88,17 +90,18 @@ namespace Efficient_Automatic_Traveler_System
         public override string GetLabelFields(ushort itemID, LabelType type)
         {
             TravelerItem item = FindItem(itemID);
+            Table parent = (Table)ParentTravelers.FirstOrDefault();
             string json = "\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
             switch (type)
             {
                 case LabelType.Box:
-                    json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6") + "\"";
+                    json += ",\"ID\":\"" + "Box for " + (parent != null ? parent.ID.ToString("D6") : "Table") + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
-                    json += ",\"Desc2\":\"" + ((Table)ParentTravelers[0]).ItemCode + " (" + ((Table)ParentTravelers[0]).Size + ")" + "\"";
+                    json += ",\"Desc2\":\"" + (parent != null ? ((Table)ParentTravelers[0]).ItemCode + " (" + ((Table)ParentTravelers[0]).Size + ")" : "") + "\"";
                     json += ",\"Desc3\":\"" + "BOX" + "\"";
                     break;
                 case LabelType.Scrap:
-                    json += ",\"ID\":\"" + "Box for " + ParentTravelers[0].ID.ToString("D6")+ "\"";
+                    json += ",\"ID\":\"" + "Box for " + (parent != null ? parent.ID.ToString("D6") : "Table") + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) + " !!" + "\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);

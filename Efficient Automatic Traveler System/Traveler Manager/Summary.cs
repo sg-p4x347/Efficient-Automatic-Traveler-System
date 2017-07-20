@@ -17,6 +17,13 @@ namespace Efficient_Automatic_Traveler_System
         All,
         PreProcess
     }
+    enum SummaryType
+    {
+        Production,
+        PartialProduction,
+        Scrap,
+        Traveler
+    }
     class Summary
     {
         #region Public methods
@@ -39,6 +46,11 @@ namespace Efficient_Automatic_Traveler_System
                 default:
                     break;
             }
+        }
+        public Summary(ITravelerManager travelerManager,string travelerType = "Traveler", GlobalItemState? state = null, StationClass station = null)
+        {
+            m_travelerType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + travelerType);
+            m_travelers = travelerManager.GetTravelers.Where(x => (station == null || x.Station == station) && (!state.HasValue || x.State == state.Value)).ToList();
         }
         /* Creates a summary from two different system states, stored in two sets of files.
          Data is loaded into separate managers for each.
@@ -63,6 +75,17 @@ namespace Efficient_Automatic_Traveler_System
 
             // Delta state (B's state - A's state)
             m_travelers = (summaryB - summaryA).Travelers;
+        }
+        public string ExportCSV(SummaryType type)
+        {
+            switch (type)
+            {
+                case SummaryType.PartialProduction: return PartialProductionCSV();
+                case SummaryType.Production: return ProductionCSV();
+                case SummaryType.Scrap: return ScrapCSV();
+                case SummaryType.Traveler: return MakeCSV();
+                default: return "";
+            }
         }
         public Summary(DateTime A, DateTime B) : this()
         {

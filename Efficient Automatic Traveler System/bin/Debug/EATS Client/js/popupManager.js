@@ -112,7 +112,7 @@ function PopupManager(blackout) {
 	this.Form = function (format,submitCallback,id) {
 		var self = this;
 		var element = document.getElementById(id);
-		if (element == undefined) {
+		if (!element) {
 			self.CloseAll();
 		} else {
 			ClearChildren(element);
@@ -195,7 +195,8 @@ function PopupManager(blackout) {
 					radioItem.appendChild(title);
 					
 					radioDiv.appendChild(radioItem);
-					option.onclick = function () {
+					option.onclick = function (evt) {
+						evt.stopPropagation();
 						if (this.checked) {
 							radio.value = this.value;
 							radio.onchange();
@@ -204,10 +205,14 @@ function PopupManager(blackout) {
 					}
 				});
 				inputs.push(radio);
-				element.appendChild(radioDiv);
+				if (element) {
+					element.appendChild(radioDiv);
+				} else {
+					popup.appendChild(radioDiv);
+				}
 			}
 			//------
-			if (element != undefined) {
+			if (element) {
 				element.appendChild(row);
 			} else {
 				popup.appendChild(row);
@@ -483,7 +488,6 @@ function PopupManager(blackout) {
 			parent.appendChild(nodeElement);
 		}
 	}
-	
 	
 	// displays an animated loading GIF
 	this.Loading = function () {

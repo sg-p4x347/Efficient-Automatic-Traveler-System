@@ -82,17 +82,18 @@ namespace Efficient_Automatic_Traveler_System
             return Imported;
         }
         [HandleProcessCorruptedStateExceptions]
-        private void ImportHeader(OdbcConnection MAS)
+        private async void ImportHeader(OdbcConnection MAS)
         {
             try
             {
                 // get bill information from MAS
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                
                 OdbcCommand command = MAS.CreateCommand();
                 command.CommandTimeout = 30;
                 command.CommandText = "SELECT BillType, BillDesc1, CurrentBillRevision, DrawingNo, Revision FROM BM_billHeader WHERE billno = '" + m_billNo + "'";
 
-                using (OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SequentialAccess))
+                using (OdbcDataReader reader = (OdbcDataReader)(await command.ExecuteReaderAsync(System.Data.CommandBehavior.SequentialAccess)))
                 {
                     // read info
                     while (reader.Read())

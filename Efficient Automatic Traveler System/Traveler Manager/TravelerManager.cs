@@ -21,6 +21,7 @@ namespace Efficient_Automatic_Traveler_System
         //Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time);
         Traveler FindTraveler(int ID);
         bool FindTraveler(int ID, out Traveler traveler);
+        Traveler FindLegacyTraveler(int ID);
         void RemoveTraveler(Traveler traveler, bool backup = true);
         Traveler AddTraveler(string itemCode, int quantity);
         List<Traveler> GetTravelers
@@ -309,15 +310,13 @@ namespace Efficient_Automatic_Traveler_System
             //}
             foreach (Traveler child in traveler.ChildTravelers)
             {
-                traveler.ChildTravelers.Remove(child);
-                traveler.ChildIDs.Remove(child.ID);
                 // recursively remove children
                 RemoveTraveler(child);
             }
             // remove itself from parents
             foreach (Traveler parent in traveler.ParentTravelers)
             {
-                parent.ChildTravelers.Remove(traveler);
+                RemoveTraveler(parent);
             }
             // finally... remove THIS traveler
             m_travelers.Remove(traveler);
@@ -825,6 +824,39 @@ namespace Efficient_Automatic_Traveler_System
                 traveler = (Traveler)Activator.CreateInstance(type, json, version);
             }
             return traveler;
+        }
+        public Traveler FindLegacyTraveler(int ID)
+        {
+            // start backwards from today
+            DateTime today = DateTime.Today;
+            for (DateTime day = today; day > today.AddYears(-1); day.AddDays(-1.0))
+            {
+                if (BackupManager.BackupExists("travelers.json",day))
+                {
+                    string dayString = day.ToString("mm/dd/yyy");
+                    string travelerText = "";
+                    Version version;
+                    BackupManager.GetVersion(BackupManager.Import("travelers.json", day), out travelerText, out version);
+
+
+                    List<string> travelerArray = (new StringStream(travelerText)).ParseJSONarray();
+                    Server.Write("\r{0}", "Loading travelers from backup " + dayString + "...");
+                    foreach (string travelerJSON in travelerArray)
+                    {
+                        Traveler traveler = ImportTraveler(travelerJSON, version);
+                        if (traveler != null && traveler.ID == ID)
+                        {
+                            Server.Write("\r{0}", ID + " found in backup " + dayString);
+                            return traveler;
+                        }
+                    }
+                } else
+                {
+                    break;
+                }
+            }
+            Server.WriteLine("Could not find " + ID + " in EATS history");
+            return null;
         }
         #endregion
         //----------------------------------

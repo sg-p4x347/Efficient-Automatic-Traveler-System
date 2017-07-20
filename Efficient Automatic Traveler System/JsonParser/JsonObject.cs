@@ -67,11 +67,19 @@ namespace Efficient_Automatic_Traveler_System
         {
             (Value as Dictionary<string, JSON>).Add(key, value);
         }
-        public void Add(string key, object value)
+        public void Add<T>(string key, T value)
         {
             if (value != null)
             {
-                StringStream stream = new StringStream(value is string ? (value as string).Quotate() : value.ToString());
+                string parsedValue = "";
+                if (value is string  || (value is Enum && typeof(T).BaseType == typeof(Enum)))
+                {
+                    parsedValue = value.ToString().Quotate();
+                } else
+                {
+                    parsedValue = value.ToString();
+                }
+                StringStream stream = new StringStream(parsedValue);
                 Add(key, JSON.Import(ref stream));
             } else
             {
