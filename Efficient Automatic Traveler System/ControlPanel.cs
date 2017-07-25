@@ -21,7 +21,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void AddStyle(string name, string style)
         {
-            UniqueStyles.Add(name, style.Quotate());
+            UniqueStyles.Add(name, style);
         }
         public static Style operator + (Style s1, Style s2)
         {
@@ -55,15 +55,15 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("type", this.GetType().Name.Quotate());
-            obj.Add("DOMtype", m_DOMtype.Quotate());
-            if (ID != null) obj.Add("id", ID.Quotate());
-            obj.Add("style", m_style.UniqueStyles.Stringify());
-            obj.Add("styleClasses", m_style.ClassNames.Stringify());
-            obj.Add("eventListeners", m_eventListeners.Stringify());
-            obj.Add("innerHTML", m_innerHTML.Quotate());
-            return obj.Stringify();
+            JsonObject obj = new JsonObject();
+            obj.Add("type", this.GetType().Name);
+            obj.Add("DOMtype", m_DOMtype);
+            if (ID != null) obj.Add("id", ID);
+            obj.Add("style", JsonObject.From(m_style.UniqueStyles));
+            obj.Add("styleClasses", JsonArray.From(m_style.ClassNames));
+            obj.Add("eventListeners", JsonArray.From(m_eventListeners));
+            obj.Add("innerHTML", m_innerHTML);
+            return obj;
         }
         private Style m_style = new Style();
         private string m_DOMtype;
@@ -137,9 +137,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("text", m_text.Quotate());
-            return base.ToString().MergeJSON(obj.Stringify());
+            JsonObject obj = (JsonObject)JSON.Parse(base.ToString());
+            obj.Add("text", m_text);
+            return obj;
         }
         private string m_text;
     }
@@ -152,9 +152,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("name", m_name.Quotate());
-            return base.ToString().MergeJSON(obj.Stringify());
+            JsonObject obj = (JsonObject)JSON.Parse(base.ToString());
+            obj.Add("name", m_name);
+            return obj;
         }
         private string m_name;
     }
@@ -213,14 +213,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            List<string> strings = new List<string>();
-            foreach (Node node in m_nodes)
-            {
-                strings.Add(node.ToString());
-            }
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("nodes", strings.Stringify(false));
-            return base.ToString().MergeJSON(obj.Stringify());
+            JsonObject obj = (JsonObject)JSON.Parse(base.ToString());
+            obj.Add("nodes", JsonArray.From(m_nodes));
+            return obj;
         }
         public List<Node> Nodes
         {
@@ -252,9 +247,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("dividers", m_dividers.ToString().ToLower());
-            return base.ToString().MergeJSON(obj.Stringify());
+            JsonObject obj = (JsonObject)JSON.Parse(base.ToString());
+            obj.Add("dividers", m_dividers);
+            return obj;
         }
         private bool m_dividers;
     }
@@ -266,9 +261,9 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("dividers", m_dividers.ToString().ToLower());
-            return base.ToString().MergeJSON(obj.Stringify());
+            JsonObject obj = (JsonObject)JSON.Parse(base.ToString());
+            obj.Add("dividers", m_dividers);
+            return obj;
         }
         private bool m_dividers;
     }
@@ -282,11 +277,12 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("title", m_title.Quotate());
-            obj.Add("body", m_body.ToString());
-            obj.Add("ID", m_ID.Quotate());
-            return obj.Stringify();
+            JsonObject obj = new JsonObject() {
+                { "title", m_title },
+                { "body", m_body },
+                { "ID", m_ID}
+            };
+            return obj;
         }
         public ClientMessage Dispatch(bool closeAll = true)
         {
@@ -309,14 +305,26 @@ namespace Efficient_Automatic_Traveler_System
             {
                 header.Add(new TextNode(column.ColumnName, cellStyle, "th"));
             }
+            table.Add(header);
             // create the detail
             foreach (DataRow row in dataTable.Rows)
             {
                 NodeList detail = new NodeList(DOMtype: "tr");
                 foreach(DataColumn column in dataTable.Columns)
                 {
-                    detail.Add(new TextNode(row[column].ToString(), cellStyle, "td"));
+                    JSON json = JSON.Parse(row[column].ToString());
+                    if (typeof(Node).IsAssignableFrom(column.DataType))
+                    {
+                        NodeList td = new NodeList(cellStyle, "td");
+                        td.Add(row[column] as Node);
+                        detail.Add(td);
+                    }
+                    else
+                    {
+                        detail.Add(new TextNode(row[column].ToString(), cellStyle, "td"));
+                    }
                 }
+                table.Add(detail);
             }
             return table;
         }
@@ -471,11 +479,11 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override string ToString()
         {
-            Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("type", m_type.Quotate());
-            obj.Add("callback", m_callback.Quotate());
-            obj.Add("returnParam", m_returnParam);
-            return obj.Stringify();
+            return new JsonObject() {
+                { "type", m_type },
+                { "callback", m_callback },
+                { "returnParam", JSON.Parse(m_returnParam )}
+            };
         }
         private string m_type;
         private string m_callback;

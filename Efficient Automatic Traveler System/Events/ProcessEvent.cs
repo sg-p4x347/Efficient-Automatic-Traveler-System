@@ -42,7 +42,7 @@ namespace Efficient_Automatic_Traveler_System
         public override string ToString()
         {
             Dictionary<string,string> obj = new StringStream( base.ToString()).ParseJSON(false);
-            obj.Add("user", m_user.UID.Quotate());
+            obj.Add("user", User != null ? m_user.UID.Quotate() : "");
             obj.Add("station", m_station.Name.Quotate());
             obj.Add("duration", m_duration.ToString());
             obj.Add("process", m_process.ToString().Quotate());
@@ -52,7 +52,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Dictionary<string, string> obj = new StringStream(base.ExportHuman()).ParseJSON(false);
             obj.Add("Process", m_process.ToString().Quotate());
-            obj.Add("User", m_user.Name.Quotate());
+            obj.Add("User", User != null ? m_user.Name.Quotate() : "");
             obj.Add("Station", m_station.Name.Quotate());
             obj.Add("Duration", (Math.Round(m_duration,2).ToString() + " min").Quotate());
             return obj.Stringify();

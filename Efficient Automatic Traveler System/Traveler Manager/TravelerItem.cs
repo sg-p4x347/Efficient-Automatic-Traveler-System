@@ -290,6 +290,35 @@ namespace Efficient_Automatic_Traveler_System
             }
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
+        public Style QueueStyle()
+        {
+            switch (GlobalState)
+            {
+                case GlobalItemState.PreProcess: return new Style("blueBack");
+                case GlobalItemState.InProcess: 
+                    switch (LocalState)
+                    {
+                        case LocalItemState.PreProcess: return new Style("blueBack");
+                        case LocalItemState.InProcess: return new Style("cyanBack");
+                        case LocalItemState.PostProcess: return new Style("greenBack");
+                        default: return new Style("ghostBack");
+                    }
+                case GlobalItemState.Flagged: return new Style("yellowBack");
+                case GlobalItemState.Scrapped: return new Style("redBack");
+                case GlobalItemState.Finished: return new Style("greenBack");
+                default: return new Style("ghostBack");
+            }
+        }
+        // retuns the relavent state of the item, either local or global depending on relavency
+        public string PrintState()
+        {
+            switch(GlobalState)
+            {
+                case GlobalItemState.InProcess:
+                    return LocalState.ToString();
+                default: return GlobalState.ToString();
+            }
+        }
         public Task<string> Scrap(User user)
         {
             LocalState = LocalItemState.PostProcess;

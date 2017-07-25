@@ -285,25 +285,26 @@ namespace Efficient_Automatic_Traveler_System
         {
             Row queueItem = new Row(style: new Style("queue__item", "align-items-center"));
             queueItem.ID = traveler.ID.ToString();
-            if (traveler.Quantity <= 0)
-            {
-                queueItem.Style += new Style("ghostBack");
-            }
-            if (traveler is TableBox && traveler.ParentTravelers.Exists(parent => parent.Items.Exists(i => i.BeenProcessedBy("contourEdgebander"))))
-            {
-                // this TableBox has tables ready to pack
-                queueItem.Style += new Style("orangeBack");
-            }
-            else
-            {
-                switch (state)
-                {
-                    case GlobalItemState.PreProcess: queueItem.Style += new Style("blueBack"); break;
-                    case GlobalItemState.InProcess: queueItem.Style += new Style("redBack"); break;
-                    case GlobalItemState.Finished: queueItem.Style += new Style("greenBack"); break;
-                    default: queueItem.Style += new Style("yellowBack"); break;
-                }
-            }
+            queueItem.Style += traveler.QueueStyle();
+            //if (traveler.Quantity <= 0)
+            //{
+            //    queueItem.Style += new Style("ghostBack");
+            //}
+            //if (traveler is TableBox && traveler.ParentTravelers.Exists(parent => parent.Items.Exists(i => i.BeenProcessedBy("contourEdgebander"))))
+            //{
+            //    // this TableBox has tables ready to pack
+            //    queueItem.Style += new Style("orangeBack");
+            //}
+            //else
+            //{
+            //    switch (state)
+            //    {
+            //        case GlobalItemState.PreProcess: queueItem.Style += new Style("blueBack"); break;
+            //        case GlobalItemState.InProcess: queueItem.Style += new Style("redBack"); break;
+            //        case GlobalItemState.Finished: queueItem.Style += new Style("greenBack"); break;
+            //        default: queueItem.Style += new Style("yellowBack"); break;
+            //    }
+            //}
             if (traveler is Table)
             {
                 queueItem.Style.AddStyle("backgroundImage", "url('./img/" + (traveler as Table).Shape + ".png')");
@@ -353,48 +354,9 @@ namespace Efficient_Automatic_Traveler_System
 
                     if (obj.ContainsKey("interfaceMethod") && obj.ContainsKey("parameters"))
                     {
-                        ThreadPoolCallback(obj);
-                        //PropertyInfo pi = this.GetType().GetProperty("This");
-                        //if (pi != null)
-                        //{
-                        //    MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"], new[] { typeof(string) });
-                        //    if (mi != null)
-                        //    {
-                        //        Type attType = typeof(AsyncStateMachineAttribute);
-                        //        // Obtain the custom attribute for the method. 
-                        //        // The value returned contains the StateMachineType property. 
-                        //        // Null is returned if the attribute isn't present for the method. 
-                        //        var attrib = (AsyncStateMachineAttribute)mi.GetCustomAttribute(attType);
-                        //        if (attrib != null)
-                        //        {
-                        //            ListenAsync();
-                        //            // UPDATING... popup
-                        //            SendMessage(new ClientMessage("Updating").ToString());
-                        //            // Await the slow operation
-                        //            ThreadPool.QueueUserWorkItem((WaitCallback)mi.Invoke(this,new object[] { }), obj["parameters"]);
-                        //            //ClientMessage returnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                        //            //string messageString = returnMessage.ToString();
-                        //            //if (messageString != "") SendMessage(messageString);
-                        //        }
-                        //        else
-                        //        {
-                                    
-                        //            //ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                        //            //string messageString = returnMessage.ToString();
-                        //            //if (messageString != "") SendMessage(messageString);
-                        //            ListenAsync();
-                        //        }
-                        //    }
-                        //    else
-                        //    {
-                        //        ListenAsync();
-                        //    }
-                        //}
-                        //else
-                        //{
-                        //    ListenAsync();
-                        //}
+                        Task.Run(() => { ThreadPoolCallback(obj); });
                     }
+
                     ListenAsync();
                 }
             }
@@ -405,51 +367,43 @@ namespace Efficient_Automatic_Traveler_System
                 ListenAsync();
             }
         }
-        protected void ThreadPoolCallback(object parameters)
+        protected async void ThreadPoolCallback(object parameters)
         {
-            JsonObject obj = parameters as JsonObject;
-            PropertyInfo pi = this.GetType().GetProperty("This");
-            if (pi != null)
+            try
             {
-                MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"], new[] { typeof(string) });
-                if (mi != null)
+                JsonObject obj = parameters as JsonObject;
+                PropertyInfo pi = this.GetType().GetProperty("This");
+                if (pi != null)
                 {
-                    Type attType = typeof(AsyncStateMachineAttribute);
-                    // Obtain the custom attribute for the method. 
-                    // The value returned contains the StateMachineType property. 
-                    // Null is returned if the attribute isn't present for the method. 
-                    var attrib = (AsyncStateMachineAttribute)mi.GetCustomAttribute(attType);
-                    if (attrib != null)
+                    MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"], new[] { typeof(string) });
+                    if (mi != null)
                     {
-                        //ListenAsync();
-                        // UPDATING... popup
-                        SendMessage(new ClientMessage("Updating").ToString());
-                        // Await the slow operation
-                        ClientMessage returnMessage = new ClientMessage();
-                        Task.Run(async() => {
+                        Type attType = typeof(AsyncStateMachineAttribute);
+                        // Obtain the custom attribute for the method. 
+                        // The value returned contains the StateMachineType property. 
+                        // Null is returned if the attribute isn't present for the method. 
+                        var attrib = (AsyncStateMachineAttribute)mi.GetCustomAttribute(attType);
+                        if (attrib != null)
+                        {
+                            // UPDATING... popup
+                            SendMessage(new ClientMessage("Updating").ToString());
+                            // Await the slow operation
+                            ClientMessage returnMessage = new ClientMessage();
                             returnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { (string)obj["parameters"] }));
                             string messageString = returnMessage.ToString();
                             if (messageString != "") SendMessage(messageString);
-                        });
-                        
-                    }
-                    else
-                    {
-
-                        ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { (string)obj["parameters"] }));
-                        string messageString = returnMessage.ToString();
-                        if (messageString != "") SendMessage(messageString);
-                        //ListenAsync();
+                        }
+                        else
+                        {
+                            ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { (string)obj["parameters"] }));
+                            string messageString = returnMessage.ToString();
+                            if (messageString != "") SendMessage(messageString);
+                        }
                     }
                 }
-                else
-                {
-                    //ListenAsync();
-                }
-            }
-            else
+            } catch (Exception ex)
             {
-                //ListenAsync();
+                Server.LogException(ex);
             }
         }
         protected void LostConnection()
@@ -1076,7 +1030,7 @@ namespace Efficient_Automatic_Traveler_System
                     if (this is SupervisorClient) {
                         options.Add("Rework Now", "ReworkItemForm");
                         options.Add("Deflag Item", "DeflagItemForm");
-                        options.Add("Scrap Item", "ScrapItem");
+                        options.Add("Scrap Item", "ScrapItemForm");
                     }
                     
                     column.Add(ControlPanel.Options("Options", options));
@@ -1147,6 +1101,11 @@ namespace Efficient_Automatic_Traveler_System
                         { "cancelTask", cancelTask }
                     }));
             }
+        }
+
+        public ClientMessage Help(string json)
+        {
+            return new ClientMessage("Redirect", @"""User Guide.pdf""");
         }
         //==============================================
     }

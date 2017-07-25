@@ -728,8 +728,6 @@ namespace Efficient_Automatic_Traveler_System
 
                         // add a flag event
                         item.Start(m_user, CurrentStation);
-
-                        
                     }
                     else if (SelectedItem != item)
                     {

@@ -46,17 +46,23 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         public void HandleTravelersChanged(List<Traveler> travelers) {
-            for( int i = 0; i < m_clients.Count; i++)
+            //for( int i = 0; i < m_clients.Count; i++)
+            //{
+            //    if (m_clients[i].Connected) {
+            //        // handle clients that implement ITravelers----------
+            //        var obj = m_clients[i] as ITravelers;
+            //        if (obj != null)
+            //        {
+            //            obj.HandleTravelersChanged();
+            //        }
+            //        //---------------------------------------------------
+            //    }
+            //}
+            List<Client> clients = m_clients.Where(c => c.Connected).ToList();
+            clients.Sort((a, b) => a is OperatorClient ? -1 : 1);
+            foreach (ITravelers client in clients.OfType<ITravelers>())
             {
-                if (m_clients[i].Connected) {
-                    // handle clients that implement ITravelers----------
-                    var obj = m_clients[i] as ITravelers;
-                    if (obj != null)
-                    {
-                        obj.HandleTravelersChanged();
-                    }
-                    //---------------------------------------------------
-                }
+                Task.Run(() => { client.HandleTravelersChanged(); });
             }
         }
         public void HandleTravelerChanged(List<Traveler> travelers)
@@ -106,16 +112,6 @@ namespace Efficient_Automatic_Traveler_System
             // a client connected and control resumes here
             if (HandShake(tcpClient))
             {
-                //string clientType = await Client.RecieveMessageAsync(tcpClient.GetStream());
-                //Type type = typeof(Client).Assembly.GetType("Efficient_Automatic_Traveler_System." + clientType);
-                //if (type != null)
-                //{
-                //    Client client = (Client)Activator.CreateInstance(type, m_travelerManager as ITravelerManager);
-                //    client.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
-                //    client.ListenAsync();
-                //    m_clients.Add(client);
-                //    Console.WriteLine("A client connected ( " + m_clients.Count + " total )");
-                //}
                 switch (await Client.RecieveMessageAsync(tcpClient.GetStream()))
                 {
                     case "OperatorClient":
@@ -176,21 +172,6 @@ namespace Efficient_Automatic_Traveler_System
             }
             return false;
         }
-        
-        //{
-        //    DateTime current = DateTime.Now;
-        //    TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay;
-        //    Server.WriteLine("Will update again in: " + timeToGo.TotalMinutes + " Minutes");
-        //    m_timer = new Timer(x =>
-        //    {
-        //        foreach (Client client in m_clients)
-        //        {
-        //            client.UpdateTravelers(m_getTravelersAt(client.ProductionStation));
-        //        }
-        //        Update();
-        //    }, null, timeToGo, Timeout.InfiniteTimeSpan);
-        //}
-
 
         //------------------------------
         // Properties

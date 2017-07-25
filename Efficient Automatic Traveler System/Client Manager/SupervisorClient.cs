@@ -32,37 +32,6 @@ namespace Efficient_Automatic_Traveler_System
         }
         public override void HandleTravelersChanged(bool changed = false)
         {
-            //bool mirror = true; // travelers.Count == m_currentManager.GetTravelers.Count;
-            //travelers = m_currentManager.GetTravelers;
-            //Dictionary<string, string> message = new Dictionary<string, string>();
-            //List<Traveler> filtered = new List<Traveler>(travelers);
-            //if (m_filterState)
-            //{
-            //    filtered.RemoveAll(x => (x.State != m_viewState && !x.Items.Exists(y => y.State == m_viewState)));
-            //}
-            //if (m_filterType)
-            //{
-            //    filtered.RemoveAll(x => !m_viewType.IsAssignableFrom(x.GetType()));
-            //}
-            //// the package send to the client, contains all the stations and their respective traveler queue items
-            //Dictionary<string, string> stations = new Dictionary<string, string>();
-            //List<StationClass> visibleStations = filtered.SelectMany(f => f.CurrentStations(m_viewState)).Distinct().ToList();
-            //foreach (StationClass station in visibleStations)
-            //{
-            //    List<string> travelerStrings = new List<string>();
-            //    foreach (Traveler traveler in filtered.Where(f => f.CurrentStations(m_viewState).Contains(station)))
-            //    {
-            //        travelerStrings.Add(ExportTraveler(traveler, station));
-            //    }
-            //    Dictionary<string, string> stationObj = new Dictionary<string, string>()
-            //    {
-            //        {"travelers", travelerStrings.Stringify(false)}
-            //    };
-            //    stations.Add(station.Name, stationObj.Stringify());
-            //}
-            //message.Add("stations", stations.Stringify(false));
-            //message.Add("mirror", mirror.ToString().ToLower());
-            //SendMessage(new ClientMessage("HandleTravelersChanged",message.Stringify()).ToString());
             try
             {
                 NodeList queueArray = new NodeList(new Style("queueArray"));
@@ -231,9 +200,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             SendMessage(new ClientMessage("KanbanMonitor").ToString());
         }
-        public void LegacyTravelerPopup(int travelerID)
+        public ClientMessage LegacyTravelerPopup(int travelerID)
         {
-            SendMessage(ControlPanel.YesOrNo("Would you like to search EATS history for this traveler?",
+            return (ControlPanel.YesOrNo("Would you like to search EATS history for this traveler?",
                 "LookupLegacyTraveler", returnParam: new JsonObject() { { "travelerID", travelerID } }));
         }
         public ClientMessage LookupLegacyTraveler(string json)
@@ -507,7 +476,7 @@ namespace Efficient_Automatic_Traveler_System
                     }
                 );
 
-                if (traveler.ParentOrders.Count == 0)
+                if (traveler.ParentOrderNums.Count == 0)
                 {
                     fields.Add(new TextNode("Make to Stock", style: new Style("red", "shadow")));
                 }
@@ -519,13 +488,13 @@ namespace Efficient_Automatic_Traveler_System
                     foreach (string orderNo in traveler.ParentOrderNums)
                     {
                         Order order = traveler.ParentOrders.Find(o => o.SalesOrderNo == orderNo);
-                        Node orderLink = order != null ?
-                            (Node)new Button(orderNo, "OrderPopup", @"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}")
-                            : new TextNode(orderNo);
-                        Row orderListing = new Row() {
-                            orderLink,
-                            new Button("", "RemoveOrderFromTraveler",new JsonObject() { { "order", order.SalesOrderNo } }, style: new Style("deleteBtn"))
-                        };
+                        Node orderListing = (order != null ?
+                            (Node)new Row() {
+                                (Node)new Button(orderNo, "OrderPopup", @"{""orderNo"":" + order.SalesOrderNo.Quotate() + "}"),
+                                new Button("", "RemoveOrderFromTraveler",new JsonObject() { { "order", order.SalesOrderNo } }, style: new Style("deleteBtn"))
+                            }
+                            
+                            : new TextNode(orderNo));
                         orders.Add(orderListing);
                     }
                     fields.Add(
@@ -573,49 +542,29 @@ namespace Efficient_Automatic_Traveler_System
                         }
                     );
                 }
-                //if (station != null)
-                //{
-                //    fields.Add(
-                //        new Row(style: spaceBetween)
-                //        {
-                //            new TextNode("Station",style: new Style("leftAlign")), new TextNode(station.Name,style: new Style("white","rightAlign","shadow"))
-                //        }
-                //    );
-                //    fields.Add(
-                //        new Row(style: spaceBetween)
-                //        {
-                //            new TextNode("Pending",style: new Style("leftAlign")), new TextNode(traveler.QuantityPendingAt(station).ToString(),style: new Style("white","rightAlign","shadow"))
-                //        }
-                //    );
-                //    if (traveler.QuantityCompleteAt(station) > 0)
-                //    {
-                //        fields.Add(
-                //            new Row(style: spaceBetween)
-                //            {
-                //                new TextNode("Complete",style: new Style("leftAlign")), new TextNode(traveler.QuantityCompleteAt(station).ToString(),style: new Style("white","rightAlign","shadow"))
-                //            }
-                //        );
-                //    }
-                //}
+                // Items
                 if (traveler.Items.Count > 0)
                 {
                     Column items = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     items.Add(new Expand());
                     DataTable itemTable = new DataTable();
-                    
+                    itemTable.Columns.Add(new DataColumn("Item"));
+                    itemTable.Columns["Item"].DataType = typeof(Button);
+                    itemTable.Columns.Add(new DataColumn("Station"));
+                    itemTable.Columns.Add(new DataColumn("State"));
+                    itemTable.Columns["State"].DataType = typeof(TextNode);
+
                     foreach (TravelerItem item in traveler.Items)
                     {
-                        Style style = new Style();
-                        switch (item.GlobalState)
-                        {
-                            case GlobalItemState.InProcess: style = new Style("redBack");break;
-                            case GlobalItemState.Finished: style = new Style("greenBack");break;
-                        }
-                        
-                        
-                        items.Add(new Button(traveler.PrintSequenceID(item), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}", style));
+                        DataRow row = itemTable.NewRow();
+
+                        row["Item"] = new Button(traveler.PrintSequenceID(item), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}");
+                        row["Station"] = item.Station.Name;
+                        row["State"] = new TextNode(item.PrintState(),item.QueueStyle());
+
+                        itemTable.Rows.Add(row);
                     }
-                    ControlPanel.CreateDataTable(itemTable);
+                    items.Add(ControlPanel.CreateDataTable(itemTable));
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
@@ -1660,7 +1609,7 @@ namespace Efficient_Automatic_Traveler_System
                 //string[] parts = obj["searchPhrase"].Split('-');
 
                 string[] parts = searchPhrase.Split('-');
-                if (parts.Length == 1 || parts.Length == 2) {
+                if ((parts.Length == 1 || parts.Length == 2) && parts[0].Length <= 6) {
                     int travelerID;
                     if (int.TryParse(parts[0],out travelerID)) {
                         Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
@@ -1684,15 +1633,18 @@ namespace Efficient_Automatic_Traveler_System
                         } else
                         {
                             // Try to look up legacy traveler
-                            LegacyTravelerPopup(travelerID);
+                            return LegacyTravelerPopup(travelerID);
+
                         }
                     }
                 }
+                // try to find a model
                 if (Traveler.IsTable(searchPhrase) || Traveler.IsChair(searchPhrase))
                 {
                     SendMessage(new ClientMessage("ClearSearch"));
                     return ListTravelers(Server.TravelerManager.GetTravelers.Where(t => t.ItemCode.Equals(searchPhrase,StringComparison.CurrentCultureIgnoreCase)).ToList());
                 }
+                // try to find an order
                 Order order = Server.OrderManager.FindOrder(searchPhrase);
                 if (order != null)
                 {

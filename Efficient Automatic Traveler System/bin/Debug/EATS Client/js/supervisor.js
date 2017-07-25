@@ -627,6 +627,11 @@ function Application () {
 			self.StartAutofocus();
 		});
 	}
+	this.Redirect = function(location) {
+		//window.location = location;
+		var win = window.open(location,'_blank');
+		win.focus();
+	}
 	// initialize html and application components
 	this.Initialize = function () {
 		var self = this;
@@ -689,6 +694,13 @@ function Application () {
 		document.getElementById("superOptionsBtn").onclick = function () {
 			new InterfaceCall("OptionsMenu");
 			
+		}
+		//----------------
+		// help
+		//----------------
+		
+		document.getElementById("helpBtn").onclick = function () {
+			new InterfaceCall("Help");
 		}
 		/* var popup = self.popupManager.CreatePopup();
 			// OPEN SUMMARY CURRENT SUMMARY VIEW--------------

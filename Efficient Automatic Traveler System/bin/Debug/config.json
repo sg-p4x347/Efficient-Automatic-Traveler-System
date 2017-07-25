@@ -1,5 +1,5 @@
 {
-	"debug":false,
+	"debug":true,
 	"print":{
 		"Tracking":true,
 		"Scrap":true,
@@ -25,6 +25,7 @@
 	},
 	"drawings":"\\MGFS01\Company\SHARE\common\Drawings\Marco\PDF\",
 	"dataDump":"c:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\dataDump\",
+	"help":"\EATS Client\User Guide.pdf",
 	"notificationManager":{
 		"serverAddress":"192.168.2.3",
 		"mailAddress":"eats@marcogroupinc.com",
@@ -36,7 +37,7 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"154786",
+	"nextTravelerID":"155342",
 	"nextEventID":"8374",
 	"boxTravelerSize":5,
 	"scrapReport":{

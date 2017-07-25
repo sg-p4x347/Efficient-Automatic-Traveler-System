@@ -120,14 +120,17 @@ namespace Efficient_Automatic_Traveler_System
             }
             return "";
         }
+        private static readonly Object lockObj = new Object();
         static public void Backup(string filename, string contents)
         {
-            Version version = Version._2_6;
-            CreateBackupDir();
-            contents = version.ToString() + '\n' + contents;
-            File.WriteAllText(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date), filename),contents);
-            // mirror this at the data dump location
-            File.WriteAllText(Path.Combine(ConfigManager.Get("dataDump"), "backup", DateToString(DateTime.Today.Date), filename), contents);
+            lock (lockObj) {
+                Version version = Version._2_6;
+                CreateBackupDir();
+                contents = version.ToString() + '\n' + contents;
+                File.WriteAllText(Path.Combine(Server.RootDir, "backup", DateToString(DateTime.Today.Date), filename), contents);
+                // mirror this at the data dump location
+                File.WriteAllText(Path.Combine(ConfigManager.Get("dataDump"), "backup", DateToString(DateTime.Today.Date), filename), contents);
+            }
         }
         static public void Backup(string path)
         {

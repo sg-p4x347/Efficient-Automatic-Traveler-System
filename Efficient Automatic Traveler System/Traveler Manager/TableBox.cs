@@ -19,6 +19,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public TableBox(Table table) : base(table) {
             TableSize = table.Size;
+            
             ImportBoxSize("Table Reference.csv", table.ItemCode);
             foreach (Item componentItem in table.CommonBill.ComponentItems)
             {

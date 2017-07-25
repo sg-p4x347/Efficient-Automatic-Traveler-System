@@ -21,6 +21,15 @@ namespace Efficient_Automatic_Traveler_System
             }
             return array;
         }
+        public static JsonArray From<T>(IEnumerable<T> enumerable)
+        {
+            JsonArray array = new JsonArray();
+            foreach (T item in enumerable)
+            {
+                (array.Value as List<JSON>).Add(JSON.Parse(item.ToString()));
+            }
+            return array;
+        }
         public JsonArray(ref StringStream json)
         {
             Value = new List<JSON>();

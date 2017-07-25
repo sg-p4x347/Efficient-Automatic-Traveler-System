@@ -153,7 +153,7 @@ namespace Efficient_Automatic_Traveler_System
             !t.ParentOrders.Any()
             && t.FinishedBefore(DateTime.Today) 
             && t.ChildTravelers.All(child => child.FinishedBefore(DateTime.Today)) && t.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today))).ToList();
-            Server.WriteLine(travelers.Stringify());
+            //Server.WriteLine(travelers.Stringify());
         }
         public void ImportTravelerInfo(IOrderManager orderManager, OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
         {
@@ -811,10 +811,11 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void OnTravelersChanged(List<Traveler> travelers = null)
         {
-            // Update the travelers.json file with all the current travelers
-            Backup();
+            
             // fire the event
             TravelersChanged(travelers != null ? travelers : m_travelers);
+            // Update the travelers.json file with all the current travelers
+            Backup();
         }
         public void OnTravelersChanged(Traveler traveler)
         {

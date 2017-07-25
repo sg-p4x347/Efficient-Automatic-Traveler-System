@@ -131,7 +131,24 @@ namespace Efficient_Automatic_Traveler_System
             m_station = StationClass.GetStation("Start");
             State = GlobalItemState.PreProcess;
         }
-        
+        public Style QueueStyle()
+        {
+            if (Quantity > 0)
+            {
+                switch (State)
+                {
+                    case GlobalItemState.PreProcess: return new Style("blueBack");
+                    case GlobalItemState.InProcess: return new Style("cyanBack");
+                    case GlobalItemState.Flagged: return new Style("yellowBack");
+                    case GlobalItemState.Scrapped: return new Style("redBack");
+                    case GlobalItemState.Finished: return new Style("greenBack");
+                    default: return new Style("ghostBack");
+                }
+            } else
+            {
+                return new Style("ghostBack");
+            }
+        }
         public void NewID()
         {
             // open the currentID.txt file
@@ -143,6 +160,14 @@ namespace Efficient_Automatic_Traveler_System
             //readID.Close();
             // increment the current ID
             //File.WriteAllText(System.IO.Path.Combine(exeDir, "currentID.txt"), (m_ID + 1).ToString() + '\n');
+        }
+        public void AddChild(Traveler child)
+        {
+            if (!child.ParentIDs.Contains(ID)) child.ParentIDs.Add(ID);
+            if (!child.ParentTravelers.Contains(this)) child.ParentTravelers.Add(this);
+
+            if (!this.ChildIDs.Contains(child.ID)) this.ChildIDs.Add(child.ID);
+            if (!this.ChildTravelers.Contains(child)) this.ChildTravelers.Add(child);
         }
         
         //check inventory to see how many actually need to be produced.

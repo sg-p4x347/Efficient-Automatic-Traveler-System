@@ -47,7 +47,8 @@ namespace Efficient_Automatic_Traveler_System
             Station = StationClass.GetStation("Box");
             //m_quantity = traveler.Quantity;
             m_quantity = 1;
-            ParentTravelers.Add(traveler);
+
+            traveler.AddChild(this);
         }
         public override string ToString()
         {

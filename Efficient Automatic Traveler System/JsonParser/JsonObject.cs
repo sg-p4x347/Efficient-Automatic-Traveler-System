@@ -15,36 +15,52 @@ namespace Efficient_Automatic_Traveler_System
         }
         public JsonObject(ref StringStream json)
         {
+            
             Value = new Dictionary<string, JSON>();
-            string key = null;
-            char ch = '}';
-            while (json.Get(ref ch))
+            try
             {
-                if (!Char.IsWhiteSpace(ch))
+                string key = null;
+                char ch = '}';
+                while (json.Get(ref ch))
                 {
-                    if (key == null && ch == '"')
+                    if (!Char.IsWhiteSpace(ch))
                     {
-                        json.PutBack();
-                        key = new JsonString(ref json);
-                    }
-                    else if (ch == '}')
-                    {
-                        break;
-                    }
-                    else if (ch == ':')
-                    {
-                    }
-                    else if (ch == ',')
-                    {
-                    }
-                    else
-                    {
-                        json.PutBack();
-                        (Value as Dictionary<string, JSON>).Add(key, Import(ref json));
-                        key = null;
+                        if (key == null && ch == '"')
+                        {
+                            json.PutBack();
+                            key = new JsonString(ref json);
+                        }
+                        else if (ch == '}')
+                        {
+                            break;
+                        }
+                        else if (ch == ':')
+                        {
+                        }
+                        else if (ch == ',')
+                        {
+                        }
+                        else
+                        {
+                            json.PutBack();
+                            (Value as Dictionary<string, JSON>).Add(key, Import(ref json));
+                            key = null;
+                        }
                     }
                 }
+            } catch (Exception ex)
+            {
+
             }
+        }
+        public static JsonObject From<T1,T2>(Dictionary<T1, T2> dictionary)
+        {
+            JsonObject obj = new JsonObject();
+            foreach (KeyValuePair<T1, T2> pair in dictionary)
+            {
+                (obj.Value as Dictionary<string, JSON>).Add(pair.Key.ToString(), JSON.Parse(pair.Value.ToString()));
+            }
+            return obj;
         }
         public override string ToString()
         {

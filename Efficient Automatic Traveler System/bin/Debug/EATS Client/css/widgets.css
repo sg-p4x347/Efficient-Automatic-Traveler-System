@@ -595,6 +595,21 @@ div.queue__item__desc {
 	background-position: left center;
 	background-size: contain;
 }
+.helpBtn {
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	background-image: url('../img/help.ico');
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: contain;
+	width: 1em;
+	height: 1em;
+	border-radius: 0.5em;
+}
+.helpBtn:hover {
+	background-color: rgba(255,255,255,0.25);
+}
 /* position modifiers*/
 .topLeft {
 	align-self: flex-start;

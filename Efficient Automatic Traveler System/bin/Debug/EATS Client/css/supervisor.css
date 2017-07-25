@@ -45,6 +45,7 @@ div.header {
 	display: flex;
 	align-items: baseline;
 	width: 100%;
+	flex-direction: row;
 	justify-content: center;
 	vertical-align: baseline;
 	color: red;
@@ -117,7 +118,7 @@ div.summaryPopup table tr td,th {
 #searchBox {
 	width: 100%;
 }
-#searchForm{
+#searchForm {
 	width: 50%;
 }
 #viewForm {
@@ -162,9 +163,8 @@ div.queue {
 	background-image: url("../img/loading.gif");
 	background-position: center;
 	background-repeat: no-repeat;
-	background-size: 3em 3em;
-	width: 100%;
-	height: 100%;
+	width: 3em;
+	height: 3em;
 }
 /*Traveler View*/
 div.viewContainer {

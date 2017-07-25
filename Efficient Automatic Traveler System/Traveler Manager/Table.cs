@@ -267,8 +267,11 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"Desc1\":\"" + Bill.BillNo + "\"";
                     json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) +  " !!\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
-                    string reason = scrapEvent.Reason;
-                    json += ",\"Reason\":" + reason.Quotate();
+                    if (scrapEvent != null)
+                    {
+                        string reason = scrapEvent.Reason;
+                        json += ",\"Reason\":" + reason.Quotate();
+                    }
                     break;
                 case LabelType.Table:
                     json += GetLabelFields(new List<string>()

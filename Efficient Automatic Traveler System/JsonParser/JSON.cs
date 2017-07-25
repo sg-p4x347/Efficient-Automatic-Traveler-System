@@ -115,9 +115,12 @@ namespace Efficient_Automatic_Traveler_System
                             } else if (Boolean.TryParse(primitive, out boolean))
                             {
                                 return new JsonBool(boolean);
-                            } else
+                            } else if (primitive == "null" || primitive == "undefined")
                             {
                                 return new JsonNull();
+                            } else
+                            {
+                                return new JsonString(primitive);
                             }
                     }
                 }
