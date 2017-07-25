@@ -1,10 +1,10 @@
 Configuration settings loaded from current
 Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
-
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	07/20/2017 @ 05:28
-
 Client manager started
+
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	07/24/2017 @ 06:36
+
 EATS inventory loaded from backup
 Kanban Manager loaded from backup
 Configuration settings loaded from current
@@ -14,8 +14,13 @@ Users loaded from backup
 Importing orders...Importing orders...Finished
 Loading travelers from backup...Loading travelers from backup...Finished
 []
-Gathering Info...9%Gathering Info...18%Gathering Info...27%Gathering Info...36%Gathering Info...45%Gathering Info...55%Gathering Info...64%Gathering Info...73%Gathering Info...82%Gathering Info...91%Gathering Info...100%Gathering Info...Finished
+Gathering Info...Finished
 Disconnected from MAS
 
 <<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
 
+Configuration settings loaded from current
+Connecting to MAS...Connecting to MAS...Connected
+Compiling Travelers...0%Compiling Travelers...0%Compiling Travelers...0%Compiling Travelers...0%Compiling Travelers...0%Compiling Travelers...0%Compiling Travelers...0%Compiling Travelers...0%Compiling Travelers...Finished
+Gathering Info...12%Gathering Info...25%Gathering Info...38%Gathering Info...50%Gathering Info...62%Gathering Info...75%Gathering Info...88%Gathering Info...100%Gathering Info...Finished
+Disconnected from MAS

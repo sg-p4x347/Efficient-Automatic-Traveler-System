@@ -1,10 +1,10 @@
 {
-	"debug":true,
+	"debug":false,
 	"print":{
 		"Tracking":true,
 		"Scrap":true,
-		"Pack":false,
-		"Table":false,
+		"Pack":true,
+		"Table":true,
 		"Chair":true,
 		"Box":true
 	},
@@ -13,7 +13,9 @@
 		"4x6FloorTable",
 		"4x2FloorTableBox",
 		"4x2Box1",
-		"4x2IT"
+		"4x2IT",
+		"4x2SNX-Pack",
+		"4x6SNX-Table"
 	],
 	"useMASinventory":true,
 	"KanbanManagerSyncPeriod":0.5,
@@ -34,7 +36,7 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"154371",
+	"nextTravelerID":"154786",
 	"nextEventID":"8374",
 	"boxTravelerSize":5,
 	"scrapReport":{
@@ -427,8 +429,8 @@
 			"type":"bulkPack",
 			"mode":"Serial",
 			"printers":[
-				"4x6FloorTable",
-				"4x2FloorTableBox"
+				"4x6SNX-Table",
+				"4x2SNX-Pack"
 			]
 		},
 		{
@@ -436,8 +438,8 @@
 			"type":"tablePack",
 			"mode":"Serial",
 			"printers":[
-				"4x6FloorTable",
-				"4x2FloorTableBox"
+				"4x6SNX-Table",
+				"4x2SNX-Pack"
 			]
 		},
 		{

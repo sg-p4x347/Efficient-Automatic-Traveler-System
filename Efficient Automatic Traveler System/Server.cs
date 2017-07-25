@@ -319,7 +319,7 @@ namespace Efficient_Automatic_Traveler_System
             }
 
         }
-        private void UpdateOnline(string orderQuery = "")
+        private async void UpdateOnline(string orderQuery = "")
         {
             Server.WriteLine("> Updating in Online mode");
             // Import stored orders from json file and MAS
@@ -333,7 +333,7 @@ namespace Efficient_Automatic_Traveler_System
             m_travelerManager.CullFinishedTravelers();
 
             // Import information from MAS
-            m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS);
+            m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, m_MAS);
 
             // Push planned travelers from the previous day into production
             m_travelerManager.EnterProduction();
@@ -346,7 +346,7 @@ namespace Efficient_Automatic_Traveler_System
             Backup();
             Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
         }
-        public void CreateTravelers(bool tables = true, bool consolodate = true, bool consolidatePriorityCustomers = true, List<Order> orders = null,Action<double> ReportProgress = null)
+        public async Task CreateTravelers(bool tables = true, bool consolodate = true, bool consolidatePriorityCustomers = true, List<Order> orders = null,Action<double> ReportProgress = null)
         {
             try
             {
@@ -358,7 +358,8 @@ namespace Efficient_Automatic_Traveler_System
                     List<Traveler> newTravelers = m_travelerManager.CompileTravelers(tables, consolodate, consolidatePriorityCustomers, orders);
 
                     // Finalize the travelers by importing external information
-                    m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, ref m_MAS,newTravelers,ReportProgress);
+                    m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, m_MAS, newTravelers, ReportProgress);
+                    m_MAS.Close();
 
                     m_orderManager.Backup();
 
@@ -367,9 +368,6 @@ namespace Efficient_Automatic_Traveler_System
             }
             catch (AccessViolationException ex)
             {
-                Server.WriteLine("");
-                Server.WriteLine("CAUGHT THE ALMIGHTY ACCESS VIOLATION EXCEPTION!");
-                Server.WriteLine("");
                 Server.LogException(ex);
                 CloseMAS();
             }

@@ -26,7 +26,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         [HandleProcessCorruptedStateExceptions]
-        public void Import(OdbcConnection MAS)
+        public async Task Import(OdbcConnection MAS)
         {
             try
             {
@@ -34,26 +34,25 @@ namespace Efficient_Automatic_Traveler_System
                 if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
                 OdbcCommand command = MAS.CreateCommand();
                 command.CommandText = "SELECT ItemCodeDesc, StandardUnitOfMeasure FROM CI_item WHERE itemCode = '" + m_itemCode + "'";
-                OdbcDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.SingleRow);
+                OdbcDataReader reader = (OdbcDataReader)( command.ExecuteReader(System.Data.CommandBehavior.SingleRow));
 
                 // begin to read
                 if (reader.Read())
                 {
-
                     //if (!reader.IsDBNull(0)) m_itemType = reader.GetInt32(0);
                     if (!reader.IsDBNull(0)) m_itemCodeDesc = reader.GetString(0);
                     if (!reader.IsDBNull(1)) m_unit = reader.GetString(1);
-
                 }
                 reader.Close();
             }
             catch (AccessViolationException ex)
             {
                 Server.HandleODBCexception(ex);
-                Import(MAS);
+                await Import(MAS);
             } catch (Exception ex)
             {
                 Server.LogException(ex);
+                await Import(MAS);
             }
         }
         public Item (Item item)

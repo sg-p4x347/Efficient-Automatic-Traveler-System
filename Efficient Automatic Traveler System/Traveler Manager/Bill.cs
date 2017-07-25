@@ -41,37 +41,37 @@ namespace Efficient_Automatic_Traveler_System
         
         public void Import(OdbcConnection MAS)
         {
-            if (!Imported)
-            {
-                // Import header
-                if (!HeaderImported)
+                if (!Imported)
                 {
-                    var tokenSource = new CancellationTokenSource();
-
-                    var headerTask = Task.Run(() => ImportHeader(MAS),tokenSource.Token);
-                    if (!headerTask.Wait(TimeSpan.FromSeconds(3)) || !HeaderImported)
+                    // Import header
+                    if (!HeaderImported)
                     {
-                        // Trying again
-                        tokenSource.Cancel();
-                        Server.WriteLine("-Bill header timed out, trying again-");
-                        Import(MAS);
+                        var tokenSource = new CancellationTokenSource();
+
+                        var headerTask = Task.Run(() => ImportHeader(MAS), tokenSource.Token);
+                        if (!headerTask.Wait(TimeSpan.FromSeconds(3)) || !HeaderImported)
+                        {
+                            // Trying again
+                            tokenSource.Cancel();
+                            Server.WriteLine("-Bill header timed out, trying again-");
+                            Import(MAS);
+                        }
+                    }
+                    // Import detail
+                    if (!DetailImported)
+                    {
+                        var tokenSource = new CancellationTokenSource();
+
+                        var detailTask = Task.Run(() => ImportDetail(MAS), tokenSource.Token);
+                        if (!detailTask.Wait(TimeSpan.FromSeconds(3)) || !DetailImported)
+                        {
+                            // Trying again
+                            tokenSource.Cancel();
+                            Server.WriteLine("-Bill detail import timed out, trying again-");
+                            Import(MAS);
+                        }
                     }
                 }
-                // Import detail
-                if (!DetailImported)
-                {
-                    var tokenSource = new CancellationTokenSource();
-
-                    var detailTask = Task.Run(() => ImportDetail(MAS), tokenSource.Token);
-                    if (!detailTask.Wait(TimeSpan.FromSeconds(3)) || !DetailImported)
-                    {
-                        // Trying again
-                        tokenSource.Cancel();
-                        Server.WriteLine("-Bill detail import timed out, trying again-");
-                        Import(MAS);
-                    }
-                }
-            }
         }
         private bool IsImported(OdbcConnection MAS)
         {
@@ -82,7 +82,7 @@ namespace Efficient_Automatic_Traveler_System
             return Imported;
         }
         [HandleProcessCorruptedStateExceptions]
-        private async void ImportHeader(OdbcConnection MAS)
+        private void ImportHeader(OdbcConnection MAS)
         {
             try
             {
@@ -93,29 +93,28 @@ namespace Efficient_Automatic_Traveler_System
                 command.CommandTimeout = 30;
                 command.CommandText = "SELECT BillType, BillDesc1, CurrentBillRevision, DrawingNo, Revision FROM BM_billHeader WHERE billno = '" + m_billNo + "'";
 
-                using (OdbcDataReader reader = (OdbcDataReader)(await command.ExecuteReaderAsync(System.Data.CommandBehavior.SequentialAccess)))
+                OdbcDataReader reader = (OdbcDataReader)(command.ExecuteReader(System.Data.CommandBehavior.SequentialAccess));
+                // read info
+                while (reader.Read())
                 {
-                    // read info
-                    while (reader.Read())
+                    string currentRev = reader.GetString(4);
+                    string thisRev = reader.GetString(2);
+                    // only use the current bill revision
+                    if (currentRev == thisRev) // if (current bill revision == this revision)
                     {
-                        string currentRev = reader.GetString(4);
-                        string thisRev = reader.GetString(2);
-                        // only use the current bill revision
-                        if (currentRev == thisRev) // if (current bill revision == this revision)
+                        m_billType = reader.GetString(0)[0];
+                        m_billDesc = reader.GetString(1);
+                        m_currentBillRevision = reader.GetString(2);
+                        if (!reader.IsDBNull(3))
                         {
-                            m_billType = reader.GetString(0)[0];
-                            m_billDesc = reader.GetString(1);
-                            m_currentBillRevision = reader.GetString(2);
-                            if (!reader.IsDBNull(3))
-                            {
-                                m_drawingNo = reader.GetString(3);
-                            }
-                            break;
+                            m_drawingNo = reader.GetString(3);
                         }
+                        break;
                     }
                 }
                 // Success!
                 HeaderImported = true;
+                reader.Close();
             }
             catch (AccessViolationException ex)
             {

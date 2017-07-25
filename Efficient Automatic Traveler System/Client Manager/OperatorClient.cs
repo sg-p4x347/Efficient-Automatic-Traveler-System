@@ -433,14 +433,14 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("LoginPopup", ("System error! oops...").Quotate());
             }
         }
-        public ClientMessage CompleteItem(string json = "")
+        public async Task<ClientMessage> CompleteItem(string json = "")
         {
             try
             {
                 if (SelectedItem == null && CurrentStation.CreatesThis(SelectedTraveler))
                 {
                     // Create a new item
-                    SelectedItem = SelectedTraveler.AddItem(CurrentStation);
+                    SelectedItem = await SelectedTraveler.AddItem(CurrentStation);
                     NewPartStarted(); // timers
                 } else if (SelectedItem != null && SelectedItem.BeenCompleted(CurrentStation) && !SelectedItem.Flagged)
                 {
@@ -775,7 +775,7 @@ namespace Efficient_Automatic_Traveler_System
                 SelectTraveler(traveler);
                 Row options = new Row()
                 {
-                    new Button("Rework","ReworkTraveler")
+                    new Button("Rework Traveler","ReworkTraveler")
                 };
                 SendMessage(new ControlPanel(traveler.PrintID(), new Column()
                 {

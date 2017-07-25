@@ -29,9 +29,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             return base.ExportTableRows(station);
         }
-        public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        public override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
-            base.ImportInfo(travelerManager, orderManager,MAS);
+            return base.ImportInfo(travelerManager, orderManager,MAS);
         }
         // labels
         public override string GetLabelFields(ushort itemID, LabelType type)

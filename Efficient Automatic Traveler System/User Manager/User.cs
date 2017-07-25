@@ -154,6 +154,23 @@ namespace Efficient_Automatic_Traveler_System
 
             return detail;
         }
+        public double TotalLogTime()
+        {
+            double time = 0.0;
+            LogEvent login = null;
+            foreach(LogEvent evt in History.OfType<LogEvent>())
+            {
+                if (login == null && evt.LogType == LogType.Login)
+                {
+                    login = evt;
+                } else if (login != null && evt.LogType == LogType.Logout)
+                {
+                    login = null;
+                    time += (evt.Date - login.Date).TotalMinutes;
+                }
+            }
+            return Math.Round(time, 2);
+        }
         #endregion
         #region Properties
         private string m_name;

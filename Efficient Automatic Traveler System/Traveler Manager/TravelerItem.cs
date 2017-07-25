@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Net;
+using System.Net.Http;
+
 namespace Efficient_Automatic_Traveler_System
 {
     public enum LocalItemState
@@ -234,10 +237,10 @@ namespace Efficient_Automatic_Traveler_System
             {
                 if (Station.Type == "tablePack")
                 {
-                    Parent.PrintLabel(ID, LabelType.Table);
+                    PrintLabel( LabelType.Table);
                     if (!CartonPrinted)
                     {
-                        Parent.PrintLabel(ID, LabelType.Pack);
+                        PrintLabel(LabelType.Pack);
                         CartonPrinted = true;
                     }
                 }
@@ -287,7 +290,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             Server.TravelerManager.OnTravelersChanged(Parent);
         }
-        public string Scrap()
+        public Task<string> Scrap(User user)
         {
             LocalState = LocalItemState.PostProcess;
             GlobalState = GlobalItemState.Scrapped;
@@ -302,7 +305,7 @@ namespace Efficient_Automatic_Traveler_System
 
 
                 History.Add(new ScrapEvent(
-                    lastProcess.User,
+                    user,
                     Station,
                     0.0,
                     Convert.ToBoolean(flagEvent.Data.ValueOf("startedWork")),
@@ -314,12 +317,11 @@ namespace Efficient_Automatic_Traveler_System
                 
                 Server.TravelerManager.OnTravelersChanged(Parent);
                 // print le label
-                return Parent.PrintLabel(ID, LabelType.Scrap);
+                return PrintLabel( LabelType.Scrap);
             } else
             {
-                return "Flag event could not be found";
+                return Task.FromResult("Flag event could not be found");
             }
-           
         }
         public void Rework(User user, StationClass station)
         {
@@ -386,6 +388,90 @@ namespace Efficient_Automatic_Traveler_System
         public string PrintID()
         {
             return Parent.PrintID(this);
+        }
+        public async Task<string> PrintLabel(LabelType type, int? qty = null, bool forcePrint = false, StationClass station = null, string printer = "")
+        {
+            string result = "";
+            try
+            {
+                using (var client = new WebClient())
+                {
+                    client.Headers[HttpRequestHeader.ContentType] = "application/json";
+                    string json = "{";
+                    string fields = Parent.GetLabelFields(ID, type);
+                    string template = "";
+                    // TEMP
+                    //type = LabelType.Test;
+                    string size = "";
+                    switch (type)
+                    {
+                        case LabelType.Tracking: template = "4x2 Table Travel1"; break; // 4x2Pack --> in hall
+                        case LabelType.Scrap: template = "4x2 Table Scrap1"; break;
+                        case LabelType.Pack:
+                            template = "4x2 Table Carton EATS";
+                            if (qty == null)
+                            {
+                                qty = 2;
+                            }
+                            break;
+                        case LabelType.Table: template = "4x6 Table EATS"; break;
+                        case LabelType.Chair: template = "4x2 EdChair EATS"; break;
+                        case LabelType.ChairCarton: template = "4x6 EdChair Pack Carton EATS"; break;
+                        case LabelType.Box: template = "4x2 Table Travel Box"; break;
+                    }
+                    if (qty == null) qty = 1;
+                    size = template.Substring(0, 3).ToLower();
+                    if (station == null) station = Station;
+                    if (printer == "")
+                    {
+                        printer = station.Printers.Find(x => x.ToLower().Contains(size));
+                        if (printer == "")
+                        {
+                            throw new Exception("Could not find a " + size + " printer for this station when printing a [" + template + "] , check the config.json file for a printer listing on this station");
+                        }
+                        if (Convert.ToBoolean(ConfigManager.Get("debug")))
+                        {
+                            printer = "4x2IT";
+                        }
+                    }
+                    //switch (type)
+                    //{
+                    //    case LabelType.Tracking: template = "4x2 Table Travel1"; printer = "4x2Heian2"; break; // 4x2Pack --> in hall
+                    //    case LabelType.Scrap: template = "4x2 Table Scrap1"; printer = "4x2Heian2"; break;
+                    //    case LabelType.Pack: template = "4x2 Table Carton EATS"; printer = "4x2FloorTableBox"; break;
+                    //    case LabelType.Table: template = "4x6 Table EATS"; printer = "4x6FloorTable"; break;
+                    //    case LabelType.Test: template = "4x2 Table Carton EATS logo"; printer = "4x2IT"; break;
+                    //}
+                    // piecing it together
+
+                    if (fields.Length > 0) { json += fields.Trim(',') + ','; }
+                    json += "\"printer\":\"" + printer + "\"";
+                    json += ",\"template\":\"" + template + "\"";
+                    json += ",\"qty\":" + qty.Value;
+                    json += '}';
+                    Dictionary<string, string> labelConfigs = (new StringStream(ConfigManager.Get("print"))).ParseJSON();
+                    // only print if the config says so
+                    if (forcePrint || (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()])))
+                    {
+                        result = (string)(await client.UploadStringTaskAsync(new System.Uri(new StringStream(ConfigManager.Get("labelServer")).ParseJSON()["address"]), "POST", json));
+                        result += " at " + printer + " printer";
+                        if (ConfigManager.GetJSON("debug"))
+                        {
+                            Server.WriteLine(result);
+                        }
+                    }
+                    else
+                    {
+                        result = type.ToString() + " Labels disabled";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = "Error when printing label";
+                Server.LogException(ex);
+            }
+            return result;
         }
         // Properties
         private UInt16 m_ID;
@@ -646,6 +732,11 @@ namespace Efficient_Automatic_Traveler_System
         public bool BeenProcessedBy(string stationType)
         {
             return StationClass.OfType(stationType).Any(s => BeenWorkedOn(s));
+        }
+        // returns true if this item has been completed by any station of the specified type
+        public bool BeenCompletedBy(string stationType)
+        {
+            return StationClass.OfType(stationType).Any(s => BeenCompleted(s));
         }
     }
 }

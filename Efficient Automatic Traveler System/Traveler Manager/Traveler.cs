@@ -62,21 +62,21 @@ namespace Efficient_Automatic_Traveler_System
             m_itemCode = "";
             m_quantity = 0;
             items = new List<TravelerItem>();
-            ParentOrderNums1 = new List<string>();
+            ParentOrderNums = new List<string>();
             m_parentOrders = new List<Order>();
-            ParentIDs1 = new List<int>();
+            ParentIDs = new List<int>();
             m_parentTravelers = new List<Traveler>();
-            ChildIDs1 = new List<int>();
+            ChildIDs = new List<int>();
             m_childTravelers = new List<Traveler>();
             m_station = null;
             m_state = 0;
             m_dateStarted = "";
             m_comment = "";
             m_lastReworkAccountedFor = 0;
+            
         }
-        public Traveler(Form form) : this()
+        public Traveler(Form form) : this(form.ValueOf("itemCode"), Convert.ToInt32(form.ValueOf("quantity")))
         {
-            ItemCode = form.ValueOf("itemCode");
             Update(form);
         }
         // Gets the base properties and orders of the traveler from a json string
@@ -93,15 +93,15 @@ namespace Efficient_Automatic_Traveler_System
                 itemObj.Parent = this;
                 Items.Add(itemObj);
             }
-            ParentOrderNums1 = (new StringStream(obj["parentOrders"])).ParseJSONarray();
+            ParentOrderNums = (new StringStream(obj["parentOrders"])).ParseJSONarray();
             foreach (string id in (new StringStream(obj["parentTravelers"])).ParseJSONarray())
             {
-                ParentIDs1.Add(Convert.ToInt32(id));
+                ParentIDs.Add(Convert.ToInt32(id));
             }
            
             foreach (string id in (new StringStream(obj["childTravelers"])).ParseJSONarray())
             {
-                ChildIDs1.Add(Convert.ToInt32(id));
+                ChildIDs.Add(Convert.ToInt32(id));
             }
             
             m_station = StationClass.GetStation(obj["station"]);
@@ -263,7 +263,7 @@ namespace Efficient_Automatic_Traveler_System
                     // only print if the config says so
                     if (forcePrint || (labelConfigs.ContainsKey(type.ToString()) && Convert.ToBoolean(labelConfigs[type.ToString()])))
                     {
-                        result = client.UploadString(new StringStream(ConfigManager.Get("labelServer")).ParseJSON()["address"], "POST", json);
+                        result = (string)(client.UploadString(new System.Uri(new StringStream(ConfigManager.Get("labelServer")).ParseJSON()["address"]), "POST", json));
                         result += " at " + printer + " printer";
                         if (ConfigManager.GetJSON("debug"))
                         {
@@ -304,10 +304,12 @@ namespace Efficient_Automatic_Traveler_System
 
         public static bool IsTable(string s)
         {
+            s = s.ToUpper();
             return s != null && ((s.Length <= 12 && s.Substring(0, 2) == "MG") || (s.Length <= 12 && (s.Substring(0, 3) == "38-" || s.Substring(0, 3) == "41-")));
         }
         public static bool IsChair(string s)
         {
+            s = s.ToUpper();
             if (s.Length == 14 && s.Substring(0, 2) == "38")
             {
                 string[] parts = s.Split('-');
@@ -384,7 +386,7 @@ namespace Efficient_Automatic_Traveler_System
         //        AdvanceItem(item.ID, travelerManager);
         //    }
         //}
-        public TravelerItem AddItem(StationClass station,string printer = "")
+        public async Task<TravelerItem> AddItem(StationClass station,string printer = "")
         {
             // find the highest id
             // and find the smallest available sequence number
@@ -423,19 +425,8 @@ namespace Efficient_Automatic_Traveler_System
             {
                 labelType = LabelType.Box;
             }
-            PrintLabel(newItem.ID, labelType,printer:printer);
-            //if (station.CreatesThis(this) && this is Table)
-            //{
-            //    int boxQuantity = Items.Count(i => !i.Scrapped) - ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
-            //    if (boxQuantity > 0)
-            //    {
-            //        // Create a box traveler for these items
-            //        TableBox box = (this as Table).CreateBoxTraveler();
-            //        box.Quantity = boxQuantity;
-            //        box.EnterProduction(Server.TravelerManager);
-            //        Server.TravelerManager.GetTravelers.Add(box);
-            //    }
-            //}
+            await newItem.PrintLabel(labelType,printer:printer);
+
             return newItem;
         }
         public void Finish()
@@ -449,7 +440,7 @@ namespace Efficient_Automatic_Traveler_System
             foreach (TravelerItem item in Items)
             {
                 DateTime d;
-                if (!item.Scrapped && (!item.DateFinished(out d) || d.Day >= date.Day))
+                if (!(item.Scrapped || (item.DateFinished(out d) && d.Day >= date.Day)))
                 {
                     return false;
                 }
@@ -636,7 +627,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"Date started", m_dateStarted.Quotate() },
                 {"ID",m_ID.ToString() },
                 {"Qty on traveler",m_quantity.ToString() },
-                {"Orders",ParentOrderNums1.Stringify() },
+                {"Orders",ParentOrderNums.Stringify() },
                 {"Items",items.Stringify(false) },
                 {"Starting station",m_station.Name.Quotate() }
             };
@@ -656,7 +647,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"In process",qtyInProcess.ToString()},
                 {"Scrapped",QuantityScrapped().ToString() },
                 {"Complete",qtyComplete.ToString() },
-                {"Orders",ParentOrderNums1.Stringify() }
+                {"Orders",ParentOrderNums.Stringify() }
             };
             return obj.Stringify();
         }
@@ -780,16 +771,6 @@ namespace Efficient_Automatic_Traveler_System
             return form;
         }
 
-        protected void AddChild(Traveler child)
-        {
-            // add child as child on this
-            ChildTravelers.Add(child);
-            if (!ChildIDs.Contains(child.ID)) ChildIDs.Add(child.ID);
-
-            // add this as parent on child
-            child.ParentTravelers.Add(this);
-            if (!child.ParentIDs.Contains(this.ID)) child.ParentIDs.Add(this.ID);
-        }
         #endregion
         //--------------------------------------------------------
         #region Abstract Methods
@@ -837,7 +818,10 @@ namespace Efficient_Automatic_Traveler_System
             return QuantityPendingAt(station) > 0;
         }
         // pre
-        public abstract void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS);
+        public virtual Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        {
+            return new Task(new Action(() => { }));
+        }
         
         public void InitializeDependencies()
         {
@@ -1019,12 +1003,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return ParentOrderNums1;
+                return m_parentOrderNums;
             }
 
             set
             {
-                ParentOrderNums1 = value;
+                m_parentOrderNums = value;
             }
         }
 
@@ -1130,12 +1114,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return ParentIDs1;
+                return m_parentIDs;
             }
 
             protected set
             {
-                ParentIDs1 = value;
+                m_parentIDs = value;
             }
         }
 
@@ -1143,12 +1127,12 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return ChildIDs1;
+                return m_childIDs;
             }
 
             protected set
             {
-                ChildIDs1 = value;
+                m_childIDs = value;
             }
         }
 
@@ -1224,44 +1208,6 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        public List<string> ParentOrderNums1
-        {
-            get
-            {
-                return m_parentOrderNums;
-            }
-
-            set
-            {
-                m_parentOrderNums = value;
-            }
-        }
-
-        public List<int> ParentIDs1
-        {
-            get
-            {
-                return m_parentIDs;
-            }
-
-            set
-            {
-                m_parentIDs = value;
-            }
-        }
-
-        public List<int> ChildIDs1
-        {
-            get
-            {
-                return m_childIDs;
-            }
-
-            set
-            {
-                m_childIDs = value;
-            }
-        }
         #endregion
     }
 }

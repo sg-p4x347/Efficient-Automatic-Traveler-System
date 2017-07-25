@@ -289,10 +289,10 @@ namespace Efficient_Automatic_Traveler_System
             {
                 queueItem.Style += new Style("ghostBack");
             }
-            if (traveler.ChildTravelers.Exists(child => child.Items.Exists(i => i.Finished)))
+            if (traveler is TableBox && traveler.ParentTravelers.Exists(parent => parent.Items.Exists(i => i.BeenProcessedBy("contourEdgebander"))))
             {
-                // has at least one finished box item
-                queueItem.Style += new Style("purpleBack");
+                // this TableBox has tables ready to pack
+                queueItem.Style += new Style("orangeBack");
             }
             else
             {
@@ -345,59 +345,57 @@ namespace Efficient_Automatic_Traveler_System
                 if (message.Length == 0)
                 {
                     LostConnection();
-
                 }
                 else
                 {
                     message = message.Trim('"');
-                    Dictionary<string, string> obj = (new StringStream(message)).ParseJSON();
+                    JsonObject obj = (JsonObject)JSON.Parse(message);
 
                     if (obj.ContainsKey("interfaceMethod") && obj.ContainsKey("parameters"))
                     {
-                        PropertyInfo pi = this.GetType().GetProperty("This");
-                        if (pi != null)
-                        {
-                            MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"], new[] { typeof(string) });
-                            if (mi != null)
-                            {
-                                Type attType = typeof(AsyncStateMachineAttribute);
-                                // Obtain the custom attribute for the method. 
-                                // The value returned contains the StateMachineType property. 
-                                // Null is returned if the attribute isn't present for the method. 
-                                var attrib = (AsyncStateMachineAttribute)mi.GetCustomAttribute(attType);
-                                if (attrib != null)
-                                {
-                                    ListenAsync();
-                                    // UPDATING... popup
-                                    SendMessage(new ClientMessage("Updating").ToString());
-                                    // Await the slow operation
-                                    ClientMessage returnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                                    string messageString = returnMessage.ToString();
-                                    if (messageString != "") SendMessage(messageString);
-                                }
-                                else
-                                {
+                        ThreadPoolCallback(obj);
+                        //PropertyInfo pi = this.GetType().GetProperty("This");
+                        //if (pi != null)
+                        //{
+                        //    MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"], new[] { typeof(string) });
+                        //    if (mi != null)
+                        //    {
+                        //        Type attType = typeof(AsyncStateMachineAttribute);
+                        //        // Obtain the custom attribute for the method. 
+                        //        // The value returned contains the StateMachineType property. 
+                        //        // Null is returned if the attribute isn't present for the method. 
+                        //        var attrib = (AsyncStateMachineAttribute)mi.GetCustomAttribute(attType);
+                        //        if (attrib != null)
+                        //        {
+                        //            ListenAsync();
+                        //            // UPDATING... popup
+                        //            SendMessage(new ClientMessage("Updating").ToString());
+                        //            // Await the slow operation
+                        //            ThreadPool.QueueUserWorkItem((WaitCallback)mi.Invoke(this,new object[] { }), obj["parameters"]);
+                        //            //ClientMessage returnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { obj["parameters"] }));
+                        //            //string messageString = returnMessage.ToString();
+                        //            //if (messageString != "") SendMessage(messageString);
+                        //        }
+                        //        else
+                        //        {
                                     
-                                    ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
-                                    string messageString = returnMessage.ToString();
-                                    if (messageString != "") SendMessage(messageString);
-                                    ListenAsync();
-                                }
-                            }
-                            else
-                            {
-                                ListenAsync();
-                            }
-                        }
-                        else
-                        {
-                            ListenAsync();
-                        }
+                        //            //ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { obj["parameters"] }));
+                        //            //string messageString = returnMessage.ToString();
+                        //            //if (messageString != "") SendMessage(messageString);
+                        //            ListenAsync();
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        ListenAsync();
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    ListenAsync();
+                        //}
                     }
-                    else
-                    {
-                        ListenAsync();
-                    }
+                    ListenAsync();
                 }
             }
             catch (Exception ex)
@@ -405,6 +403,53 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
                 // something went wrong, it is best to just listen for a new message
                 ListenAsync();
+            }
+        }
+        protected void ThreadPoolCallback(object parameters)
+        {
+            JsonObject obj = parameters as JsonObject;
+            PropertyInfo pi = this.GetType().GetProperty("This");
+            if (pi != null)
+            {
+                MethodInfo mi = pi.GetValue(this).GetType().GetMethod(obj["interfaceMethod"], new[] { typeof(string) });
+                if (mi != null)
+                {
+                    Type attType = typeof(AsyncStateMachineAttribute);
+                    // Obtain the custom attribute for the method. 
+                    // The value returned contains the StateMachineType property. 
+                    // Null is returned if the attribute isn't present for the method. 
+                    var attrib = (AsyncStateMachineAttribute)mi.GetCustomAttribute(attType);
+                    if (attrib != null)
+                    {
+                        //ListenAsync();
+                        // UPDATING... popup
+                        SendMessage(new ClientMessage("Updating").ToString());
+                        // Await the slow operation
+                        ClientMessage returnMessage = new ClientMessage();
+                        Task.Run(async() => {
+                            returnMessage = await (Task<ClientMessage>)(mi.Invoke(this, new object[] { (string)obj["parameters"] }));
+                            string messageString = returnMessage.ToString();
+                            if (messageString != "") SendMessage(messageString);
+                        });
+                        
+                    }
+                    else
+                    {
+
+                        ClientMessage returnMessage = (ClientMessage)(mi.Invoke(this, new object[] { (string)obj["parameters"] }));
+                        string messageString = returnMessage.ToString();
+                        if (messageString != "") SendMessage(messageString);
+                        //ListenAsync();
+                    }
+                }
+                else
+                {
+                    //ListenAsync();
+                }
+            }
+            else
+            {
+                //ListenAsync();
             }
         }
         protected void LostConnection()
@@ -1046,13 +1091,22 @@ namespace Efficient_Automatic_Traveler_System
             }
 
         }
-        public ClientMessage ScrapItem(string json)
+        public ClientMessage ScrapItemForm(string json)
+        {
+            Form form = new Form();
+            form.Title = "Scrap";
+            form.Selection("user", "Who done it?", Server.UserManager.Users.Select(u => u.Name).ToList());
+            return form.Dispatch("ScrapItem");
+        }
+        public async Task<ClientMessage> ScrapItem(string json)
         {
             try
             {
+                Form form = new Form(json);
+
                 if (SelectedItem != null)
                 {
-                    return new ClientMessage("Info",SelectedItem.Scrap());
+                    return new ClientMessage("Info",(string)(await SelectedItem.Scrap(Server.UserManager.Find(form.ValueOf("user")))));
                 }
                 return new ClientMessage("Info","Selected item was null");
             }

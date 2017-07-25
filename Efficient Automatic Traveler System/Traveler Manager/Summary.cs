@@ -50,7 +50,7 @@ namespace Efficient_Automatic_Traveler_System
         public Summary(ITravelerManager travelerManager,string travelerType = "Traveler", GlobalItemState? state = null, StationClass station = null)
         {
             m_travelerType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + travelerType);
-            m_travelers = travelerManager.GetTravelers.Where(x => (station == null || x.Station == station) && (!state.HasValue || x.State == state.Value)).ToList();
+            m_travelers = travelerManager.GetTravelers.Where(x => x.GetType() == m_travelerType && (station == null || x.Station == station) && (!state.HasValue || x.State == state.Value)).ToList();
         }
         /* Creates a summary from two different system states, stored in two sets of files.
          Data is loaded into separate managers for each.
@@ -152,8 +152,31 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string UserCSV()
         {
-            string webLocation = "./summary.csv";
-            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "summary.csv"), m_users.ToList<ICSV>().ToCSV((object)m_travelers));
+            string webLocation = "./user summary.csv";
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("Name"));
+            summary.Columns.Add(new DataColumn("UID"));
+            summary.Columns.Add(new DataColumn("Access Level"));
+            summary.Columns.Add(new DataColumn("Scrapped"));
+            summary.Columns.Add(new DataColumn("Completed"));
+            summary.Columns.Add(new DataColumn("Idle Time"));
+            foreach (string stationName in StationClass.StationNames())
+            {
+                summary.Columns.Add(new DataColumn(stationName));
+            }
+            foreach (User user in m_users)
+            {
+                DataRow row = summary.NewRow();
+                row["Name"] = user.Name;
+                row["UID"] = user.UID;
+                row["Access Level"] = user.AccessLevel;
+                row["Scrapped"] = m_travelers.Sum(t => t.Items.Count(i => i.History.OfType<ScrapEvent>().ToList().Exists(e => e.User.UID == user.UID)));
+                row["Completed"] = m_travelers.Sum(t => t.Items.Sum(i => i.History.OfType<ProcessEvent>().ToList().Count(e => e.User.UID == user.UID)));
+                // calculate total log time
+                row["Idle Time"] = user.TotalLogTime();
+                summary.Rows.Add(row);
+            }
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "user summary.csv"), summary.ToCSV());
             return webLocation;
         }
         public string MakeCSV()

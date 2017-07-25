@@ -56,7 +56,6 @@ namespace Efficient_Automatic_Traveler_System
         }
         public Table(Form form) : base(form)
         {
-            Bill = new Bill(form.ValueOf("itemCode"), 1, Convert.ToInt32(form.ValueOf("quantity")));
         }
         public Table(string json,Version version) : base(json,version) {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();
@@ -185,7 +184,7 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("Model", Bill.BillNo.Quotate());
             return obj.Stringify();
         }
-        public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        public async override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
             Bill = new Bill(Bill.BillNo, Bill.QuantityPerBill, Quantity);
             Bill.Import(MAS);
@@ -386,8 +385,6 @@ namespace Efficient_Automatic_Traveler_System
                         box.Quantity = boxQty;
                         box.EnterProduction(Server.TravelerManager);
                         Server.TravelerManager.GetTravelers.Add(box);
-
-                        AddChild(box);
                     }
                     return true;
                 }

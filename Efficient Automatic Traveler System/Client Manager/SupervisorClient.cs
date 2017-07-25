@@ -10,6 +10,8 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 
+using System.Data;
+
 namespace Efficient_Automatic_Traveler_System
 {
     class SupervisorClient : Client, ITravelers
@@ -237,15 +239,16 @@ namespace Efficient_Automatic_Traveler_System
         public ClientMessage LookupLegacyTraveler(string json)
         {
             JsonObject obj = (JsonObject)JSON.Parse(json);
-            Traveler traveler = Server.TravelerManager.FindLegacyTraveler(obj["travelerID"]);
-            if (traveler != null)
+            Traveler traveler;
+            ClientMessage message;
+            if (Server.TravelerManager.FindLegacyTraveler(obj["travelerID"],out traveler, out message))
             {
                 SelectTraveler(traveler);
-                TravelerPopup(SelectedTraveler);
+                SendMessage(TravelerPopup(SelectedTraveler));
                 return new ClientMessage();
             } else
             {
-                return new ClientMessage("Info", "Could not find traveler " + obj["travelerID"]);
+                return message;
             }
         }
         #endregion
@@ -459,7 +462,12 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 fields.Add(new Row(style: spaceBetween)
                     {
-                        new TextNode("ID",style: new Style("leftAlign")), new TextNode(traveler.ID.ToString(),style: new Style("white","rightAlign","shadow"))
+                        new TextNode("State",style: new Style("leftAlign")), new TextNode(traveler.State.ToString(),style: new Style("white","rightAlign","shadow"))
+                    }
+                );
+                fields.Add(new Row(style: spaceBetween)
+                    {
+                        new TextNode("ID",style: new Style("leftAlign")), new TextNode(traveler.ID.ToString(),style: new Style("yellow","rightAlign","shadow"))
                     }
                 );
                 //fields.Add(
@@ -593,6 +601,8 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     Column items = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     items.Add(new Expand());
+                    DataTable itemTable = new DataTable();
+                    
                     foreach (TravelerItem item in traveler.Items)
                     {
                         Style style = new Style();
@@ -601,8 +611,11 @@ namespace Efficient_Automatic_Traveler_System
                             case GlobalItemState.InProcess: style = new Style("redBack");break;
                             case GlobalItemState.Finished: style = new Style("greenBack");break;
                         }
+                        
+                        
                         items.Add(new Button(traveler.PrintSequenceID(item), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}", style));
                     }
+                    ControlPanel.CreateDataTable(itemTable);
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
@@ -1019,7 +1032,7 @@ namespace Efficient_Automatic_Traveler_System
                 return new ClientMessage("Info", "Error loading filter orders form");
             }
         }
-        public ClientMessage CreateTravelers(string json)
+        public async Task<ClientMessage> CreateTravelers(string json)
         {
             try
             {
@@ -1056,7 +1069,7 @@ namespace Efficient_Automatic_Traveler_System
                     orders.RemoveAll(o => o.CustomerNo != form.ValueOf("customer"));
                 }
                 SendMessage(new ClientMessage("Updating","".Quotate()).ToString());
-                Program.server.CreateTravelers(Convert.ToBoolean(form.ValueOf("tables")),consolidate, consolidatePriorityCustomers, orders,delegate(double percent)
+                await Program.server.CreateTravelers(Convert.ToBoolean(form.ValueOf("tables")),consolidate, consolidatePriorityCustomers, orders,delegate(double percent)
                 {
                     ReportProgress(percent);
                 });
@@ -1180,17 +1193,11 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (traveler != null)
                     {
-                        if (traveler.Items.Count == 0)
-                        {
-                            Server.OrderManager.ReleaseTraveler(traveler);
-                            Server.TravelerManager.RemoveTraveler(traveler);
-                            Server.TravelerManager.OnTravelersChanged();
-                            success.Add(traveler.PrintID());
-                        }
-                        else
-                        {
-                            failure.Add(traveler.PrintID());
-                        }
+                        Server.TravelerManager.RemoveTraveler(traveler,false);
+                        success.Add(traveler.PrintID());
+                    } else
+                    {
+                        failure.Add(traveler.PrintID());
                     }
                 }
                 m_selected.Clear();
@@ -1352,8 +1359,9 @@ namespace Efficient_Automatic_Traveler_System
                 Form form = new Form(obj["form"]);
                 Dictionary<string, string> parameters = new StringStream(obj["parameters"]).ParseJSON();
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parameters["travelerID"]));
+                TravelerItem item = traveler.FindItem(Convert.ToUInt16(parameters["itemID"]));
                 int qty = Convert.ToInt32(form.ValueOf("quantity"));
-                return new ClientMessage("Info", traveler.PrintLabel(Convert.ToUInt16(parameters["itemID"]), (LabelType)Enum.Parse(typeof(LabelType), form.ValueOf("labelType")), qty > 0 ? qty : 1, true,printer:form.ValueOf("printer")));
+                return new ClientMessage("Info", traveler.PrintLabel(item.ID, (LabelType)Enum.Parse(typeof(LabelType), form.ValueOf("labelType")), qty > 0 ? qty : 1, true,printer:form.ValueOf("printer")));
             }
             catch (Exception ex)
             {
@@ -1676,14 +1684,14 @@ namespace Efficient_Automatic_Traveler_System
                         } else
                         {
                             // Try to look up legacy traveler
-                            //LegacyTravelerPopup(travelerID);
+                            LegacyTravelerPopup(travelerID);
                         }
                     }
                 }
                 if (Traveler.IsTable(searchPhrase) || Traveler.IsChair(searchPhrase))
                 {
                     SendMessage(new ClientMessage("ClearSearch"));
-                    return ListTravelers(Server.TravelerManager.GetTravelers.Where(t => t.ItemCode == searchPhrase).ToList());
+                    return ListTravelers(Server.TravelerManager.GetTravelers.Where(t => t.ItemCode.Equals(searchPhrase,StringComparison.CurrentCultureIgnoreCase)).ToList());
                 }
                 Order order = Server.OrderManager.FindOrder(searchPhrase);
                 if (order != null)
@@ -1692,47 +1700,6 @@ namespace Efficient_Automatic_Traveler_System
                     return OrderPopup(new JsonObject() { { "orderNo", order.SalesOrderNo } });
                 }
                 return new ClientMessage("Info", "Could not identify a search target");
-                //    ushort itemID = Convert.ToUInt16(parts[1]);
-                //    traveler = m_travelerManager.FindTraveler(travelerID);
-                //    if (traveler != null)
-                //    {
-                //        TravelerItem item = traveler.FindItem(itemID);
-                //        if (item != null)
-                //        {
-                //            return ItemPopup(@"{""travelerID"":" + traveler.ID + @",""itemID"":" + itemID + "}");
-                //        }
-                //        else
-                //        {
-                //            SendMessage(LoadTraveler(@"{""travelerID"":" + traveler.ID + "}").ToString());
-                //            return new ClientMessage("Info", "Traveler " + travelerID.ToString("D6") + " has no item with ID: " + itemID);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        return new ClientMessage("Info", "Traveler " + travelerID.ToString("D6") + " could not be found");
-                //    }
-                //}
-                //else if (parts[0].Length <= 6)
-                //{
-                //    traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parts[0]));
-                //    if (traveler != null)
-                //    {
-                //        return LoadTraveler(@"{""travelerID"":" + traveler.ID + "}");
-                //    }
-                //    else
-                //    {
-                //        return new ClientMessage("Info", "Traveler " + parts[0] + " could not be found");
-                //    }
-                //}
-                //else if (parts[0].Length == 7)
-                //{
-                //    // all orders have 7 character order numbers
-                //    return OrderPopup(@"{""orderNo"":" + parts[0].Quotate() + "}");
-                //}
-                //else
-                //{
-                //    return new ClientMessage("Info", "Incorrect format, please search:<br>a traveler, ex: 123456<br>a traveler item, ex: 123456-1234<br>an order, ex: 1234567");
-                //}
             }
             catch (Exception ex)
             {

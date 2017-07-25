@@ -21,7 +21,7 @@ namespace Efficient_Automatic_Traveler_System
         //Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time);
         Traveler FindTraveler(int ID);
         bool FindTraveler(int ID, out Traveler traveler);
-        Traveler FindLegacyTraveler(int ID);
+        bool FindLegacyTraveler(int ID, out Traveler traveler, out ClientMessage message);
         void RemoveTraveler(Traveler traveler, bool backup = true);
         Traveler AddTraveler(string itemCode, int quantity);
         List<Traveler> GetTravelers
@@ -149,10 +149,13 @@ namespace Efficient_Automatic_Traveler_System
         public void CullFinishedTravelers()
         {
             // remove all traveler trees that were finished before today
-            List<Traveler> travelers = m_travelers.Where(t => t.FinishedBefore(DateTime.Today) && t.ChildTravelers.All(child => child.FinishedBefore(DateTime.Today)) && t.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today))).ToList();
+            List<Traveler> travelers = m_travelers.Where(t => 
+            !t.ParentOrders.Any()
+            && t.FinishedBefore(DateTime.Today) 
+            && t.ChildTravelers.All(child => child.FinishedBefore(DateTime.Today)) && t.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today))).ToList();
             Server.WriteLine(travelers.Stringify());
         }
-        public void ImportTravelerInfo(IOrderManager orderManager, ref OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
+        public void ImportTravelerInfo(IOrderManager orderManager, OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
         {
             if (travelers == null) travelers = m_travelers;
             int index = 0;
@@ -179,6 +182,7 @@ namespace Efficient_Automatic_Traveler_System
             Server.Write("\r{0}", "Gathering Info...Finished\n");
             // travelers have changed
             OnTravelersChanged(travelers);
+            
         }
         //// Update this travelers quantities dynamically
         //public void UpdateTraveler(Traveler traveler)
@@ -314,10 +318,10 @@ namespace Efficient_Automatic_Traveler_System
                 RemoveTraveler(child);
             }
             // remove itself from parents
-            foreach (Traveler parent in traveler.ParentTravelers)
-            {
-                RemoveTraveler(parent);
-            }
+            //foreach (Traveler parent in traveler.ParentTravelers)
+            //{
+            //    if (parent parent.ChildTravelers.Remove(traveler);
+            //}
             // finally... remove THIS traveler
             m_travelers.Remove(traveler);
             Server.OrderManager.ReleaseTraveler(traveler, backup);
@@ -534,12 +538,14 @@ namespace Efficient_Automatic_Traveler_System
                 // parents
                 foreach (int parentID in traveler.ParentIDs)
                 {
-                    traveler.ParentTravelers.Add(FindTraveler(parentID));
+                    Traveler parent = FindTraveler(parentID);
+                    if (parent != null) traveler.ParentTravelers.Add(FindTraveler(parentID));
                 }
                 // children
                 foreach (int childID in traveler.ChildIDs)
                 {
-                    traveler.ChildTravelers.Add(FindTraveler(childID));
+                    Traveler child = FindTraveler(childID);
+                    if (child != null) traveler.ChildTravelers.Add(child);
                 }
             }
         }
@@ -825,15 +831,16 @@ namespace Efficient_Automatic_Traveler_System
             }
             return traveler;
         }
-        public Traveler FindLegacyTraveler(int ID)
+        public bool FindLegacyTraveler(int ID, out Traveler traveler, out ClientMessage message)
         {
+            traveler = null;
             // start backwards from today
             DateTime today = DateTime.Today;
-            for (DateTime day = today; day > today.AddYears(-1); day.AddDays(-1.0))
+            for (DateTime day = today; day > today.AddYears(-1); day = day.AddDays(-1.0))
             {
                 if (BackupManager.BackupExists("travelers.json",day))
                 {
-                    string dayString = day.ToString("mm/dd/yyy");
+                    string dayString = day.ToString("MM/dd/yyy");
                     string travelerText = "";
                     Version version;
                     BackupManager.GetVersion(BackupManager.Import("travelers.json", day), out travelerText, out version);
@@ -843,11 +850,20 @@ namespace Efficient_Automatic_Traveler_System
                     Server.Write("\r{0}", "Loading travelers from backup " + dayString + "...");
                     foreach (string travelerJSON in travelerArray)
                     {
-                        Traveler traveler = ImportTraveler(travelerJSON, version);
-                        if (traveler != null && traveler.ID == ID)
-                        {
-                            Server.Write("\r{0}", ID + " found in backup " + dayString);
-                            return traveler;
+                        traveler = ImportTraveler(travelerJSON, version);
+                        if (traveler != null) {
+                            if (traveler.ID == ID)
+                            {
+                                Server.Write("\r{0}", ID + " found in backup " + dayString);
+                                message = new ClientMessage("Info", ID + " found in backup " + dayString);
+                                return true;
+                            }
+                            //} else if (traveler.ID < ID)
+                            //{
+                            //    // we passed it and it doesnt seem to exist
+                            //    Server.WriteLine("Could not find " + ID + " in EATS history");
+                            //    return null;
+                            //}
                         }
                     }
                 } else
@@ -856,7 +872,8 @@ namespace Efficient_Automatic_Traveler_System
                 }
             }
             Server.WriteLine("Could not find " + ID + " in EATS history");
-            return null;
+            message = new ClientMessage("Info", "Could not find " + ID + " in EATS history");
+            return false;
         }
         #endregion
         //----------------------------------

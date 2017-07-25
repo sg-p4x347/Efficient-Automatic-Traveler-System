@@ -24,6 +24,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public Box() : base()
         {
+            
             Station = StationClass.GetStation("Box");
             m_boxSize = "";
         }
@@ -42,6 +43,7 @@ namespace Efficient_Automatic_Traveler_System
         // create a Box for a traveler
         public Box(Traveler traveler) : base()
         {
+            NewID();
             Station = StationClass.GetStation("Box");
             //m_quantity = traveler.Quantity;
             m_quantity = 1;
@@ -144,8 +146,9 @@ namespace Efficient_Automatic_Traveler_System
             }
             return 0.0;
         }
-        public override void ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        public override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
+            return base.ImportInfo(travelerManager,orderManager,MAS);
         }
         #endregion
         //--------------------------------------------------------
