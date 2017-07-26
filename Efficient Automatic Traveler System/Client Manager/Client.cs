@@ -286,25 +286,6 @@ namespace Efficient_Automatic_Traveler_System
             Row queueItem = new Row(style: new Style("queue__item", "align-items-center"));
             queueItem.ID = traveler.ID.ToString();
             queueItem.Style += traveler.QueueStyle();
-            //if (traveler.Quantity <= 0)
-            //{
-            //    queueItem.Style += new Style("ghostBack");
-            //}
-            //if (traveler is TableBox && traveler.ParentTravelers.Exists(parent => parent.Items.Exists(i => i.BeenProcessedBy("contourEdgebander"))))
-            //{
-            //    // this TableBox has tables ready to pack
-            //    queueItem.Style += new Style("orangeBack");
-            //}
-            //else
-            //{
-            //    switch (state)
-            //    {
-            //        case GlobalItemState.PreProcess: queueItem.Style += new Style("blueBack"); break;
-            //        case GlobalItemState.InProcess: queueItem.Style += new Style("redBack"); break;
-            //        case GlobalItemState.Finished: queueItem.Style += new Style("greenBack"); break;
-            //        default: queueItem.Style += new Style("yellowBack"); break;
-            //    }
-            //}
             if (traveler is Table)
             {
                 queueItem.Style.AddStyle("backgroundImage", "url('./img/" + (traveler as Table).Shape + ".png')");
@@ -313,6 +294,11 @@ namespace Efficient_Automatic_Traveler_System
                 queueItem.Style.AddStyle("backgroundImage", "url('./img/box.png')");
             }
             return queueItem;
+        }
+        protected virtual JsonObject ExportTravelers()
+        {
+            return new JsonObject();
+
         }
         protected async Task<string> RecieveMessageAsync()
         {

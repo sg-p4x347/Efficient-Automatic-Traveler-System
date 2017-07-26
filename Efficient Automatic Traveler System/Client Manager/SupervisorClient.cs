@@ -220,6 +220,12 @@ namespace Efficient_Automatic_Traveler_System
                 return message;
             }
         }
+
+        protected override JsonObject ExportTravelers()
+        {
+            JsonObject obj = base.ExportTravelers();
+            
+        }
         #endregion
         //----------------------------------
         #region Private Methods

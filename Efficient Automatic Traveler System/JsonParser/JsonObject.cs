@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class JsonObject : JSON, IEnumerable<KeyValuePair<string,JSON>>
+    public class JsonObject : JSON, IEnumerable<KeyValuePair<string,JSON>>
     {
         public JsonObject()
         {
