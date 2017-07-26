@@ -299,13 +299,13 @@ namespace Efficient_Automatic_Traveler_System
                     switch (LocalState)
                     {
                         case LocalItemState.PreProcess: return new Style("blueBack");
-                        case LocalItemState.InProcess: return new Style("cyanBack");
+                        case LocalItemState.InProcess: return new Style("redBack");
                         case LocalItemState.PostProcess: return new Style("greenBack");
                         default: return new Style("ghostBack");
                     }
                 case GlobalItemState.Flagged: return new Style("yellowBack");
-                case GlobalItemState.Scrapped: return new Style("redBack");
-                case GlobalItemState.Finished: return new Style("greenBack");
+                case GlobalItemState.Scrapped: return new Style("orangeBack");
+                case GlobalItemState.Finished: return new Style("limeBack");
                 default: return new Style("ghostBack");
             }
         }
@@ -316,6 +316,10 @@ namespace Efficient_Automatic_Traveler_System
             {
                 case GlobalItemState.InProcess:
                     return LocalState.ToString();
+                case GlobalItemState.Finished:
+                    DateTime finished;
+                    return GlobalState.ToString() + (DateFinished(out finished) ? " " + finished.ToString("MM/dd/yyyy") :"");
+                     
                 default: return GlobalState.ToString();
             }
         }

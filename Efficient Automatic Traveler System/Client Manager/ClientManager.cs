@@ -62,7 +62,7 @@ namespace Efficient_Automatic_Traveler_System
             clients.Sort((a, b) => a is OperatorClient ? -1 : 1);
             foreach (ITravelers client in clients.OfType<ITravelers>())
             {
-                Task.Run(() => { client.HandleTravelersChanged(); });
+                Task.Run(() => { client.HandleTravelersChanged(travelers); });
             }
         }
         public void HandleTravelerChanged(List<Traveler> travelers)

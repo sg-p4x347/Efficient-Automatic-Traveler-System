@@ -138,9 +138,9 @@ namespace Efficient_Automatic_Traveler_System
                 switch (State)
                 {
                     case GlobalItemState.PreProcess: return new Style("blueBack");
-                    case GlobalItemState.InProcess: return new Style("cyanBack");
+                    case GlobalItemState.InProcess: return new Style("redBack");
                     case GlobalItemState.Flagged: return new Style("yellowBack");
-                    case GlobalItemState.Scrapped: return new Style("redBack");
+                    case GlobalItemState.Scrapped: return new Style("orangeBack");
                     case GlobalItemState.Finished: return new Style("greenBack");
                     default: return new Style("ghostBack");
                 }
@@ -169,37 +169,80 @@ namespace Efficient_Automatic_Traveler_System
             if (!this.ChildIDs.Contains(child.ID)) this.ChildIDs.Add(child.ID);
             if (!this.ChildTravelers.Contains(child)) this.ChildTravelers.Add(child);
         }
-        
-        //check inventory to see how many actually need to be produced.
-        //public void CheckInventory(ref OdbcConnection MAS)
-        //{
-        //    try
-        //    {
-        //        if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-        //        OdbcCommand command = MAS.CreateCommand();
-        //        command.CommandText = "SELECT QuantityOnSalesOrder, QuantityOnHand FROM IM_ItemWarehouse WHERE ItemCode = '" + m_part.BillNo + "'";
-        //        OdbcDataReader reader = command.ExecuteReader();
-        //        if (reader.Read())
-        //        {
-        //            int available = Convert.ToInt32(reader.GetValue(1)) - Convert.ToInt32(reader.GetValue(0));
-        //            if (available >= 0)
-        //            {
-        //                // No parts need to be produced
-        //                m_quantity = 0;
-        //            }
-        //            else
-        //            {
-        //                // adjust the quantity that needs to be produced
-        //                m_quantity = Math.Min(-available, m_quantity);
-        //            }
-        //        }
-        //        reader.Close();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("An error occured when accessing inventory: " + ex.Message);
-        //    }
-        //}
+        public Row Render(StationClass station)
+        {
+            bool split = false;
+            Row queueItem = CreateQueueItem(this);
+            queueItem.EventListeners.Add(new EventListener("click", "LoadTraveler", @"{""travelerID"":" + ID + "}"));
+            Column groupOne = new Column();
+            // ID
+            string IDtoDisplay = PrintID();
+            if (ParentTravelers.Any())
+            {
+                IDtoDisplay = GetType().Name.Decompose() + " for ";
+                foreach (Traveler parent in ParentTravelers)
+                {
+                    IDtoDisplay += "<br>";
+                    IDtoDisplay += parent.PrintID();
+                }
+            }
+            groupOne.Add(new TextNode(IDtoDisplay, style: new Style("yellow", "blackOutline")));
+
+            groupOne.Add(new Row()
+                {
+                    {new TextNode("Total: ",style: new Style("queue__item__qty","white","blackOutline")) },
+                    // Total Qty
+                    {new TextNode(Quantity.ToString(),style: new Style("queue__item__qty","lime","blackOutline")) }
+
+                });
+
+            groupOne.Add(new Row(style: new Style("greyBack", "stdRadius", "justify-center"))
+                {
+                    // Qty locally Pending
+                    {new TextNode(QuantityPendingAt(station).ToString(),style: new Style("queue__item__qty","blue","blackOutline")) },
+                    // pipe "|"
+                    { new TextNode("|",style: new Style("white", "blackOutline")) },
+                    // Qty locally InProcess
+                    {new TextNode(QuantityInProcessAt(station).ToString(),style: new Style("queue__item__qty","red","blackOutline")) },
+                    // pipe "|"
+                    { new TextNode("|",style: new Style("white", "blackOutline")) },
+                    // Qty locally PostProcess
+                    {new TextNode(QuantityPostProcessAt(station).ToString(),style: new Style("queue__item__qty","green","blackOutline")) },
+                });
+
+            queueItem.Add(groupOne);
+
+            Column groupTwo = new Column();
+            // ItemCode
+            (split ? groupTwo : groupOne).Add(new TextNode(ItemCode, style: new Style("beige", "blackOutline")));
+            // Tables
+            if (this is Table)
+            {
+                // Blanks ready icon
+                //queueItem.Add(new Node(new Style("blanksReady")));
+                // table color
+                (split ? groupTwo : groupOne).Add(new TextNode((this as Table).Color, style: new Style("white", "blackOutline")));
+                // Edgebanding color
+                (split ? groupTwo : groupOne).Add(new TextNode((this as Table).BandingColor + " EB", style: new Style("white", "blackOutline")));
+            }
+            if (split) queueItem.Add(groupTwo);
+            return queueItem;
+        }
+        private static Row CreateQueueItem(Traveler traveler)
+        {
+            Row queueItem = new Row(style: new Style("queue__item", "align-items-center"));
+            queueItem.ID = traveler.ID.ToString();
+            queueItem.Style += traveler.QueueStyle();
+            if (traveler is Table)
+            {
+                queueItem.Style.AddStyle("backgroundImage", "url('./img/" + (traveler as Table).Shape + ".png')");
+            }
+            else if (traveler is Box)
+            {
+                queueItem.Style.AddStyle("backgroundImage", "url('./img/box.png')");
+            }
+            return queueItem;
+        }
         // returns a JSON formatted string containing traveler information
         public override string ToString()
         {
@@ -571,7 +614,10 @@ namespace Efficient_Automatic_Traveler_System
                 || (viewState == GlobalItemState.InProcess && State == GlobalItemState.InProcess)) stations.Add(Station);
             return stations;
         }
-        
+        public void Refactor()
+        {
+
+        }
         // export for clients to display
         //public virtual string Export(string clientType, StationClass station)
         //{
@@ -654,7 +700,8 @@ namespace Efficient_Automatic_Traveler_System
                 {"Qty on traveler",m_quantity.ToString() },
                 {"Orders",ParentOrderNums.Stringify() },
                 {"Items",items.Stringify(false) },
-                {"Starting station",m_station.Name.Quotate() }
+                {"Starting station",m_station.Name.Quotate() },
+                {"Qty on hand @ creation",OnHand.ToString() }
             };
             return obj.Stringify();
         }
@@ -981,7 +1028,10 @@ namespace Efficient_Automatic_Traveler_System
         private ushort m_lastReworkAccountedFor;
 
         private int m_onHand;
-       
+
+
+        // HTML
+        private Node m_queueItem;
         #endregion
         //--------------------------------------------------------
         #region Interface
@@ -1230,6 +1280,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_onHand = value;
+            }
+        }
+
+        public Node QueueItem
+        {
+            get
+            {
+                return m_queueItem;
+            }
+
+            set
+            {
+                m_queueItem = value;
             }
         }
 

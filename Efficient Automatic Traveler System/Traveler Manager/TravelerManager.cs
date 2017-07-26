@@ -152,8 +152,10 @@ namespace Efficient_Automatic_Traveler_System
             List<Traveler> travelers = m_travelers.Where(t => 
             !t.ParentOrders.Any()
             && t.FinishedBefore(DateTime.Today) 
-            && t.ChildTravelers.All(child => child.FinishedBefore(DateTime.Today)) && t.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today))).ToList();
-            //Server.WriteLine(travelers.Stringify());
+            && t.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today))).ToList();
+            Server.WriteLine("Culled finised travelers:");
+            Server.WriteLine(JsonArray.From(travelers.Select(t => t.ID).ToList()).Humanize());
+            m_travelers = m_travelers.Except(travelers).ToList();
         }
         public void ImportTravelerInfo(IOrderManager orderManager, OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
         {
@@ -304,25 +306,11 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void RemoveTraveler(Traveler traveler, bool backup = true)
         {
-            // remove itself from order items
-            //foreach (Order parentOrder in traveler.ParentOrders)
-            //{
-            //    foreach (OrderItem item in parentOrder.FindItems(traveler.ID))
-            //    {
-            //        item.ChildTraveler = -1;
-            //    }
-            //}
             foreach (Traveler child in traveler.ChildTravelers)
             {
                 // recursively remove children
                 RemoveTraveler(child);
             }
-            // remove itself from parents
-            //foreach (Traveler parent in traveler.ParentTravelers)
-            //{
-            //    if (parent parent.ChildTravelers.Remove(traveler);
-            //}
-            // finally... remove THIS traveler
             m_travelers.Remove(traveler);
             Server.OrderManager.ReleaseTraveler(traveler, backup);
             if (backup) Backup();

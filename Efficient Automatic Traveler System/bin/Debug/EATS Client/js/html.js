@@ -1,16 +1,13 @@
 // returns procedurally generated html from the provided data
 function HTML(format) {
-	var body = document.createElement("DIV");
 
-	body.id = format.title;
-	AddControlNode(format.body,body,function (parameters) {
+	return AddControlNode(format,null,function (parameters) {
 	new InterfaceCall(parameters.callback,parameters);
 	},true);
 }
 
 // helper for the html generation
 function AddControlNode(node,parent,callback,highestLevel) {
-	var = this;
 	var nodeElement;
 	
 	switch (node.type) {
@@ -64,7 +61,7 @@ function AddControlNode(node,parent,callback,highestLevel) {
 			break;
 		case "Selection":
 			var selection = new PopupSelection(node.name,node.options,node.value);
-			selection.Initialize(;
+			selection.Initialize(innerParams);
 			nodeElement = selection.element;
 			nodeElement.className += " blackout__popup__controlPanel__node";
 			break;
@@ -77,8 +74,8 @@ function AddControlNode(node,parent,callback,highestLevel) {
 			nodeElement.className += " blackout__popup__controlPanel__node";
 			break;
 		case "Row":
-			var row = CreateHorizontalList();
-			row.className = "blackout__popup__controlPanel__row";
+			var row = document.createElement("DIV");
+			row.className = "list--horizontal blackout__popup__controlPanel__row";
 			if (node.dividers) {row.className += " blackout__popup__controlPanel__row--dividers";}
 			node.nodes.forEach(function (innerNode) {
 				AddControlNode(innerNode,row,callback);
@@ -126,7 +123,112 @@ function AddControlNode(node,parent,callback,highestLevel) {
 		if (highestLevel) {
 			nodeElement.style.overflowX = "auto";
 			nodeElement.style.overflowY = "auto";
+			return nodeElement;
+		} else {
+			parent.appendChild(nodeElement);
 		}
-		parent.appendChild(nodeElement);
+		
 	}
 }
+//=========================================
+	// CREATE MODULAR DOM OBJECTS
+	
+	// initializes and returns a new popup container
+	this.CreatePopup = function (title,close) {
+		var self = this;
+		var popup = document.createElement("DIV");
+		popup.className = "blackout__popup";
+		// Close button
+		if (close) {
+			/* var close = self.CreateButton("Close");
+			close.classList.remove("dark");
+			close.className += " yellowBack";
+			close.removeClass
+			close.onclick = function () {self.Close(popup);}
+			popup.insertBefore(close,popup.firstChild); */
+			self.AddCloseBtn(popup);
+		}
+		if (title !== undefined) {
+			var title = this.CreateP(title);
+			title.className = "blackout__popup__title emboss";
+			popup.appendChild(title);
+		}
+		return popup;
+	}
+	this.AddCloseBtn = function (popup) {
+		var self = this;
+		var close = document.createElement("DIV");
+		close.className = "blackout__popup__closeImg";
+		close.onclick = function () {self.Close(popup);}
+		popup.insertBefore(close,popup.firstChild);
+		return close;
+	}
+		
+	this.CreateP = function (innerHTML) {
+		var p = document.createElement("P");
+		p.innerHTML = innerHTML;
+		return p;
+	}
+	this.CreateButton = function (innerHTML) {
+		var button = document.createElement("DIV");
+		button.className = "dark button";
+		if (innerHTML !== undefined) button.innerHTML = innerHTML;
+		return button;
+	}
+	this.CreateHorizontalList = function () {
+		var list = document.createElement("DIV");
+		list.className = "list--horizontal";
+		return list;
+	}
+	this.CreateCheckItem = function (innerHTML,callback)  {
+		var self = this;
+		var list = self.CreateHorizontalList();
+		var check = document.createElement("INPUT");
+			
+		check.onclick = function (event) {
+			if (callback) {callback(check.checked);}
+			var test = "";
+			event.stopPropagation();
+		}
+		check.name = "checklist";
+		check.type = "checkbox";
+		var text = self.CreateP(innerHTML);
+		text.className = "stdMargin";
+		list.appendChild(check);
+		list.appendChild(text);
+		return list;
+	}
+	// displays a formatted table created from the fields object provided
+	this.CreateTable = function (fields,object) {
+		var table = document.createElement("TABLE");
+		table.className = "blackout__popup__table";
+		for (var fieldName in fields) {
+			var row = document.createElement("TR");
+			// name
+			var name = document.createElement("TD");
+			name.style.textAlign = "left";
+			name.innerHTML = fieldName + ':';
+			
+			row.appendChild(name);
+			if (typeof fields[fieldName] === "object") {
+				// control
+				
+			} else {
+				// value
+				var value = document.createElement("TD");
+				value.style.textAlign = "right";
+				value.style.color = "#FFFFFF";
+				value.className = "shadow";
+				value.innerHTML = fields[fieldName];
+				row.appendChild(value);
+				
+				table.appendChild(row);
+			}
+		}
+		return table;
+	}
+	this.CreateDateInput = function () {
+		var input = document.createElement("INPUT");
+		input.type = "date";
+		return input;
+	}

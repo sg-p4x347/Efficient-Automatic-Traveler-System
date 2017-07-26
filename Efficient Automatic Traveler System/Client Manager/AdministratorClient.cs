@@ -13,7 +13,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             AccessLevel = AccessLevel.Administrator;
         }
-        public override void HandleTravelersChanged(bool changed = false)
+        public override void HandleTravelersChanged(List<Traveler> changed)
         {
             throw new NotImplementedException();
         }

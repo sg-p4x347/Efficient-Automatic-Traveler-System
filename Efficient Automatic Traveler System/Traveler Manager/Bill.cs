@@ -21,6 +21,18 @@ namespace Efficient_Automatic_Traveler_System
             m_billNo = bill.BillNo;
             m_quantityPerBill = bill.QuantityPerBill;
             m_billDesc = bill.BillDesc;
+            DrawingNo = bill.DrawingNo;
+            CurrentBillRevision = bill.CurrentBillRevision;
+            m_componentBills = bill.ComponentBills;
+            m_componentItems = bill.ComponentItems;
+        }
+        public void Clone(Bill bill)
+        {
+            m_billNo = bill.BillNo;
+            m_quantityPerBill = bill.QuantityPerBill;
+            m_billDesc = bill.BillDesc;
+            DrawingNo = bill.DrawingNo;
+            CurrentBillRevision = bill.CurrentBillRevision;
             m_componentBills = bill.ComponentBills;
             m_componentItems = bill.ComponentItems;
         }
@@ -41,37 +53,42 @@ namespace Efficient_Automatic_Traveler_System
         
         public void Import(OdbcConnection MAS)
         {
-                if (!Imported)
+            Bill existing = m_bills.Find(b => b.BillNo == BillNo);
+            if (existing != null) {
+                Clone(existing);
+            }
+            else if (!Imported)
+            {
+                // Import header
+                if (!HeaderImported)
                 {
-                    // Import header
-                    if (!HeaderImported)
-                    {
-                        var tokenSource = new CancellationTokenSource();
+                    var tokenSource = new CancellationTokenSource();
 
-                        var headerTask = Task.Run(() => ImportHeader(MAS), tokenSource.Token);
-                        if (!headerTask.Wait(TimeSpan.FromSeconds(3)) || !HeaderImported)
-                        {
-                            // Trying again
-                            tokenSource.Cancel();
-                            Server.WriteLine("-Bill header timed out, trying again-");
-                            Import(MAS);
-                        }
-                    }
-                    // Import detail
-                    if (!DetailImported)
+                    var headerTask = Task.Run(() => ImportHeader(MAS), tokenSource.Token);
+                    if (!headerTask.Wait(TimeSpan.FromSeconds(3)) || !HeaderImported)
                     {
-                        var tokenSource = new CancellationTokenSource();
-
-                        var detailTask = Task.Run(() => ImportDetail(MAS), tokenSource.Token);
-                        if (!detailTask.Wait(TimeSpan.FromSeconds(3)) || !DetailImported)
-                        {
-                            // Trying again
-                            tokenSource.Cancel();
-                            Server.WriteLine("-Bill detail import timed out, trying again-");
-                            Import(MAS);
-                        }
+                        // Trying again
+                        tokenSource.Cancel();
+                        Server.WriteLine("-Bill header timed out, trying again-");
+                        Import(MAS);
                     }
                 }
+                // Import detail
+                if (!DetailImported)
+                {
+                    var tokenSource = new CancellationTokenSource();
+
+                    var detailTask = Task.Run(() => ImportDetail(MAS), tokenSource.Token);
+                    if (!detailTask.Wait(TimeSpan.FromSeconds(3)) || !DetailImported)
+                    {
+                        // Trying again
+                        tokenSource.Cancel();
+                        Server.WriteLine("-Bill detail import timed out, trying again-");
+                        Import(MAS);
+                    }
+                }
+                m_bills.Add(this);
+            }
         }
         private bool IsImported(OdbcConnection MAS)
         {
@@ -212,6 +229,9 @@ namespace Efficient_Automatic_Traveler_System
         private List<Bill> m_componentBills = new List<Bill>();
         // parent bill
         private Bill m_parent = null;
+
+        // store a cache of all loaded bills
+        private static List<Bill> m_bills = new List<Bill>();
         public string Unit
         {
             get

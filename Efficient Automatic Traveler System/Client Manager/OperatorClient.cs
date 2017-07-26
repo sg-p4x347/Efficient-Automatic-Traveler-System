@@ -42,7 +42,7 @@ namespace Efficient_Automatic_Traveler_System
                 CurrentStationTimer.Clear("ClearStationTimer");
                 CurrentStationTimer.Start("StartStationTimer");
 
-                HandleTravelersChanged();
+                HandleTravelersChanged(Server.TravelerManager.GetTravelers);
                 if (CurrentStation.Mode == StationMode.Serial)
                 {
                     HideSubmitBtn();
@@ -57,7 +57,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return "";
         }
-        public override void HandleTravelersChanged(bool changed = false)
+        public override void HandleTravelersChanged(List<Traveler> changed)
         {
             if (CurrentStation != null)
             {
@@ -71,7 +71,6 @@ namespace Efficient_Automatic_Traveler_System
                     ControlPanel preProcessControlPanel = new ControlPanel("preProcess", preProcess, "preProcessQueue");
                     SendMessage(preProcessControlPanel.Dispatch().ToString());
 
-                    changed = true;
                 }
                 //----------------------------------------
                 // InProcess queue items
@@ -93,7 +92,6 @@ namespace Efficient_Automatic_Traveler_System
                     ControlPanel cp = new ControlPanel("inProcess", inProcess, "inProcessQueue");
                     SendMessage(cp.Dispatch().ToString());
 
-                    changed = true;
                 }
                 //if (changed) UpdateUI();
             }

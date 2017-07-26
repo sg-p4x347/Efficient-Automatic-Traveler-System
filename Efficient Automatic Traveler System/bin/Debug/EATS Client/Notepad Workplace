@@ -22,5 +22,6 @@
         <File name="js\utility.js" />
         <File name="css\widgets.css" />
         <File name="css\popupManager.css" />
+        <File name="js\client.js" />
     </Project>
 </NotepadPlus>

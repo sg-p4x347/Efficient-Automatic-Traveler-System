@@ -37,17 +37,15 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"155342",
+	"nextTravelerID":"155724",
 	"nextEventID":"8374",
 	"boxTravelerSize":5,
 	"scrapReport":{
-		"vendor":[
+		"reasons":[
 			"SCRATCHES/DENTS/CHIPS",
 			"OIL SPOTS",
 			"DEFORMED/PROFILE/BOW",
-			"DISCOLOR"
-		],
-		"production":[
+			"DISCOLOR",
 			"MACHINE DAMAGE",
 			"FELL OFF LINE",
 			"LOST VACUUM",

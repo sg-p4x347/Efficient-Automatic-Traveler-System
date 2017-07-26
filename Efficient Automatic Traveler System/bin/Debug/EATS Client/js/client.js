@@ -138,7 +138,7 @@ function Client () {
 		logoutBtn.innerHTML = "Logout " + name;
 		
 	}
-		this.CloseAll = function () {
+	this.CloseAll = function () {
 		this.popupManager.CloseAll();
 	}
 	this.Info = function (message) {
@@ -397,7 +397,14 @@ function Queue() {
 			}
 		}
 	}
-	
+	this.UpdateTraveler = function (ID) {
+		document.getElementById(ID) = FindTraveler(ID).Render();
+	}
+	this.FindTraveler = function (ID) {
+		for (var i = 0; i < self.travelers.length; i++) {
+			if (self.travelers[i].id == ID) return self.travelers[i];
+		}
+	}
 	/* this.RePaint = function () {
 		var self = this;
 		if (self.travelers.length > 0) {

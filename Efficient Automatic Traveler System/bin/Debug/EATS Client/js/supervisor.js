@@ -68,6 +68,35 @@ function Application () {
 		}
 		
 	};
+	//=====================================================
+	// Server/Client interface
+	//=====================================================
+	this.AddHTML = function(params) {
+		var parent = document.getElementById(params.id);
+		if (parent) {
+			parent.appendChild(HTML(params.html));
+		} else {
+			console.log(params.id + " could not be found");
+		}
+	}
+	this.RemoveHTML = function(id) {
+		var element = document.getElementById(id);
+		if (element) {
+			element.parentNode.remove(element);
+		} else {
+			console.log(id + " could not be found");
+		}
+	}
+	this.EditHTML = function(params) {
+		var element = document.getElementById(params.id);
+		if (element) {
+			var parent = element.parentNode;
+			parent.remove(element);
+			parent.appendChild(HTML(params.html));
+		} else {
+			console.log(params.id + " could not be found");
+		}
+	}
 	this.ControlPanel = function (format) {
 		this.popupManager.ControlPanel(format);
 	}
@@ -156,80 +185,9 @@ function Application () {
 	//----------------
 	// station list
 	//----------------
-	this.InitStations = function (stationList) {
-		var self = this;
-		self.stationList = stationList;
-		self.queues = {};
-		var start;
-		self.stationList.forEach(function (station) {
-			var queue = new TravelerQueue(station);
-			if (station.name == "Start") {
-				start = queue;
-			} else {
-				self.queueArray.appendChild(queue.DOMcontainer);
-			}
-			self.queues[station.name] = queue;
-		});
-		// put the start queue at the beginning
-		self.queueArray.insertBefore(start.DOMcontainer, self.queueArray.childNodes[0]);
-		self.SetWindow();
-	}
+	
 	this.QuantityAt = function (obj) {
 		this.queues[obj.station].totalQtyElem.innerHTML = obj.quantity;
-	}
-	// updates the queues with the current travelers
-	this.HandleTravelersChanged = function (message) {
-		var self = this;
-		if (message.mirror) {
-			/* self.travelers = [];
-			message.travelers.forEach(function (obj) {
-				var traveler = new Traveler(obj);
-				self.travelers.push(traveler);
-			}); */
-		} else {
-			/* message.travelers.forEach(function (obj) {
-				self.travelers.forEach(function (traveler, index) {
-					if (traveler.ID == obj.ID) {
-						self.travelers[index] = new Traveler(obj);
-					}
-				});
-			}); */
-		}
-		// clear the queues
-		for (var station in self.queues) {
-			self.queues[station].Clear();
-		}
-		for (var station in message.stations) {
-			message.stations[station].travelers.forEach(function (traveler) {
-				var copy = new Traveler(JSON.parse(JSON.stringify(traveler)));
-				copy.stationQueue = station;
-				copy.queueIndex = self.queues[station].travelers.length;
-				self.queues[station].AddTraveler(copy);
-			});
-			self.queues[station].RePaint();
-		};
-		// add all the travelers back
-		/* self.travelers.forEach(function (traveler) {
-			for (var station in traveler.stations) {
-				if (self.view.viewState == "InProcess" && (traveler.stations[station].qtyPending > 0 && station != "Finished" && station != "Start" && station != "Scrapped") || (traveler.state == "PreProcess" && self.view.viewState == "PreProcess") || (self.view.viewState == "PostProcess" && (station == "Finished" || station == "Scrapped"))) {
-					// QTY pending is sent based on the starting station for the traveler from the Export function on Traveler.cs
-					var copy = new Traveler(JSON.parse(JSON.stringify(traveler)));
-					copy.stationQueue = station;
-					copy.queueIndex = self.queues[station].travelers.length;
-					self.queues[station].AddTraveler(copy);
-				}
-				self.queues[station].RePaint();
-			}
-		}); */
-		// update summary, if open
-		if (self.popupManager.Exists("summaryPopup")) {
-			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("CreateSummary",{
-				sort:"Active"
-			});
-			
-			//-----------------------------------------------
-		}
 	}
 	this.Info = function (message) {
 		this.popupManager.Info(message);
@@ -474,62 +432,7 @@ function Application () {
 	// DOM events
 	//----------------
 
-	/* this.FilterChanged = function () {
-		var self = this;
-		var filterType = document.getElementById("filterType").checked;
-		var viewStateRadios = document.getElementsByName("viewState");
-		for (var i = 0; i < viewStateRadios.length; i++) {
-			if (viewStateRadios[i].checked) {
-				self.view.viewState = viewStateRadios[i].value;
-				break;
-			}
-		}
-		var viewTypeRadios = document.getElementsByName("viewType");
-		for (var i = 0; i < viewTypeRadios.length; i++) {
-			if (viewTypeRadios[i].checked) {
-				self.view.viewType = viewTypeRadios[i].value;
-				break;
-			}
-			
-		}
-		// disable/enable
-		for (var i = 0; i < viewTypeRadios.length; i++) {
-			if (!filterType) {
-				viewTypeRadios[i].disabled = true;
-			} else {
-				viewTypeRadios[i].disabled = false;
-			}
-		}
-		
-		var viewLocalStateRadios = document.getElementsByName("viewLocalState");
-		for (var i = 0; i < viewLocalStateRadios.length; i++) {
-			if (viewLocalStateRadios[i].checked) {
-				self.view.viewType = viewLocalStateRadios[i].value;
-				break;
-			}
-			
-		}
-		// disable/enable
-		for (var i = 0; i < viewLocalStateRadios.length; i++) {
-			if (!filterType) {
-				viewLocalStateRadios[i].disabled = true;
-			} else {
-				viewLocalStateRadios[i].disabled = false;
-			}
-		}
-		
-		
-		//----------INTERFACE CALL-----------------------
-		var message = new InterfaceCall("SetViewFilter",
-		{
-			filterState: true,
-			filterType: filterType,
-			filterLocalState: filterLocalState,
-			viewState: self.view.viewState,
-			viewType: self.view.viewType
-		},"This");
-		//-----------------------------------------------
-	} */
+
 	this.Redirect = function(location) {
 		window.location = location;
 	}
@@ -540,85 +443,16 @@ function Application () {
 		// configure the default view settings with the server
 		//document.getElementById("viewForm").onchange();
 	}
-	this.PrintLabelPopup = function (params) {
-		var self = this;
-		self.popupManager.AddSpecific("labelPopup");
-		var labelSelect = document.getElementById("labelSelect");
-		ClearChildren(labelSelect);
-		self.labelTypes.forEach(function (type) {
-			var option = document.createElement("OPTION");
-			option.value = type;
-			option.innerHTML = type;
-			labelSelect.appendChild(option);
-		});
-		
-		/* var itemSelect = document.getElementById("itemSelect");
-		ClearChildren(itemSelect);
-		traveler.items.forEach(function (item) {
-			var option = document.createElement("OPTION");
-			option.value = item.ID;
-			option.innerHTML = item.ID;
-			itemSelect.appendChild(option);
-		}); */
-		
-		document.getElementById("printLabelBtn").onclick = function () {
-			//----------INTERFACE CALL-----------------------
-			var message = new InterfaceCall("PrintLabel",{
-				travelerID: params.travelerID,
-				itemID: params.itemID,
-				labelType: document.getElementById("labelSelect").value,
-				quantity: 1
-			});
-			
-			//-----------------------------------------------
-		}
-	}
-	// DRAG AND DROP
-	this.BeginDrag = function(traveler,queue,event) {
-		/* var self = this;
-		var x = event.touches[0].pageX;
-		var y = event.touches[0].pageY;
-		var dragElement;
-		if (!self.dragging) {
-			self.dragging = true;
-			
-			dragElement = traveler.CreateQueueItem(queue.station.name);
-			dragElement.id = "dragElement";
-			dragElement.style.position = "fixed";
-			
-			
-			
-			dragElement.ontouchmove = function moveEvent(evt) {
-				self.BeginDrag(traveler,queue,evt);
-			}
-			document.getElementById("queueArray").appendChild(dragElement);
-		} else {
-			dragElement = document.getElementById("dragElement");
-		}
-		dragElement.style.left = Math.round(x - dragElement.offsetWidth/2) + "px";
-		dragElement.style.top = Math.round(y - dragElement.offsetHeight/2) + "px"; */
-	}
-	this.EndDrag = function () {
-		//document.getElementById("dragElement");
-	}
+
+
 	this.ControlPanel = function (controlPanel) {
 		var self = this;
 		self.popupManager.ControlPanel(controlPanel,document.getElementById(controlPanel.ID));
-		//self.SetScrollPos(document.getElementById(controlPanel.ID));
-		
-		/* if (controlPanel.ID in self.scrollPos) {
-			// reload scroll position
-			document.getElementById(controlPanel.ID).scrollTop = self.scrollPos[controlPanel.ID];
-		} else {
-			// add this id to the list of scroll positions
-			document.getElementById(controlPanel.ID).onscroll = function () {
-				self.scrollPos[controlPanel.ID] = this.scrollTop;
-			}
-		} */
+
 	}
-	this.EditHTML = function (params) {
+	/* this.EditHTML = function (params) {
 		EditHTML(params);
-	}
+	} */
 	this.SearchPopup = function (params) {
 		var self = this;
 		self.StopAutofocus();
@@ -654,36 +488,7 @@ function Application () {
 				new InterfaceCall("SearchSubmitted",{
 				searchPhrase: searchBox.value});
 			}
-			/* var searchArray = searchBox.value.split('-');
-			// try to parse the search string
-			var travelerID = parseInt(searchArray[0],10);
-			var itemID = parseInt(searchArray[1],10);
-
-			if (!isNaN(travelerID)) {
-				if (!isNaN(itemID)) {
-					// attempt to load the item
-					//----------INTERFACE CALL-----------------------
-					var message = new InterfaceCall("LoadItem",
-					{
-						travelerID: travelerID,
-						itemID: itemID
-					});
-					
-					//-----------------------------------------------
-				} else {
-					// attempt to load the traveler
-					//----------INTERFACE CALL-----------------------
-					var message = new InterfaceCall("LoadTraveler",
-					{
-						travelerID: travelerID
-					});
-					
-					//-----------------------------------------------
-				}
-			} else {
-				self.Info("Invalid traveler ID :(");
-			}
-			searchBox.value = ""; */
+			
 			return false;
 		}
 		
@@ -702,113 +507,7 @@ function Application () {
 		document.getElementById("helpBtn").onclick = function () {
 			new InterfaceCall("Help");
 		}
-		/* var popup = self.popupManager.CreatePopup();
-			// OPEN SUMMARY CURRENT SUMMARY VIEW--------------
-			var summaryBtn = self.popupManager.CreateButton("View Summary");
-			summaryBtn.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("CreateSummary",{
-					sort: "Active",
-					type: "Table",
-					from: "",
-					to: ""
-				});
-				
-				//-----------------------------------------------
-			}
-			popup.appendChild(summaryBtn);
-			
-			
-			
-			// DOWNLOAD SUMMARY (AVAILABLE TRAVELERS)--------------
-			var downloadSummaryBtn = self.popupManager.CreateButton("Download Table Summary<br>(Available in Start)");
-			downloadSummaryBtn.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("DownloadSummary",{
-					sort: "Available",
-					type: "Table"
-				});
-				
-				//-----------------------------------------------
-			}
-			popup.appendChild(downloadSummaryBtn);
-			
-			// DOWNLOAD SUMMARY (SORTED TRAVELERS)--------------
-			var sortedSummary = self.popupManager.CreateButton("Download Table Summary<br>(By Station)");
-			sortedSummary.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("DownloadSummary",{
-					sort: "Sorted",
-					type: "Table"
-				});
-				
-				//-----------------------------------------------
-			}
-			popup.appendChild(sortedSummary);
-			
-			// DOWNLOAD SUMMARY (Production)--------------
-			var productionBtn = self.popupManager.CreateButton("Download Table Production");
-			productionBtn.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("ExportProduction",{
-					sort: "All",
-					type: "Table"
-				});
-				
-				//-----------------------------------------------
-			}
-			popup.appendChild(productionBtn);
-			
-			// DOWNLOAD SUMMARY (SORTED TRAVELERS)--------------
-			var scrapBtn = self.popupManager.CreateButton("Download Table Scrap");
-			scrapBtn.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("ExportScrap",{
-					sort: "All",
-					type: "Table"
-				});
-				
-				//-----------------------------------------------
-			}
-			popup.appendChild(scrapBtn);
-			
-			// ADD NEW USER --------------
-			var newUserBtn = self.popupManager.CreateButton("New User");
-			newUserBtn.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("UserForm");
-				
-				//-----------------------------------------------
-			}
-			popup.appendChild(newUserBtn);
-			
-			// EDIT USER --------------
-			var editUserBtn = self.popupManager.CreateButton("Edit User");
-			editUserBtn.onclick = function () {
-				self.StopAutofocus();
-				self.popupManager.Search("Search for a user",function(searchPhrase) {
-					//----------INTERFACE CALL-----------------------
-					var message = new InterfaceCall("EditUserForm",{
-						searchPhrase: searchPhrase
-					});
-					
-					//-----------------------------------------------
-					self.StartAutofocus();
-				});
-			}
-			popup.appendChild(editUserBtn);
-			
-			// ADD NEW TRAVELER --------------
-			var newTravelerBtn = self.popupManager.CreateButton("New Traveler");
-			newTravelerBtn.onclick = function () {
-				//----------INTERFACE CALL-----------------------
-				var message = new InterfaceCall("TravelerForm");
-				
-				//-----------------------------------------------
-			}
-			popup.appendChild(newTravelerBtn);
-			
-			self.popupManager.AddCustom(popup); */
+		
 		//----------------
 		// queueArray
 		//----------------
@@ -1184,28 +883,6 @@ function Input () {
 			self.keyMap[event.keyCode] = false;
 			self.UpdateAction();
 		});
-		/* // add mouse listeners (only on the canvas)
-		canvas.addEventListener('mousedown', function (event) {
-			event.preventDefault();
-			switch (event.which) {
-				case 1: self.mouse.left = true; break;
-				case 2: self.mouse.middle = true; break;
-				case 3: self.mouse.right = true; break;
-			}
-		});
-		canvas.addEventListener('mouseup', function (event) {
-			event.preventDefault();
-			switch (event.which) {
-				case 1: self.mouse.left = false; break;
-				case 2: self.mouse.middle = false; break;
-				case 3: self.mouse.right = false; break;
-			}
-		});
-		canvas.addEventListener('mousemove', function (event) {
-			event.preventDefault();
-			var rect = canvas.getBoundingClientRect();
-			self.mouse.x = event.clientX - rect.left;
-			self.mouse.y = event.clientY - rect.top;
-		}); */
+		
 	}
 }

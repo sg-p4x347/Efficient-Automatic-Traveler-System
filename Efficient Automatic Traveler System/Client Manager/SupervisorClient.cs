@@ -26,14 +26,19 @@ namespace Efficient_Automatic_Traveler_System
             SendMessage((new ClientMessage("InitStations", StationClass.GetStations().Stringify())).ToString());
             SendMessage((new ClientMessage("InitLabelTypes", ExtensionMethods.Stringify<LabelType>())).ToString());
             SendMessage((new ClientMessage("InterfaceOpen")).ToString());
-            HandleTravelersChanged();
+            HandleTravelersChanged(travelerManager.GetTravelers);
             KanbanManager.KanbanChanged += new KanbanChangedSubscriber(HandleKanbanChanged);
             SetFilterForm();
         }
-        public override void HandleTravelersChanged(bool changed = false)
+        public override void HandleTravelersChanged(List<Traveler> changed)
         {
             try
             {
+                //GlobalItemState GlobalState;
+                //if (Enum.TryParse(ViewFilter.ValueOf("globalState"), out GlobalState))
+                //{
+                //    ExportTravelers(GlobalState, changed);
+                //}
                 NodeList queueArray = new NodeList(new Style("queueArray"));
                 queueArray.ID = "queueArray";
                 foreach (StationClass station in StationClass.GetStations())
@@ -46,7 +51,8 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 SendMessage(new ControlPanel("queueArray", queueArray, "body").Dispatch().ToString());
                 //if (m_current != null) SendMessage(TravelerPopup(m_current));
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
 
             }
@@ -157,7 +163,7 @@ namespace Efficient_Automatic_Traveler_System
                     m_selected.Remove(traveler);
                 }
                 m_current = null;
-                HandleTravelersChanged();
+                //HandleTravelersChanged();
                 return new ClientMessage();
             }
             catch (Exception ex)
@@ -221,10 +227,38 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        protected override JsonObject ExportTravelers()
+        protected override void ExportTravelers(GlobalItemState state, List<Traveler> changedTravs)
         {
-            JsonObject obj = base.ExportTravelers();
-            
+            foreach (StationClass station in StationClass.GetStations())
+            {
+                List<Traveler> changed = new List<Traveler>(changedTravs);
+                List<Traveler> newTravelers = VisibleTravelers(station);
+                changed.RemoveAll(t => !newTravelers.Contains(t));
+                if (!Travelers.ContainsKey(station))
+                {
+                    Travelers.Add(station, newTravelers);
+                } else
+                {
+                    if (changed.Any() || !Travelers[station].SequenceEqual(newTravelers))
+                    {
+                        // changes have taken place
+                        List<Traveler> added = newTravelers.Except(Travelers[station]).ToList();
+                        List<Traveler> removed = Travelers[station].Except(newTravelers).ToList();
+                        foreach (Traveler traveler in added)
+                        {
+                            SendMessage(new ClientMessage("AddHTML", new JsonObject() { { "html", traveler.Render(station) }, { "id", traveler.ID } }));
+                        }
+                        foreach (Traveler traveler in removed)
+                        {
+                            SendMessage(new ClientMessage("RemoveHTML", traveler.ID.ToString()));
+                        }
+                        foreach (Traveler traveler in changed)
+                        {
+                            SendMessage(new ClientMessage("EditHTML", new JsonObject() { { "html", traveler.Render(station) }, { "id", traveler.ID } }));
+                        }
+                    }
+                }
+            }
         }
         #endregion
         //----------------------------------
@@ -253,14 +287,17 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 ViewFilter = new Form(json);
-
+                HandleTravelersChanged(Server.TravelerManager.GetTravelers);
                 //m_viewState 
                 //m_viewState = (GlobalItemState)Enum.Parse(typeof(GlobalItemState), obj["viewState"]);
                 //m_viewType = typeof(Traveler).Assembly.GetType("Efficient_Automatic_Traveler_System." + obj["viewType"]);
                 //m_filterState = Convert.ToBoolean(obj["filterState"]);
                 ////m_filterLocalState = Convert.ToBoolean(obj["filterLocalState"]);
                 //m_filterType = Convert.ToBoolean(obj["filterType"]);
-                HandleTravelersChanged();
+
+
+                
+
                 return new ClientMessage();
             }
             catch (Exception ex)
@@ -491,6 +528,14 @@ namespace Efficient_Automatic_Traveler_System
                     // Orders
                     Column orders = new Column(style: new Style("blackout__popup__controlPanel__list"));
                     orders.Add(new Expand());
+
+                    DataTable orderTable = new DataTable();
+                    orderTable.Columns.Add(new DataColumn("Qty"));
+                    orderTable.Columns.Add(new DataColumn("Order"));
+                    orderTable.Columns["Order"].DataType = typeof(Node);
+                    orderTable.Columns.Add(new DataColumn("Customer"));
+                    orderTable.Columns.Add(new DataColumn("Ship Date"));
+
                     foreach (string orderNo in traveler.ParentOrderNums)
                     {
                         Order order = traveler.ParentOrders.Find(o => o.SalesOrderNo == orderNo);
@@ -501,8 +546,22 @@ namespace Efficient_Automatic_Traveler_System
                             }
                             
                             : new TextNode(orderNo));
-                        orders.Add(orderListing);
+
+                        DataRow row = orderTable.NewRow();
+
+                        row["Order"] = orderListing;
+                        if (order != null)
+                        {
+                            row["Qty"] = order.FindItems(traveler.ID).Sum(i => i.QtyOrdered);
+                            row["Customer"] = order.CustomerNo;
+                            row["Ship Date"] = order.ShipDate.ToString("MM/dd/yyyy");
+                        }
+                       
+                        
+
+                        orderTable.Rows.Add(row);
                     }
+                    orders.Add(ControlPanel.CreateDataTable(orderTable));
                     fields.Add(
                         new Row(style: spaceBetween)
                         {
@@ -1083,7 +1142,6 @@ namespace Efficient_Automatic_Traveler_System
                 Order order = m_order;
                 m_order = null;
                 Server.OrderManager.RemoveOrder(order);
-                SendMessage(new ClientMessage("CloseAll").ToString());
                 return new ClientMessage("Info", "Order " + order.SalesOrderNo + " removed!");
             }
             catch (Exception ex)
@@ -1115,7 +1173,8 @@ namespace Efficient_Automatic_Traveler_System
                 if (order != null && m_current != null)
                 {
                     Server.OrderManager.RemoveOrder(order, m_current);
-                    return new ClientMessage("Info", "Order " + order.SalesOrderNo + " removed from traveler " + m_current.PrintID() + " !");
+                    return new ClientMessage("Info", "Order " + order.SalesOrderNo + " removed from traveler " + m_current.PrintID() + " !<br> Refactor this traveler to update quantity");
+                    
                 }
                 else
                 {
@@ -1316,6 +1375,7 @@ namespace Efficient_Automatic_Traveler_System
                 Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(parameters["travelerID"]));
                 TravelerItem item = traveler.FindItem(Convert.ToUInt16(parameters["itemID"]));
                 int qty = Convert.ToInt32(form.ValueOf("quantity"));
+                SelectItem(item);
                 return new ClientMessage("Info", traveler.PrintLabel(item.ID, (LabelType)Enum.Parse(typeof(LabelType), form.ValueOf("labelType")), qty > 0 ? qty : 1, true,printer:form.ValueOf("printer")));
             }
             catch (Exception ex)
@@ -1768,6 +1828,7 @@ namespace Efficient_Automatic_Traveler_System
         private List<Traveler> m_selected;
         private Traveler m_current = null;
         private StationClass m_currentStation = null;
+        private Dictionary<StationClass,List<Traveler>> m_travelers = new Dictionary<StationClass, List<Traveler>>();
 
         public Form ViewFilter
         {
@@ -1779,6 +1840,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_viewFilter = value;
+            }
+        }
+
+        public Dictionary<StationClass, List<Traveler>> Travelers
+        {
+            get
+            {
+                return m_travelers;
+            }
+
+            set
+            {
+                m_travelers = value;
             }
         }
         #endregion

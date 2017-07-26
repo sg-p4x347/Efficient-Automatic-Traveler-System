@@ -104,7 +104,7 @@ namespace Efficient_Automatic_Traveler_System
     public interface ITravelers
     {
         event TravelersChangedSubscriber TravelersChanged;
-        void HandleTravelersChanged(bool changed = false);
+        void HandleTravelersChanged(List<Traveler> changed);
     }
     // The base class for a TcpClient that connects to the EATS server
     public abstract class Client : IClient
@@ -129,7 +129,7 @@ namespace Efficient_Automatic_Traveler_System
             CurrentStation = null;
 
         }
-        public abstract void HandleTravelersChanged(bool changed = false);
+        public abstract void HandleTravelersChanged(List<Traveler> changed);
         public void SendMessage(string message)
         {
             try
@@ -186,6 +186,7 @@ namespace Efficient_Automatic_Traveler_System
             Style visibleOverflow = new Style();
             //visibleOverflow.AddStyle("overflow", "visible");
             NodeList queue = new NodeList(visibleOverflow + new Style("flex-direction-column-reverse"));
+            queue.ID = station.Name;
             PopulateTravelerQueue(queue, travelers, station, split);
             return queue;
         }
@@ -295,9 +296,8 @@ namespace Efficient_Automatic_Traveler_System
             }
             return queueItem;
         }
-        protected virtual JsonObject ExportTravelers()
+        protected virtual void ExportTravelers(GlobalItemState state, List<Traveler> changed)
         {
-            return new JsonObject();
 
         }
         protected async Task<string> RecieveMessageAsync()
@@ -854,13 +854,12 @@ namespace Efficient_Automatic_Traveler_System
                 if (SelectedItem != null)
                 {
                     JsonObject reworkReport = (JsonObject)ConfigManager.GetJSON("scrapReport");
-                    JsonArray vendorReasons = (JsonArray)reworkReport["vendor"];
-                    JsonArray productionReasons = (JsonArray)reworkReport["production"];
+                    JsonArray reasons = (JsonArray)reworkReport["reasons"];
 
                     Form form = new Form();
                     form.Title = "Flag " + SelectedItem.PrintID();
-                    form.Selection("source", "Source", new List<string>() { "vendor", "production" }, "production");
-                    form.Selection("reason", "Reason", productionReasons.ToList().Concat(vendorReasons.ToList()).ToList());
+                    form.Selection("source", "Source", new List<string>() { "Vendor", "Marco Group" }, "Vendor");
+                    form.Selection("reason", "Reason", reasons.ToList());
                     form.Checkbox("startedWork", "Started Work", false);
                     form.Textbox("comment", "Comment");
                     return form.Dispatch("FlagItem");
@@ -964,6 +963,7 @@ namespace Efficient_Automatic_Traveler_System
                     options.Add("Close", "CloseAll");
                 }
             }
+
             return ControlPanel.Options(text, options);
             
         }
@@ -974,8 +974,9 @@ namespace Efficient_Automatic_Traveler_System
                 if (SelectedItem != null)
                 {
                     SelectedItem.Flag(m_user, new Form(json));
+                    SelectItem(SelectedItem);
                 }
-                    
+                
                 return new ClientMessage();
             }
             catch (Exception ex)
@@ -1035,7 +1036,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Form form = new Form();
             form.Title = "Scrap";
-            form.Selection("user", "Who done it?", Server.UserManager.Users.Select(u => u.Name).ToList());
+            form.Selection("user", "Who done it?", Server.UserManager.Users.Select(u => u.Name).ToList(),m_user.Name);
             return form.Dispatch("ScrapItem");
         }
         public async Task<ClientMessage> ScrapItem(string json)

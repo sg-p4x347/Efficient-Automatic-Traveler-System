@@ -25,25 +25,39 @@ namespace Efficient_Automatic_Traveler_System
                 Server.WriteLine("An error occured when retrieving item information from MAS: " + ex.Message);
             }
         }
+        public void Clone(Item item)
+        {
+            m_itemCodeDesc = item.ItemCodeDesc;
+            Unit = item.Unit;
+        }
         [HandleProcessCorruptedStateExceptions]
         public async Task Import(OdbcConnection MAS)
         {
             try
             {
-                // get item info from MAS
-                if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
-                OdbcCommand command = MAS.CreateCommand();
-                command.CommandText = "SELECT ItemCodeDesc, StandardUnitOfMeasure FROM CI_item WHERE itemCode = '" + m_itemCode + "'";
-                OdbcDataReader reader = (OdbcDataReader)( command.ExecuteReader(System.Data.CommandBehavior.SingleRow));
-
-                // begin to read
-                if (reader.Read())
+                Item existing = m_items.Find(b => b.ItemCode == ItemCode);
+                if (existing != null)
                 {
-                    //if (!reader.IsDBNull(0)) m_itemType = reader.GetInt32(0);
-                    if (!reader.IsDBNull(0)) m_itemCodeDesc = reader.GetString(0);
-                    if (!reader.IsDBNull(1)) m_unit = reader.GetString(1);
+                    Clone(existing);
                 }
-                reader.Close();
+                else
+                {
+                    // get item info from MAS
+                    if (MAS.State != System.Data.ConnectionState.Open) throw new Exception("MAS is in a closed state!");
+                    OdbcCommand command = MAS.CreateCommand();
+                    command.CommandText = "SELECT ItemCodeDesc, StandardUnitOfMeasure FROM CI_item WHERE itemCode = '" + m_itemCode + "'";
+                    OdbcDataReader reader = (OdbcDataReader)(command.ExecuteReader(System.Data.CommandBehavior.SingleRow));
+
+                    // begin to read
+                    if (reader.Read())
+                    {
+                        //if (!reader.IsDBNull(0)) m_itemType = reader.GetInt32(0);
+                        if (!reader.IsDBNull(0)) m_itemCodeDesc = reader.GetString(0);
+                        if (!reader.IsDBNull(1)) m_unit = reader.GetString(1);
+                    }
+                    reader.Close();
+                    m_items.Add(this);
+                }
             }
             catch (AccessViolationException ex)
             {
@@ -73,6 +87,8 @@ namespace Efficient_Automatic_Traveler_System
         private double m_totalQuantity;
         private string m_unit;
 
+        // item cache
+        private static List<Item> m_items = new List<Item>();
         public string ItemCode
         {
             get

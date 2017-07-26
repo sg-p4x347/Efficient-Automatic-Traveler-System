@@ -163,6 +163,7 @@ div.queue {
 	background-image: url("../img/loading.gif");
 	background-position: center;
 	background-repeat: no-repeat;
+	background-size: 3em 3em;
 	width: 3em;
 	height: 3em;
 }
