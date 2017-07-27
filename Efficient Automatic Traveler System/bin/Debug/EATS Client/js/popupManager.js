@@ -148,6 +148,9 @@ function PopupManager(blackout) {
 					if (field.type == "number") {
 						input.min = field.min;
 						input.max = field.max;
+					} else if (field.type == "text" && field.max > 0) {
+						input.maxLength = field.max;
+					} else if (field.type == "file") {
 					}
 				} else if (field.type == "addBox") {
 					input = {
@@ -156,6 +159,7 @@ function PopupManager(blackout) {
 					};
 					row.appendChild( self.CreateAddBox(input.value));
 				}
+				// value
 				if (input.type != "addBox") {
 					if (field.type != "checkbox") {
 						input.value = field.value;
@@ -238,15 +242,34 @@ function PopupManager(blackout) {
 		}
 	}
 	this.SubmitForm = function (format, inputs, submitCallback) {
+		var fileExists = false;
+		var done = false;
 		var self = this;
 		format.fields.forEach(function (field,i) {
 			if (inputs[i].type != "checkbox") {
-				format.fields[i].value = inputs[i].value;
+				if (inputs[i].type != "file") {
+					format.fields[i].value = inputs[i].value;
+				} else if (inputs[i].files.length > 0) {
+					var fr = new FileReader();
+					fileExists = true;
+					fr.onload = function (e) {
+						format.fields[i].value = e.target.result;
+						if (done) {
+							submitCallback(format);
+						}
+					}
+					format.fields[i].value = fr.readAsText(inputs[i].files[0]);
+				} else {
+					format.fields[i].value = "";
+				}
 			} else {
 				format.fields[i].value = inputs[i].checked;
 			}
 		});
-		submitCallback(format);
+		done = true;
+		if (!fileExists) {		
+			submitCallback(format);
+		}
 	}
 	// displays a search box; calls a callback with the search phrase
 	this.Search = function (message,callback) {
@@ -481,11 +504,19 @@ function PopupManager(blackout) {
 			if (node.id) {
 				nodeElement.id = node.id;
 			}
+		
 			if (highestLevel) {
 				nodeElement.style.overflowX = "auto";
 				nodeElement.style.overflowY = "auto";
 			}
 			parent.appendChild(nodeElement);
+			// Script
+			if (node.script) {
+				// call the script function, pass the element as the parameter
+				if (window[node.script]) {
+					window[node.script](nodeElement);
+				}
+			}
 		}
 	}
 	
@@ -498,6 +529,9 @@ function PopupManager(blackout) {
 		popup.src = "./img/loading.gif";
 		self.Open(popup);
 	}
+	// displays 
+	
+	
 	//=========================================
 	// CREATE MODULAR DOM OBJECTS
 	

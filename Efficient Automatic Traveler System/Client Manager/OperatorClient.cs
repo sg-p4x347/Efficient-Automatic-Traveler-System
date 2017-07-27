@@ -219,7 +219,7 @@ namespace Efficient_Automatic_Traveler_System
         private void LoadTravelerView(Traveler traveler, TravelerItem item = null)
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
-            obj.Add("ID", (item != null ? traveler.PrintSequenceID(item) : traveler.ID.ToString("D6")).Quotate());
+            obj.Add("ID", (item != null ? traveler.PrintID() : traveler.ID.ToString("D6")).Quotate());
             if (item != null) obj.Add("itemMembers", item.ExportTableRows(CurrentStation));
 
             Column travelerView = TravelerView(traveler,item);
@@ -312,7 +312,7 @@ namespace Efficient_Automatic_Traveler_System
             itemJSON = itemJSON.MergeJSON(traveler.ExportTableRows(CurrentStation));
             Dictionary<string, string> extraProps = new Dictionary<string, string>()
             {
-                {"sequenceID",traveler.PrintSequenceID(item).Quotate() },
+                {"sequenceID",traveler.PrintID().Quotate() },
                 {"travelerID",traveler.ID.ToString() }
             };
             itemJSON = itemJSON.MergeJSON(extraProps.Stringify());
@@ -747,13 +747,13 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     SelectItem(item);
                     NodeList options = FlagItemOptions();
-                    SendMessage(new ControlPanel("Item completed at " + CurrentStation.Name, new Column() { new TextNode(item.Parent.PrintID(item) + " has been completed at this station"), options }).Dispatch());
+                    SendMessage(new ControlPanel("Item completed at " + CurrentStation.Name, new Column() { new TextNode(item.PrintID() + " has been completed at this station"), options }).Dispatch());
                 }
                 else
                 {
                     SelectItem(item);
                     NodeList options = FlagItemOptions();
-                    SendMessage(new ControlPanel("Item not pending at " + CurrentStation.Name, new Column() { new TextNode(item.Parent.PrintID(item) + "  is not pending work at your station" + "<br>It is " + item.LocalState.ToString() + " at " + item.Station.Name), options }).Dispatch());
+                    SendMessage(new ControlPanel("Item not pending at " + CurrentStation.Name, new Column() { new TextNode(item.Parent.PrintID() + "  is not pending work at your station" + "<br>It is " + item.LocalState.ToString() + " at " + item.Station.Name), options }).Dispatch());
                 }
             } catch (Exception e)
             {

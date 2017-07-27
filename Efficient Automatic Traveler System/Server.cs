@@ -15,6 +15,18 @@ using System.Data;
 
 namespace Efficient_Automatic_Traveler_System
 {
+    enum command
+    {
+        update,
+        backup,
+        configure,
+        createBoxTravelers,
+        relinkOrders,
+        complete,
+        printLabels,
+        delete,
+        tag
+    }
     public class Server
     {
 
@@ -111,124 +123,87 @@ namespace Efficient_Automatic_Traveler_System
         //------------------------------
         private async void GetInputAsync()
         {
-            string input = await Task.Run(() => Console.ReadLine());
-            string[] commands =
+            try
             {
-                "update",
-                "backup",
-                "reset",
-                "configure",
-                "CreateBoxTravelers",
-                "relinkOrders",
-                "complete",
-                "printLabels",
-                "delete"
-            };
-            switch (input)
-            {
-                case "update":
-                    Update();
-                    break;
-                case "backup":
-                    Backup();
-                    break;
-                case "reset":
-                    //m_travelerManager.GetTravelers.Clear();
-                    //m_travelerManager.GetOrders.Clear();
-                    //m_travelerManager.HandleTravelersChanged();
-                    //m_travelerManager.CreateTravelers();
-                    break;
-                case "configure":
-                    Configure();
-                    break;
-                case "CreateBoxTravelers":
-                    List<Box> pre = new List<Box>(TravelerManager.GetTravelers.OfType<Box>());
-                    TravelerManager.CreateBoxTravelers();
-                    List<Box> post = new List<Box>(TravelerManager.GetTravelers.OfType<Box>());
-                    Server.WriteLine("Created " + post.Count(p => !pre.Contains(p)) + " Box travelers");
-                    break;
-                case "relinkOrders":
-                    RelinkOrders();
-                    break;
-                default:
-                    if (input.Contains("complete"))
-                    {
-                        string[] parts = input.Split(' ');
-                        if (parts.Length >= 2)
-                        {
-                            int travelerID;
-                            if (int.TryParse(parts[1], out travelerID))
-                            {
-                                Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
-                                if (traveler != null)
-                                {
-                                    for (int i = traveler.QuantityPendingAt(traveler.Station); i > 0; i--)
-                                    {
-                                        traveler.AddItem(traveler.Station, parts.Length >= 3 ? parts[2] : "");
-                                    }
-                                    m_travelerManager.Backup();
-                                    Server.WriteLine("The deed is done.");
-                                    break;
-                                }
-                            }
-                        }
-                        Server.WriteLine("Please enter a valid traveler ID");
-                    }
-                    else if (input.Contains("printLabels"))
-                    {
-                        // [command] [traveler] [from item id] [to item id] [printer]
-                        string[] parts = input.Split(' ');
-                        if (parts.Length >= 5)
-                        {
-                            int travelerID;
-                            if (int.TryParse(parts[1], out travelerID))
-                            {
-                                Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
-                                if (traveler != null)
-                                {
-                                    ushort fromID;
-                                    ushort toID;
-                                    if (ushort.TryParse(parts[2], out fromID) && ushort.TryParse(parts[3], out toID))
-                                    {
-                                        for (ushort i = fromID; i <= toID; i++)
-                                        {
-                                            TravelerItem item = traveler.FindItem(i);
-                                            if (item != null)
-                                            {
-                                                Thread.Sleep(2000);
-                                                traveler.PrintLabel(i, LabelType.Tracking, printer: parts[4]);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            Server.WriteLine("Invalid parameter list");
-                        }
-                    }
-                    else if (input.Contains("delete"))
-                    {
-                        string[] parts = input.Split(' ');
-                        if (parts.Length == 2)
-                        {
-                            int travelerID;
-                            if (int.TryParse(parts[1], out travelerID))
-                            {
-                                Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
-                                if (traveler != null)
-                                {
-                                    m_travelerManager.RemoveTraveler(traveler);
-                                    m_travelerManager.OnTravelersChanged(traveler);
-                                    Server.WriteLine(traveler.PrintID() + " was deleted");
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid; commands are " + commands.ToList().Stringify());
+                string input = await Task.Run(() => Console.ReadLine());
 
+                List<string> parts = input.Split(' ').ToList();
+                command cmd;
+                if (Enum.TryParse(parts.First(), out cmd))
+                {
+                    switch (cmd)
+                    {
+                        case command.update: Update(); break;
+                        case command.backup: Backup(); break;
+                        case command.configure: Configure(); break;
+                        case command.createBoxTravelers:
+                            List<Box> pre = new List<Box>(TravelerManager.GetTravelers.OfType<Box>());
+                            TravelerManager.CreateBoxTravelers();
+                            List<Box> post = new List<Box>(TravelerManager.GetTravelers.OfType<Box>());
+                            Server.WriteLine("Created " + post.Count(p => !pre.Contains(p)) + " Box travelers");
+                            break;
+                        case command.relinkOrders: RelinkOrders(); break;
+                        case command.complete:
+                            if (parts.Count >= 2)
+                            {
+                                int travelerID;
+                                if (int.TryParse(parts[1], out travelerID))
+                                {
+                                    Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
+                                    if (traveler != null)
+                                    {
+                                        for (int i = traveler.QuantityPendingAt(traveler.Station); i > 0; i--)
+                                        {
+                                            traveler.AddItem(traveler.Station, parts.Count >= 3 ? parts[2] : "");
+                                        }
+                                        m_travelerManager.Backup();
+                                        Server.WriteLine("The deed is done.");
+                                        break;
+                                    }
+                                }
+                            }
+                            Server.WriteLine("Please enter a valid traveler ID");
+                            break;
+                        case command.delete:
+                            if (parts.Count == 2)
+                            {
+                                int travelerID;
+                                if (int.TryParse(parts[1], out travelerID))
+                                {
+                                    Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
+                                    if (traveler != null)
+                                    {
+                                        m_travelerManager.RemoveTraveler(traveler);
+                                        m_travelerManager.OnTravelersChanged(traveler);
+                                        Server.WriteLine(traveler.PrintID() + " was deleted");
+                                    }
+                                }
+                            }
+                            break;
+                        case command.tag:
+                            if (parts.Count == 3)
+                            {
+                                int id;
+                                if (int.TryParse(parts[1],out id))
+                                {
+                                    foreach (Traveler traveler in Server.TravelerManager.GetTravelers.Where(t => t.ID >= id))
+                                    {
+                                        traveler.Tag = Convert.ToChar(parts[2]);
+                                        Server.WriteLine("- Tagged " + traveler.PrintID());
+                                    }
+                                    Server.TravelerManager.OnTravelersChanged();
+                                }
+                            }
+                            break;
                     }
-                    break;
+                }
+                else
+                {
+                    Server.WriteLine("Lame. try " + JsonArray.From(Enum.GetNames(typeof(command)).ToList()).Humanize());
+                }
+            } catch (Exception ex)
+            {
+                LogException(ex);
             }
             GetInputAsync();
         }

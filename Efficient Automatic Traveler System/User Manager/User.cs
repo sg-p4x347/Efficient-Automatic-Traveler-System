@@ -165,8 +165,9 @@ namespace Efficient_Automatic_Traveler_System
                     login = evt;
                 } else if (login != null && evt.LogType == LogType.Logout)
                 {
-                    login = null;
+                    
                     time += (evt.Date - login.Date).TotalMinutes;
+                    login = null;
                 }
             }
             return Math.Round(time, 2);

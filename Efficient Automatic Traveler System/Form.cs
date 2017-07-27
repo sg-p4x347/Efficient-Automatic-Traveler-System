@@ -21,16 +21,26 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                m_fields = new List<string>();
                 if (obj.ContainsKey("name"))
                 {
                     m_title = obj["name"];
+                    
                     //m_source = obj["source"];
-                    m_fields = new StringStream(obj["fields"]).ParseJSONarray();
+                    foreach (JsonObject field in (JsonArray)JSON.Parse(obj["fields"]))
+                    {
+                        if (!field.ContainsKey("value")) field.Add("value", "");
+                        m_fields.Add(field);
+                    }
                 } else
                 {
                     JsonObject obj2 = (JsonObject)JSON.Parse(json);
                     m_title = ((JsonObject)obj2["form"])["name"];
-                    m_fields = new StringStream(((JsonArray)((JsonObject)obj2["form"])["fields"])).ParseJSONarray();
+                    foreach (JsonObject field in (JsonArray)((JsonObject)obj2["form"])["fields"])
+                    {
+                        if (!field.ContainsKey("value")) field.Add("value", "");
+                        m_fields.Add(field);
+                    }
                 }
             } catch (Exception ex)
             {
@@ -86,9 +96,11 @@ namespace Efficient_Automatic_Traveler_System
         // Form Elements
         //=======================================
         
-        public void Textbox(string name, string title, string value = "")
+        public void Textbox(string name, string title, string value = "", int max = 0)
         {
-            m_fields.Add(Basic(name,title, "text",value.Quotate()));
+            JsonObject obj = (JsonObject)JSON.Parse(Basic(name, title, "text", value.Quotate()));
+            obj.Add("max", max);
+            m_fields.Add(obj);
         }
         public void Textarea(string name, string title, string value = "")
         {

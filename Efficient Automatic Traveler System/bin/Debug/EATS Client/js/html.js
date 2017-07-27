@@ -95,9 +95,11 @@ function AddControlNode(node,parent,callback,highestLevel) {
 			break;
 	}
 	if (nodeElement) {
+		// style classes
 		node.styleClasses.forEach(function (styleClass) {
 			nodeElement.className += " " + styleClass;
 		});
+		// Events
 		if (node.type == "Checkbox") {
 			nodeElement.onclick = function (event) {event.stopPropagation();}
 		}
@@ -112,13 +114,22 @@ function AddControlNode(node,parent,callback,highestLevel) {
 				evt.stopPropagation();
 			});
 		});
+		// specific styles
 		if (node.style) {
 			for (var style in node.style) {
 				nodeElement.style[style] = node.style[style];
 			}
 		}
+		// ID
 		if (node.id) {
 			nodeElement.id = node.id;
+		}
+		// Script
+		if (node.script) {
+			// call the script function, pass the element as the parameter
+			if (window[node.script]) {
+				window[node.script](nodeElement);
+			}
 		}
 		if (highestLevel) {
 			nodeElement.style.overflowX = "auto";

@@ -89,6 +89,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public Summary(DateTime A, DateTime B) : this()
         {
+            m_users = new List<User>();
             List<DateTime> datesDescending = new List<DateTime>(BackupManager.BackupDates);
             datesDescending.Sort((a, b) => b.CompareTo(a));
             int indexA = datesDescending.IndexOf(datesDescending.First(d => d <= B));
@@ -105,7 +106,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_travelers.AddRange(travelerManager.GetTravelers.Where(t => !m_travelers.Exists(s => s.ID == t.ID)));
 
                 // Users
-                m_users = new List<User>();
+                
                 UserManager userManager = new UserManager();
                 userManager.Import(day);
                 m_users.AddRange(userManager.Users.Where(u => !m_users.Exists(v => v.UID == u.UID)));
@@ -143,7 +144,7 @@ namespace Efficient_Automatic_Traveler_System
                         if (itemA != null)
                         {
                             // remove common history
-                            itemB.History.RemoveAll(e => e == itemA.History.Find(eA => eA == e));
+                            itemB.History.RemoveAll(e => e == itemA.History.Find(eA => eA.Date == e.Date));
                         }
                     }
                 }
@@ -157,7 +158,7 @@ namespace Efficient_Automatic_Traveler_System
             summary.Columns.Add(new DataColumn("Name"));
             summary.Columns.Add(new DataColumn("UID"));
             summary.Columns.Add(new DataColumn("Access Level"));
-            summary.Columns.Add(new DataColumn("Scrapped"));
+            summary.Columns.Add(new DataColumn("Qty Scrapped"));
             summary.Columns.Add(new DataColumn("Completed"));
             summary.Columns.Add(new DataColumn("Idle Time"));
             foreach (string stationName in StationClass.StationNames())
@@ -170,7 +171,7 @@ namespace Efficient_Automatic_Traveler_System
                 row["Name"] = user.Name;
                 row["UID"] = user.UID;
                 row["Access Level"] = user.AccessLevel;
-                row["Scrapped"] = m_travelers.Sum(t => t.Items.Count(i => i.History.OfType<ScrapEvent>().ToList().Exists(e => e.User.UID == user.UID)));
+                row["Qty Scrapped"] = m_travelers.Sum(t => t.Items.Count(i => i.History.OfType<ScrapEvent>().ToList().Exists(e => e.User.UID == user.UID)));
                 row["Completed"] = m_travelers.Sum(t => t.Items.Sum(i => i.History.OfType<ProcessEvent>().ToList().Count(e => e.User.UID == user.UID)));
                 // calculate total log time
                 row["Idle Time"] = user.TotalLogTime();
@@ -241,7 +242,7 @@ namespace Efficient_Automatic_Traveler_System
                     row["Quantity"] = qty;
                     row["Date"] = DateTime.Today.ToString("MM/dd/yyyy");
                     row["Travelers"] = Server.TravelerManager.GetTravelers.Where(t =>
-                    t.ItemCode == itemCode && t.Items.Exists(i => i.BeenCompletedDuring(DateTime.Today))).Select(t => t.ID).ToList().Stringify();
+                    t.ItemCode == itemCode && t.Items.Exists(i => i.BeenCompletedDuring(DateTime.Today))).Select(t => t.PrintID()).ToList().Stringify();
                     summary.Rows.Add(row);
                 }
             }
@@ -299,13 +300,13 @@ namespace Efficient_Automatic_Traveler_System
             ScrapEvent scrapEvent = scrap.History.OfType<ScrapEvent>().FirstOrDefault();
 
             Dictionary<string, string> detail = new Dictionary<string, string>();
-            detail.Add("Item", traveler.PrintSequenceID(scrap));
+            detail.Add("Item", scrap.PrintID());
             detail.Add("Part", traveler.ItemCode);
 
             detail.Add("User", scrapEvent.User.Name);
             detail.Add("Station", scrapEvent.Station.Name);
             detail.Add("Date", scrapEvent.Date.ToString("MM/dd/yyyy @ hh:mm tt"));
-            detail.Add("Time", Math.Round(scrapEvent.Duration,2).ToString());
+            detail.Add("Time", Math.Round(scrapEvent.Duration, 2).ToString());
             detail.Add("Started Work", scrapEvent.StartedWork.ToString());
             detail.Add("Source", scrapEvent.Source);
             detail.Add("Reason", scrapEvent.Reason);
@@ -313,6 +314,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string ScrapCSV()
         {
+            DateTime date = DateTime.Today;
             string webLocation = "./scrap.csv";
             List<string> contents = new List<string>();
             // add the header
@@ -321,58 +323,73 @@ namespace Efficient_Automatic_Traveler_System
             List<string> fields = new List<string>() {"Item","Part", "User","Station","Date","Time","Started Work","Source","Reason" };
 
             DataTable summary = new DataTable();
+            summary.TableName = "Enter production for these items prior to scrapping them";
             summary.Columns.Add(new DataColumn("Item ID"));
             summary.Columns.Add(new DataColumn("ItemCode"));
             summary.Columns.Add(new DataColumn("User"));
             summary.Columns.Add(new DataColumn("Station"));
             summary.Columns.Add(new DataColumn("Date"));
-            summary.Columns.Add(new DataColumn("Time invested"));
             summary.Columns.Add(new DataColumn("Started Work"));
             summary.Columns.Add(new DataColumn("Source"));
             summary.Columns.Add(new DataColumn("Reason"));
 
             foreach (TravelerItem item in Server.TravelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Scrapped)))
             {
-
-            }
-            List<Dictionary<string, string>> scrapped = new List<Dictionary<string, string>>();
-            foreach (Traveler traveler in m_travelers)
-            {
-                foreach (TravelerItem scrap in traveler.Items)
+                ScrapEvent scrapEvent;
+                if (item.GetScrapEvent(out scrapEvent) && scrapEvent.Date.Day == date.Day)
                 {
-                    if (scrap.Scrapped)
-                    {
-                        ScrapEvent scrapEvent = scrap.History.OfType<ScrapEvent>().ToList().FirstOrDefault();
-                        if (scrapEvent != null && scrapEvent.Date >= DateTime.Today)
-                        {
-                            scrapped.Add(Summary.ScrapDetail(traveler,scrap));
-                        }
-                    }
+                    DataRow row = summary.NewRow();
+                    row["Item ID"] = item.PrintID();
+                    row["ItemCode"] = item.ItemCode;
+                    row["User"] = scrapEvent.User.Name;
+                    row["Station"] = scrapEvent.Station.Name;
+                    row["Date"] = scrapEvent.Date.ToString("MM/dd/yyyy");
+                    row["Started Work"] = scrapEvent.StartedWork.Print();
+                    row["Source"] = scrapEvent.Source;
+                    row["Reason"] = scrapEvent.Reason;
+                    summary.Rows.Add(row);
                 }
-            }
-            // add the header
-            contents.Add(fields.Stringify<string>().Trim('[').Trim(']'));
-
-            foreach (Dictionary<string, string> detail in scrapped)
-            {
-                List<string> row = new List<string>();
-                foreach (string field in fields)
-                {
-                    if (detail.ContainsKey(field))
-                    {
-                        row.Add(detail[field]);
-                    }
-                    else
-                    {
-                        row.Add("");
-                    }
-                }
-                contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
+                
             }
 
-            File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "scrap.csv"), contents.ToArray<string>());
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "scrap.csv"), summary.ToCSV());
 
             return webLocation;
+            //List<Dictionary<string, string>> scrapped = new List<Dictionary<string, string>>();
+            //foreach (Traveler traveler in m_travelers)
+            //{
+            //    foreach (TravelerItem scrap in traveler.Items)
+            //    {
+            //        if (scrap.Scrapped)
+            //        {
+            //            ScrapEvent scrapEvent = scrap.History.OfType<ScrapEvent>().ToList().FirstOrDefault();
+            //            if (scrapEvent != null && scrapEvent.Date >= DateTime.Today)
+            //            {
+            //                scrapped.Add(Summary.ScrapDetail(traveler,scrap));
+            //            }
+            //        }
+            //    }
+            //}
+            //// add the header
+            //contents.Add(fields.Stringify<string>().Trim('[').Trim(']'));
+
+            //foreach (Dictionary<string, string> detail in scrapped)
+            //{
+            //    List<string> row = new List<string>();
+            //    foreach (string field in fields)
+            //    {
+            //        if (detail.ContainsKey(field))
+            //        {
+            //            row.Add(detail[field]);
+            //        }
+            //        else
+            //        {
+            //            row.Add("");
+            //        }
+            //    }
+            //    contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
+            //}
+
         }
         public string ReworkCSV()
         {
@@ -394,7 +411,7 @@ namespace Efficient_Automatic_Traveler_System
                 if (quantity > 0)
                 {
                     Dictionary<string, string> item = new Dictionary<string, string>();
-                    item.Add("Traveler", traveler.ID.ToString());
+                    item.Add("Traveler", traveler.PrintID());
                     item.Add("Part", traveler.ItemCode);
                     item.Add("Quantity", quantity.ToString());
                     rework.Add(item);

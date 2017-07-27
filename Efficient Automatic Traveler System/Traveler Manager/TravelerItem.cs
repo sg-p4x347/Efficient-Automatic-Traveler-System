@@ -327,6 +327,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             LocalState = LocalItemState.PostProcess;
             GlobalState = GlobalItemState.Scrapped;
+            StationClass lastStation = Station;
             Station = StationClass.GetStation("Scrapped");
 
             Documentation flagEvent;
@@ -336,12 +337,12 @@ namespace Efficient_Automatic_Traveler_System
 
                 ProcessEvent lastProcess = History.OfType<ProcessEvent>().LastOrDefault();
 
-
+                bool startedWork;
                 History.Add(new ScrapEvent(
                     user,
-                    Station,
+                    lastStation,
                     0.0,
-                    Convert.ToBoolean(flagEvent.Data.ValueOf("startedWork")),
+                    Boolean.TryParse(flagEvent.Data.ValueOf("startedWork"),out startedWork) && startedWork,
                     flagEvent.Data.ValueOf("source"),
                     flagEvent.Data.ValueOf("reason")
                 ));
@@ -414,13 +415,22 @@ namespace Efficient_Automatic_Traveler_System
             InventoryManager.Add(ItemCode);
             if (sync) Server.TravelerManager.OnTravelersChanged(Parent);
         }
+        public string PrintID()
+        {
+            string sequenceID = PrintID();
+            if (Scrapped)
+            {
+                sequenceID += "-Scrap #" + Parent.ScrapSequenceNo(this);
+            }
+            else
+            {
+                sequenceID += "-" + (Replacement ? "R" : "") + SequenceNo.ToString() + '/' + Parent.Quantity.ToString();
+            }
+            return sequenceID;
+        }
         public void Undo()
         {
 
-        }
-        public string PrintID()
-        {
-            return Parent.PrintID(this);
         }
         public async Task<string> PrintLabel(LabelType type, int? qty = null, bool forcePrint = false, StationClass station = null, string printer = "")
         {
@@ -593,6 +603,16 @@ namespace Efficient_Automatic_Traveler_System
                 return false;
             }
             
+        }
+        public bool ScrappedDuring(DateTime date)
+        {
+            ScrapEvent evt;
+            return (GetScrapEvent(out evt) && evt.Date.Day == date.Day);
+        }
+        public bool GetScrapEvent(out ScrapEvent scrap)
+        {
+            scrap = History.OfType<ScrapEvent>().ToList().LastOrDefault();
+            return scrap != null;
         }
         public bool Started(StationClass station)
         {

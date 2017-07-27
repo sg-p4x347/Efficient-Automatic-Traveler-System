@@ -201,7 +201,8 @@ namespace Efficient_Automatic_Traveler_System
         }
         public static string ToCSV(this DataTable table)
         {
-            string csv = "";
+            string csv = table.TableName;
+            if (csv != "") csv += '\n';
             bool firstHeader = true;
             foreach (DataColumn header in table.Columns)
             {
@@ -223,6 +224,67 @@ namespace Efficient_Automatic_Traveler_System
             }
             return csv;
         }
+        public static DataTable ToDataTable(this string csv)
+        {
+            DataTable table = new DataTable();
+
+            StringStream stream = new StringStream(csv);
+            // Header
+            while (!stream.EOF)
+            {
+                string heading;
+                bool done = ParseCell(stream, out heading);
+                table.Columns.Add(new DataColumn(heading));
+                if (done) break;
+            }
+            // Detail
+            int i = 0;
+            DataRow row = table.NewRow();
+            while (!stream.EOF)
+            {
+                string cell;
+                bool newRow = ParseCell(stream, out cell);
+                row[i] = cell;
+                if (newRow)
+                {
+                    table.Rows.Add(row);
+                    row = table.NewRow();
+                    i = 0;
+                }
+                i++;
+            }
+            return table;
+        }
+        // returns new for a new row
+        private static bool ParseCell(StringStream csv, out string cell)
+        {
+            cell = "";
+            bool ignore = false;
+            char ch = '\n';
+            while (csv.Get(ref ch))
+            {
+                if (ch == '"')
+                {
+                    ignore = !ignore;
+                }
+                else
+                {
+                    switch (ch)
+                    {
+                        case ',':
+                            return false;
+                            break;
+                        case '\n':
+                            return true;
+                            break;
+                        default:
+                            cell += ch;
+                            break;
+                    }
+                }
+            }
+            return true;
+        }
         // starts enumerating at the latest(second) date, going backwards to the first date
         public static IEnumerable<DateTime> DaysSince(this DateTime second, DateTime first)
         {
@@ -242,6 +304,10 @@ namespace Efficient_Automatic_Traveler_System
             {
                 return "";
             }
+        }
+        public static string Print(this bool boolean)
+        {
+            return boolean ? "Yes" : "No";
         }
     }
 }

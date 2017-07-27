@@ -44,6 +44,7 @@ namespace Efficient_Automatic_Traveler_System
         public Node() {
             Style = new Style();
             m_innerHTML = "";
+            Script = "";
         }
         public Node(Style style = null, string DOMtype = "div", string id = null)
         {
@@ -63,12 +64,14 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("styleClasses", JsonArray.From(m_style.ClassNames));
             obj.Add("eventListeners", JsonArray.From(m_eventListeners));
             obj.Add("innerHTML", m_innerHTML);
+            obj.Add("script", Script);
             return obj;
         }
         private Style m_style = new Style();
         private string m_DOMtype;
         private string m_id;
         private string m_innerHTML;
+        private string m_script = "";
         private List<EventListener> m_eventListeners;
 
         public Style Style
@@ -120,6 +123,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_innerHTML = value;
+            }
+        }
+
+        public string Script
+        {
+            get
+            {
+                return m_script;
+            }
+
+            set
+            {
+                m_script = value;
             }
         }
 

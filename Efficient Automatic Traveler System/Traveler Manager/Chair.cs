@@ -51,9 +51,9 @@ namespace Efficient_Automatic_Traveler_System
                     });
                     break;
                 case LabelType.Scrap:
-                    json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
+                    json += ",\"ID\":\"" + PrintID() + "\"";
                     json += ",\"Desc1\":\"" + Bill.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + "!!" + PrintSequenceID(item) + "!!" + "\"";
+                    json += ",\"Desc2\":\"" + "!!" + PrintID() + "!!" + "\"";
                     break;
                 case LabelType.Pack:
                     json += ",\"Order#\":\"" + (FindItem(itemID).Order != null ? "Order: " + FindItem(itemID).Order.SalesOrderNo : "To inventory") + "\"";

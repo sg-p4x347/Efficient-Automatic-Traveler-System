@@ -268,7 +268,7 @@ namespace Efficient_Automatic_Traveler_System
                 NodeList queueItem = CreateItemQueueItem(item.GlobalState, item);
                 queueItem.ID = item.PrintID();
                 queueItem.EventListeners.Add(new EventListener("click", "LoadItem", @"{""travelerID"":" + item.Parent.ID + @",""itemID"":" + item.ID + "}"));
-                queueItem.Add(new TextNode(item.Parent.PrintSequenceID(item)));
+                queueItem.Add(new TextNode(item.Parent.PrintID()));
                 queue.Add(queueItem);
             }
         }
@@ -296,7 +296,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return queueItem;
         }
-        protected virtual void ExportTravelers(GlobalItemState state, List<Traveler> changed)
+        protected virtual void UpdateTravelerQueues(GlobalItemState state, List<Traveler> changed)
         {
 
         }
@@ -731,7 +731,7 @@ namespace Efficient_Automatic_Traveler_System
             travelerView.Style.AddStyle("width", "100%");
             travelerView.Style.AddStyle("overflow-x", "hidden");
             // traveler ID
-            TextNode travelerID = new TextNode(traveler.PrintSequenceID(item), new Style("yellow"));
+            TextNode travelerID = new TextNode(traveler.PrintID(), new Style("yellow"));
             travelerView.Add(travelerID);
             // table
             Node viewTable = ControlPanel.CreateDictionary(traveler.ExportViewProperties());

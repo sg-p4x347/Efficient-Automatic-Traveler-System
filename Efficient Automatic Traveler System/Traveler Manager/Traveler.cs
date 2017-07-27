@@ -73,6 +73,7 @@ namespace Efficient_Automatic_Traveler_System
             m_dateStarted = "";
             m_comment = "";
             m_lastReworkAccountedFor = 0;
+            m_tag = ' ';
             
         }
         public Traveler(Form form) : this(form.ValueOf("itemCode"), Convert.ToInt32(form.ValueOf("quantity")))
@@ -111,6 +112,7 @@ namespace Efficient_Automatic_Traveler_System
             m_comment = obj["comment"];
             m_lastReworkAccountedFor = (ushort)(obj.ContainsKey("lastReworkAccountedFor") ? Convert.ToUInt16(obj["lastReworkAccountedFor"]) : 0);
             if (obj.ContainsKey("onHand")) OnHand = Convert.ToInt32(obj["onHand"]);
+            if (obj.ContainsKey("tag") && obj["tag"].Length == 1) Tag = Convert.ToChar(obj["tag"]);
         }
         // Creates a traveler from a part number and quantity, then loads the bill of materials
         //public Traveler(string billNo, int quantity, ref OdbcConnection MAS)
@@ -261,7 +263,8 @@ namespace Efficient_Automatic_Traveler_System
                 {"dateStarted",DateStarted.Quotate() },
                 {"comment",Comment.Quotate() },
                 {"lastReworkAccountedFor",m_lastReworkAccountedFor.ToString() },
-                {"onHand",m_onHand.ToString() }
+                {"onHand",m_onHand.ToString() },
+                {"tag",m_tag.ToString()}
             };
             return obj.Stringify();
         }
@@ -408,29 +411,9 @@ namespace Efficient_Automatic_Traveler_System
             item = Items.Find(x => x.ID == ID);
             return item != null;
         }
-        public string PrintSequenceID(TravelerItem item)
+        public string PrintID()
         {
-            string sequenceID = ID.ToString("D6");
-            if (item != null) {
-                if (item.Scrapped)
-                {
-                    sequenceID += "-Scrap #" + ScrapSequenceNo(item);
-                }
-                else
-                {
-                    sequenceID += "-" + (item.Replacement ? "R" : "") + item.SequenceNo.ToString() + '/' + Quantity.ToString();
-                }
-            }
-            return sequenceID;
-        }
-        public string PrintID(TravelerItem item = null)
-        {
-            string id = ID.ToString();
-            if (item != null)
-            {
-                id += "-" + item.ID.ToString();
-            }
-            return id;
+            return (!Char.IsWhiteSpace(Tag) ? Tag.ToString() + "-" : "") + ID.ToString();
         }
         //public void ScrapItem(ushort ID)
         //{
@@ -739,7 +722,7 @@ namespace Efficient_Automatic_Traveler_System
         public virtual string ExportCSVdetail()
         {
             List<string> detail = new List<string>();
-            detail.Add(m_ID.ToString());
+            detail.Add(PrintID());
             detail.Add(m_quantity.ToString());
             DateTime? soonestShipDate = SoonestShipDate;
             detail.Add(soonestShipDate.HasValue ? soonestShipDate.Value.ToString("MM/dd/yyyy") : "Make to stock");
@@ -821,6 +804,11 @@ namespace Efficient_Automatic_Traveler_System
 
             // cannot update itemcode
             Quantity = Convert.ToInt32(form.ValueOf("quantity"));
+            if (form.ValueOf("tag") != string.Empty)
+            {
+                Char.TryParse(form.ValueOf("tag"), out m_tag);
+            }
+            
             Comment = form.ValueOf("comment");
             Station = StationClass.GetStation(form.ValueOf("station"));
         }
@@ -829,6 +817,7 @@ namespace Efficient_Automatic_Traveler_System
             Form form = new Form();
             form.Title = "Traveler";
             form.Integer("quantity", "Quantity",0);
+            form.Textbox("tag", "Tag", "", 1);
             form.Textbox("comment", "Comment");
             form.Selection("station", "Starting Station", StationClass.StationNames());
             return form;
@@ -979,7 +968,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return 0.0;
         }
-        protected int ScrapSequenceNo(TravelerItem item)
+        public int ScrapSequenceNo(TravelerItem item)
         {
             ScrapEvent scrapEvent = (ScrapEvent)item.History.FirstOrDefault(x => x is ScrapEvent);
             // returns the quantity of items that have a scrap event at or prior to this item's scrap event
@@ -1028,6 +1017,7 @@ namespace Efficient_Automatic_Traveler_System
         private ushort m_lastReworkAccountedFor;
 
         private int m_onHand;
+        private char m_tag;
 
 
         // HTML
@@ -1293,6 +1283,19 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_queueItem = value;
+            }
+        }
+
+        public char Tag
+        {
+            get
+            {
+                return m_tag;
+            }
+
+            set
+            {
+                m_tag = value;
             }
         }
 

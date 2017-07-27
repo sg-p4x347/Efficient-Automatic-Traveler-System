@@ -1,4 +1,6 @@
-"Item","Part","User","Station","Date","Time","Started Work","Source","Reason"
-"144176-Scrap #1","38-2284-78U","Gage Coates","Scrapped","07/26/2017 @ 05:20 PM","0","False","Marco Group","LOST VACUUM"
-"154576-Scrap #2","38-2236-22","greg vincent","Scrapped","07/26/2017 @ 03:10 PM","0","False","production",""
-"154576-Scrap #1","38-2236-22","greg vincent","Scrapped","07/26/2017 @ 03:09 PM","0","False","production","OTHER"
+Enter production for these items prior to scrapping them
+"Item ID","ItemCode","User","Station","Date","Started Work","Source","Reason"
+"93586-4","MG2230-54","Gage Coates","Finished","07/27/2017","Yes","Vendor",""
+"144176-1","38-2284-78U","Gage Coates","Heian1","07/27/2017","No","Vendor","LOST VACUUM"
+"144641-75","38-2256-50U","Gage Coates","Scrapped","07/27/2017","No","production","MACHINE DAMAGE"
+"154589-3","MG2238-82","Gage Coates","Vector","07/27/2017","No","production",""

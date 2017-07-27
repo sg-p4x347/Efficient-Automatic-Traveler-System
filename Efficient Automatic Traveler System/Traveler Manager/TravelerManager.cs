@@ -138,8 +138,14 @@ namespace Efficient_Automatic_Traveler_System
                 int qtyAllocated = m_travelers.Where(t => t.ItemCode == newTraveler.ItemCode).Sum(t => t.QuantityOrdered());
                 int qtyOnHand = InventoryManager.GetMAS(newTraveler.ItemCode);
                 int qtyOrdered = newTraveler.QuantityOrdered();
+
                 newTraveler.Quantity = qtyOrdered - Math.Min(qtyOrdered, Math.Max(0,qtyOnHand - qtyAllocated));
+                newTraveler.OnHand = qtyOnHand;
                 m_travelers.Add(newTraveler);
+
+                // as new travelers are being put int, the first ones get the allocation, while the last ones will see more travelers having
+                // an allocation against items
+                // int scenarios where the orders are not collated, the allocation may not align with user priority constraints
             }
             
             Backup();
@@ -375,7 +381,7 @@ namespace Efficient_Automatic_Traveler_System
         //            // SCRAPPED
         //            //=================
         //            traveler.ScrapItem(item.ID);
-        //            returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.PrintSequenceID(item));
+        //            returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.PrintID());
         //            item.Station = StationClass.GetStation("Scrapped");
 
                     
@@ -392,7 +398,7 @@ namespace Efficient_Automatic_Traveler_System
         //            {
         //                labelType = LabelType.Box;
         //            }
-        //            returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, labelType) + " for item: " + traveler.PrintSequenceID(item));
+        //            returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, labelType) + " for item: " + traveler.PrintID());
         //        }
         //        if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
         //        {

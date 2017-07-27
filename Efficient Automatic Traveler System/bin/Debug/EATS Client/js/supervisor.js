@@ -82,7 +82,7 @@ function Application () {
 	this.RemoveHTML = function(id) {
 		var element = document.getElementById(id);
 		if (element) {
-			element.parentNode.remove(element);
+			element.parentNode.removeChild(element);
 		} else {
 			console.log(id + " could not be found");
 		}
@@ -91,7 +91,7 @@ function Application () {
 		var element = document.getElementById(params.id);
 		if (element) {
 			var parent = element.parentNode;
-			parent.remove(element);
+			parent.removeChild(element);
 			parent.appendChild(HTML(params.html));
 		} else {
 			console.log(params.id + " could not be found");

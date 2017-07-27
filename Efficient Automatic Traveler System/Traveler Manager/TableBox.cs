@@ -104,7 +104,7 @@ namespace Efficient_Automatic_Traveler_System
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + "Box for " + (parent != null ? parent.ID.ToString("D6") : "Table") + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
-                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) + " !!" + "\"";
+                    json += ",\"Desc2\":\"" + "!! " + PrintID() + " !!" + "\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
                     string reason = scrapEvent.Reason;
                     json += ",\"Reason\":" + reason.Quotate();

@@ -256,16 +256,16 @@ namespace Efficient_Automatic_Traveler_System
                 case LabelType.Tracking:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
                     // Item ID is now a sequence number out of the qty on the traveler
-                    json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
+                    json += ",\"ID\":\"" + PrintID() + "\"";
                     json += ",\"Desc1\":\"" + Bill.BillNo + "\"";
                     json += ",\"Desc2\":\"" + Bill.BillDesc + "\"";
                     json += ",\"Desc3\":\"" + m_bandingAbrev + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
-                    json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
+                    json += ",\"ID\":\"" + PrintID() + "\"";
                     json += ",\"Desc1\":\"" + Bill.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) +  " !!\"";
+                    json += ",\"Desc2\":\"" + "!! " + PrintID() +  " !!\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
                     if (scrapEvent != null)
                     {

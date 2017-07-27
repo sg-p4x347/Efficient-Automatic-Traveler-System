@@ -34,7 +34,7 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 Dictionary<string, string> obj = new StringStream(json).ParseJSON();
-                BoxSize = obj["boxSize"];
+                if (obj.ContainsKey("boxSize")) BoxSize = obj["boxSize"];
             } catch (Exception ex)
             {
                 Server.LogException(ex);
@@ -97,14 +97,14 @@ namespace Efficient_Automatic_Traveler_System
             switch (type)
             {
                 case LabelType.Tracking:
-                    json += ",\"ID\":\"" + PrintSequenceID(item) + "\"";
+                    json += ",\"ID\":\"" + PrintID() + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + "" + "\"";
                     break;
                 case LabelType.Scrap:
                     json += ",\"ID\":\"" + ID.ToString("D6") + '-' + itemID + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
-                    json += ",\"Desc2\":\"" + "!! " + PrintSequenceID(item) + " !!" + "\"";
+                    json += ",\"Desc2\":\"" + "!! " + PrintID() + " !!" + "\"";
                     break;
                 case LabelType.Pack:
                     json += ",\"Order#\":\"" + (FindItem(itemID).Order != null ? "Order: " + FindItem(itemID).Order.SalesOrderNo : "To inventory") + "\"";
