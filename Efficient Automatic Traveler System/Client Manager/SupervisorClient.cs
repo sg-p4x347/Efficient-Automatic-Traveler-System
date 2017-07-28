@@ -221,11 +221,6 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
 
-        protected override JsonObject ExportTravelers()
-        {
-            JsonObject obj = base.ExportTravelers();
-            
-        }
         #endregion
         //----------------------------------
         #region Private Methods
