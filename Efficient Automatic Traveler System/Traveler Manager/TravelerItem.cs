@@ -124,7 +124,7 @@ namespace Efficient_Automatic_Traveler_System
                 }
                 else if (LocalState == LocalItemState.PostProcess)
                 {
-                    return station.PreRequisites(Parent).Contains(Station);
+                    return station.PreRequisites(Parent).Exists(s => s.Name == Station.Name);
                 }
                 else
                 {
@@ -417,7 +417,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string PrintID()
         {
-            string sequenceID = PrintID();
+            string sequenceID = Parent.PrintID();
             if (Scrapped)
             {
                 sequenceID += "-Scrap #" + Parent.ScrapSequenceNo(this);

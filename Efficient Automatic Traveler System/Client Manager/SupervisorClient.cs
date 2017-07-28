@@ -642,7 +642,7 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         DataRow row = itemTable.NewRow();
 
-                        row["Item"] = new Button(traveler.PrintID(), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}");
+                        row["Item"] = new Button(item.PrintID(), "ItemPopup", "{\"travelerID\":" + traveler.ID + ",\"itemID\":" + item.ID + "}");
                         row["Station"] = item.Station.Name;
                         row["State"] = new TextNode(item.PrintState(),item.QueueStyle());
 
@@ -846,7 +846,7 @@ namespace Efficient_Automatic_Traveler_System
                     foreach (Node node in FlagItemOptions()) controls.Add(node);
                 }
 
-                return new ControlPanel(traveler.PrintID(), new Row() { fields, controls }).Dispatch(false);
+                return new ControlPanel(item.PrintID(), new Row() { fields, controls }).Dispatch(false);
             }
             catch (Exception ex)
             {

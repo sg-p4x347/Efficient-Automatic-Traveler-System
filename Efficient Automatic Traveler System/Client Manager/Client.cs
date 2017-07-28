@@ -268,7 +268,7 @@ namespace Efficient_Automatic_Traveler_System
                 NodeList queueItem = CreateItemQueueItem(item.GlobalState, item);
                 queueItem.ID = item.PrintID();
                 queueItem.EventListeners.Add(new EventListener("click", "LoadItem", @"{""travelerID"":" + item.Parent.ID + @",""itemID"":" + item.ID + "}"));
-                queueItem.Add(new TextNode(item.Parent.PrintID()));
+                queueItem.Add(new TextNode(item.PrintID()));
                 queue.Add(queueItem);
             }
         }
