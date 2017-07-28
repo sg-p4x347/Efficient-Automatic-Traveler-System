@@ -155,10 +155,10 @@ namespace Efficient_Automatic_Traveler_System
         public void CullFinishedTravelers()
         {
             // remove all traveler trees that were finished before today
+            // OR have all their parents completed
             List<Traveler> travelers = m_travelers.Where(t => 
-            !t.ParentOrders.Any()
-            && t.FinishedBefore(DateTime.Today) 
-            && t.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today))).ToList();
+            t.FinishedBefore(DateTime.Today)
+            || (t.ParentTravelers.Any() && t.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today)))).ToList();
             Server.WriteLine("Culled finised travelers:");
             Server.WriteLine(JsonArray.From(travelers.Select(t => t.ID).ToList()).Humanize());
             m_travelers = m_travelers.Except(travelers).ToList();

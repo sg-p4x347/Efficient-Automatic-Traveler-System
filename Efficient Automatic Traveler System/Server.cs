@@ -25,7 +25,8 @@ namespace Efficient_Automatic_Traveler_System
         complete,
         printLabels,
         delete,
-        tag
+        tag,
+        deleteWhere
     }
     public class Server
     {
@@ -144,25 +145,60 @@ namespace Efficient_Automatic_Traveler_System
                             break;
                         case command.relinkOrders: RelinkOrders(); break;
                         case command.complete:
-                            if (parts.Count >= 2)
+                            await Task.Run(async () =>
                             {
-                                int travelerID;
-                                if (int.TryParse(parts[1], out travelerID))
+                                if (parts.Count >= 2)
                                 {
-                                    Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
-                                    if (traveler != null)
+                                    int travelerID;
+                                    if (int.TryParse(parts[1], out travelerID))
                                     {
-                                        for (int i = traveler.QuantityPendingAt(traveler.Station); i > 0; i--)
+                                        Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
+                                        if (traveler != null)
                                         {
-                                            traveler.AddItem(traveler.Station, parts.Count >= 3 ? parts[2] : "");
+                                            for (int i = traveler.QuantityPendingAt(traveler.Station); i > 0; i--)
+                                            {
+                                                TravelerItem item = (TravelerItem)await traveler.AddItem(traveler.Station, parts.Count >= 3 ? parts[2] : "");
+                                                WriteLine("- Completed " + item.PrintID());
+                                                Thread.Sleep(2000);
+                                            }
+                                            m_travelerManager.Backup();
+                                            Server.WriteLine("The deed is done.");
+                                            return;
                                         }
-                                        m_travelerManager.Backup();
-                                        Server.WriteLine("The deed is done.");
-                                        break;
                                     }
                                 }
-                            }
-                            Server.WriteLine("Please enter a valid traveler ID");
+                                Server.WriteLine("Invalid argument list: (travelerID, [printer])");
+                            });
+                            break;
+                        case command.printLabels:
+                            await Task.Run( async() =>
+                            {
+                                if (parts.Count == 5)
+                                {
+                                    int travelerID;
+                                    ushort startID;
+                                    ushort endID;
+                                    string printer = parts[4];
+                                    if (int.TryParse(parts[1], out travelerID) && ushort.TryParse(parts[2], out startID) && ushort.TryParse(parts[3], out endID))
+                                    {
+                                        Traveler traveler = Server.TravelerManager.FindTraveler(travelerID);
+                                        if (traveler != null)
+                                        {
+                                            for (ushort i = startID; i <= endID; i++)
+                                            {
+                                                traveler.FindItem(i).PrintLabel(LabelType.Tracking, printer: printer);
+                                                WriteLine("- Printed label for " + traveler.FindItem(i).PrintID());
+                                                Thread.Sleep(2000);
+                                            }
+                                            m_travelerManager.Backup();
+                                            Server.WriteLine("The deed is done.");
+                                            return;
+                                        }
+                                    }
+                                }
+                                Server.WriteLine("4 arguments needed (travelerID, startID, endID, printer)");
+                            });
+                            
                             break;
                         case command.delete:
                             if (parts.Count == 2)
@@ -179,6 +215,22 @@ namespace Efficient_Automatic_Traveler_System
                                     }
                                 }
                             }
+                            break;
+                        case command.deleteWhere:
+                            // Code to be written each time this command is needed
+                            //----------------------------------------------------
+
+                            // delete all travelers that are tables and all items are at a heian or weeke
+                            // AND do not have a '9' tag
+                            foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(t =>
+                            t is Table && t.Items.All(i => i.Station.Type == "heian" || i.Station.Type == "weeke") && t.Tag != '9'
+                                ))
+                            {
+                               
+                                m_travelerManager.RemoveTraveler(traveler);
+                                Server.WriteLine("- deleted " + traveler.PrintID());
+                            }
+                            WriteLine("The deed is done.");
                             break;
                         case command.tag:
                             if (parts.Count == 3)

@@ -96,7 +96,7 @@ namespace Efficient_Automatic_Traveler_System
             switch (type)
             {
                 case LabelType.Box:
-                    json += ",\"ID\":\"" + "Box for " + (parent != null ? parent.ID.ToString("D6") : "Table") + "\"";
+                    json += ",\"ID\":\"" + "Box for " + (parent != null ? parent.PrintID() : "Table") + "\"";
                     json += ",\"Desc1\":\"" + BoxSize + "\"";
                     json += ",\"Desc2\":\"" + (parent != null ? ((Table)ParentTravelers[0]).ItemCode + " (" + ((Table)ParentTravelers[0]).Size + ")" : "") + "\"";
                     json += ",\"Desc3\":\"" + "BOX" + "\"";

@@ -3,7 +3,7 @@ Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
 Client manager started
 
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	07/28/2017 @ 07:06
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	07/28/2017 @ 09:49
 
 EATS inventory loaded from backup
 Kanban Monitor loaded from backup
@@ -23,3 +23,12 @@ Disconnected from MAS
 
 <<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
 
+Label Printed at 4x2IT printer
+- Completed 144206-1/4
+Label Printed at 4x2IT printer
+- Completed 144206-2/4
+Label Printed at 4x2IT printer
+- Completed 144206-3/4
+Label Printed at 4x2IT printer
+- Completed 144206-4/4
+The deed is done.
