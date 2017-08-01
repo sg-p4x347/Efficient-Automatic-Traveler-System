@@ -222,14 +222,17 @@ namespace Efficient_Automatic_Traveler_System
 
                             // delete all travelers that are tables and all items are at a heian or weeke
                             // AND do not have a '9' tag
-                            foreach (Traveler traveler in m_travelerManager.GetTravelers.Where(t =>
+                            List<Traveler> toDelete = m_travelerManager.GetTravelers.Where(t =>
                             t is Table && t.Items.All(i => i.Station.Type == "heian" || i.Station.Type == "weeke") && t.Tag != '9'
-                                ))
+                                ).ToList();
+                            foreach (Traveler traveler in toDelete)
                             {
                                
-                                m_travelerManager.RemoveTraveler(traveler);
+                                m_travelerManager.RemoveTraveler(traveler,false);
                                 Server.WriteLine("- deleted " + traveler.PrintID());
+                                
                             }
+                            m_travelerManager.Backup();
                             WriteLine("The deed is done.");
                             break;
                         case command.tag:
