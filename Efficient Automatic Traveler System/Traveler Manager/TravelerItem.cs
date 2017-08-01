@@ -752,26 +752,6 @@ namespace Efficient_Automatic_Traveler_System
         public bool BeenCompleted(StationClass station)
         {
             return TimesCompleted(station) > 0;
-            // negate any events that a rework event dismisses
-            // latest rework station
-            //List<ProcessEvent> applicableHistory = History.OfType<ProcessEvent>().ToList();
-            //if (History.Any())
-            //{
-            //    LogEvent lastRework = History.OfType<LogEvent>().LastOrDefault(e => e.LogType == LogType.Rework);
-            //    // if reworks were found, eliminate all events for the latest rework station
-            //    if (lastRework != null)
-            //    {
-            //        applicableHistory.RemoveAll(e => e.Date >= lastRework.Date);
-            //    }
-            //}
-            //foreach (ProcessEvent evt in applicableHistory)
-            //{
-            //    if (evt.Station.Type == station.Type && evt.Process == ProcessType.Completed)
-            //    {
-            //        return true;
-            //    }
-            //}
-            // return false;
         }
         public int TimesCompleted(StationClass station)
         {

@@ -395,7 +395,8 @@
 			"type":"contourEdgebander",
 			"mode":"Serial",
 			"printers":[
-				"4x2Heian2"
+				"4x6SNX-Table",
+				"4x2SNX-Pack"
 			]
 		},
 		{
@@ -403,7 +404,8 @@
 			"type":"snxTrimmer",
 			"mode":"Serial",
 			"printers":[
-				"4x2Heian2"
+				"4x6SNX-Table",
+				"4x2SNX-Pack"
 			]
 		},
 		{

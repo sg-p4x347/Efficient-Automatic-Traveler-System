@@ -716,7 +716,16 @@ namespace Efficient_Automatic_Traveler_System
             try
             {
                 SelectTraveler(item.Parent);
-                if (item.PendingAt(CurrentStation) || item.InProcessAt(CurrentStation))
+                
+
+                if (item.BeenCompleted(CurrentStation))
+                {
+                    SelectItem(item);
+                    NodeList options = FlagItemOptions();
+                    SendMessage(new ControlPanel("Item completed at " + CurrentStation.Name, new Column() { new TextNode(item.PrintID() + " has been completed at this station"), options }).Dispatch());
+                }
+                // TEMP *true* allows all items to be worked on at this station
+                else if (true || item.PendingAt(CurrentStation) || item.InProcessAt(CurrentStation))
                 {
                     if (!item.Started(CurrentStation))
                     {
@@ -733,7 +742,6 @@ namespace Efficient_Automatic_Traveler_System
                         // Second scan loads the item
                         // ******************************
                         LoadItem(item);
-                        //SendMessage(new ClientMessage("Image",new JsonObject() { { "filename", "travelerLoaded.png" }, { "timeout",3} }));
                     }
                     else
                     {
@@ -742,12 +750,6 @@ namespace Efficient_Automatic_Traveler_System
                         // ******************************
                         CompleteItem();
                     }
-                }
-                else if (item.BeenCompleted(CurrentStation))
-                {
-                    SelectItem(item);
-                    NodeList options = FlagItemOptions();
-                    SendMessage(new ControlPanel("Item completed at " + CurrentStation.Name, new Column() { new TextNode(item.PrintID() + " has been completed at this station"), options }).Dispatch());
                 }
                 else
                 {
