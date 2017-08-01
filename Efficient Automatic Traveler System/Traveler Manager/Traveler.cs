@@ -248,6 +248,7 @@ namespace Efficient_Automatic_Traveler_System
         // returns a JSON formatted string containing traveler information
         public override string ToString()
         {
+            UpdateState();
             Dictionary<string, string> obj = new Dictionary<string, string>()
             {
                 {"ID",m_ID.ToString() },
@@ -258,7 +259,7 @@ namespace Efficient_Automatic_Traveler_System
                 {"parentTravelers",ParentIDs.Stringify<int>() }, // stringifies a list of IDs
                 {"childTravelers",ChildIDs.Stringify<int>() }, // stringifies a list of IDs
                 {"station",m_station.Name.Quotate() },
-                {"state",GetGlobalState().ToString().Quotate() },
+                {"state",State.ToString().Quotate() },
                 {"type",this.GetType().Name.Quotate()},
                 {"dateStarted",DateStarted.Quotate() },
                 {"comment",Comment.Quotate() },
@@ -353,22 +354,6 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
             return result;
-        }
-        public GlobalItemState GetGlobalState()
-        {
-            if (State != GlobalItemState.PreProcess)
-            {
-                // determine if this is finished
-                if (Items.Count(i => i.Finished) >= Quantity)
-                {
-                    return GlobalItemState.Finished;
-                }
-                else
-                {
-                    return GlobalItemState.InProcess;
-                }
-            }
-            return GlobalItemState.PreProcess;
         }
         // print a traveler pack label
         public abstract string GetLabelFields(ushort itemID, LabelType type);

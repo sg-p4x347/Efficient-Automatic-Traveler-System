@@ -149,7 +149,7 @@ namespace Efficient_Automatic_Traveler_System
     {
         public TextNode(string text,Style style = null, string DOMtype = "p") : base(style,DOMtype)
         {
-            m_text = text;
+            m_text = text != null ? text : "";
         }
         public override string ToString()
         {

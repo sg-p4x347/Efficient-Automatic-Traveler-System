@@ -1275,7 +1275,6 @@ namespace Efficient_Automatic_Traveler_System
                             item.Finish(m_user,false);
                         }
                     }
-                    SelectedTraveler.UpdateState();
                     Server.TravelerManager.OnTravelersChanged(SelectedTraveler);
                 }
                 

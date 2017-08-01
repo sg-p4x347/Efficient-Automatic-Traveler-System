@@ -159,32 +159,44 @@ namespace Efficient_Automatic_Traveler_System
             List<Traveler> travelers = new List<Traveler>(m_travelers);
             foreach (Traveler traveler in travelers)
             {
-                if (traveler.FinishedBefore(DateTime.Today))
+                Server.WriteLine("\t----------------");
+                Server.WriteLine("\t- " + traveler.GetType().ToString());
+                Server.WriteLine("\t- " + traveler.State.ToString());
+                if (traveler is TableBox && !(traveler as TableBox).ParentTravelers.Any())
                 {
-                    Server.WriteLine("X - " + traveler.PrintID() + " ; Finished before today");
+                    Server.WriteLine("X - " + traveler.PrintID() + " ; Table box missing parent links");
                     m_travelers.Remove(traveler);
                 }
                 else
                 {
-                    if (traveler.ParentOrderNums.Any())
+                    if (traveler.FinishedBefore(DateTime.Today))
                     {
-                        if (traveler.ParentIDs.Any() && traveler.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today)))
-                        {
-                            Server.WriteLine("X - " + traveler.PrintID() + " ; All parents finished");
-                            m_travelers.Remove(traveler);
-                        }
-                        else
-                        {
-                            Server.WriteLine("* - " + traveler.PrintID() + " ; Not finished before today and has orders, but not all parent travelers are finished");
-                            Server.WriteLine("----" + traveler.GetGlobalState().ToString());
-                        }
+                        Server.WriteLine("X - " + traveler.PrintID() + " ; Finished before today");
+                        m_travelers.Remove(traveler);
                     }
                     else
                     {
-                        Server.WriteLine("* - " + traveler.PrintID() + " ; Not finished before today and has no orders");
-                        Server.WriteLine("----" + traveler.GetGlobalState().ToString());
+                        if (traveler.ParentOrderNums.Any())
+                        {
+                            if (traveler.ParentIDs.Any() && traveler.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today)))
+                            {
+                                Server.WriteLine("X - " + traveler.PrintID() + " ; All parents finished");
+                                m_travelers.Remove(traveler);
+                            }
+                            else
+                            {
+                                Server.WriteLine("\t* - " + traveler.PrintID() + " ; Not finished before today and has orders, but not all parent travelers are finished");
+                                
+                            }
+                        }
+                        else
+                        {
+                            Server.WriteLine("\t* - " + traveler.PrintID() + " ; Not finished before today and has no orders");
+                        }
                     }
                 }
+                
+                
             }
         }
         public void ImportTravelerInfo(IOrderManager orderManager, OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)

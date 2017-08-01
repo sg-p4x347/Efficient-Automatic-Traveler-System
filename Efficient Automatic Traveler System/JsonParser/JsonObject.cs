@@ -68,7 +68,7 @@ namespace Efficient_Automatic_Traveler_System
             bool first = true;
             foreach (KeyValuePair<string, JSON> pair in (Value as Dictionary<string, JSON>) ) {
                 if (!first) json += ',';
-                json += pair.Key.Quotate() + ':' + pair.Value.ToString();
+                json += pair.Key.Quotate() + ':' + (pair.Value != null ? pair.Value.ToString() :  "null");
                 first = false;
             }
             json += '}';

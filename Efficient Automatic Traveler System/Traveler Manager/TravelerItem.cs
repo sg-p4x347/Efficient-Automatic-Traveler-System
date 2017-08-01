@@ -410,6 +410,7 @@ namespace Efficient_Automatic_Traveler_System
             Station = StationClass.GetStation("Finished");
             History.Add(new LogEvent(user, LogType.Finish));
             // check to see if the traveler is finished
+            
             Parent.UpdateState();
             // add this item to inventory
             InventoryManager.Add(ItemCode);

@@ -632,11 +632,11 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                SearchSubmitted(json);
+                return SearchSubmitted(json);
                 //Dictionary<string, string> obj = new StringStream(json).ParseJSON();
                 //Traveler traveler = m_travelerManager.FindTraveler(Convert.ToInt32(obj["travelerID"]));
                 //return LoadTraveler(traveler);
-                return new ClientMessage();
+                //return new ClientMessage();
             }
             catch (Exception ex)
             {
