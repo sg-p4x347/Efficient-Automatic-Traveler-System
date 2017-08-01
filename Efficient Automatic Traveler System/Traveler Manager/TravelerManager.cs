@@ -156,12 +156,36 @@ namespace Efficient_Automatic_Traveler_System
         {
             // remove all traveler trees that were finished before today
             // OR have all their parents completed
-            List<Traveler> travelers = m_travelers.Where(t => 
-            t.FinishedBefore(DateTime.Today)
-            || (t.ParentTravelers.Any() && t.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today)))).ToList();
-            Server.WriteLine("Culled finised travelers:");
-            Server.WriteLine(JsonArray.From(travelers.Select(t => t.ID).ToList()).Humanize());
-            m_travelers = m_travelers.Except(travelers).ToList();
+            List<Traveler> travelers = new List<Traveler>(m_travelers);
+            foreach (Traveler traveler in travelers)
+            {
+                if (traveler.FinishedBefore(DateTime.Today))
+                {
+                    Server.WriteLine("X - " + traveler.PrintID() + " ; Finished before today");
+                    m_travelers.Remove(traveler);
+                }
+                else
+                {
+                    if (traveler.ParentOrderNums.Any())
+                    {
+                        if (traveler.ParentIDs.Any() && traveler.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today)))
+                        {
+                            Server.WriteLine("X - " + traveler.PrintID() + " ; All parents finished");
+                            m_travelers.Remove(traveler);
+                        }
+                        else
+                        {
+                            Server.WriteLine("* - " + traveler.PrintID() + " ; Not finished before today and has orders, but not all parent travelers are finished");
+                            Server.WriteLine("----" + traveler.GetGlobalState().ToString());
+                        }
+                    }
+                    else
+                    {
+                        Server.WriteLine("* - " + traveler.PrintID() + " ; Not finished before today and has no orders");
+                        Server.WriteLine("----" + traveler.GetGlobalState().ToString());
+                    }
+                }
+            }
         }
         public void ImportTravelerInfo(IOrderManager orderManager, OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
         {

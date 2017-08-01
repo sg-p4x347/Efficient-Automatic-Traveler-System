@@ -1,10 +1,10 @@
 Configuration settings loaded from current
 Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
-
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/01/2017 @ 10:21
-
 Client manager started
+
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/01/2017 @ 11:42
+
 EATS inventory loaded from backup
 Kanban Monitor loaded from backup
 Configuration settings loaded from current
@@ -14,11 +14,271 @@ Users loaded from backup
 Loading orders from backup...Loading orders from backup...Finished
 Importing orders...Importing orders...Finished
 Loading travelers from backup...Loading travelers from backup...Finished
-Culled finised travelers:
-[
-	
-]
-Gathering Info...1%Gathering Info...1%Gathering Info...2%Gathering Info...3%Gathering Info...4%Gathering Info...4%Gathering Info...5%Gathering Info...6%Gathering Info...7%Gathering Info...7%Gathering Info...8%Gathering Info...9%Gathering Info...10%Gathering Info...10%Gathering Info...11%Gathering Info...12%Gathering Info...13%Gathering Info...13%Gathering Info...14%Gathering Info...15%Gathering Info...16%Gathering Info...16%Gathering Info...17%Gathering Info...18%Gathering Info...19%Gathering Info...19%Gathering Info...20%Gathering Info...21%Gathering Info...22%Gathering Info...22%Gathering Info...23%Gathering Info...24%Gathering Info...25%Gathering Info...25%Gathering Info...26%Gathering Info...27%Gathering Info...28%Gathering Info...28%Gathering Info...29%Gathering Info...30%Gathering Info...31%Gathering Info...31%Gathering Info...32%Gathering Info...33%Gathering Info...34%Gathering Info...34%Gathering Info...35%Gathering Info...36%Gathering Info...37%Gathering Info...37%Gathering Info...38%Gathering Info...39%Gathering Info...40%Gathering Info...40%Gathering Info...41%Gathering Info...42%Gathering Info...43%Gathering Info...43%Gathering Info...44%Gathering Info...45%Gathering Info...46%Gathering Info...46%Gathering Info...47%Gathering Info...48%Gathering Info...49%Gathering Info...49%Gathering Info...50%Gathering Info...51%Gathering Info...51%Gathering Info...52%Gathering Info...53%Gathering Info...54%Gathering Info...54%Gathering Info...55%Gathering Info...56%Gathering Info...57%Gathering Info...57%Gathering Info...58%Gathering Info...59%Gathering Info...60%Gathering Info...60%Gathering Info...61%Gathering Info...62%Gathering Info...63%Gathering Info...63%Gathering Info...64%Gathering Info...65%Gathering Info...66%Gathering Info...66%Gathering Info...67%Gathering Info...68%Gathering Info...69%Gathering Info...69%Gathering Info...70%Gathering Info...71%Gathering Info...72%Gathering Info...72%Gathering Info...73%Gathering Info...74%Gathering Info...75%Gathering Info...75%Gathering Info...76%Gathering Info...77%Gathering Info...78%Gathering Info...78%Gathering Info...79%Gathering Info...80%Gathering Info...81%Gathering Info...81%Gathering Info...82%Gathering Info...83%Gathering Info...84%Gathering Info...84%Gathering Info...85%Gathering Info...86%Gathering Info...87%Gathering Info...87%Gathering Info...88%Gathering Info...89%Gathering Info...90%Gathering Info...90%Gathering Info...91%Gathering Info...92%Gathering Info...93%Gathering Info...93%Gathering Info...94%Gathering Info...95%Gathering Info...96%Gathering Info...96%Gathering Info...97%Gathering Info...98%Gathering Info...99%Gathering Info...99%Gathering Info...100%Gathering Info...Finished
+* - 92879 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 92882 ; Not finished and has no orders
+----Finished
+* - 92884 ; Not finished and has no orders
+----InProcess
+* - 93535 ; Not finished and has no orders
+----InProcess
+* - 93544 ; Not finished and has no orders
+----Finished
+* - 93556 ; Not finished and has no orders
+----InProcess
+* - 93566 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 93577 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 93586 ; Not finished and has no orders
+----Finished
+* - 95306 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 95321 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 95994 ; Not finished and has no orders
+----Finished
+* - 95996 ; Not finished and has no orders
+----InProcess
+* - 95998 ; Not finished and has no orders
+----InProcess
+* - 96007 ; Not finished and has no orders
+----Finished
+* - 96511 ; Not finished and has no orders
+----InProcess
+* - 97225 ; Not finished and has no orders
+----Finished
+* - 97227 ; Not finished and has no orders
+----Finished
+* - 97228 ; Not finished and has no orders
+----Finished
+* - 97229 ; Not finished and has no orders
+----Finished
+* - 97230 ; Not finished and has no orders
+----Finished
+* - 97231 ; Not finished and has no orders
+----Finished
+* - 97233 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 97234 ; Not finished and has no orders
+----Finished
+* - 97235 ; Not finished and has no orders
+----Finished
+* - 97236 ; Not finished and has no orders
+----Finished
+* - 97254 ; Not finished and has no orders
+----Finished
+* - 98257 ; Not finished and has no orders
+----Finished
+* - 98258 ; Not finished and has no orders
+----Finished
+* - 99784 ; Not finished and has no orders
+----Finished
+* - 99791 ; Not finished and has no orders
+----InProcess
+* - 100105 ; Not finished and has no orders
+----InProcess
+* - 101504 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 101569 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 103081 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 103090 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 103100 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 103108 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 103111 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 103329 ; Not finished and has no orders
+----InProcess
+* - 143659 ; Not finished and has no orders
+----InProcess
+* - 143660 ; Not finished and has no orders
+----InProcess
+* - 143661 ; Not finished and has no orders
+----InProcess
+* - 143663 ; Not finished and has no orders
+----InProcess
+* - 143665 ; Not finished and has no orders
+----InProcess
+* - 143667 ; Not finished and has no orders
+----InProcess
+* - 143668 ; Not finished and has no orders
+----InProcess
+* - 143669 ; Not finished and has no orders
+----InProcess
+* - 143670 ; Not finished and has no orders
+----InProcess
+* - 143671 ; Not finished and has no orders
+----InProcess
+* - 143672 ; Not finished and has no orders
+----InProcess
+* - 143673 ; Not finished and has no orders
+----InProcess
+* - 144153 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 144154 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 144169 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 144180 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 144190 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 144291 ; Not finished and has no orders
+----InProcess
+* - 144650 ; Not finished and has no orders
+----Finished
+* - 144651 ; Not finished and has no orders
+----InProcess
+* - 144652 ; Not finished and has no orders
+----InProcess
+* - 144653 ; Not finished and has no orders
+----InProcess
+* - 144654 ; Not finished and has no orders
+----InProcess
+* - 144655 ; Not finished and has no orders
+----InProcess
+* - 145359 ; Not finished and has no orders
+----InProcess
+* - 145717 ; Not finished and has no orders
+----InProcess
+* - 145721 ; Not finished and has no orders
+----InProcess
+* - 145722 ; Not finished and has no orders
+----InProcess
+* - 154576 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 154599 ; Not finished and has orders, but not all parent travelers are finished
+----InProcess
+* - 9-283861 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 9-283862 ; Not finished and has orders, but not all parent travelers are finished
+----Finished
+* - 154932 ; Not finished and has no orders
+----InProcess
+* - 154958 ; Not finished and has no orders
+----InProcess
+* - 154963 ; Not finished and has no orders
+----InProcess
+* - 154965 ; Not finished and has no orders
+----InProcess
+* - 154967 ; Not finished and has no orders
+----InProcess
+* - 155724 ; Not finished and has no orders
+----InProcess
+* - 9-155740 ; Not finished and has no orders
+----InProcess
+* - 9-155745 ; Not finished and has no orders
+----InProcess
+* - 9-155747 ; Not finished and has no orders
+----InProcess
+* - 9-155748 ; Not finished and has no orders
+----InProcess
+* - 9-155752 ; Not finished and has no orders
+----InProcess
+* - 9-155753 ; Not finished and has no orders
+----InProcess
+* - 9-155754 ; Not finished and has no orders
+----InProcess
+* - 9-155756 ; Not finished and has no orders
+----InProcess
+* - 9-155758 ; Not finished and has no orders
+----InProcess
+* - 9-155763 ; Not finished and has no orders
+----InProcess
+* - 9-155764 ; Not finished and has no orders
+----InProcess
+* - 9-155765 ; Not finished and has no orders
+----InProcess
+* - 9-155766 ; Not finished and has no orders
+----InProcess
+* - 9-155767 ; Not finished and has no orders
+----InProcess
+* - 9-155769 ; Not finished and has no orders
+----InProcess
+* - 9-155771 ; Not finished and has no orders
+----InProcess
+* - 9-155773 ; Not finished and has no orders
+----InProcess
+* - 9-155774 ; Not finished and has no orders
+----InProcess
+* - 9-155775 ; Not finished and has no orders
+----InProcess
+* - 9-155776 ; Not finished and has no orders
+----InProcess
+* - 9-155777 ; Not finished and has no orders
+----InProcess
+* - 9-155778 ; Not finished and has no orders
+----InProcess
+* - 9-155779 ; Not finished and has no orders
+----InProcess
+* - 9-155780 ; Not finished and has no orders
+----InProcess
+* - 9-155781 ; Not finished and has no orders
+----InProcess
+* - 9-155782 ; Not finished and has no orders
+----InProcess
+* - 9-155783 ; Not finished and has no orders
+----InProcess
+* - 9-155784 ; Not finished and has no orders
+----InProcess
+* - 9-155785 ; Not finished and has no orders
+----InProcess
+* - 9-155786 ; Not finished and has no orders
+----InProcess
+* - 9-155787 ; Not finished and has no orders
+----InProcess
+* - 155788 ; Not finished and has no orders
+----InProcess
+* - 155789 ; Not finished and has no orders
+----InProcess
+* - 155790 ; Not finished and has no orders
+----InProcess
+* - 155791 ; Not finished and has no orders
+----InProcess
+* - 155792 ; Not finished and has no orders
+----InProcess
+* - 155793 ; Not finished and has no orders
+----InProcess
+* - 155794 ; Not finished and has no orders
+----InProcess
+* - 155795 ; Not finished and has no orders
+----InProcess
+* - 155796 ; Not finished and has no orders
+----InProcess
+* - 155797 ; Not finished and has no orders
+----InProcess
+* - 155798 ; Not finished and has no orders
+----PreProcess
+* - 155799 ; Not finished and has no orders
+----PreProcess
+* - 155800 ; Not finished and has no orders
+----PreProcess
+* - 155801 ; Not finished and has no orders
+----PreProcess
+* - 155802 ; Not finished and has no orders
+----PreProcess
+* - 155803 ; Not finished and has no orders
+----PreProcess
+* - 155804 ; Not finished and has no orders
+----PreProcess
+* - 155805 ; Not finished and has no orders
+----PreProcess
+* - 155806 ; Not finished and has no orders
+----PreProcess
+* - 155807 ; Not finished and has no orders
+----PreProcess
+* - 155808 ; Not finished and has no orders
+----PreProcess
+* - 155809 ; Not finished and has no orders
+----PreProcess
+* - 155810 ; Not finished and has no orders
+----PreProcess
+Gathering Info...1%Gathering Info...2%Gathering Info...2%Gathering Info...3%Gathering Info...4%Gathering Info...5%Gathering Info...5%Gathering Info...6%Gathering Info...7%Gathering Info...8%Gathering Info...8%Gathering Info...9%Gathering Info...10%Gathering Info...11%Gathering Info...11%Gathering Info...12%Gathering Info...13%Gathering Info...14%Gathering Info...14%Gathering Info...15%Gathering Info...16%Gathering Info...17%Gathering Info...17%Gathering Info...18%Gathering Info...19%Gathering Info...20%Gathering Info...20%Gathering Info...21%Gathering Info...22%Gathering Info...23%Gathering Info...23%Gathering Info...24%Gathering Info...25%Gathering Info...26%Gathering Info...27%Gathering Info...27%Gathering Info...28%Gathering Info...29%Gathering Info...30%Gathering Info...30%Gathering Info...31%Gathering Info...32%Gathering Info...33%Gathering Info...33%Gathering Info...34%Gathering Info...35%Gathering Info...36%Gathering Info...36%Gathering Info...37%Gathering Info...38%Gathering Info...39%Gathering Info...39%Gathering Info...40%Gathering Info...41%Gathering Info...42%Gathering Info...42%Gathering Info...43%Gathering Info...44%Gathering Info...45%Gathering Info...45%Gathering Info...46%Gathering Info...47%Gathering Info...48%Gathering Info...48%Gathering Info...49%Gathering Info...50%Gathering Info...51%Gathering Info...52%Gathering Info...52%Gathering Info...53%Gathering Info...54%Gathering Info...55%Gathering Info...55%Gathering Info...56%Gathering Info...57%Gathering Info...58%Gathering Info...58%Gathering Info...59%Gathering Info...60%Gathering Info...61%Gathering Info...61%Gathering Info...62%Gathering Info...63%Gathering Info...64%Gathering Info...64%Gathering Info...65%Gathering Info...66%Gathering Info...67%Gathering Info...67%Gathering Info...68%Gathering Info...69%Gathering Info...70%Gathering Info...70%Gathering Info...71%Gathering Info...72%Gathering Info...73%Gathering Info...73%Gathering Info...74%Gathering Info...75%Gathering Info...76%Gathering Info...77%Gathering Info...77%Gathering Info...78%Gathering Info...79%Gathering Info...80%Gathering Info...80%Gathering Info...81%Gathering Info...82%Gathering Info...83%Gathering Info...83%Gathering Info...84%Gathering Info...85%Gathering Info...86%Gathering Info...86%Gathering Info...87%Gathering Info...88%Gathering Info...89%Gathering Info...89%Gathering Info...90%Gathering Info...91%Gathering Info...92%Gathering Info...92%Gathering Info...93%Gathering Info...94%Gathering Info...95%Gathering Info...95%Gathering Info...96%Gathering Info...97%Gathering Info...98%Gathering Info...98%Gathering Info...99%Gathering Info...100%Gathering Info...Finished
 Disconnected from MAS
 
 <<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
