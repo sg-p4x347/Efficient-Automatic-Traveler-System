@@ -1,5 +1,5 @@
 {
-	"debug":true,
+	"debug":false,
 	"print":{
 		"Tracking":true,
 		"Scrap":true,
@@ -10,6 +10,7 @@
 	},
 	"printers":[
 		"4x2Heian2",
+		"4x2Weeke2",
 		"4x6FloorTable",
 		"4x2FloorTableBox",
 		"4x2Box1",
@@ -472,7 +473,7 @@
 			"type":"weeke",
 			"mode":"Batch",
 			"printers":[
-				"4x2Heian2"
+				"4x2Weeke2"
 			]
 		},
 		{

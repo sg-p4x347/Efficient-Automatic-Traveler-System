@@ -1,10 +1,10 @@
 Configuration settings loaded from current
 Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
+
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/03/2017 @ 05:05
+
 Client manager started
-
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/01/2017 @ 01:57
-
 EATS inventory loaded from backup
 Kanban Monitor loaded from backup
 Configuration settings loaded from current
@@ -20,7 +20,7 @@ Users loaded from backup
 	* - 92879 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 92882 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -32,23 +32,15 @@ Users loaded from backup
 	* - 93535 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 93544 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
-	* - 93556 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 93566 ; Not finished before today and has orders, but not all parent travelers are finished
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- Finished
 	* - 93577 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 93586 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -60,7 +52,7 @@ Users loaded from backup
 	* - 95321 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 95994 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -72,7 +64,7 @@ Users loaded from backup
 	* - 95998 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 96007 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -80,27 +72,27 @@ Users loaded from backup
 	* - 96511 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97225 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97227 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97228 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97229 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97230 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97231 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -108,43 +100,35 @@ Users loaded from backup
 	* - 97233 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97234 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97235 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97236 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 97254 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 98257 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 98258 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- Finished
-	* - 99784 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
 	* - 99791 ; Not finished before today and has no orders
 	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-X - 100105 ; Table box missing parent links
-	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 101504 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -152,32 +136,28 @@ X - 100105 ; Table box missing parent links
 	* - 101569 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 103081 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 103090 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 103100 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 103108 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 103111 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
 	* - 103329 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-	* - 143659 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
@@ -219,12 +199,8 @@ X - 100105 ; Table box missing parent links
 	- InProcess
 	* - 143672 ; Not finished before today and has no orders
 	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-	* - 143673 ; Not finished before today and has no orders
-	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 144153 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -239,21 +215,13 @@ X - 100105 ; Table box missing parent links
 	- InProcess
 	* - 144180 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 144190 ; Not finished before today and has orders, but not all parent travelers are finished
-	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
 	* - 144291 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
-	* - 144650 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
-	* - 144651 ; Not finished before today and has no orders
+	* - 144650 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
@@ -296,32 +264,12 @@ X - 100105 ; Table box missing parent links
 	* - 154599 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 9-283861 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- Finished
+	- InProcess
 	* - 9-283862 ; Not finished before today and has orders, but not all parent travelers are finished
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-X - 154932 ; Table box missing parent links
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-X - 154958 ; Table box missing parent links
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-X - 154963 ; Table box missing parent links
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-X - 154965 ; Table box missing parent links
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-X - 154967 ; Table box missing parent links
 	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
@@ -330,18 +278,6 @@ X - 154967 ; Table box missing parent links
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
 	* - 9-155740 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- Finished
-X - 9-155741 ; Finished before today
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- Finished
-X - 9-155742 ; Finished before today
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155745 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
@@ -356,15 +292,11 @@ X - 9-155742 ; Finished before today
 	* - 9-155752 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
+	- Finished
 	* - 9-155753 ; Not finished before today and has no orders
 	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-X - 9-155754 ; Table box missing parent links
-	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
+	- Finished
 	* - 9-155756 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -396,24 +328,12 @@ X - 9-155754 ; Table box missing parent links
 	* - 9-155769 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155771 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
+	- Finished
 	* - 9-155773 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155774 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
+	- Finished
 	* - 9-155775 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155776 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
@@ -422,10 +342,6 @@ X - 9-155754 ; Table box missing parent links
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
 	* - 9-155778 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155779 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
@@ -459,14 +375,6 @@ X - 9-155754 ; Table box missing parent links
 	- InProcess
 	* - 9-155787 ; Not finished before today and has no orders
 	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 155788 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 155789 ; Not finished before today and has no orders
-	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
 	* - 155790 ; Not finished before today and has no orders
@@ -487,18 +395,6 @@ X - 9-155754 ; Table box missing parent links
 	- InProcess
 	* - 155794 ; Not finished before today and has no orders
 	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-	* - 155795 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-	* - 155796 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- InProcess
-	* - 155797 ; Not finished before today and has no orders
-	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
 	* - 9-155798 ; Not finished before today and has no orders
@@ -516,7 +412,7 @@ X - 9-155754 ; Table box missing parent links
 	* - 9-155801 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
+	- Finished
 	* - 9-155802 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -569,14 +465,6 @@ X - 9-155754 ; Table box missing parent links
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
-	* - 9-155815 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155816 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
 	* - 9-155817 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -589,53 +477,363 @@ X - 9-155754 ; Table box missing parent links
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
-	* - 9-155820 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155821 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155822 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
 	* - 9-155823 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155824 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155825 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155826 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155827 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155828 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155829 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155830 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155831 ; Not finished before today and has no orders
-Gathering Info...1%Gathering Info...1%Gathering Info...2%Gathering Info...3%Gathering Info...3%Gathering Info...4%Gathering Info...5%Gathering Info...5%Gathering Info...6%Gathering Info...7%Gathering Info...8%Gathering Info...8%Gathering Info...9%Gathering Info...10%Gathering Info...10%Gathering Info...11%Gathering Info...12%Gathering Info...12%Gathering Info...13%Gathering Info...14%Gathering Info...14%Gathering Info...15%Gathering Info...16%Gathering Info...16%Gathering Info...17%Gathering Info...18%Gathering Info...18%Gathering Info...19%Gathering Info...20%Gathering Info...21%Gathering Info...21%Gathering Info...22%Gathering Info...23%Gathering Info...23%Gathering Info...24%Gathering Info...25%Gathering Info...25%Gathering Info...26%Gathering Info...27%Gathering Info...27%Gathering Info...28%Gathering Info...29%Gathering Info...29%Gathering Info...30%Gathering Info...31%Gathering Info...32%Gathering Info...32%Gathering Info...33%Gathering Info...34%Gathering Info...34%Gathering Info...35%Gathering Info...36%Gathering Info...36%Gathering Info...37%Gathering Info...38%Gathering Info...38%Gathering Info...39%Gathering Info...40%Gathering Info...40%Gathering Info...41%Gathering Info...42%Gathering Info...42%Gathering Info...43%Gathering Info...44%Gathering Info...45%Gathering Info...45%Gathering Info...46%Gathering Info...47%Gathering Info...47%Gathering Info...48%Gathering Info...49%Gathering Info...49%Gathering Info...50%Gathering Info...51%Gathering Info...51%Gathering Info...52%Gathering Info...53%Gathering Info...53%Gathering Info...54%Gathering Info...55%Gathering Info...55%Gathering Info...56%Gathering Info...57%Gathering Info...58%Gathering Info...58%Gathering Info...59%Gathering Info...60%Gathering Info...60%Gathering Info...61%Gathering Info...62%Gathering Info...62%Gathering Info...63%Gathering Info...64%Gathering Info...64%Gathering Info...65%Gathering Info...66%Gathering Info...66%Gathering Info...67%Gathering Info...68%Gathering Info...68%Gathering Info...69%Gathering Info...70%Gathering Info...71%Gathering Info...71%Gathering Info...72%Gathering Info...73%Gathering Info...73%Gathering Info...74%Gathering Info...75%Gathering Info...75%Gathering Info...76%Gathering Info...77%Gathering Info...77%Gathering Info...78%Gathering Info...79%Gathering Info...79%Gathering Info...80%Gathering Info...81%Gathering Info...82%Gathering Info...82%Gathering Info...83%Gathering Info...84%Gathering Info...84%Gathering Info...85%Gathering Info...86%Gathering Info...86%Gathering Info...87%Gathering Info...88%Gathering Info...88%Gathering Info...89%Gathering Info...90%Gathering Info...90%Gathering Info...91%Gathering Info...92%Gathering Info...92%Gathering Info...93%Gathering Info...94%Gathering Info...95%Gathering Info...95%Gathering Info...96%Gathering Info...97%Gathering Info...97%Gathering Info...98%Gathering Info...99%Gathering Info...99%Gathering Info...100%Gathering Info...Finished
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155832 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155833 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155834 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155835 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155836 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155837 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155838 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155839 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155840 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155841 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155842 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155843 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155844 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155845 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155846 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155847 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155848 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155849 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155850 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155851 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155852 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155853 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155854 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155855 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155856 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155857 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155858 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155859 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155860 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155872 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155873 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155874 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155875 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155876 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155877 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155878 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155879 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155880 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155881 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155882 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155883 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155884 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155885 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+	* - 155886 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155909 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155913 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155914 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155915 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155916 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155917 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155918 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155920 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155923 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155727 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- InProcess
+	* - 155728 ; Not finished before today and has no orders
+Gathering Info...1%Gathering Info...1%Gathering Info...2%Gathering Info...2%Gathering Info...3%Gathering Info...3%Gathering Info...4%Gathering Info...4%Gathering Info...5%Gathering Info...6%Gathering Info...6%Gathering Info...7%Gathering Info...7%Gathering Info...8%Gathering Info...8%Gathering Info...9%Gathering Info...9%Gathering Info...10%Gathering Info...11%Gathering Info...11%Gathering Info...12%Gathering Info...12%Gathering Info...13%Gathering Info...13%Gathering Info...14%Gathering Info...15%Gathering Info...15%Gathering Info...16%Gathering Info...16%Gathering Info...17%Gathering Info...17%Gathering Info...18%Gathering Info...18%Gathering Info...19%Gathering Info...20%Gathering Info...20%Gathering Info...21%Gathering Info...21%Gathering Info...22%Gathering Info...22%Gathering Info...23%Gathering Info...23%Gathering Info...24%Gathering Info...25%Gathering Info...25%Gathering Info...26%Gathering Info...26%Gathering Info...27%Gathering Info...27%Gathering Info...28%Gathering Info...28%Gathering Info...29%Gathering Info...30%Gathering Info...30%Gathering Info...31%Gathering Info...31%Gathering Info...32%Gathering Info...32%Gathering Info...33%Gathering Info...34%Gathering Info...34%Gathering Info...35%Gathering Info...35%Gathering Info...36%Gathering Info...36%Gathering Info...37%Gathering Info...37%Gathering Info...38%Gathering Info...39%Gathering Info...39%Gathering Info...40%Gathering Info...40%Gathering Info...41%Gathering Info...41%Gathering Info...42%Gathering Info...42%Gathering Info...43%Gathering Info...44%Gathering Info...44%Gathering Info...45%Gathering Info...45%Gathering Info...46%Gathering Info...46%Gathering Info...47%Gathering Info...47%Gathering Info...48%Gathering Info...49%Gathering Info...49%Gathering Info...50%Gathering Info...50%Gathering Info...51%Gathering Info...51%Gathering Info...52%Gathering Info...53%Gathering Info...53%Gathering Info...54%Gathering Info...54%Gathering Info...55%Gathering Info...55%Gathering Info...56%Gathering Info...56%Gathering Info...57%Gathering Info...58%Gathering Info...58%Gathering Info...59%Gathering Info...59%Gathering Info...60%Gathering Info...60%Gathering Info...61%Gathering Info...61%Gathering Info...62%Gathering Info...63%Gathering Info...63%Gathering Info...64%Gathering Info...64%Gathering Info...65%Gathering Info...65%Gathering Info...66%Gathering Info...66%Gathering Info...67%Gathering Info...68%Gathering Info...68%Gathering Info...69%Gathering Info...69%Gathering Info...70%Gathering Info...70%Gathering Info...71%Gathering Info...72%Gathering Info...72%Gathering Info...73%Gathering Info...73%Gathering Info...74%Gathering Info...74%Gathering Info...75%Gathering Info...75%Gathering Info...76%Gathering Info...77%Gathering Info...77%Gathering Info...78%Gathering Info...78%Gathering Info...79%Gathering Info...79%Gathering Info...80%Gathering Info...80%Gathering Info...81%Gathering Info...82%Gathering Info...82%Gathering Info...83%Gathering Info...83%Gathering Info...84%Gathering Info...84%Gathering Info...85%Gathering Info...85%Gathering Info...86%Gathering Info...87%Gathering Info...87%Gathering Info...88%Gathering Info...88%Gathering Info...89%Gathering Info...89%Gathering Info...90%Gathering Info...91%Gathering Info...91%Gathering Info...92%Gathering Info...92%Gathering Info...93%Gathering Info...93%Gathering Info...94%Gathering Info...94%Gathering Info...95%Gathering Info...96%Gathering Info...96%Gathering Info...97%Gathering Info...97%Gathering Info...98%Gathering Info...98%Gathering Info...99%Gathering Info...99%Gathering Info...100%Gathering Info...Finished
 Disconnected from MAS
 
 <<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B) in C:\Gage Omega\Programming\Efficient-Automatic-Traveler-System\Efficient Automatic Traveler System\Traveler Manager\Summary.cs:line 121
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

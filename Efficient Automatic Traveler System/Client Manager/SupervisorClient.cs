@@ -1005,6 +1005,7 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("Traveler Summary","TravelerSummaryForm"),
                     new Button("Production Report", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "production" } }),
                     new Button("Partial Production", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "partialProduction" } }),
+                    new Button("Rates Report", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "rates" } }),
                     new Button("Scrap Report", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "scrap" } }),
                     new Button("User Report", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}"),
                     new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}"),
@@ -1457,6 +1458,11 @@ namespace Efficient_Automatic_Traveler_System
                         downloadLocation = summary.PartialProductionCSV(); break;
                     case "inventory":
                         downloadLocation = summary.InventorySummary(); break;
+                    case "rates":
+                        downloadLocation = summary.RatesCSV(); break;
+                    default:
+                        downloadLocation = summary.ExportCSV((SummaryType)Enum.Parse(typeof(SummaryType),csv));
+                            break;
                 }
                 returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
             }
@@ -1792,12 +1798,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Form form = new Form();
                 form.Title = "Custom Report";
-                form.Selection("subject", "Subject", new List<string>()
-                {
-                    "Traveler",
-                    "User",
-                    "Inventory"
-                });
+                form.Selection("type", "Type", ExtensionMethods.GetNames<SummaryType>());
                 form.Date("from", "From");
                 form.Date("to", "To");
                 return form.Dispatch("CustomReport");
@@ -1818,13 +1819,7 @@ namespace Efficient_Automatic_Traveler_System
                 Form.DateRange(form, out from, out to);
                 Summary summary = new Summary(from, to);
 
-                string downloadLocation = "";
-                switch (form.ValueOf("subject"))
-                {
-                    case "Traveler": downloadLocation = summary.ProductionCSV(); break;
-                    case "User": downloadLocation = summary.UserCSV(); break;
-                    case "Inventory": downloadLocation = summary.InventorySummary(); break;
-                }
+                string downloadLocation = summary.ExportCSV((SummaryType)Enum.Parse(typeof(SummaryType), form.ValueOf("type")));
                 if (downloadLocation != String.Empty)
                 {
                     return new ClientMessage("Redirect", downloadLocation.Quotate());

@@ -22,7 +22,8 @@ namespace Efficient_Automatic_Traveler_System
         Production,
         PartialProduction,
         Scrap,
-        Traveler
+        Traveler,
+        Rates
     }
     class Summary
     {
@@ -84,11 +85,14 @@ namespace Efficient_Automatic_Traveler_System
                 case SummaryType.Production: return ProductionCSV();
                 case SummaryType.Scrap: return ScrapCSV();
                 case SummaryType.Traveler: return MakeCSV();
+                case SummaryType.Rates: return RatesCSV();
                 default: return "";
             }
         }
         public Summary(DateTime A, DateTime B) : this()
         {
+            Begin = A;
+            End = B;
             m_users = new List<User>();
             List<DateTime> datesDescending = new List<DateTime>(BackupManager.BackupDates);
             datesDescending.Sort((a, b) => b.CompareTo(a));
@@ -96,23 +100,30 @@ namespace Efficient_Automatic_Traveler_System
             int indexB = datesDescending.IndexOf(datesDescending.Last(d => d >= A));
             for (int index = indexA; index < indexB; index++)
             {
-                DateTime day = datesDescending[index];
-
-                OrderManager orderManager = new OrderManager();
-                orderManager.Import(day);
-                TravelerManager travelerManager = new TravelerManager(orderManager as IOrderManager);
-                travelerManager.Import(day);
-                // only add travelers with IDs that are not currently in the list
-                m_travelers.AddRange(travelerManager.GetTravelers.Where(t => !m_travelers.Exists(s => s.ID == t.ID)));
-
-                // Users
-                
-                UserManager userManager = new UserManager();
-                userManager.Import(day);
-                m_users.AddRange(userManager.Users.Where(u => !m_users.Exists(v => v.UID == u.UID)));
-                foreach (User user in m_users)
+                try
                 {
-                    user.History.AddRange(userManager.Users.Find(u => u.UID == user.UID).History);
+                    DateTime day = datesDescending[index];
+
+                    OrderManager orderManager = new OrderManager();
+                    orderManager.Import(day);
+                    TravelerManager travelerManager = new TravelerManager(orderManager as IOrderManager);
+                    travelerManager.Import(day);
+                    // only add travelers with IDs that are not currently in the list
+                    m_travelers.AddRange(travelerManager.GetTravelers.Where(t => !m_travelers.Exists(s => s.ID == t.ID)));
+
+                    // Users
+
+                    UserManager userManager = new UserManager();
+                    userManager.Import(day);
+                    m_users.AddRange(userManager.Users.Where(u => !m_users.Exists(v => v.UID == u.UID)));
+                    foreach (User user in m_users)
+                    {
+                        user.History.AddRange(userManager.Users.Find(u => u.UID == user.UID).History);
+                    }
+                } catch (Exception ex)
+                {
+                    Server.WriteLine("Error retrieving history");
+                    Server.LogException(ex);
                 }
             }
         }
@@ -223,6 +234,39 @@ namespace Efficient_Automatic_Traveler_System
         }
         #endregion
         #region Private methods
+        public string RatesCSV()
+        {
+            //--------------------------------------------
+            string webLocation = "./rates.csv";
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("Shape"));
+            foreach (string station in StationClass.GetStations().Select(s => s.Name))
+            {
+                summary.Columns.Add(new DataColumn(station));
+            }
+            foreach (string shape in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ShapeNo).Distinct())
+            {
+                DataRow row = summary.NewRow();
+                row["Shape"] = shape;
+                foreach (StationClass station in StationClass.GetStations())
+                {
+                    List<ProcessEvent> completions = Server.TravelerManager.GetTravelers.OfType<Table>().Where(
+                        t => t.ShapeNo == shape
+                    )
+                    .SelectMany(
+                        t => t.Items.SelectMany(
+                            i => i.History.OfType<ProcessEvent>().Where(
+                                e => e.Date >= Begin && e.Date <= End && e.Process == ProcessType.Completed && e.Station == station
+                            )
+                        )
+                    ).ToList();
+                    row[station.Name] = string.Join(" ", completions.Select(c => Math.Round(c.Duration,1)));
+                }
+                summary.Rows.Add(row);
+            }
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "rates.csv"), summary.ToCSV());
+            return webLocation;
+        }
         public string ProductionCSV()
         {
             //--------------------------------------------
@@ -256,27 +300,24 @@ namespace Efficient_Automatic_Traveler_System
             string webLocation = "./partial production.csv";
             DataTable summary = new DataTable();
             summary.Columns.Add(new DataColumn("ItemCode"));
-            summary.Columns.Add(new DataColumn("Travelers"));
             foreach (string station in StationClass.GetStations().Select(s => s.Name))
             {
                 summary.Columns.Add(new DataColumn(station));
             }
             foreach (string itemCode in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ItemCode).Distinct())
             {
+                DataRow row = summary.NewRow();
+                row["ItemCode"] = itemCode;
                 foreach (StationClass station in StationClass.GetStations())
                 {
                     int qty = Server.TravelerManager.GetTravelers.Where(t =>
                         t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.BeenCompletedAtDuring(station,DateTime.Today)));
                     if (qty > 0)
                     {
-                        DataRow row = summary.NewRow();
-                        row["ItemCode"] = itemCode;
-                        row["Travelers"] = Server.TravelerManager.GetTravelers.Where(t =>
-                        t.ItemCode == itemCode && t.Items.Exists(i => i.BeenCompletedAtDuring(station,DateTime.Today))).Select(t => t.ID).ToList().Stringify();
-                        summary.Rows.Add(row);
                         row[station.Name] = qty;
                     }
                 }
+                summary.Rows.Add(row);
             }
             File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "partial production.csv"), summary.ToCSV());
 
@@ -471,6 +512,15 @@ namespace Efficient_Automatic_Traveler_System
         private Type m_travelerType;
         private List<Traveler> m_travelers;
         private List<User> m_users;
+        public DateTime Begin { get; set; }
+        public DateTime End { get; set; }
+        public string FileSuffix
+        {
+            get
+            {
+                return " " + Begin.ToString("MM-dd-yy") + " to " + End.ToString("MM-dd-yy");
+            }
+        }
         #endregion
         #region Interface
         public List<Traveler> Travelers

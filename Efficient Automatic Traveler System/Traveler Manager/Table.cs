@@ -926,6 +926,20 @@ namespace Efficient_Automatic_Traveler_System
                 m_shape = value;
             }
         }
+        public string ShapeNo
+        {
+            get
+            {
+                try
+                {
+                    List<string> parts = ItemCode.Split('-').ToList();
+                    return parts.GetRange(0, parts.Count - 1).Aggregate((i, j) => i + "-" + j);
+                } catch (Exception ex)
+                {
+                    return "";
+                }
+            }
+        }
         public string BlankNo
         {
             get
