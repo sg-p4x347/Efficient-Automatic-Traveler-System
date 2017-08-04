@@ -96,14 +96,23 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
                 {
-                    {"Qty at this station:",new TextNode(travelers.Sum(t => t.QuantityAt(station)).ToString(),new Style("beige") )}
+                    {"Total Pre-Process:",new TextNode(travelers.Sum(t => t.QuantityPendingAt(station)).ToString(),new Style("blue","shadow","whiteBack") )},
+                    {"Total In-Process:",new TextNode(travelers.Sum(t => t.QuantityInProcessAt(station)).ToString(),new Style("red","shadow","whiteBack") )},
+                    {"Total Post-Process:",new TextNode(travelers.Sum(t => t.QuantityCompleteAt(station)).ToString(),new Style("green","shadow","whiteBack") )}
                 }));
                 }
                 else if (state.Value == GlobalItemState.Finished)
                 {
                     queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
                 {
-                    {"Qty at this station:",new TextNode(travelers.Sum(t => t.QuantityAt(station)).ToString(),new Style("beige") )}
+                    {"Total finished:",new TextNode(travelers.Sum(t => t.QuantityFinished(station)).ToString(),new Style("beige") )}
+                }));
+                }
+                else if (state.Value == GlobalItemState.Finished)
+                {
+                    queueContainer.Add(ControlPanel.CreateDictionary(new Dictionary<string, Node>()
+                {
+                    {"Total scrapped:",new TextNode(travelers.Sum(t => t.QuantityScrapped()).ToString(),new Style("beige") )}
                 }));
                 }
             }
@@ -151,7 +160,7 @@ namespace Efficient_Automatic_Traveler_System
                         else if (GlobalState == GlobalItemState.InProcess)
                         {
                             if (traveler.Items.Any(i => i.Station == station && i.GlobalState == GlobalItemState.InProcess)
-                                || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)
+                                || (traveler.State == GlobalItemState.InProcess && station == traveler.Station && traveler.QuantityPendingAt(station) > 0)
                             ) travelers.Add(traveler);
                             //if (traveler.State == GlobalItemState.InProcess && traveler.Items.Exists(i => i.GlobalState == m_viewState && i.Station == station) || (station == traveler.Station && traveler.QuantityPendingAt(station) > 0)) travelers.Add(traveler);
                         }
@@ -1103,11 +1112,11 @@ namespace Efficient_Automatic_Traveler_System
                     orders.RemoveAll(o => o.CustomerNo != form.ValueOf("customer"));
                 }
                 SendMessage(new ClientMessage("Updating","".Quotate()).ToString());
-                await Program.server.CreateTravelers(Convert.ToBoolean(form.ValueOf("tables")),consolidate, consolidatePriorityCustomers, orders,delegate(double percent)
+                string message = await Program.server.CreateTravelers(Convert.ToBoolean(form.ValueOf("tables")),consolidate, consolidatePriorityCustomers, orders,delegate(double percent)
                 {
                     ReportProgress(percent);
                 });
-                return new ClientMessage("Info", "Done refactoring PreProcess travelers");
+                return new ClientMessage("Info", message);
             }
             catch (Exception ex)
             {

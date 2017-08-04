@@ -38,7 +38,7 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"155727",
+	"nextTravelerID":"157010",
 	"nextEventID":"8374",
 	"boxTravelerSize":5,
 	"scrapReport":{
@@ -206,23 +206,6 @@
 				"/LATB1",
 				"/LATB2",
 				"/LATB3"
-			],
-			"routing":{
-				"Table":{
-					"preRequisites":[
-						"Vector",
-						"snxTrimmer"
-					],
-					"finish":true
-				}
-			}
-		},
-		"bulkPack":{
-			"creates":[
-				
-			],
-			"laborCodes":[
-				
 			],
 			"routing":{
 				"Table":{
@@ -424,15 +407,6 @@
 			"printers":[
 				"4x6FloorTable",
 				"4x2FloorTableBox"
-			]
-		},
-		{
-			"name":"Bulk-Pack",
-			"type":"bulkPack",
-			"mode":"Serial",
-			"printers":[
-				"4x6SNX-Table",
-				"4x2SNX-Pack"
 			]
 		},
 		{

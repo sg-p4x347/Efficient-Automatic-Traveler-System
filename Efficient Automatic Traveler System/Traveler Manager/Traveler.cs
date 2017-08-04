@@ -540,6 +540,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             return ParentOrders.Sum(o => o.FindItems(ID).Sum(i => i.QtyOrdered));
         }
+        public int QuantityFinished(StationClass station)
+        {
+            return Items.Count(i => i.Finished);
+        }
         //public string ExportStationSummary(StationClass station)
         //{
         //    Dictionary<string, string> detail = new Dictionary<string, string>();
@@ -864,9 +868,9 @@ namespace Efficient_Automatic_Traveler_System
             return QuantityPendingAt(station) > 0;
         }
         // pre
-        public virtual Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        public virtual Task<string> ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
-            return new Task(new Action(() => { }));
+            return Task.Run(() => { return ""; });
         }
         
         public void InitializeDependencies()

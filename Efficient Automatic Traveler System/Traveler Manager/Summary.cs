@@ -272,22 +272,29 @@ namespace Efficient_Automatic_Traveler_System
             //--------------------------------------------
             string webLocation = "./production.csv";
             DataTable summary = new DataTable();
+
+            string stationType = "contourEdgebander";
+
             summary.Columns.Add(new DataColumn("ItemCode"));
             summary.Columns.Add(new DataColumn("Quantity"));
+            summary.Columns.Add(new DataColumn("Edgebander"));
             summary.Columns.Add(new DataColumn("Date"));
             summary.Columns.Add(new DataColumn("Travelers"));
             foreach (string itemCode in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ItemCode).Distinct())
             {
-                int qty = Server.TravelerManager.GetTravelers.Where(t => 
-                    t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.BeenCompletedDuring(DateTime.Today)));
-                if (qty > 0) {
-                    DataRow row = summary.NewRow();
-                    row["ItemCode"] = itemCode;
-                    row["Quantity"] = qty;
-                    row["Date"] = DateTime.Today.ToString("MM/dd/yyyy");
-                    row["Travelers"] = Server.TravelerManager.GetTravelers.Where(t =>
-                    t.ItemCode == itemCode && t.Items.Exists(i => i.BeenCompletedDuring(DateTime.Today))).Select(t => t.PrintID()).ToList().Stringify();
-                    summary.Rows.Add(row);
+                foreach (StationClass station in StationClass.GetStations().Where(s => s.Type == stationType)) {
+                    int qty = Server.TravelerManager.GetTravelers.Where(t =>
+                        t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.BeenCompletedDuring(DateTime.Today) && i.History.OfType<ProcessEvent>().Where(e => e.Process == ProcessType.Completed && e.Station.Type == stationType).Any() && i.History.OfType<ProcessEvent>().Where(e => e.Process == ProcessType.Completed && e.Station.Type == stationType).Last().Station == station));
+                    if (qty > 0) {
+                        DataRow row = summary.NewRow();
+                        row["ItemCode"] = itemCode;
+                        row["Quantity"] = qty;
+                        row["Edgebander"] = station.Name;
+                        row["Date"] = DateTime.Today.ToString("MM/dd/yyyy");
+                        row["Travelers"] = Server.TravelerManager.GetTravelers.Where(t =>
+                        t.ItemCode == itemCode && t.Items.Exists(i => i.BeenCompletedDuring(DateTime.Today) && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Completed && e.Station == station))).Select(t => t.PrintID()).ToList().Aggregate((i,j) => i + ' ' + j);
+                        summary.Rows.Add(row);
+                    }
                 }
             }
             File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "production.csv"), summary.ToCSV());

@@ -376,7 +376,7 @@ namespace Efficient_Automatic_Traveler_System
             Backup();
             Server.WriteLine("\n<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>\n");
         }
-        public async Task CreateTravelers(bool tables = true, bool consolodate = true, bool consolidatePriorityCustomers = true, List<Order> orders = null,Action<double> ReportProgress = null)
+        public async Task<string> CreateTravelers(bool tables = true, bool consolodate = true, bool consolidatePriorityCustomers = true, List<Order> orders = null,Action<double> ReportProgress = null)
         {
             try
             {
@@ -388,18 +388,23 @@ namespace Efficient_Automatic_Traveler_System
                     List<Traveler> newTravelers = m_travelerManager.CompileTravelers(tables, consolodate, consolidatePriorityCustomers, orders);
 
                     // Finalize the travelers by importing external information
-                    m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, m_MAS, newTravelers, ReportProgress);
+                    string message = m_travelerManager.ImportTravelerInfo(m_orderManager as IOrderManager, m_MAS, newTravelers, ReportProgress);
                     m_MAS.Close();
 
                     m_orderManager.Backup();
 
                     CloseMAS();
+                    return message;
+                } else
+                {
+                    return "Could not connect to MAS";
                 }
             }
             catch (AccessViolationException ex)
             {
                 Server.LogException(ex);
                 CloseMAS();
+                return "Exception occured while creating travelers";
             }
         }
         private void UpdateOffline()

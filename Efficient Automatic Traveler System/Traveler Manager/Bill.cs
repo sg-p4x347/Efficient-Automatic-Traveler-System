@@ -51,44 +51,51 @@ namespace Efficient_Automatic_Traveler_System
             Import(MAS);
         }
         
-        public void Import(OdbcConnection MAS)
+        public string Import(OdbcConnection MAS)
         {
             Bill existing = m_bills.Find(b => b.BillNo == BillNo);
+            string message = "";
             if (existing != null) {
                 Clone(existing);
             }
+            
             else if (!Imported)
             {
                 // Import header
                 if (!HeaderImported)
                 {
                     var tokenSource = new CancellationTokenSource();
-
+                    int tries = 1;
                     var headerTask = Task.Run(() => ImportHeader(MAS), tokenSource.Token);
                     if (!headerTask.Wait(TimeSpan.FromSeconds(3)) || !HeaderImported)
                     {
                         // Trying again
+                        tries++;
+                        if (tries > 10) return "Bill header timed out, try again later";
                         tokenSource.Cancel();
                         Server.WriteLine("-Bill header timed out, trying again-");
-                        Import(MAS);
+                        ImportHeader(MAS);
                     }
                 }
                 // Import detail
                 if (!DetailImported)
                 {
                     var tokenSource = new CancellationTokenSource();
-
+                    var tries = 1;
                     var detailTask = Task.Run(() => ImportDetail(MAS), tokenSource.Token);
                     if (!detailTask.Wait(TimeSpan.FromSeconds(3)) || !DetailImported)
                     {
                         // Trying again
+                        tries++;
+                        if (tries > 10) return "Bill detail timed out, try again later";
                         tokenSource.Cancel();
                         Server.WriteLine("-Bill detail import timed out, trying again-");
-                        Import(MAS);
+                        ImportDetail(MAS);
                     }
                 }
                 m_bills.Add(this);
             }
+            return "";
         }
         private bool IsImported(OdbcConnection MAS)
         {

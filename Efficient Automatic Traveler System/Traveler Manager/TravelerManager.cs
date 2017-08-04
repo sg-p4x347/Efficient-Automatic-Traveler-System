@@ -199,10 +199,12 @@ namespace Efficient_Automatic_Traveler_System
                 
             }
         }
-        public void ImportTravelerInfo(IOrderManager orderManager, OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
+        public string ImportTravelerInfo(IOrderManager orderManager, OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
         {
             if (travelers == null) travelers = m_travelers;
             int index = 0;
+            int exceptionCount = 0;
+            var message = "";
             foreach (Traveler traveler in travelers)
             {
                 try
@@ -210,7 +212,11 @@ namespace Efficient_Automatic_Traveler_System
 
                     traveler.InitializeDependencies();
                     // import part info
-                    traveler.ImportInfo(this as ITravelerManager, orderManager, MAS);
+                    var task = Task.Run(() => message += traveler.ImportInfo(this as ITravelerManager, orderManager, MAS).GetAwaiter().GetResult());
+                    if (!task.Wait(TimeSpan.FromSeconds(10))) {
+                        // took too long
+                        Server.WriteLine("traveler " + traveler.PrintID() + " took too long to import infomration");
+                    }
                     index++;
                     double percent = (Convert.ToDouble(index) / Convert.ToDouble(travelers.Count));
                     ReportProgress?.Invoke(percent);
@@ -221,12 +227,13 @@ namespace Efficient_Automatic_Traveler_System
                 catch (Exception ex)
                 {
                     Server.LogException(ex);
+                    exceptionCount++;
                 }
             }
             Server.Write("\r{0}", "Gathering Info...Finished\n");
             // travelers have changed
             OnTravelersChanged(travelers);
-            
+            return (string.IsNullOrEmpty(message) ? "Success!" : "" ) + (exceptionCount > 0 ? "<br>" + exceptionCount + " exceptions occured": "") + "<br>" + message;
         }
         //// Update this travelers quantities dynamically
         //public void UpdateTraveler(Traveler traveler)
@@ -741,10 +748,10 @@ namespace Efficient_Automatic_Traveler_System
                 Form form = new Form(json);
                 Type type = Type.GetType("Efficient_Automatic_Traveler_System." + form.Name);
                 Traveler traveler = traveler = (Traveler)Activator.CreateInstance(type, form);
-                traveler.ImportInfo(this as ITravelerManager, m_orderManager, MAS);
+                string message = await traveler.ImportInfo(this as ITravelerManager, m_orderManager, MAS);
                 m_travelers.Add(traveler);
                 OnTravelersChanged(m_travelers);
-                return new ClientMessage("Info","Success!");
+                return new ClientMessage("Info",string.IsNullOrEmpty(message) ? "Success!" : message);
             }
             catch (Exception ex)
             {

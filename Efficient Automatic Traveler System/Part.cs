@@ -89,9 +89,9 @@ namespace Efficient_Automatic_Traveler_System
             throw new NotImplementedException();
         }
 
-        public async override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        public async override Task<string> ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
-            Bill.Import(MAS);
+            return Bill.Import(MAS);
         }
         public virtual bool HasDrawing()
         {

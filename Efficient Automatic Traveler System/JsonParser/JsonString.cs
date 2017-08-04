@@ -18,6 +18,7 @@ namespace Efficient_Automatic_Traveler_System
             char ch = ' ';
             while (json.Get(ref ch)) {
                 Value = (Value as string) + ch;
+                
                 if ((Value as string).Length > 1 && ch == '"') break;
             }
         }

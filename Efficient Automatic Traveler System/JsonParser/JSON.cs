@@ -98,8 +98,17 @@ namespace Efficient_Automatic_Traveler_System
                         case '{': return new JsonObject(ref json);
                         case '[': return new JsonArray(ref json);
                         case '"': json.PutBack(); return new JsonString(ref json);
-                        case '/': GetCommentScope(ref json); continue;
+                        case '/':
+                            if (json.Get(ref ch) && ch == '/')
+                            {
+                                GetCommentScope(ref json); continue;
+                            } else
+                            {
+                                json.PutBack();
+                                goto default;
+                            }
                         default:
+                            
                             json.PutBack();
                             string primitive = GetPrimitiveScope(ref json);
                             int integer = 0;
@@ -175,8 +184,8 @@ namespace Efficient_Automatic_Traveler_System
                     {
                         case '}':
                         case ']':
-                        case ',':
-                        case '/': json.PutBack(); return primitive;
+                        case ',': json.PutBack(); return primitive;
+                        //case '/': break;
                         default: primitive += ch; break;
                     }
                 }

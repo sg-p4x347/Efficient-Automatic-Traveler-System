@@ -29,7 +29,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             return base.ExportTableRows(station);
         }
-        public override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        public override Task<string> ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
             return base.ImportInfo(travelerManager, orderManager,MAS);
         }

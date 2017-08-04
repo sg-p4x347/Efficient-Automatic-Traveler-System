@@ -58,7 +58,7 @@ namespace Efficient_Automatic_Traveler_System
             JsonObject obj = new JsonObject();
             foreach (KeyValuePair<T1, T2> pair in dictionary)
             {
-                (obj.Value as Dictionary<string, JSON>).Add(pair.Key.ToString(), JSON.Parse(pair.Value.ToString()));
+                (obj.Value as Dictionary<string, JSON>).Add(pair.Key.ToString(), pair.Value is string ? new JsonString(pair.Value.ToString()) : JSON.Parse(pair.Value.ToString()));
             }
             return obj;
         }

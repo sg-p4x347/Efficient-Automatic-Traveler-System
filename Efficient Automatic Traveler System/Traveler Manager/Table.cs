@@ -184,10 +184,11 @@ namespace Efficient_Automatic_Traveler_System
             obj.Add("Model", Bill.BillNo.Quotate());
             return obj.Stringify();
         }
-        public async override Task ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
+        public async override Task<string> ImportInfo(ITravelerManager travelerManager, IOrderManager orderManager, OdbcConnection MAS)
         {
+            string message = "";
             Bill = new Bill(Bill.BillNo, Bill.QuantityPerBill, Quantity);
-            Bill.Import(MAS);
+            message += Bill.Import(MAS);
             Bill.BillDesc = Regex.Replace(Bill.BillDesc,"TableTopAsm,", "", RegexOptions.IgnoreCase); // tabletopasm is pretty obvious and therefore extraneous
             Bill.BillDesc = Regex.Replace(Bill.BillDesc, "TableTop,", "", RegexOptions.IgnoreCase);
             //m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
@@ -206,6 +207,7 @@ namespace Efficient_Automatic_Traveler_System
             GetPackInfo(orderManager);
             // for work rates
             //FindComponents(Bill);
+            return message;
         }
         //public override void AdvanceItem(ushort ID, ITravelerManager travelerManager = null)
         //{
