@@ -235,12 +235,14 @@ namespace Efficient_Automatic_Traveler_System
             // this is Table pack station, print Table label on search submission
             if (Parent is Table)
             {
-
-                PrintLabel( LabelType.Table);
-                if (!CartonPrinted && !(Parent as Table).BulkPack())
+                if (Station.Type == "tablePack")
                 {
-                    PrintLabel(LabelType.Pack);
-                    CartonPrinted = true;
+                    PrintLabel(LabelType.Table);
+                    if (!CartonPrinted && !(Parent as Table).BulkPack())
+                    {
+                        PrintLabel(LabelType.Pack);
+                        CartonPrinted = true;
+                    }
                 }
                 else if (Station.Type == "contourEdgebander")
                 {

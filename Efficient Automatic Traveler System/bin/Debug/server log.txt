@@ -3,7 +3,7 @@ Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
 Client manager started
 
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/04/2017 @ 06:00
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/04/2017 @ 06:47
 
 EATS inventory loaded from backup
 Kanban Monitor loaded from backup
@@ -12,7 +12,152 @@ Users loaded from backup
 Connecting to MAS...Connecting to MAS...Connected
 > Updating in Online mode
 Loading orders from backup...Loading orders from backup...Finished
-Importing orders...Importing orders...Finished
+Importing orders...- 5038984 has invoiced
+- 5039503 has invoiced
+- 5039672 has invoiced
+- LB01313 has invoiced
+- LB01314 has invoiced
+- LB01317 has invoiced
+- LB01323 has invoiced
+- 5039828 has invoiced
+- LB01336 has invoiced
+- 5040064 has invoiced
+- 5040072 has invoiced
+- 5040124 has invoiced
+- 5040127 has invoiced
+- 5040215 has invoiced
+- 5040285 has invoiced
+- 5040303 has invoiced
+- 5040328 has invoiced
+- 5040333 has invoiced
+- 5040383 has invoiced
+- 5040393 has invoiced
+- 5040422 has invoiced
+- 5040426 has invoiced
+- 5040542 has invoiced
+- 5040595 has invoiced
+- 5040603 has invoiced
+- 5040625 has invoiced
+- 5040658 has invoiced
+- WM16277 has invoiced
+- WM16278 has invoiced
+- WM16279 has invoiced
+- WM16280 has invoiced
+- WM16281 has invoiced
+- WM16282 has invoiced
+- WM16283 has invoiced
+- WM16284 has invoiced
+- WM16285 has invoiced
+- WM16286 has invoiced
+- WM16297 has invoiced
+- WM16298 has invoiced
+- WM16299 has invoiced
+- WM16300 has invoiced
+- WM16301 has invoiced
+- WM16302 has invoiced
+- WM16303 has invoiced
+- WM16304 has invoiced
+- WM16305 has invoiced
+- WM16306 has invoiced
+- WM16307 has invoiced
+- PC35654 has invoiced
+- PC35655 has invoiced
+- PC35656 has invoiced
+- PC35657 has invoiced
+- PC35658 has invoiced
+- PC35659 has invoiced
+- PC35660 has invoiced
+- PC35661 has invoiced
+- PC35662 has invoiced
+- PC35663 has invoiced
+- PC35664 has invoiced
+- PC35665 has invoiced
+- PC35666 has invoiced
+- PC35667 has invoiced
+- PC35668 has invoiced
+- PC35669 has invoiced
+- PC35670 has invoiced
+- PC35671 has invoiced
+- PC35672 has invoiced
+- PC35673 has invoiced
+- PC35674 has invoiced
+- PC35675 has invoiced
+- PC35676 has invoiced
+- PC35677 has invoiced
+- PC35678 has invoiced
+- PC35679 has invoiced
+- PC35680 has invoiced
+- 5040804 has invoiced
+- 5040805 has invoiced
+- 5040806 has invoiced
+- 5040807 has invoiced
+- 5040808 has invoiced
+- 5040818 has invoiced
+- 5040819 has invoiced
+- 5040820 has invoiced
+- 5040821 has invoiced
+- 5040822 has invoiced
+- 5040823 has invoiced
+- 5040824 has invoiced
+- 5040825 has invoiced
+- 5040826 has invoiced
+- 5040827 has invoiced
+- 5040828 has invoiced
+- 5040829 has invoiced
+- 5040830 has invoiced
+- 5040831 has invoiced
+- 5040832 has invoiced
+- 5040833 has invoiced
+- 5040834 has invoiced
+- 5040835 has invoiced
+- 5040836 has invoiced
+- 5040837 has invoiced
+- 5040838 has invoiced
+- 5040839 has invoiced
+- 5040840 has invoiced
+- 5040841 has invoiced
+- 5040842 has invoiced
+- FS06676 has invoiced
+- FS06677 has invoiced
+- PC35681 has invoiced
+- PC35682 has invoiced
+- PC35683 has invoiced
+- PC35684 has invoiced
+- PC35685 has invoiced
+- PC35686 has invoiced
+- PC35687 has invoiced
+- PC35688 has invoiced
+- PC35689 has invoiced
+- PC35690 has invoiced
+- PC35691 has invoiced
+- PC35692 has invoiced
+- PC35693 has invoiced
+- PC35694 has invoiced
+- PC35695 has invoiced
+- PC35696 has invoiced
+- PC35697 has invoiced
+- PC35698 has invoiced
+- PC35699 has invoiced
+- PC35700 has invoiced
+- PC35701 has invoiced
+- PC35702 has invoiced
+- PC35703 has invoiced
+- PC35704 has invoiced
+- PC35705 has invoiced
+- PC35706 has invoiced
+- PC35707 has invoiced
+- PC35708 has invoiced
+- PC35709 has invoiced
+- PC35710 has invoiced
+- PC35711 has invoiced
+- PC35712 has invoiced
+- PC35713 has invoiced
+- PC35714 has invoiced
+- PC35715 has invoiced
+- PC35716 has invoiced
+- PC35717 has invoiced
+- 5040847 has invoiced
+Importing orders...Finished
 Loading travelers from backup...Loading travelers from backup...Finished
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
@@ -271,53 +416,9 @@ Users loaded from backup
 	- InProcess
 	* - 9-283862 ; Not finished before today and has orders, but not all parent travelers are finished
 	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155740 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155748 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155752 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
+	- Efficient_Automatic_Traveler_System.TableBox
 	- Finished
-	* - 9-155753 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- Finished
-	* - 9-155756 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155758 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155763 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155764 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155765 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155766 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155767 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155769 ; Not finished before today and has no orders
+X - 155724 ; Finished before today
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- Finished
@@ -358,10 +459,6 @@ Users loaded from backup
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
 	* - 9-155785 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155786 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
@@ -408,12 +505,12 @@ Users loaded from backup
 	* - 9-155807 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155808 ; Not finished before today and has no orders
+	- Finished
+X - 9-155808 ; Finished before today
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155809 ; Not finished before today and has no orders
+	- Finished
+X - 9-155809 ; Finished before today
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
@@ -422,6 +519,10 @@ Users loaded from backup
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
 	* - 9-155811 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- Finished
+X - 9-155812 ; Finished before today
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
@@ -448,16 +549,16 @@ Users loaded from backup
 	* - 9-155823 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155824 ; Not finished before today and has no orders
+	- Finished
+X - 9-155824 ; Finished before today
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
 	* - 9-155825 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- InProcess
-	* - 9-155826 ; Not finished before today and has no orders
+	- Finished
+X - 9-155826 ; Finished before today
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
 	- InProcess
@@ -548,8 +649,52 @@ Users loaded from backup
 	* - 9-155848 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155849 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155850 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155851 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155852 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155853 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155854 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155855 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155856 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155857 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155858 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
 	* - 155859 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155860 ; Finished before today
 	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
 	- Finished
@@ -562,14 +707,6 @@ Users loaded from backup
 	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
 	* - 155874 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- Finished
-	* - 155875 ; Not finished before today and has no orders
-	----------------
-	- Efficient_Automatic_Traveler_System.TableBox
-	- Finished
-	* - 155876 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
 	- Finished
@@ -616,6 +753,22 @@ Users loaded from backup
 	* - 155909 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155913 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- Finished
+X - 9-155914 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- Finished
+X - 9-155915 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155916 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
 	- InProcess
 	* - 155917 ; Not finished before today and has no orders
 	----------------
@@ -623,139 +776,243 @@ Users loaded from backup
 	- InProcess
 	* - 9-155918 ; Not finished before today and has no orders
 	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155920 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155923 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155727 ; Finished before today
+	----------------
+	- Efficient_Automatic_Traveler_System.TableBox
+	- Finished
+X - 155728 ; Finished before today
+	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155729 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155730 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155731 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155732 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155733 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155734 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155735 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155736 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
+	- InProcess
 	* - 9-155737 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155738 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155762 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155739 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155763 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155740 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155764 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155741 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155765 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155742 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155766 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155743 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155767 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155744 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155768 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155745 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155769 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155746 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155770 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155747 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155771 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155748 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155772 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155749 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155773 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155750 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155774 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155751 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155775 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155752 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155776 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155753 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155777 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155754 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155778 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155755 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155779 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155756 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155780 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155757 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155781 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155758 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155782 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155759 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155783 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155760 ; Not finished before today and has no orders
+	- InProcess
+	* - 9-155784 ; Not finished before today and has no orders
 	----------------
 	- Efficient_Automatic_Traveler_System.Table
-	- PreProcess
-	* - 9-155761 ; Not finished before today and has no orders
-Gathering Info...1%Gathering Info...1%Gathering Info...2%Gathering Info...2%Gathering Info...3%Gathering Info...3%Gathering Info...4%Gathering Info...4%Gathering Info...5%Gathering Info...5%Gathering Info...6%Gathering Info...6%Gathering Info...7%Gathering Info...8%Gathering Info...8%Gathering Info...9%Gathering Info...9%Gathering Info...10%Gathering Info...10%Gathering Info...11%Gathering Info...11%Gathering Info...12%Gathering Info...12%Gathering Info...13%Gathering Info...14%Gathering Info...14%Gathering Info...15%Gathering Info...15%Gathering Info...16%Gathering Info...16%Gathering Info...17%Gathering Info...17%Gathering Info...18%Gathering Info...18%Gathering Info...19%Gathering Info...19%Gathering Info...20%Gathering Info...21%Gathering Info...21%Gathering Info...22%Gathering Info...22%Gathering Info...23%Gathering Info...23%Gathering Info...24%Gathering Info...24%Gathering Info...25%Gathering Info...25%Gathering Info...26%Gathering Info...26%Gathering Info...27%Gathering Info...28%Gathering Info...28%Gathering Info...29%Gathering Info...29%Gathering Info...30%Gathering Info...30%Gathering Info...31%Gathering Info...31%Gathering Info...32%Gathering Info...32%Gathering Info...33%Gathering Info...34%Gathering Info...34%Gathering Info...35%Gathering Info...35%Gathering Info...36%Gathering Info...36%Gathering Info...37%Gathering Info...37%Gathering Info...38%Gathering Info...38%Gathering Info...39%Gathering Info...39%Gathering Info...40%Gathering Info...41%Gathering Info...41%Gathering Info...42%Gathering Info...42%Gathering Info...43%Gathering Info...43%Gathering Info...44%Gathering Info...44%Gathering Info...45%Gathering Info...45%Gathering Info...46%Gathering Info...46%Gathering Info...47%Gathering Info...48%Gathering Info...48%Gathering Info...49%Gathering Info...49%Gathering Info...50%Gathering Info...50%Gathering Info...51%Gathering Info...51%Gathering Info...52%Gathering Info...52%Gathering Info...53%Gathering Info...54%Gathering Info...54%Gathering Info...55%Gathering Info...55%Gathering Info...56%Gathering Info...56%Gathering Info...57%Gathering Info...57%Gathering Info...58%Gathering Info...58%Gathering Info...59%Gathering Info...59%Gathering Info...60%Gathering Info...61%Gathering Info...61%Gathering Info...62%Gathering Info...62%Gathering Info...63%Gathering Info...63%Gathering Info...64%Gathering Info...64%Gathering Info...65%Gathering Info...65%Gathering Info...66%Gathering Info...66%Gathering Info...67%Gathering Info...68%Gathering Info...68%Gathering Info...69%Gathering Info...69%Gathering Info...70%Gathering Info...70%Gathering Info...71%Gathering Info...71%Gathering Info...72%Gathering Info...72%Gathering Info...73%Gathering Info...74%Gathering Info...74%Gathering Info...75%Gathering Info...75%Gathering Info...76%Gathering Info...76%Gathering Info...77%Gathering Info...77%Gathering Info...78%Gathering Info...78%Gathering Info...79%Gathering Info...79%Gathering Info...80%Gathering Info...81%Gathering Info...81%Gathering Info...82%Gathering Info...82%Gathering Info...83%Gathering Info...83%Gathering Info...84%Gathering Info...84%Gathering Info...85%Gathering Info...85%Gathering Info...86%Gathering Info...86%Gathering Info...87%Gathering Info...88%Gathering Info...88%Gathering Info...89%Gathering Info...89%Gathering Info...90%Gathering Info...90%Gathering Info...91%Gathering Info...91%Gathering Info...92%Gathering Info...92%Gathering Info...93%Gathering Info...94%Gathering Info...94%Gathering Info...95%Gathering Info...95%Gathering Info...96%Gathering Info...96%Gathering Info...97%Gathering Info...97%Gathering Info...98%Gathering Info...98%Gathering Info...99%Gathering Info...99%Gathering Info...100%Gathering Info...Finished
-Disconnected from MAS
-
-<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
-
+	- InProcess
+	* - 9-155785 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155786 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155787 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155788 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155789 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155790 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155791 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155792 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155793 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155794 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155795 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155796 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155797 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155798 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155799 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155800 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155801 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155802 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155803 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155804 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155805 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155806 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155807 ; Not finished before today and has no orders
+	----------------
+	- Efficient_Automatic_Traveler_System.Table
+	- InProcess
+	* - 9-155808 ; Not finished before today and has no orders
+Gathering Info...1%Gathering Info...1%Gathering Info...2%Gathering Info...2%Gathering Info...3%Gathering Info...3%Gathering Info...4%Gathering Info...4%Gathering Info...5%Gathering Info...5%Gathering Info...6%Gathering Info...6%Gathering Info...7%Gathering Info...7%Gathering Info...8%Gathering Info...8%Gathering Info...9%Gathering Info...10%Gathering Info...10%Gathering Info...11%Gathering Info...11%Gathering Info...12%Gathering Info...12%Gathering Info...13%Gathering Info...13%Gathering Info...14%Gathering Info...14%Gathering Info...15%Gathering Info...15%Gathering Info...16%Gathering Info...16%Gathering Info...17%Gathering Info...17%Gathering Info...18%Gathering Info...19%Gathering Info...19%Gathering Info...20%Gathering Info...20%Gathering Info...21%Gathering Info...21%Gathering Info...22%Gathering Info...22%Gathering Info...23%Gathering Info...23%Gathering Info...24%Gathering Info...24%Gathering Info...25%Gathering Info...25%Gathering Info...26%Gathering Info...26%Gathering Info...27%Gathering Info...28%Gathering Info...28%Gathering Info...29%Gathering Info...29%Gathering Info...30%Gathering Info...30%Gathering Info...31%Gathering Info...31%Gathering Info...32%Gathering Info...32%Gathering Info...33%Gathering Info...33%Gathering Info...34%Gathering Info...34%Gathering Info...35%Gathering Info...35%Gathering Info...36%Gathering Info...37%Gathering Info...37%Gathering Info...38%Gathering Info...38%Gathering Info...39%Gathering Info...39%Gathering Info...40%Gathering Info...40%Gathering Info...41%Gathering Info...41%Gathering Info...42%Gathering Info...42%Gathering Info...43%Gathering Info...43%Gathering Info...44%Gathering Info...44%Gathering Info...45%Gathering Info...46%Gathering Info...46%Gathering Info...47%Gathering Info...47%Gathering Info...48%Gathering Info...48%Gathering Info...49%Gathering Info...49%Gathering Info...50%Gathering Info...50%Gathering Info...51%Gathering Info...51%Gathering Info...52%Gathering Info...52%Gathering Info...53%Gathering Info...53%Gathering Info...54%Gathering Info...54%Gathering Info...55%Gathering Info...56%Gathering Info...56%Gathering Info...57%Gathering Info...57%Gathering Info...58%Gathering Info...58%Gathering Info...59%Gathering Info...59%Gathering Info...60%Gathering Info...60%Gathering Info...61%Gathering Info...61%Gathering Info...62%Gathering Info...62%Gathering Info...63%Gathering Info...63%Gathering Info...64%Gathering Info...65%Gathering Info...65%Gathering Info...66%Gathering Info...66%Gathering Info...67%Gathering Info...67%Gathering Info...68%Gathering Info...68%Gathering Info...69%Gathering Info...69%Gathering Info...70%Gathering Info...70%Gathering Info...71%Gathering Info...71%Gathering Info...72%Gathering Info...72%Gathering Info...73%Gathering Info...74%Gathering Info...74%Gathering Info...75%Gathering Info...75%Gathering Info...76%Gathering Info...76%Gathering Info...77%Gathering Info...77%Gathering Info...78%Gathering Info...78%Gathering Info...79%Gathering Info...79%Gathering Info...80%Gathering Info...80%Gathering Info...81%Gathering Info...81%Gathering Info...82%Gathering Info...83%Gathering Info...83%Gathering Info...84%Gathering Info...84%Gathering Info...85%Gathering Info...85%Gathering Info...86%Gathering Info...86%Gathering Info...87%Gathering Info...87%Gathering Info...88%Gathering Info...88%Gathering Info...89%Gathering Info...89%Gathering Info...90%Gathering Info...90%Gathering Info...91%Gathering Info...92%Gathering Info...92%Gathering Info...93%Gathering Info...93%Gathering Info...94%Gathering Info...94%Gathering Info...95%Gathering Info...95%Gathering Info...96%Gathering Info...96%Gathering Info...97%Gathering Info...97%Gathering Info...98%Gathering Info...98%Gathering Info...99%Gathering Info...99%Gathering Info...100%Gathering Info...Finished
