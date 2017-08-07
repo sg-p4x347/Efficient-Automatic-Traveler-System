@@ -862,6 +862,8 @@ namespace Efficient_Automatic_Traveler_System
                     form.Selection("reason", "Reason", reasons.ToList());
                     form.Checkbox("startedWork", "Started Work", false);
                     form.Textbox("comment", "Comment");
+
+                    form.Rule("reason", "OTHER", "comment", "", "Please explain in the comment box", false, true);
                     return form.Dispatch("FlagItem");
                 }
                 return new ClientMessage("Info", "Selected item was null");

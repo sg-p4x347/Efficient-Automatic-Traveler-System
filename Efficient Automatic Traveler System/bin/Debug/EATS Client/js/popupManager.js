@@ -118,6 +118,8 @@ function PopupManager(blackout) {
 			ClearChildren(element);
 		}
 		var popup = self.CreatePopup(format.name,true);
+		var messageBox = self.CreateP("");
+		popup.appendChild(messageBox);
 		var inputs = [];
 		var radios = {};
 		format.fields.forEach(function (field) {
@@ -223,18 +225,21 @@ function PopupManager(blackout) {
 			}
 		});
 		
+		
+		
 		if (element == undefined) {
 			var submit = self.CreateButton("Submit");
 			submit.onclick = function () {
-				self.SubmitForm(format,inputs,submitCallback);
-				self.Close(popup);
+				var message = self.SubmitForm(format,inputs,submitCallback); 
+				messageBox.innerHTML = message;
+				if (!message || message == "") self.Close(popup);
 			}
 			popup.appendChild(submit);
 			self.Open(popup);
 		} else {
 			inputs.forEach(function (input,i) {
 				inputs[i].onchange = function () {
-					self.SubmitForm(format,inputs,submitCallback);
+					messageBox.innerHTML = self.SubmitForm(format,inputs,submitCallback);
 				}
 			});
 			// submit form to initialize
@@ -245,7 +250,31 @@ function PopupManager(blackout) {
 		var fileExists = false;
 		var done = false;
 		var self = this;
+		
+		var message = "";
+		format.rules.forEach(function (rule) {
+			format.fields.forEach(function (fieldOne,i) {
+				if (format.fields[i].name == rule.fieldOne
+				&& ((!rule.negateOne && inputs[i].value == rule.fieldOneValue) || (rule.negateOne && inputs[i].value != rule.fieldOneValue))) {
+					format.fields.forEach(function (fieldTwo,j) {
+						if (format.fields[j].name == rule.fieldTwo) {
+							if ((!rule.negateTwo && inputs[j].value == rule.fieldTwoValue) || (rule.negateTwo && inputs[j].value != rule.fieldTwoValue)) {
+								// good
+							} else {
+								// bad
+								message = rule.message;
+							}
+						}
+					});
+				}
+			});
+		});
+		done:
+		if (message && message != "") {
+			return message;
+		}
 		format.fields.forEach(function (field,i) {
+			
 			if (inputs[i].type != "checkbox") {
 				if (inputs[i].type != "file") {
 					format.fields[i].value = inputs[i].value;
@@ -270,6 +299,7 @@ function PopupManager(blackout) {
 		if (!fileExists) {		
 			submitCallback(format);
 		}
+		return "";
 	}
 	// displays a search box; calls a callback with the search phrase
 	this.Search = function (message,callback) {

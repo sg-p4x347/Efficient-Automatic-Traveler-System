@@ -14,6 +14,7 @@ namespace Efficient_Automatic_Traveler_System
             m_title = "";
             m_source = "";
             m_fields = new List<string>();
+            m_rules = new List<string>();
             ID = "";
         }
         public Form(string json)
@@ -47,6 +48,20 @@ namespace Efficient_Automatic_Traveler_System
                 Server.LogException(ex);
             }
         }
+        public void Rule(string fieldOne, string fieldOneValue, string fieldTwo, string fieldTwoValue, string message, bool negateOne = false, bool negateTwo = false)
+        {
+            JsonObject obj = new JsonObject()
+            {
+                {"fieldOne",fieldOne },
+                {"fieldOneValue",fieldOneValue },
+                {"fieldTwo",fieldTwo },
+                {"fieldTwoValue",fieldTwoValue },
+                {"message",message },
+                {"negateOne",negateOne },
+                {"negateTwo",negateTwo }
+            };
+            m_rules.Add(obj);
+        }
         public virtual Dictionary<string, Node> ExportViewProperties()
         {
             Dictionary<string, Node> list = new Dictionary<string, Node>();
@@ -62,6 +77,7 @@ namespace Efficient_Automatic_Traveler_System
             Dictionary<string, string> obj = new Dictionary<string, string>() {
                 {"name",m_title.Quotate() },
                 {"fields",m_fields.Stringify(false) },
+                {"rules",m_rules.Stringify(false) },
                 {"id",ID.Quotate() }
             };
             return obj.Stringify();
@@ -198,6 +214,7 @@ namespace Efficient_Automatic_Traveler_System
         #region Properties
         private string m_title;
         private List<string> m_fields;
+        private List<string> m_rules;
         private string m_source;
         private string m_id;
         public string Name

@@ -1,6 +1,3 @@
 Enter production for these items prior to scrapping them
 "Item ID","ItemCode","User","Station","Date","Started Work","Source","Reason"
-"93586-4","MG2230-54","Gage Coates","Finished","07/27/2017","Yes","Vendor",""
-"144176-1","38-2284-78U","Gage Coates","Heian1","07/27/2017","No","Vendor","LOST VACUUM"
-"144641-75","38-2256-50U","Gage Coates","Scrapped","07/27/2017","No","production","MACHINE DAMAGE"
-"154589-3","MG2238-82","Gage Coates","Vector","07/27/2017","No","production",""
+"9-155848-Scrap #1","MG2265-52","Gage Coates","Assembly","08/07/2017","No","Vendor","MATERIAL HANDLING"
