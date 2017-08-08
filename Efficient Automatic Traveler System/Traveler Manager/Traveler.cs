@@ -465,6 +465,13 @@ namespace Efficient_Automatic_Traveler_System
 
             return newItem;
         }
+        public TravelerItem CreateItem(ushort itemID,StationClass station)
+        {
+            TravelerItem newItem = new TravelerItem(ItemCode, itemID, itemID, station, false);
+            newItem.Parent = this;
+            Items.Add(newItem);
+            return newItem;
+        }
         public void Finish()
         {
             State = GlobalItemState.Finished;

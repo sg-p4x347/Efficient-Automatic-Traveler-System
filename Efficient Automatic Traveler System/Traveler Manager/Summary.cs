@@ -277,24 +277,31 @@ namespace Efficient_Automatic_Traveler_System
 
             summary.Columns.Add(new DataColumn("ItemCode"));
             summary.Columns.Add(new DataColumn("Quantity"));
-            summary.Columns.Add(new DataColumn("Edgebander"));
             summary.Columns.Add(new DataColumn("Date"));
             summary.Columns.Add(new DataColumn("Travelers"));
+            summary.Columns.Add(new DataColumn("Items"));
+            foreach (StationClass station in StationClass.GetStations().Where(s => s.Type == stationType))
+            {
+                summary.Columns.Add(new DataColumn(station.Name));
+            }
             foreach (string itemCode in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ItemCode).Distinct())
             {
-                foreach (StationClass station in StationClass.GetStations().Where(s => s.Type == stationType)) {
-                    int qty = Server.TravelerManager.GetTravelers.Where(t =>
-                        t.ItemCode == itemCode).Sum(t => t.Items.Count(i => i.BeenCompletedDuring(DateTime.Today) && i.History.OfType<ProcessEvent>().Where(e => e.Process == ProcessType.Completed && e.Station.Type == stationType).Any() && i.History.OfType<ProcessEvent>().Where(e => e.Process == ProcessType.Completed && e.Station.Type == stationType).Last().Station == station));
-                    if (qty > 0) {
-                        DataRow row = summary.NewRow();
-                        row["ItemCode"] = itemCode;
-                        row["Quantity"] = qty;
-                        row["Edgebander"] = station.Name;
-                        row["Date"] = DateTime.Today.ToString("MM/dd/yyyy");
-                        row["Travelers"] = Server.TravelerManager.GetTravelers.Where(t =>
-                        t.ItemCode == itemCode && t.Items.Exists(i => i.BeenCompletedDuring(DateTime.Today) && i.History.OfType<ProcessEvent>().ToList().Exists(e => e.Process == ProcessType.Completed && e.Station == station))).Select(t => t.PrintID()).ToList().Aggregate((i,j) => i + ' ' + j);
-                        summary.Rows.Add(row);
+                List<TravelerItem> items = Server.TravelerManager.GetTravelers.Where(t => t.ItemCode == itemCode).SelectMany(t => t.Items.Where(i => i.BeenCompletedDuring(DateTime.Today))).ToList();
+                if (items.Any())
+                {
+                    DataRow row = summary.NewRow();
+                    row["ItemCode"] = itemCode;
+
+                    row["Quantity"] = items.Count;
+                    row["Date"] = DateTime.Today.ToString("MM/dd/yyyy");
+                    row["Travelers"] = items.Select(t => t.Parent.PrintID()).Distinct().ToList().Aggregate((i, j) => i + ' ' + j);
+                    row["Items"] = items.GroupBy(i => i.Parent.ID).SelectMany(g => g.Select(i => i.SequenceNo.ToString())).Aggregate((i, j) => i + '|' + j);
+                    foreach (StationClass station in StationClass.GetStations().Where(s => s.Type == stationType))
+                    {
+                        row[station.Name] = items.Count(i => i.History.OfType<ProcessEvent>().Any(e => e.Station.Type == stationType && e.Process == ProcessType.Completed)
+                        && i.History.OfType<ProcessEvent>().Where(e => e.Station.Type == stationType && e.Process == ProcessType.Completed).Last().Station == station);
                     }
+                    summary.Rows.Add(row);
                 }
             }
             File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "production.csv"), summary.ToCSV());

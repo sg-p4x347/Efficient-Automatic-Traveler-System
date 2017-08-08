@@ -790,16 +790,31 @@ namespace Efficient_Automatic_Traveler_System
                     Traveler traveler;
                     if (obj.ContainsKey("travelerID") && int.TryParse(obj["travelerID"],out travelerID) && Server.TravelerManager.FindTraveler(travelerID,out traveler))
                     {
-                        ushort itemID;
-                        TravelerItem item;
-                        if (obj.ContainsKey("itemID") && ushort.TryParse(obj["itemID"], out itemID) && traveler.FindItem(itemID, out item))
+                        if (obj.ContainsKey("itemID"))
                         {
-                            SearchItem(item);
-                        }
-                        else
+                            ushort itemID;
+                            TravelerItem item;
+                            if (ushort.TryParse(obj["itemID"], out itemID) && traveler.FindItem(itemID, out item))
+                            {
+                                SearchItem(item);
+                            }
+                            else
+                            {
+                                // Create the item ( data repair )
+                                if (this is OperatorClient && itemID != 0)
+                                {
+
+                                    item = traveler.CreateItem(itemID, (this as OperatorClient).Station);
+                                    SearchItem(item);
+                                } else
+                                {
+                                    SearchTraveler(traveler);
+                                }
+                                //if (itemID > 0) return new ClientMessage("Info", traveler.PrintID() + "-" + obj["itemID"] + " could not be found");
+                            }
+                        } else
                         {
                             SearchTraveler(traveler);
-                            //if (itemID > 0) return new ClientMessage("Info", traveler.PrintID() + "-" + obj["itemID"] + " could not be found");
                         }
                     }
                     else
@@ -1039,6 +1054,7 @@ namespace Efficient_Automatic_Traveler_System
             Form form = new Form();
             form.Title = "Scrap";
             form.Selection("user", "Who done it?", Server.UserManager.Users.Select(u => u.Name).ToList(),m_user.Name);
+            form.Selection("printer", "Printer", ((JsonArray)JSON.Parse(ConfigManager.Get("printers"))).ToList());
             return form.Dispatch("ScrapItem");
         }
         public async Task<ClientMessage> ScrapItem(string json)
@@ -1049,7 +1065,7 @@ namespace Efficient_Automatic_Traveler_System
 
                 if (SelectedItem != null)
                 {
-                    return new ClientMessage("Info",(string)(await SelectedItem.Scrap(Server.UserManager.Find(form.ValueOf("user")))));
+                    return new ClientMessage("Info",(string)(await SelectedItem.Scrap(Server.UserManager.Find(form.ValueOf("user")),form.ValueOf("printer"))));
                 }
                 return new ClientMessage("Info","Selected item was null");
             }

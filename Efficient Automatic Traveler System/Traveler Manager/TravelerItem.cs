@@ -323,7 +323,7 @@ namespace Efficient_Automatic_Traveler_System
                 default: return GlobalState.ToString();
             }
         }
-        public Task<string> Scrap(User user)
+        public Task<string> Scrap(User user,string printer = "")
         {
             LocalState = LocalItemState.PostProcess;
             GlobalState = GlobalItemState.Scrapped;
@@ -351,7 +351,7 @@ namespace Efficient_Automatic_Traveler_System
                 
                 Server.TravelerManager.OnTravelersChanged(Parent);
                 // print le label
-                return PrintLabel( LabelType.Scrap);
+                return PrintLabel( LabelType.Scrap,printer: printer);
             } else
             {
                 return Task.FromResult("Flag event could not be found");
@@ -579,7 +579,7 @@ namespace Efficient_Automatic_Traveler_System
         }
         public bool BeenCompletedDuring(DateTime date)
         {
-            return History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish && e.Date.Day == date.Date.Day);
+            return Finished && History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish && e.Date.Day == date.Date.Day);
         }
         // returns true if the item was completed at the station on the given date
         public bool BeenCompletedAtDuring(StationClass station ,DateTime date)

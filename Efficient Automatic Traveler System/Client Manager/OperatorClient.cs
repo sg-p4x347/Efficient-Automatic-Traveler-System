@@ -727,28 +727,40 @@ namespace Efficient_Automatic_Traveler_System
                 // TEMP *true* allows all items to be worked on at this station
                 else if (true || item.PendingAt(CurrentStation) || item.InProcessAt(CurrentStation))
                 {
-                    if (!item.Started(CurrentStation))
+                    if (CurrentStation.Type == "tablePack")
                     {
-                        // ***************************************************
-                        // First scan starts work and moves to InProcess queue
-                        // ***************************************************
-
-                        // add a flag event
-                        item.Start(m_user, CurrentStation);
-                    }
-                    else if (SelectedItem != item)
-                    {
-                        // ******************************
-                        // Second scan loads the item
-                        // ******************************
-                        LoadItem(item);
+                        if (!item.Started(CurrentStation))
+                        {
+                            item.Start(m_user, CurrentStation);
+                        }
+                        item.Complete(m_user, CurrentStation);
+                            DeselectItem();
                     }
                     else
                     {
-                        // ******************************
-                        // Third scan Completes the item
-                        // ******************************
-                        CompleteItem();
+                        if (!item.Started(CurrentStation))
+                        {
+                            // ***************************************************
+                            // First scan starts work and moves to InProcess queue
+                            // ***************************************************
+
+                            // add a flag event
+                            item.Start(m_user, CurrentStation);
+                        }
+                        else if (SelectedItem != item)
+                        {
+                            // ******************************
+                            // Second scan loads the item
+                            // ******************************
+                            LoadItem(item);
+                        }
+                        else
+                        {
+                            // ******************************
+                            // Third scan Completes the item
+                            // ******************************
+                            CompleteItem();
+                        }
                     }
                 }
                 else
