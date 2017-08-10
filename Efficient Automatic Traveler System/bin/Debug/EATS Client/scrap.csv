@@ -1,3 +1,5 @@
 Enter production for these items prior to scrapping them
 "Item ID","ItemCode","User","Station","Date","Started Work","Source","Reason"
-"9-155848-Scrap #1","MG2265-52","Gage Coates","Assembly","08/07/2017","No","Vendor","MATERIAL HANDLING"
+"9-160045-Scrap #1","MG2266-62","greg vincent","Vector","08/10/2017","No","Vendor","DISCOLOR"
+"9-160047-Scrap #1","MG2226-49","greg vincent","Vector","08/10/2017","No","Vendor","SCRATCHES/DENTS/CHIPS"
+"9-155838-Scrap #1","38-2227-77","greg vincent","Vector","08/10/2017","No","Marco Group","OPERATOR ERROR"

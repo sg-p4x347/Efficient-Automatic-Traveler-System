@@ -291,36 +291,7 @@ namespace Efficient_Automatic_Traveler_System
         //    }
         //}
         
-        public void NotifyShipDates()
-        {
-            string message = "";
-            bool notify = false;
-            TimeSpan notifyWithin  = new TimeSpan(3, 0, 0, 0);
-
-            foreach (Order order in m_orders)
-            {
-                TimeSpan timeUntil = order.ShipDate - DateTime.Today;
-                if (timeUntil < notifyWithin)
-                {
-                    
-                    message += order.SalesOrderNo + "\tShips in " + timeUntil.Days + " days : " + order.ShipDate.ToString("MM/dd/yyyy") + Environment.NewLine;
-                    List<OrderItem> travelerItems = order.Items.Where(i => i.ChildTraveler != -1).ToList();
-                    if (travelerItems.Count > 0) {
-                        notify = true;
-                        message += "\tTravelers:" + Environment.NewLine;
-                        foreach (OrderItem item in travelerItems)
-                        {
-                            message += "\t\t" + item.ChildTraveler.ToString() + "\t; " + item.ItemCode + "\t; " + item.QtyNeeded + " need to ship" + Environment.NewLine;
-                        }
-                    }
-                    message += "".PadLeft(50, '_') + Environment.NewLine;
-                }
-            }
-            if (notify)
-            {
-                Server.NotificationManager.PushNotification("Close Ship Dates", message);
-            }
-        }
+       
         // remove this order's ability to influnce travelers
         public void RemoveOrder(Order order)
         {

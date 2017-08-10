@@ -92,7 +92,10 @@ namespace Efficient_Automatic_Traveler_System
             {
                 TravelerItem itemObj = new TravelerItem(item);
                 itemObj.Parent = this;
-                Items.Add(itemObj);
+                if (itemObj.ID > 0)
+                {
+                    Items.Add(itemObj);
+                }
             }
             ParentOrderNums = (new StringStream(obj["parentOrders"])).ParseJSONarray();
             foreach (string id in (new StringStream(obj["parentTravelers"])).ParseJSONarray())
@@ -483,7 +486,7 @@ namespace Efficient_Automatic_Traveler_System
             foreach (TravelerItem item in Items)
             {
                 DateTime d;
-                if (!(item.Scrapped || (item.DateFinished(out d) && d.Day >= date.Day)))
+                if (!(item.Scrapped || (item.DateFinished(out d) && d.Date >= date.Date)))
                 {
                     return false;
                 }

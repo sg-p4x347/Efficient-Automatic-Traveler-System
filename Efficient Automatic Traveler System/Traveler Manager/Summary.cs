@@ -23,7 +23,8 @@ namespace Efficient_Automatic_Traveler_System
         PartialProduction,
         Scrap,
         Traveler,
-        Rates
+        Rates,
+        Process
     }
     class Summary
     {
@@ -86,6 +87,7 @@ namespace Efficient_Automatic_Traveler_System
                 case SummaryType.Scrap: return ScrapCSV();
                 case SummaryType.Traveler: return MakeCSV();
                 case SummaryType.Rates: return RatesCSV();
+                case SummaryType.Process: return ProcessCSV();
                 default: return "";
             }
         }
@@ -96,14 +98,12 @@ namespace Efficient_Automatic_Traveler_System
             m_users = new List<User>();
             List<DateTime> datesDescending = new List<DateTime>(BackupManager.BackupDates);
             datesDescending.Sort((a, b) => b.CompareTo(a));
-            int indexA = datesDescending.IndexOf(datesDescending.First(d => d <= B));
-            int indexB = datesDescending.IndexOf(datesDescending.Last(d => d >= A));
-            for (int index = indexA; index < indexB; index++)
+            foreach (DateTime day in datesDescending.Where(d => d <= B && d >= A))
             {
                 try
                 {
-                    DateTime day = datesDescending[index];
-
+                  
+                    Server.WriteLine("Importing history from " + day.ToString("MM/dd/yyyy"));
                     OrderManager orderManager = new OrderManager();
                     orderManager.Import(day);
                     TravelerManager travelerManager = new TravelerManager(orderManager as IOrderManager);
@@ -337,6 +337,34 @@ namespace Efficient_Automatic_Traveler_System
 
             return webLocation;
         }
+        public string ProcessCSV()
+        {
+            //--------------------------------------------
+            string webLocation = "./process.csv";
+            DataTable summary = new DataTable();
+
+            summary.Columns.Add(new DataColumn("Date"));
+            List<StationClass> stations = StationClass.GetStations().Where(s => Travelers.Exists(t => t.Items.Exists(i => i.BeenWorkedOn(s)))).ToList();
+            foreach (StationClass station in stations)
+            {
+                summary.Columns.Add(new DataColumn(station.Name));
+            }
+            foreach (DateTime day in ExtensionMethods.DaysSince(End,Begin))
+            {
+                DataRow row = summary.NewRow();
+                row["Date"] = day.ToString("MM/dd/yyyy");
+
+                foreach (StationClass station in stations)
+                {
+                    row[station.Name] = Travelers.Sum(t => t.Items.Count(i => i.BeenCompletedAtDuring(station, day)));
+                }
+
+                summary.Rows.Add(row);
+            }
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "process.csv"), summary.ToCSV());
+
+            return webLocation;
+        }
         public static string HumanizeDictionary<Tkey,TValue>(Dictionary<Tkey,TValue> dictionary)
         {
             string result = "";
@@ -391,7 +419,7 @@ namespace Efficient_Automatic_Traveler_System
             foreach (TravelerItem item in Server.TravelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Scrapped)))
             {
                 ScrapEvent scrapEvent;
-                if (item.GetScrapEvent(out scrapEvent) && scrapEvent.Date.Day == date.Day)
+                if (item.GetScrapEvent(out scrapEvent) && scrapEvent.Date.Date == date.Date)
                 {
                     DataRow row = summary.NewRow();
                     row["Item ID"] = item.PrintID();

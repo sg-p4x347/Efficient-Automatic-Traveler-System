@@ -79,6 +79,7 @@ namespace Efficient_Automatic_Traveler_System
 
                 Update(); // immediately create travelers upon server start
                 UpdateTimer(); // start the update loop
+                NotificationTimer(); // start the notify loop
                 GetInputAsync(); // get console commands from the user
                 m_outputLog.Flush();
                 KanbanManager.Start();
@@ -314,6 +315,21 @@ namespace Efficient_Automatic_Traveler_System
                 UpdateTimer();
             }, null, timeToGo, Timeout.InfiniteTimeSpan);
         }
+        private void NotificationTimer()
+        {
+            DateTime current = DateTime.Now;
+            TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay + new TimeSpan(17,0,0);
+            if (timeToGo.Ticks < 0) timeToGo = timeToGo.Add(new TimeSpan(24, 0, 0));
+            m_timer = new System.Threading.Timer(x =>
+            {
+                Notify();
+                NotificationTimer();
+            }, null, timeToGo, Timeout.InfiniteTimeSpan);
+        }
+        public void Notify()
+        {
+            NotificationManager.PushSummary();
+        }
         private void Configure()
         {
             ConfigManager.Import();
@@ -354,7 +370,6 @@ namespace Efficient_Automatic_Traveler_System
             Server.WriteLine("> Updating in Online mode");
             // Import stored orders from json file and MAS
             m_orderManager.ImportOrders(ref m_MAS);
-            m_orderManager.NotifyShipDates();
 
             // import stored travelers
             m_travelerManager.Import();

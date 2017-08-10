@@ -579,12 +579,12 @@ namespace Efficient_Automatic_Traveler_System
         }
         public bool BeenCompletedDuring(DateTime date)
         {
-            return Finished && History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish && e.Date.Day == date.Date.Day);
+            return Finished && History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Finish && e.Date.Date == date.Date.Date);
         }
         // returns true if the item was completed at the station on the given date
         public bool BeenCompletedAtDuring(StationClass station ,DateTime date)
         {
-            return History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed && e.Date.Day == date.Date.Day);
+            return History.OfType<ProcessEvent>().ToList().Exists(e => e.Station == station && e.Process == ProcessType.Completed && e.Date.Date == date.Date.Date);
         }
         public bool CurrentFlagEvent(out Documentation flagEvent)
         {
@@ -608,7 +608,7 @@ namespace Efficient_Automatic_Traveler_System
         public bool ScrappedDuring(DateTime date)
         {
             ScrapEvent evt;
-            return (GetScrapEvent(out evt) && evt.Date.Day == date.Day);
+            return (GetScrapEvent(out evt) && evt.Date.Date == date.Date);
         }
         public bool GetScrapEvent(out ScrapEvent scrap)
         {
