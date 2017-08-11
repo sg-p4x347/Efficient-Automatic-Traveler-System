@@ -734,9 +734,12 @@ namespace Efficient_Automatic_Traveler_System
                             item.Start(m_user, CurrentStation);
                         }
                         item.Complete(m_user, CurrentStation);
-                            DeselectItem();
+                        DeselectItem();
                     }
-                    else
+                    else if (CurrentStation.Type == "virtual")
+                    {
+                        LoadItem(item);
+                    } else
                     {
                         if (!item.Started(CurrentStation))
                         {

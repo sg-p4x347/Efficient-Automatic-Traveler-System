@@ -295,7 +295,7 @@ namespace Efficient_Automatic_Traveler_System
                     row["Quantity"] = items.Count;
                     row["Date"] = DateTime.Today.ToString("MM/dd/yyyy");
                     row["Travelers"] = items.Select(t => t.Parent.PrintID()).Distinct().ToList().Aggregate((i, j) => i + ' ' + j);
-                    row["Items"] = items.GroupBy(i => i.Parent.ID).SelectMany(g => g.Select(i => i.SequenceNo.ToString())).Aggregate((i, j) => i + '|' + j);
+                    row["Items"] = items.GroupBy(i => i.Parent.ID).SelectMany(g => g.Select(i => (i.Replacement ? "R" : "") + i.SequenceNo.ToString())).Aggregate((i, j) => i + '|' + j);
                     foreach (StationClass station in StationClass.GetStations().Where(s => s.Type == stationType))
                     {
                         row[station.Name] = items.Count(i => i.History.OfType<ProcessEvent>().Any(e => e.Station.Type == stationType && e.Process == ProcessType.Completed)

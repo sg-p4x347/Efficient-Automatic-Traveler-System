@@ -228,67 +228,87 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Start(User user, StationClass station)
         {
-            LocalState = LocalItemState.InProcess;
-            GlobalState = GlobalItemState.InProcess;
-            Station = station;
-            History.Add(new ProcessEvent(user, station, 0, ProcessType.Started));
-            // this is Table pack station, print Table label on search submission
-            if (Parent is Table)
+            try
             {
-                if (Station.Type == "tablePack")
+                if (!Finished)
                 {
-                    PrintLabel(LabelType.Table);
-                    if (!CartonPrinted && !(Parent as Table).BulkPack())
+                    LocalState = LocalItemState.InProcess;
+                    GlobalState = GlobalItemState.InProcess;
+                    Station = station;
+                    History.Add(new ProcessEvent(user, station, 0, ProcessType.Started));
+                    // this is Table pack station, print Table label on search submission
+                    if (Parent is Table)
                     {
-                        PrintLabel(LabelType.Pack);
-                        CartonPrinted = true;
+                        if (Station.Type == "tablePack")
+                        {
+                            PrintLabel(LabelType.Table);
+                            if (!CartonPrinted && !(Parent as Table).BulkPack())
+                            {
+                                PrintLabel(LabelType.Pack);
+                                CartonPrinted = true;
+                            }
+                        }
+                        else if (Station.Type == "contourEdgebander")
+                        {
+                            (Parent as Table).CreateBoxTraveler();
+                        }
                     }
+                    Server.TravelerManager.OnTravelersChanged(Parent);
                 }
-                else if (Station.Type == "contourEdgebander")
-                {
-                    (Parent as Table).CreateBoxTraveler();
-                }
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
             }
-            Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public bool GetStartEvent(StationClass station, out ProcessEvent start)
         {
             start = null;
             if (History.OfType<ProcessEvent>().Any())
             {
-                start = History.OfType<ProcessEvent>().LastOrDefault(e => e.Process == ProcessType.Started);
-                if (start != null) return start.Station == station;
+                start = History.OfType<ProcessEvent>().ToList().Find(e => e.Station == station && e.Process == ProcessType.Started);
+                return start != null;
             }
             return false;
         }
         public void Complete(User user, StationClass station, double duration = 0.0)
         {
-            LocalState = LocalItemState.PostProcess;
-            if (Started(station))
+            try
             {
-                // remove the start event and add a completion process
-                ProcessEvent startEvent = History.OfType<ProcessEvent>().LastOrDefault(e => e.Process == ProcessType.Started && e.Station == station);
-                if (startEvent != null)
+                if (!Finished)
                 {
-                    TimeSpan timeSpan = DateTime.Now - startEvent.Date; // difference between start and now
+                    LocalState = LocalItemState.PostProcess;
+                    if (Started(station))
+                    {
+                        // remove the start event and add a completion process
+                        ProcessEvent startEvent;
 
-                    History.Add(new ProcessEvent(user, m_station, timeSpan.TotalMinutes, ProcessType.Completed));
-                    History.Remove(startEvent);
-                } else
-                {
-                    History.Add(new ProcessEvent(user, m_station, duration, ProcessType.Completed));
+                        if (GetStartEvent(station, out startEvent))
+                        {
+                            TimeSpan timeSpan = DateTime.Now - startEvent.Date; // difference between start and now
+
+                            History.Add(new ProcessEvent(user, m_station, timeSpan.TotalMinutes, ProcessType.Completed));
+                            History.Remove(startEvent);
+                        }
+                        else
+                        {
+                            History.Add(new ProcessEvent(user, m_station, duration, ProcessType.Completed));
+                        }
+                    }
+                    else
+                    {
+                        History.Add(new ProcessEvent(user, m_station, duration, ProcessType.Completed));
+                    }
+                    // Finish this item if this station is configured to finish the item
+                    if (station.Finishes(Parent))
+                    {
+                        Finish(user);
+                    }
+                    Server.TravelerManager.OnTravelersChanged(Parent);
                 }
-            }
-            else
+            } catch (Exception e)
             {
-                History.Add(new ProcessEvent(user, m_station, duration, ProcessType.Completed));
+                Server.LogException(e);
             }
-            // Finish this item if this station is configured to finish the item
-            if (station.Finishes(Parent))
-            {
-                Finish(user);
-            }
-            Server.TravelerManager.OnTravelersChanged(Parent);
         }
         public Style QueueStyle()
         {
