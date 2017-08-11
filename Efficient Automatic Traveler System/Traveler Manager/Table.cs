@@ -531,7 +531,7 @@ namespace Efficient_Automatic_Traveler_System
             Bill blank = Bill.ComponentBills.Find(b => b.BillNo == BlankNo);
             if (blank != null)
             {
-                BlankQuantity = (int)Math.Ceiling(blank.QuantityPerBill * Convert.ToDouble(Quantity));
+                BlankQuantity = (int)Math.Ceiling(Convert.ToDouble(Quantity) * blank.QuantityPerBill);
             }
             // open the table ref csv file
             string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);

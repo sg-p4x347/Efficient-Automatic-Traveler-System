@@ -148,6 +148,7 @@ namespace Efficient_Automatic_Traveler_System
                 // For this example, the userToken is a string constant.
                 string userState = "notification";
                 client.SendAsync(message, userState);
+                Server.WriteLine("- Notified " + subscriber.Address + Environment.NewLine);
                 //Console.WriteLine("Sending message... press c to cancel mail. Press any other key to exit.");
                 //string answer = Console.ReadLine();
                 // If the user canceled the send, and mail hasn't been sent yet,

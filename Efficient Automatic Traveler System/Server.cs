@@ -51,7 +51,6 @@ namespace Efficient_Automatic_Traveler_System
                 m_clientManager = new ClientManager(m_ip, m_port, m_travelerManager as ITravelerManager);
                 // Subscribe events
                 m_travelerManager.TravelersChanged += new TravelersChangedSubscriber(m_clientManager.HandleTravelersChanged);
-
                 
                 m_clientManagerThread = new Thread(m_clientManager.Start);
                 m_clientManagerThread.Name = "Client Manager";
@@ -780,7 +779,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_notificationManager = value;
             }
         }
-
+        
         public static string RootDirectory
         {
             get

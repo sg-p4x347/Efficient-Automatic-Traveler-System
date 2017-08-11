@@ -53,7 +53,7 @@ namespace Efficient_Automatic_Traveler_System
         
         public string Import(OdbcConnection MAS)
         {
-            Bill existing = m_bills.Find(b => b.BillNo == BillNo);
+            Bill existing = null;//m_bills.Find(b => b.BillNo == BillNo);
             string message = "";
             if (existing != null) {
                 Clone(existing);
@@ -121,14 +121,17 @@ namespace Efficient_Automatic_Traveler_System
                 // read info
                 while (reader.Read())
                 {
-                    string currentRev = reader.GetString(4);
-                    string thisRev = reader.GetString(2);
+                    m_currentBillRevision = reader.GetString(2);
+                    string thisRev = reader.GetString(4);
                     // only use the current bill revision
-                    if (currentRev == thisRev) // if (current bill revision == this revision)
+                    if (m_currentBillRevision == thisRev) // if (current bill revision == this revision)
                     {
                         m_billType = reader.GetString(0)[0];
                         m_billDesc = reader.GetString(1);
-                        m_currentBillRevision = reader.GetString(2);
+                        if (m_billNo == "MG2268-62")
+                        {
+                            var test = "";
+                        }
                         if (!reader.IsDBNull(3))
                         {
                             m_drawingNo = reader.GetString(3);
@@ -170,6 +173,7 @@ namespace Efficient_Automatic_Traveler_System
                         // exclude items of type '4' (comments) and revision numbers that don't match the bill's revision number
                         if (reader.GetInt32(0) != 4 && m_currentBillRevision == reader.GetString(2))
                         {
+                            
                             // determine if the component has a bill
                             if (!reader.IsDBNull(1))
                             {

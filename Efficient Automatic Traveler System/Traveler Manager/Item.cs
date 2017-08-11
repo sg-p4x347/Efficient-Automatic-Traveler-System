@@ -35,7 +35,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             try
             {
-                Item existing = m_items.Find(b => b.ItemCode == ItemCode);
+                Item existing = null;// m_items.Find(b => b.ItemCode == ItemCode);
                 if (existing != null)
                 {
                     Clone(existing);
