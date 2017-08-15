@@ -19,8 +19,16 @@ namespace Efficient_Automatic_Traveler_System
         }
         public TableBox(Table table) : base(table) {
             TableSize = table.Size;
-            
-            ImportBoxSize("Table Reference.csv", table.ItemCode);
+
+            if (table.BoxItemCode == null)
+            {
+                this.ImportBoxSize("Table Reference.csv", table.ItemCode);
+            } else
+            {
+                ItemCode = table.BoxItemCode;
+                BoxSize = "Purchased box";
+                BoxLabor = null;
+            }
             foreach (Item componentItem in table.CommonBill.ComponentItems)
             {
                 if (StationClass.GetStation("Box").LaborCodes.Exists(x => x == componentItem.ItemCode))

@@ -76,7 +76,8 @@ namespace Efficient_Automatic_Traveler_System
                 Dictionary<string, string> obj = new StringStream(base.ExportTableRows(station)).ParseJSON(false);
                 List<string> members = new StringStream(obj["members"]).ParseJSONarray(false);
                 members.Add(new NameValueQty<string, string>("Parent Traveler", ParentTravelers[0].ID.ToString("D6"), "").ToString());
-                members.Add(new NameValueQty<string, string>("Box Size", m_boxSize, "").ToString());
+                members.Add(new NameValueQty<string, string>("ItemCode", ItemCode, "").ToString());
+                members.Add(new NameValueQty<string, string>("Box Size", BoxSize, "").ToString());
                 obj["members"] = members.Stringify(false);
                 return obj.Stringify();
             } catch (Exception ex)

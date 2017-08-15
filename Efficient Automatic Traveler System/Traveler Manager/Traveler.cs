@@ -1238,7 +1238,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             get
             {
-                return m_itemCode;
+                return m_itemCode != null ? m_itemCode : "";
             }
             protected set
             {

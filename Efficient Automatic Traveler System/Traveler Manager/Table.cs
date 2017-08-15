@@ -57,7 +57,7 @@ namespace Efficient_Automatic_Traveler_System
         public Table(Form form) : base(form)
         {
         }
-        public Table(string json,Version version) : base(json,version) {
+        public Table(string json, Version version) : base(json, version) {
             Dictionary<string, string> obj = new StringStream(json).ParseJSON();
             if (obj["itemCode"] != "")
             {
@@ -65,7 +65,7 @@ namespace Efficient_Automatic_Traveler_System
             }
         }
         // create a Table from partNo, quantity, and a MAS connection
-        public Table(string itemCode, int quantity) : base(itemCode,quantity) {
+        public Table(string itemCode, int quantity) : base(itemCode, quantity) {
         }
         public override bool CombinesWith(object[] args)
         {
@@ -90,10 +90,10 @@ namespace Efficient_Automatic_Traveler_System
             List<string> members = new StringStream(obj["members"]).ParseJSONarray(false);
             if (station.Type == "heian" || station.Type == "weeke") {
                 members.Add(new NameValueQty<string, string>("Drawing", Bill.DrawingNo, "").ToString());
-                members.Add(new NameValueQty<string, int>   ("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString());
+                members.Add(new NameValueQty<string, int>("Blank", m_blankSize + " " + m_blankNo, m_blankQuantity).ToString());
                 //rows += (rows.Length > 0 ? "," : "") + new NameValueQty<string, string>("Material", m_material.ItemCode, m_material.TotalQuantity.ToString() + " " + m_material.Unit.ToString()).ToString();
                 members.Add(new NameValueQty<string, string>("Color", m_color, "").ToString());
-                
+
                 if (Comment != "") members.Add(new NameValueQty<string, string>("Comment", Comment, "").ToString());
             } else if (station == StationClass.GetStation("Vector")) {
                 members.Add(new NameValueQty<string, string>("Drawing", Bill.DrawingNo, "").ToString());
@@ -104,7 +104,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 Traveler box = ChildTravelers.FirstOrDefault();
                 members.Add(new NameValueQty<string, string>("Box Traveler", box != null ? box.ID.ToString() : "No box traveler", "").ToString());
-                members.Add(new NameValueQty<string, int>("Box pads",  "One-pack system",m_pads).ToString());
+                members.Add(new NameValueQty<string, int>("Box pads", "One-pack system", m_pads).ToString());
                 members.Add(new NameValueQty<string, int>("Pallet", m_palletSize, m_palletQty).ToString());
             }
             double rate = GetRate(CommonBill, station);
@@ -189,7 +189,7 @@ namespace Efficient_Automatic_Traveler_System
             string message = "";
             Bill = new Bill(Bill.BillNo, Bill.QuantityPerBill, Quantity);
             message += Bill.Import(MAS);
-            Bill.BillDesc = Regex.Replace(Bill.BillDesc,"TableTopAsm,", "", RegexOptions.IgnoreCase); // tabletopasm is pretty obvious and therefore extraneous
+            Bill.BillDesc = Regex.Replace(Bill.BillDesc, "TableTopAsm,", "", RegexOptions.IgnoreCase); // tabletopasm is pretty obvious and therefore extraneous
             Bill.BillDesc = Regex.Replace(Bill.BillDesc, "TableTop,", "", RegexOptions.IgnoreCase);
             //m_colorNo = Convert.ToInt32(Part.BillNo.Substring(Part.BillNo.Length - 2));
             string[] parts = ItemCode.Split('-');
@@ -267,7 +267,7 @@ namespace Efficient_Automatic_Traveler_System
                     json += ",\"Barcode\":" + '"' + ID.ToString("D6") + '-' + itemID.ToString("D4") + '"'; // 11 digits [000000]-[0000]
                     json += ",\"ID\":\"" + item.PrintID() + "\"";
                     json += ",\"Desc1\":\"" + Bill.BillNo + "\"";
-                    json += ",\"Desc2\":\"" + "!! " + item.PrintID() +  " !!\"";
+                    json += ",\"Desc2\":\"" + "!! " + item.PrintID() + " !!\"";
                     ScrapEvent scrapEvent = FindItem(itemID).History.OfType<ScrapEvent>().ToList().Find(x => x.Process == ProcessType.Scrapped);
                     if (scrapEvent != null)
                     {
@@ -369,12 +369,12 @@ namespace Efficient_Automatic_Traveler_System
         // Create a box traveler returns true when enough boxes supplied
         public bool CreateBoxTraveler(bool all = false)
         {
-            if (!BulkPack() && !PurchasedBoxes().Any())
+            if (!BulkPack())
             {
                 //m_boxCounter--;
 
                 int qtyQueued = ChildTravelers.OfType<TableBox>().Sum(child => child.Quantity);
-                int applicableQty = Math.Max(Quantity,Items.Count(i => !i.Scrapped));
+                int applicableQty = Math.Max(Quantity, Items.Count(i => !i.Scrapped));
 
                 int qtyCovered = Items.Count(i => i.BeenProcessedBy("contourEdgebander"));
                 int boxTravelerSize = (all ? int.MaxValue : (int)ConfigManager.GetJSON("boxTravelerSize"));
@@ -420,7 +420,7 @@ namespace Efficient_Automatic_Traveler_System
             //    }
             //}
         }
-       
+
         public bool BulkPack()
         {
             return ItemCode.Contains('U');
@@ -429,9 +429,9 @@ namespace Efficient_Automatic_Traveler_System
         {
             base.EnterProduction(travelerManager);
         }
-        public override string PrintLabel(ushort itemID, LabelType type, int? qty, bool forcePrint = false,StationClass station = null, string printer = "")
+        public override string PrintLabel(ushort itemID, LabelType type, int? qty, bool forcePrint = false, StationClass station = null, string printer = "")
         {
-            return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint,station, printer);
+            return base.PrintLabel(itemID, type, type == LabelType.Pack ? m_packLabelQty : qty, forcePrint, station, printer);
         }
         public override bool HasDrawing()
         {
@@ -450,7 +450,7 @@ namespace Efficient_Automatic_Traveler_System
         {
             Form form = base.CreateFilledForm();
             form.Title = "Edit Table";
-            form.Textbox("itemCode", "Model",ItemCode);
+            form.Textbox("itemCode", "Model", ItemCode);
             return form;
         }
         //-------------------------
@@ -500,7 +500,7 @@ namespace Efficient_Automatic_Traveler_System
             {
                 var tokenSource = new CancellationTokenSource();
 
-                var task = Task.Run(() => GetBlankInfo(MAS),tokenSource.Token);
+                var task = Task.Run(() => GetBlankInfo(MAS), tokenSource.Token);
                 if (!task.Wait(TimeSpan.FromSeconds(3)) || !Imported)
                 {
                     // Trying again
@@ -550,7 +550,7 @@ namespace Efficient_Automatic_Traveler_System
                     //--------------------------------------------
                     // BLANK INFO
                     //--------------------------------------------
-                    
+
                     //BlankSize = row[header.IndexOf("Blank Size")];
                     //SheetSize = row[header.IndexOf("Sheet Size")];
                     //// [column 3 contains # of blanks per sheet]
@@ -634,24 +634,24 @@ namespace Efficient_Automatic_Traveler_System
                     m_pads = Convert.ToInt32(row[header.IndexOf("Pads")]);
                     //foreach (string orderNo in ParentOrderNums)
                     //{
-                      //  Order order = orderManager.FindOrder(orderNo);
-                      //  foreach (OrderItem orderItem in order.FindItems(ID))
-                       // {
-                            // TEMP
-                            //// Get box information
-                            //if (order.ShipVia != "" && (order.ShipVia.ToUpper().IndexOf("FEDEX") != -1 || order.ShipVia.ToUpper().IndexOf("UPS") != -1))
-                            //{
-                            //    SupPackQty += orderItem.QtyOrdered;
-                            //}
-                            //else
-                            //{
-                            //    RegPackQty += orderItem.QtyOrdered;
-                            //    // approximately 20 max tables per pallet
-                            //    PalletQty += Convert.ToInt32(Math.Ceiling(Convert.ToDouble(orderItem.QtyOrdered) / 20));
-                            //}
-                      //  }
+                    //  Order order = orderManager.FindOrder(orderNo);
+                    //  foreach (OrderItem orderItem in order.FindItems(ID))
+                    // {
+                    // TEMP
+                    //// Get box information
+                    //if (order.ShipVia != "" && (order.ShipVia.ToUpper().IndexOf("FEDEX") != -1 || order.ShipVia.ToUpper().IndexOf("UPS") != -1))
+                    //{
+                    //    SupPackQty += orderItem.QtyOrdered;
                     //}
-                    
+                    //else
+                    //{
+                    //    RegPackQty += orderItem.QtyOrdered;
+                    //    // approximately 20 max tables per pallet
+                    //    PalletQty += Convert.ToInt32(Math.Ceiling(Convert.ToDouble(orderItem.QtyOrdered) / 20));
+                    //}
+                    //  }
+                    //}
+
                     break;
                 }
                 line = tableRef.ReadLine();
@@ -847,6 +847,12 @@ namespace Efficient_Automatic_Traveler_System
                 boxes = CommonBill.ComponentItems.Where(comp => Box.IsBox(comp.ItemCode)).ToList();
             }
             return boxes;
+        }
+        public string BoxItemCode {
+            get {
+                List<Item> purhcasedBoxes = PurchasedBoxes();
+                return purhcasedBoxes.Any() ? purhcasedBoxes.Select(b => b.ItemCode).Aggregate((i, j) => i + " + " + j) : null;
+            }
         }
         #endregion
         //--------------------------------------------------------
@@ -1048,18 +1054,6 @@ namespace Efficient_Automatic_Traveler_System
             set
             {
                 m_palletQty = value;
-            }
-        }
-        public string BoxItemCode
-        {
-            get
-            {
-                return m_boxItemCode;
-            }
-
-            set
-            {
-                m_boxItemCode = value;
             }
         }
         public string RegPack

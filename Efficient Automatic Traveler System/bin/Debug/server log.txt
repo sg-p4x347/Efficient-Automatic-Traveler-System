@@ -3,113 +3,135 @@ Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
 Client manager started
 
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/14/2017 @ 05:12
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/15/2017 @ 12:05
 
 EATS inventory loaded from backup
-Kanban Monitor loaded from backup
+Kanban Manager loaded from backup
 Configuration settings loaded from current
 Users loaded from backup
 Connecting to MAS...Connecting to MAS...Connected
 > Updating in Online mode
-Importing orders...- 5038096 has invoiced
-- 5040045 has invoiced
-- 5040074 has invoiced
-- 5040076 has invoiced
-- 5040128 has invoiced
-- OV00334 has invoiced
-- 5040308 has invoiced
-- 5040310 has invoiced
-- 5040388 has invoiced
-- 5040396 has invoiced
-- 5040423 has invoiced
-- 5040430 has invoiced
-- 5040431 has invoiced
-- 5040444 has invoiced
-- 5040470 has invoiced
-- 5040483 has invoiced
-- 5040529 has invoiced
-- 5040539 has invoiced
-- 5040544 has invoiced
-- 5040569 has invoiced
-- 5040593 has invoiced
-- 5040605 has invoiced
-- 5040608 has invoiced
-- 5040612 has invoiced
-- 5040614 has invoiced
-- 5040641 has invoiced
-- 5040650 has invoiced
-- 5040661 has invoiced
-- 5040770 has invoiced
-- WM16340 has invoiced
-- WM16341 has invoiced
-- WM16342 has invoiced
-- WM16343 has invoiced
-- WM16344 has invoiced
-- WM16345 has invoiced
-- WM16346 has invoiced
-- WM16347 has invoiced
-- WM16348 has invoiced
-- WM16349 has invoiced
-- WM16350 has invoiced
-- WM16351 has invoiced
-- WM16352 has invoiced
-- WM16353 has invoiced
-- WM16354 has invoiced
-- WM16355 has invoiced
-- WM16356 has invoiced
-- WM16357 has invoiced
-- WM16358 has invoiced
-- WM16359 has invoiced
-- WF01021 has invoiced
-- 5041122 has invoiced
-- 5041123 has invoiced
-- 5041124 has invoiced
-- 5041130 has invoiced
-- 5041131 has invoiced
-- 5041132 has invoiced
-- 5041133 has invoiced
-- 5041134 has invoiced
-- 5041135 has invoiced
-- 5041136 has invoiced
-- 5041137 has invoiced
-- 5041138 has invoiced
-- 5041139 has invoiced
-- 5041140 has invoiced
-- 5041141 has invoiced
-- 5041142 has invoiced
-- FS06696 has invoiced
-- FS06697 has invoiced
-- PC35886 has invoiced
-- PC35887 has invoiced
-- PC35888 has invoiced
-- PC35889 has invoiced
-- PC35890 has invoiced
-- PC35891 has invoiced
-- PC35892 has invoiced
-- PC35893 has invoiced
-- PC35894 has invoiced
-- PC35895 has invoiced
-- PC35896 has invoiced
-- PC35897 has invoiced
-- PC35898 has invoiced
-- PC35899 has invoiced
-- PC35900 has invoiced
-- PC35901 has invoiced
-- PC35902 has invoiced
-- PC35903 has invoiced
-- PC35904 has invoiced
+Importing orders...- 5039502 has invoiced
+- 5040098 has invoiced
+- 5040134 has invoiced
+- 5040168 has invoiced
+- 5040326 has invoiced
+- 5040389 has invoiced
+- 5040392 has invoiced
+- 5040395 has invoiced
+- 5040397 has invoiced
+- 5040465 has invoiced
+- 5040481 has invoiced
+- 5040533 has invoiced
+- 5040535 has invoiced
+- 5040548 has invoiced
+- 5040567 has invoiced
+- 5040570 has invoiced
+- 5040596 has invoiced
+- 5040646 has invoiced
+- 5040727 has invoiced
+- 5040980 has invoiced
+- OV00351 has invoiced
+- OV00352 has invoiced
+- 5041167 has invoiced
+- 5041168 has invoiced
+- 5041169 has invoiced
+- 5041170 has invoiced
+- 5041171 has invoiced
+- 5041172 has invoiced
+- 5041173 has invoiced
+- 5041174 has invoiced
+- 5041175 has invoiced
+- 5041176 has invoiced
+- 5041177 has invoiced
+- 5041178 has invoiced
+- 5041179 has invoiced
+- 5041180 has invoiced
+- 5041181 has invoiced
+- 5041182 has invoiced
+- 5041183 has invoiced
+- 5041184 has invoiced
+- 5041185 has invoiced
+- 5041186 has invoiced
+- 5041187 has invoiced
+- 5041188 has invoiced
+- 5041189 has invoiced
+- 5041190 has invoiced
+- 5041192 has invoiced
+- 5041193 has invoiced
+- 5041194 has invoiced
+- 5041195 has invoiced
+- 5041196 has invoiced
+- 5041197 has invoiced
+- 5041201 has invoiced
+- 5041205 has invoiced
+- 5041209 has invoiced
+- 5041213 has invoiced
+- FS06698 has invoiced
+- FS06699 has invoiced
+- FS06700 has invoiced
+- FS06701 has invoiced
+- FS06702 has invoiced
+- FS06703 has invoiced
+- FS06704 has invoiced
+- PC35905 has invoiced
+- PC35906 has invoiced
+- PC35907 has invoiced
+- PC35908 has invoiced
+- PC35909 has invoiced
+- PC35910 has invoiced
+- PC35915 has invoiced
+- PC35916 has invoiced
+- PC35917 has invoiced
+- PC35918 has invoiced
+- PC35919 has invoiced
+- PC35921 has invoiced
+- PC35922 has invoiced
+- PC35923 has invoiced
+- PC35924 has invoiced
+- PC35925 has invoiced
+- PC35926 has invoiced
+- PC35927 has invoiced
+- PC35928 has invoiced
+- PC35929 has invoiced
+- PC35930 has invoiced
+- PC35931 has invoiced
+- PC35932 has invoiced
+- PC35933 has invoiced
+- PC35934 has invoiced
+- PC35935 has invoiced
+- PC35936 has invoiced
+- PC35937 has invoiced
+- PC35938 has invoiced
+- PC35939 has invoiced
+- PC35940 has invoiced
+- PC35941 has invoiced
+- PC35942 has invoiced
+- PC35943 has invoiced
+- PC35944 has invoiced
+- PC35945 has invoiced
+- PC35946 has invoiced
+- PC35947 has invoiced
+- PC35948 has invoiced
+- PC35949 has invoiced
+- PC35950 has invoiced
+- PC35951 has invoiced
+- PC35952 has invoiced
+- PC35953 has invoiced
+- PC35954 has invoiced
+- PC35955 has invoiced
+- PC35956 has invoiced
+- PC35957 has invoiced
+- PC35958 has invoiced
+- PC35959 has invoiced
+- PC35960 has invoiced
+- PC35961 has invoiced
+- PC35962 has invoiced
+- PC35963 has invoiced
+- PC35964 has invoiced
+- PC35965 has invoiced
+- PC35966 has invoiced
+- PC35967 has invoiced
 Importing orders...Finished
 Loading travelers from backup...Loading travelers from backup...Finished
-Gathering Info...0%Gathering Info...1%Gathering Info...1%Gathering Info...1%Gathering Info...2%Gathering Info...2%Gathering Info...2%Gathering Info...2%Gathering Info...3%Gathering Info...3%Gathering Info...3%Gathering Info...4%Gathering Info...4%Gathering Info...4%Gathering Info...5%Gathering Info...5%Gathering Info...5%Gathering Info...6%Gathering Info...6%Gathering Info...6%Gathering Info...6%Gathering Info...7%Gathering Info...7%Gathering Info...7%Gathering Info...8%Gathering Info...8%Gathering Info...8%Gathering Info...9%Gathering Info...9%Gathering Info...9%Gathering Info...9%Gathering Info...10%Gathering Info...10%Gathering Info...10%Gathering Info...11%Gathering Info...11%Gathering Info...11%Gathering Info...12%Gathering Info...12%Gathering Info...12%Gathering Info...13%Gathering Info...13%Gathering Info...13%Gathering Info...13%Gathering Info...14%Gathering Info...14%Gathering Info...14%Gathering Info...15%Gathering Info...15%Gathering Info...15%Gathering Info...16%Gathering Info...16%Gathering Info...16%Gathering Info...17%Gathering Info...17%Gathering Info...17%Gathering Info...17%Gathering Info...18%Gathering Info...18%Gathering Info...18%Gathering Info...19%Gathering Info...19%Gathering Info...19%Gathering Info...20%Gathering Info...20%Gathering Info...20%Gathering Info...20%Gathering Info...21%Gathering Info...21%Gathering Info...21%Gathering Info...22%Gathering Info...22%Gathering Info...22%Gathering Info...23%Gathering Info...23%Gathering Info...23%Gathering Info...24%Gathering Info...24%Gathering Info...24%Gathering Info...24%Gathering Info...25%Gathering Info...25%Gathering Info...25%Gathering Info...26%Gathering Info...26%Gathering Info...26%Gathering Info...27%Gathering Info...27%Gathering Info...27%Gathering Info...28%Gathering Info...28%Gathering Info...28%Gathering Info...28%Gathering Info...29%Gathering Info...29%Gathering Info...29%Gathering Info...30%Gathering Info...30%Gathering Info...30%Gathering Info...31%Gathering Info...31%Gathering Info...31%Gathering Info...31%Gathering Info...32%Gathering Info...32%Gathering Info...32%Gathering Info...33%Gathering Info...33%Gathering Info...33%Gathering Info...34%Gathering Info...34%Gathering Info...34%Gathering Info...35%Gathering Info...35%Gathering Info...35%Gathering Info...35%Gathering Info...36%Gathering Info...36%Gathering Info...36%Gathering Info...37%Gathering Info...37%Gathering Info...37%Gathering Info...38%Gathering Info...38%Gathering Info...38%Gathering Info...39%Gathering Info...39%Gathering Info...39%Gathering Info...39%Gathering Info...40%Gathering Info...40%Gathering Info...40%Gathering Info...41%Gathering Info...41%Gathering Info...41%Gathering Info...42%Gathering Info...42%Gathering Info...42%Gathering Info...43%Gathering Info...43%Gathering Info...43%Gathering Info...43%Gathering Info...44%Gathering Info...44%Gathering Info...44%Gathering Info...45%Gathering Info...45%Gathering Info...45%Gathering Info...46%Gathering Info...46%Gathering Info...46%Gathering Info...46%Gathering Info...47%Gathering Info...47%Gathering Info...47%Gathering Info...48%Gathering Info...48%Gathering Info...48%Gathering Info...49%Gathering Info...49%Gathering Info...49%Gathering Info...50%Gathering Info...50%Gathering Info...50%Gathering Info...50%Gathering Info...51%Gathering Info...51%Gathering Info...51%Gathering Info...52%Gathering Info...52%Gathering Info...52%Gathering Info...53%Gathering Info...53%Gathering Info...53%Gathering Info...54%Gathering Info...54%Gathering Info...54%Gathering Info...54%Gathering Info...55%Gathering Info...55%Gathering Info...55%Gathering Info...56%Gathering Info...56%Gathering Info...56%Gathering Info...57%Gathering Info...57%Gathering Info...57%Gathering Info...57%Gathering Info...58%Gathering Info...58%Gathering Info...58%Gathering Info...59%Gathering Info...59%Gathering Info...59%Gathering Info...60%Gathering Info...60%Gathering Info...60%Gathering Info...61%Gathering Info...61%Gathering Info...61%Gathering Info...61%Gathering Info...62%Gathering Info...62%Gathering Info...62%Gathering Info...63%Gathering Info...63%Gathering Info...63%Gathering Info...64%Gathering Info...64%Gathering Info...64%Gathering Info...65%Gathering Info...65%Gathering Info...65%Gathering Info...65%Gathering Info...66%Gathering Info...66%Gathering Info...66%Gathering Info...67%Gathering Info...67%Gathering Info...67%Gathering Info...68%Gathering Info...68%Gathering Info...68%Gathering Info...69%Gathering Info...69%Gathering Info...69%Gathering Info...69%Gathering Info...70%Gathering Info...70%Gathering Info...70%Gathering Info...71%Gathering Info...71%Gathering Info...71%Gathering Info...72%Gathering Info...72%Gathering Info...72%Gathering Info...72%Gathering Info...73%Gathering Info...73%Gathering Info...73%Gathering Info...74%Gathering Info...74%Gathering Info...74%Gathering Info...75%Gathering Info...75%Gathering Info...75%Gathering Info...76%Gathering Info...76%Gathering Info...76%Gathering Info...76%Gathering Info...77%Gathering Info...77%Gathering Info...77%Gathering Info...78%Gathering Info...78%Gathering Info...78%Gathering Info...79%Gathering Info...79%Gathering Info...79%Gathering Info...80%Gathering Info...80%Gathering Info...80%Gathering Info...80%Gathering Info...81%Gathering Info...81%Gathering Info...81%Gathering Info...82%Gathering Info...82%Gathering Info...82%Gathering Info...83%Gathering Info...83%Gathering Info...83%Gathering Info...83%Gathering Info...84%Gathering Info...84%Gathering Info...84%Gathering Info...85%Gathering Info...85%Gathering Info...85%Gathering Info...86%Gathering Info...86%Gathering Info...86%Gathering Info...87%Gathering Info...87%Gathering Info...87%Gathering Info...87%Gathering Info...88%Gathering Info...88%Gathering Info...88%Gathering Info...89%Gathering Info...89%Gathering Info...89%Gathering Info...90%Gathering Info...90%Gathering Info...90%Gathering Info...91%Gathering Info...91%Gathering Info...91%Gathering Info...91%Gathering Info...92%Gathering Info...92%Gathering Info...92%Gathering Info...93%Gathering Info...93%Gathering Info...93%Gathering Info...94%Gathering Info...94%Gathering Info...94%Gathering Info...94%Gathering Info...95%Gathering Info...95%Gathering Info...95%Gathering Info...96%Gathering Info...96%Gathering Info...96%Gathering Info...97%Gathering Info...97%Gathering Info...97%Gathering Info...98%Gathering Info...98%Gathering Info...98%Gathering Info...98%Gathering Info...99%Gathering Info...99%Gathering Info...99%Gathering Info...100%Gathering Info...100%Gathering Info...Finished
-Disconnected from MAS
-
-<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
-
-Importing history from 08/14/2017
-Loading orders from backup...Loading orders from backup...Finished
-Loading travelers from backup...Loading travelers from backup...Finished
-Users loaded from backup
-Importing history from 08/14/2017
-Loading orders from backup...Loading orders from backup...Finished
-Loading travelers from backup...Loading travelers from backup...Finished
-Users loaded from backup
+Gathering Info...0%Gathering Info...1%Gathering Info...1%Gathering Info...1%Gathering Info...2%Gathering Info...2%Gathering Info...2%Gathering Info...2%Gathering Info...3%Gathering Info...3%Gathering Info...3%Gathering Info...4%Gathering Info...4%Gathering Info...4%Gathering Info...5%Gathering Info...5%Gathering Info...5%Gathering Info...6%Gathering Info...6%Gathering Info...6%Gathering Info...6%Gathering Info...7%Gathering Info...7%Gathering Info...7%Gathering Info...8%Gathering Info...8%Gathering Info...8%Gathering Info...9%Gathering Info...9%Gathering Info...9%Gathering Info...9%Gathering Info...10%Gathering Info...10%Gathering Info...10%Gathering Info...11%Gathering Info...11%Gathering Info...11%Gathering Info...12%Gathering Info...12%Gathering Info...12%Gathering Info...13%Gathering Info...13%Gathering Info...13%Gathering Info...13%Gathering Info...14%Gathering Info...14%Gathering Info...14%Gathering Info...15%Gathering Info...15%Gathering Info...15%Gathering Info...16%Gathering Info...16%Gathering Info...16%Gathering Info...17%Gathering Info...17%Gathering Info...17%Gathering Info...17%Gathering Info...18%Gathering Info...18%Gathering Info...18%Gathering Info...19%Gathering Info...19%Gathering Info...19%Gathering Info...20%Gathering Info...20%Gathering Info...20%Gathering Info...20%Gathering Info...21%Gathering Info...21%Gathering Info...21%Gathering Info...22%Gathering Info...22%Gathering Info...22%Gathering Info...23%Gathering Info...23%Gathering Info...23%Gathering Info...24%Gathering Info...24%Gathering Info...24%Gathering Info...24%Gathering Info...25%Gathering Info...25%Gathering Info...25%Gathering Info...26%Gathering Info...26%Gathering Info...26%Gathering Info...27%Gathering Info...27%Gathering Info...27%Gathering Info...28%Gathering Info...28%Gathering Info...28%Gathering Info...28%Gathering Info...29%Gathering Info...29%Gathering Info...29%Gathering Info...30%Gathering Info...30%Gathering Info...30%Gathering Info...31%Gathering Info...31%Gathering Info...31%Gathering Info...31%Gathering Info...32%Gathering Info...32%Gathering Info...32%Gathering Info...33%Gathering Info...33%Gathering Info...33%Gathering Info...34%Gathering Info...34%Gathering Info...34%Gathering Info...35%Gathering Info...35%Gathering Info...35%Gathering Info...35%Gathering Info...36%Gathering Info...36%Gathering Info...36%Gathering Info...37%Gathering Info...37%Gathering Info...37%Gathering Info...38%Gathering Info...38%Gathering Info...38%Gathering Info...39%Gathering Info...39%Gathering Info...39%Gathering Info...39%Gathering Info...40%Gathering Info...40%Gathering Info...40%Gathering Info...41%Gathering Info...41%Gathering Info...41%Gathering Info...42%Gathering Info...42%Gathering Info...42%Gathering Info...43%Gathering Info...43%Gathering Info...43%Gathering Info...43%Gathering Info...44%Gathering Info...44%Gathering Info...44%Gathering Info...45%Gathering Info...45%Gathering Info...45%Gathering Info...46%Gathering Info...46%Gathering Info...46%Gathering Info...46%Gathering Info...47%Gathering Info...47%Gathering Info...47%Gathering Info...48%Gathering Info...48%Gathering Info...48%Gathering Info...49%Gathering Info...49%Gathering Info...49%Gathering Info...50%Gathering Info...50%Gathering Info...50%Gathering Info...50%Gathering Info...51%Gathering Info...51%Gathering Info...51%Gathering Info...52%
