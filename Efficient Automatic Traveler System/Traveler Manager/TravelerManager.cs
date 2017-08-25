@@ -358,7 +358,7 @@ namespace Efficient_Automatic_Traveler_System
             foreach (Traveler child in traveler.ChildTravelers)
             {
                 // recursively remove children
-                RemoveTraveler(child);
+                RemoveTraveler(child,backup);
             }
             m_travelers.Remove(traveler);
             Server.OrderManager.ReleaseTraveler(traveler, backup);

@@ -169,6 +169,10 @@ namespace Efficient_Automatic_Traveler_System
         {
             m_fields.Add(Basic(name, title, "date", value.Quotate()));
         }
+        public void DateTime(string name, string title, string value = "")
+        {
+            m_fields.Add(Basic(name, title, "datetime-local", value.Quotate()));
+        }
         #endregion
 
         #region Static helpers
@@ -179,10 +183,22 @@ namespace Efficient_Automatic_Traveler_System
             form.Date("to", "To");
             return form;
         }
+        public static Form DateTimeRange()
+        {
+            Form form = new Form();
+            form.DateTime("from", "From");
+            form.DateTime("to", "To");
+            return form;
+        }
         public static void DateRange(Form form, out DateTime from, out DateTime to)
         {
-            DateTime.TryParse(form.ValueOf("from"), out from);
-            DateTime.TryParse(form.ValueOf("to"), out to);
+            System.DateTime.TryParse(form.ValueOf("from"), out from);
+            System.DateTime.TryParse(form.ValueOf("to"), out to);
+        }
+        public static void DateTimeRange(Form form, out DateTime from, out DateTime to)
+        {
+            System.DateTime.TryParse(form.ValueOf("from"), out from);
+            System.DateTime.TryParse(form.ValueOf("to"), out to);
         }
         public static Form CommentForm(string title, string fieldName, string fieldTitle = null)
         {

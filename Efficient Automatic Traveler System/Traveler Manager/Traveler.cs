@@ -143,12 +143,18 @@ namespace Efficient_Automatic_Traveler_System
                 switch (State)
                 {
                     case GlobalItemState.PreProcess: return new Style("blueBack");
-                    case GlobalItemState.InProcess: return new Style("redBack");
-                    case GlobalItemState.Flagged: return new Style("yellowBack");
-                    case GlobalItemState.Scrapped: return new Style("orangeBack");
+                    case GlobalItemState.InProcess:
+                        if (Items.Exists(i => i.Flagged))
+                        {
+                            return new Style("yellowBack");
+                        } else if (Items.Count(i => !i.Scrapped) < Quantity && Items.Exists(i => i.Scrapped)){
+                            return new Style("orangeBack");
+                        }
+                        return new Style("redBack");
                     case GlobalItemState.Finished: return new Style("greenBack");
                     default: return new Style("ghostBack");
                 }
+                
             } else
             {
                 return new Style("ghostBack");

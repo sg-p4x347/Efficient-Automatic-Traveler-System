@@ -1,5 +1,5 @@
 {
-	"debug":false,
+	"debug":true,
 	"print":{
 		"Tracking":true,
 		"Scrap":true,
@@ -38,7 +38,7 @@
 		"AMAZOND",
 		"WAYFAIR"
 	],
-	"nextTravelerID":"157012",
+	"nextTravelerID":"157086",
 	"nextEventID":"8374",
 	"boxTravelerSize":5,
 	"scrapReport":{

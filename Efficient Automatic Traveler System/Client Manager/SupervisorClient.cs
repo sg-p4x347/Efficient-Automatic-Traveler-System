@@ -1016,8 +1016,8 @@ namespace Efficient_Automatic_Traveler_System
                     new Button("Partial Production", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "partialProduction" } }),
                     new Button("Rates Report", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "rates" } }),
                     new Button("Scrap Report", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "scrap" } }),
+                    new Button("Flagged Report", "ExportCSV",new JsonObject() { { "sort", SummarySort.All }, { "type", "Table" }, { "csv", "flagged" } }),
                     new Button("User Report", "DateRangePopup",@"{""innerCallback"":""DownloadUserSummary""}"),
-                    new Button("Rework Report", "ExportRework",@"{""sort"":""All"",""type"":""Table""}"),
                     new Button("Inventory Report","ExportCSV",new JsonObject() { { "sort", "all" }, { "type", "Table" }, { "csv", "inventory" } }),
                     new Button("Custom Report","CustomReportForm")
                 };
@@ -1555,21 +1555,7 @@ namespace Efficient_Automatic_Traveler_System
             }
             return returnMessage;
         }
-        public ClientMessage ExportRework(string json)
-        {
-            try
-            {
-                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
-                Summary summary = new Summary(m_travelerManager as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
-                string downloadLocation = summary.ReworkCSV();
-                return new ClientMessage("Redirect", downloadLocation.Quotate());
-            }
-            catch (Exception ex)
-            {
-                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
-                return new ClientMessage("Info", "Error exporting rework report");
-            }
-        }
+       
         //public ClientMessage ExportInventory(string json)
         //{
         //    ClientMessage returnMessage = new ClientMessage();
@@ -1808,8 +1794,8 @@ namespace Efficient_Automatic_Traveler_System
                 Form form = new Form();
                 form.Title = "Custom Report";
                 form.Selection("type", "Type", ExtensionMethods.GetNames<SummaryType>());
-                form.Date("from", "From");
-                form.Date("to", "To");
+                form.DateTime("from", "From");
+                form.DateTime("to", "To");
                 return form.Dispatch("CustomReport");
                 
             } catch (Exception ex)
@@ -1825,7 +1811,11 @@ namespace Efficient_Automatic_Traveler_System
                 Form form = new Form(json);
                 DateTime from = DateTime.Today;
                 DateTime to = DateTime.Today;
-                Form.DateRange(form, out from, out to);
+                Form.DateTimeRange(form, out from, out to);
+                if (from >= to)
+                {
+                    return new ClientMessage("Info", "Invalid date/time entry");
+                }
                 Summary summary = new Summary(from, to);
 
                 string downloadLocation = summary.ExportCSV((SummaryType)Enum.Parse(typeof(SummaryType), form.ValueOf("type")));

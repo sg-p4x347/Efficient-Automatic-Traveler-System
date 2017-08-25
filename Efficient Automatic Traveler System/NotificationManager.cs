@@ -72,7 +72,13 @@ namespace Efficient_Automatic_Traveler_System
             attachments.Add( new Attachment(System.IO.Path.Combine(Server.RootDir, "EATS Client", "scrap.csv"), MediaTypeNames.Application.Octet));
             dailySummary.ExportCSV(SummaryType.Process);
             attachments.Add(new Attachment(System.IO.Path.Combine(Server.RootDir, "EATS Client", "process.csv"), MediaTypeNames.Application.Octet));
-            
+            dailySummary.ExportCSV(SummaryType.Replacement);
+            attachments.Add(new Attachment(System.IO.Path.Combine(Server.RootDir, "EATS Client", "replacement.csv"), MediaTypeNames.Application.Octet));
+            dailySummary.ExportCSV(SummaryType.Flagged);
+            attachments.Add(new Attachment(System.IO.Path.Combine(Server.RootDir, "EATS Client", "flagged.csv"), MediaTypeNames.Application.Octet));
+            dailySummary.ExportCSV(SummaryType.Rework);
+            attachments.Add(new Attachment(System.IO.Path.Combine(Server.RootDir, "EATS Client", "rework.csv"), MediaTypeNames.Application.Octet));
+
             PushNotification(DateTime.Today.ToString("MM/dd/yyyy") + " EATS Update", message, attachments);
         }
         public static string SectionDivider { get; } = "\n\n|" + new string('=', 60) + "|\n\n";

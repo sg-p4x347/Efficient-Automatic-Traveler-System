@@ -1,137 +1,153 @@
 Configuration settings loaded from current
 Server started on 192.168.0.51:80
 websocket on 192.168.0.51:81
+
+<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/25/2017 @ 04:47
+
 Client manager started
-
-<<>><<>><<>><<>><<>> Update <<>><<>><<>><<>><<>>	08/15/2017 @ 12:05
-
 EATS inventory loaded from backup
-Kanban Manager loaded from backup
+Kanban Monitor loaded from backup
 Configuration settings loaded from current
 Users loaded from backup
 Connecting to MAS...Connecting to MAS...Connected
 > Updating in Online mode
-Importing orders...- 5039502 has invoiced
-- 5040098 has invoiced
-- 5040134 has invoiced
-- 5040168 has invoiced
-- 5040326 has invoiced
-- 5040389 has invoiced
-- 5040392 has invoiced
-- 5040395 has invoiced
-- 5040397 has invoiced
-- 5040465 has invoiced
-- 5040481 has invoiced
-- 5040533 has invoiced
-- 5040535 has invoiced
-- 5040548 has invoiced
-- 5040567 has invoiced
-- 5040570 has invoiced
-- 5040596 has invoiced
-- 5040646 has invoiced
-- 5040727 has invoiced
-- 5040980 has invoiced
-- OV00351 has invoiced
-- OV00352 has invoiced
-- 5041167 has invoiced
-- 5041168 has invoiced
-- 5041169 has invoiced
-- 5041170 has invoiced
-- 5041171 has invoiced
-- 5041172 has invoiced
-- 5041173 has invoiced
-- 5041174 has invoiced
-- 5041175 has invoiced
-- 5041176 has invoiced
-- 5041177 has invoiced
-- 5041178 has invoiced
-- 5041179 has invoiced
-- 5041180 has invoiced
-- 5041181 has invoiced
-- 5041182 has invoiced
-- 5041183 has invoiced
-- 5041184 has invoiced
-- 5041185 has invoiced
-- 5041186 has invoiced
-- 5041187 has invoiced
-- 5041188 has invoiced
-- 5041189 has invoiced
-- 5041190 has invoiced
-- 5041192 has invoiced
-- 5041193 has invoiced
-- 5041194 has invoiced
-- 5041195 has invoiced
-- 5041196 has invoiced
-- 5041197 has invoiced
-- 5041201 has invoiced
-- 5041205 has invoiced
-- 5041209 has invoiced
-- 5041213 has invoiced
-- FS06698 has invoiced
-- FS06699 has invoiced
-- FS06700 has invoiced
-- FS06701 has invoiced
-- FS06702 has invoiced
-- FS06703 has invoiced
-- FS06704 has invoiced
-- PC35905 has invoiced
-- PC35906 has invoiced
-- PC35907 has invoiced
-- PC35908 has invoiced
-- PC35909 has invoiced
-- PC35910 has invoiced
-- PC35915 has invoiced
-- PC35916 has invoiced
-- PC35917 has invoiced
-- PC35918 has invoiced
-- PC35919 has invoiced
-- PC35921 has invoiced
-- PC35922 has invoiced
-- PC35923 has invoiced
-- PC35924 has invoiced
-- PC35925 has invoiced
-- PC35926 has invoiced
-- PC35927 has invoiced
-- PC35928 has invoiced
-- PC35929 has invoiced
-- PC35930 has invoiced
-- PC35931 has invoiced
-- PC35932 has invoiced
-- PC35933 has invoiced
-- PC35934 has invoiced
-- PC35935 has invoiced
-- PC35936 has invoiced
-- PC35937 has invoiced
-- PC35938 has invoiced
-- PC35939 has invoiced
-- PC35940 has invoiced
-- PC35941 has invoiced
-- PC35942 has invoiced
-- PC35943 has invoiced
-- PC35944 has invoiced
-- PC35945 has invoiced
-- PC35946 has invoiced
-- PC35947 has invoiced
-- PC35948 has invoiced
-- PC35949 has invoiced
-- PC35950 has invoiced
-- PC35951 has invoiced
-- PC35952 has invoiced
-- PC35953 has invoiced
-- PC35954 has invoiced
-- PC35955 has invoiced
-- PC35956 has invoiced
-- PC35957 has invoiced
-- PC35958 has invoiced
-- PC35959 has invoiced
-- PC35960 has invoiced
-- PC35961 has invoiced
-- PC35962 has invoiced
-- PC35963 has invoiced
-- PC35964 has invoiced
-- PC35965 has invoiced
-- PC35966 has invoiced
-- PC35967 has invoiced
-Importing orders...Finished
+Loading orders from backup...Loading orders from backup...Finished
+Importing orders...Importing orders...Finished
 Loading travelers from backup...Loading travelers from backup...Finished
-Gathering Info...0%Gathering Info...1%Gathering Info...1%Gathering Info...1%Gathering Info...2%Gathering Info...2%Gathering Info...2%Gathering Info...2%Gathering Info...3%Gathering Info...3%Gathering Info...3%Gathering Info...4%Gathering Info...4%Gathering Info...4%Gathering Info...5%Gathering Info...5%Gathering Info...5%Gathering Info...6%Gathering Info...6%Gathering Info...6%Gathering Info...6%Gathering Info...7%Gathering Info...7%Gathering Info...7%Gathering Info...8%Gathering Info...8%Gathering Info...8%Gathering Info...9%Gathering Info...9%Gathering Info...9%Gathering Info...9%Gathering Info...10%Gathering Info...10%Gathering Info...10%Gathering Info...11%Gathering Info...11%Gathering Info...11%Gathering Info...12%Gathering Info...12%Gathering Info...12%Gathering Info...13%Gathering Info...13%Gathering Info...13%Gathering Info...13%Gathering Info...14%Gathering Info...14%Gathering Info...14%Gathering Info...15%Gathering Info...15%Gathering Info...15%Gathering Info...16%Gathering Info...16%Gathering Info...16%Gathering Info...17%Gathering Info...17%Gathering Info...17%Gathering Info...17%Gathering Info...18%Gathering Info...18%Gathering Info...18%Gathering Info...19%Gathering Info...19%Gathering Info...19%Gathering Info...20%Gathering Info...20%Gathering Info...20%Gathering Info...20%Gathering Info...21%Gathering Info...21%Gathering Info...21%Gathering Info...22%Gathering Info...22%Gathering Info...22%Gathering Info...23%Gathering Info...23%Gathering Info...23%Gathering Info...24%Gathering Info...24%Gathering Info...24%Gathering Info...24%Gathering Info...25%Gathering Info...25%Gathering Info...25%Gathering Info...26%Gathering Info...26%Gathering Info...26%Gathering Info...27%Gathering Info...27%Gathering Info...27%Gathering Info...28%Gathering Info...28%Gathering Info...28%Gathering Info...28%Gathering Info...29%Gathering Info...29%Gathering Info...29%Gathering Info...30%Gathering Info...30%Gathering Info...30%Gathering Info...31%Gathering Info...31%Gathering Info...31%Gathering Info...31%Gathering Info...32%Gathering Info...32%Gathering Info...32%Gathering Info...33%Gathering Info...33%Gathering Info...33%Gathering Info...34%Gathering Info...34%Gathering Info...34%Gathering Info...35%Gathering Info...35%Gathering Info...35%Gathering Info...35%Gathering Info...36%Gathering Info...36%Gathering Info...36%Gathering Info...37%Gathering Info...37%Gathering Info...37%Gathering Info...38%Gathering Info...38%Gathering Info...38%Gathering Info...39%Gathering Info...39%Gathering Info...39%Gathering Info...39%Gathering Info...40%Gathering Info...40%Gathering Info...40%Gathering Info...41%Gathering Info...41%Gathering Info...41%Gathering Info...42%Gathering Info...42%Gathering Info...42%Gathering Info...43%Gathering Info...43%Gathering Info...43%Gathering Info...43%Gathering Info...44%Gathering Info...44%Gathering Info...44%Gathering Info...45%Gathering Info...45%Gathering Info...45%Gathering Info...46%Gathering Info...46%Gathering Info...46%Gathering Info...46%Gathering Info...47%Gathering Info...47%Gathering Info...47%Gathering Info...48%Gathering Info...48%Gathering Info...48%Gathering Info...49%Gathering Info...49%Gathering Info...49%Gathering Info...50%Gathering Info...50%Gathering Info...50%Gathering Info...50%Gathering Info...51%Gathering Info...51%Gathering Info...51%Gathering Info...52%
+Gathering Info...0%Gathering Info...0%Gathering Info...1%Gathering Info...1%Gathering Info...1%Gathering Info...1%Gathering Info...2%Gathering Info...2%Gathering Info...2%Gathering Info...2%Gathering Info...3%Gathering Info...3%Gathering Info...3%Gathering Info...3%Gathering Info...4%Gathering Info...4%Gathering Info...4%Gathering Info...4%Gathering Info...5%Gathering Info...5%Gathering Info...5%Gathering Info...5%Gathering Info...6%Gathering Info...6%Gathering Info...6%Gathering Info...6%Gathering Info...7%Gathering Info...7%Gathering Info...7%Gathering Info...7%Gathering Info...8%Gathering Info...8%Gathering Info...8%Gathering Info...8%Gathering Info...9%Gathering Info...9%Gathering Info...9%Gathering Info...9%Gathering Info...10%Gathering Info...10%Gathering Info...10%Gathering Info...10%Gathering Info...11%Gathering Info...11%Gathering Info...11%Gathering Info...11%Gathering Info...12%Gathering Info...12%Gathering Info...12%Gathering Info...12%Gathering Info...13%Gathering Info...13%Gathering Info...13%Gathering Info...13%Gathering Info...14%Gathering Info...14%Gathering Info...14%Gathering Info...14%Gathering Info...15%Gathering Info...15%Gathering Info...15%Gathering Info...15%Gathering Info...16%Gathering Info...16%Gathering Info...16%Gathering Info...16%Gathering Info...17%Gathering Info...17%Gathering Info...17%Gathering Info...17%Gathering Info...18%Gathering Info...18%Gathering Info...18%Gathering Info...18%Gathering Info...19%Gathering Info...19%Gathering Info...19%Gathering Info...19%Gathering Info...20%Gathering Info...20%Gathering Info...20%Gathering Info...20%Gathering Info...21%Gathering Info...21%Gathering Info...21%Gathering Info...21%Gathering Info...22%Gathering Info...22%Gathering Info...22%Gathering Info...22%Gathering Info...23%Gathering Info...23%Gathering Info...23%Gathering Info...23%Gathering Info...24%Gathering Info...24%Gathering Info...24%Gathering Info...24%Gathering Info...25%Gathering Info...25%Gathering Info...25%Gathering Info...25%Gathering Info...25%Gathering Info...26%Gathering Info...26%Gathering Info...26%Gathering Info...26%Gathering Info...27%Gathering Info...27%Gathering Info...27%Gathering Info...27%Gathering Info...28%Gathering Info...28%Gathering Info...28%Gathering Info...28%Gathering Info...29%Gathering Info...29%Gathering Info...29%Gathering Info...29%Gathering Info...30%Gathering Info...30%Gathering Info...30%Gathering Info...30%Gathering Info...31%Gathering Info...31%Gathering Info...31%Gathering Info...31%Gathering Info...32%Gathering Info...32%Gathering Info...32%Gathering Info...32%Gathering Info...33%Gathering Info...33%Gathering Info...33%Gathering Info...33%Gathering Info...34%Gathering Info...34%Gathering Info...34%Gathering Info...34%Gathering Info...35%Gathering Info...35%Gathering Info...35%Gathering Info...35%Gathering Info...36%Gathering Info...36%Gathering Info...36%Gathering Info...36%Gathering Info...37%Gathering Info...37%Gathering Info...37%Gathering Info...37%Gathering Info...38%Gathering Info...38%Gathering Info...38%Gathering Info...38%Gathering Info...39%Gathering Info...39%Gathering Info...39%Gathering Info...39%Gathering Info...40%Gathering Info...40%Gathering Info...40%Gathering Info...40%Gathering Info...41%Gathering Info...41%Gathering Info...41%Gathering Info...41%Gathering Info...42%Gathering Info...42%Gathering Info...42%Gathering Info...42%Gathering Info...43%Gathering Info...43%Gathering Info...43%Gathering Info...43%Gathering Info...44%Gathering Info...44%Gathering Info...44%Gathering Info...44%Gathering Info...45%Gathering Info...45%Gathering Info...45%Gathering Info...45%Gathering Info...46%Gathering Info...46%Gathering Info...46%Gathering Info...46%Gathering Info...47%Gathering Info...47%Gathering Info...47%Gathering Info...47%Gathering Info...48%Gathering Info...48%Gathering Info...48%Gathering Info...48%Gathering Info...49%Gathering Info...49%Gathering Info...49%Gathering Info...49%Gathering Info...50%Gathering Info...50%Gathering Info...50%Gathering Info...50%Gathering Info...50%Gathering Info...51%Gathering Info...51%Gathering Info...51%Gathering Info...51%Gathering Info...52%Gathering Info...52%Gathering Info...52%Gathering Info...52%Gathering Info...53%Gathering Info...53%Gathering Info...53%Gathering Info...53%Gathering Info...54%Gathering Info...54%Gathering Info...54%Gathering Info...54%Gathering Info...55%Gathering Info...55%Gathering Info...55%Gathering Info...55%Gathering Info...56%Gathering Info...56%Gathering Info...56%Gathering Info...56%Gathering Info...57%Gathering Info...57%Gathering Info...57%Gathering Info...57%Gathering Info...58%Gathering Info...58%Gathering Info...58%Gathering Info...58%Gathering Info...59%Gathering Info...59%Gathering Info...59%Gathering Info...59%Gathering Info...60%Gathering Info...60%Gathering Info...60%Gathering Info...60%Gathering Info...61%Gathering Info...61%Gathering Info...61%Gathering Info...61%Gathering Info...62%Gathering Info...62%Gathering Info...62%Gathering Info...62%Gathering Info...63%Gathering Info...63%Gathering Info...63%Gathering Info...63%Gathering Info...64%Gathering Info...64%Gathering Info...64%Gathering Info...64%Gathering Info...65%Gathering Info...65%Gathering Info...65%Gathering Info...65%Gathering Info...66%Gathering Info...66%Gathering Info...66%Gathering Info...66%Gathering Info...67%Gathering Info...67%
+--------------------------------------------------
+An error occured when retrieving information from MAS: Attempted to read or write protected memory. This is often an indication that other memory is corrupt.
+-Bill header timed out, trying again-
+Gathering Info...67%Gathering Info...67%Gathering Info...68%Gathering Info...68%Gathering Info...68%Gathering Info...68%Gathering Info...69%Gathering Info...69%Gathering Info...69%Gathering Info...69%Gathering Info...70%Gathering Info...70%Gathering Info...70%Gathering Info...70%Gathering Info...71%Gathering Info...71%Gathering Info...71%Gathering Info...71%Gathering Info...72%Gathering Info...72%Gathering Info...72%Gathering Info...72%Gathering Info...73%Gathering Info...73%Gathering Info...73%Gathering Info...73%Gathering Info...74%Gathering Info...74%Gathering Info...74%Gathering Info...74%Gathering Info...75%Gathering Info...75%Gathering Info...75%Gathering Info...75%Gathering Info...75%Gathering Info...76%Gathering Info...76%Gathering Info...76%Gathering Info...76%Gathering Info...77%Gathering Info...77%Gathering Info...77%Gathering Info...77%Gathering Info...78%Gathering Info...78%Gathering Info...78%Gathering Info...78%Gathering Info...79%Gathering Info...79%Gathering Info...79%Gathering Info...79%Gathering Info...80%Gathering Info...80%Gathering Info...80%Gathering Info...80%Gathering Info...81%Gathering Info...81%Gathering Info...81%Gathering Info...81%Gathering Info...82%Gathering Info...82%Gathering Info...82%Gathering Info...82%Gathering Info...83%Gathering Info...83%Gathering Info...83%Gathering Info...83%Gathering Info...84%Gathering Info...84%Gathering Info...84%Gathering Info...84%Gathering Info...85%Gathering Info...85%Gathering Info...85%Gathering Info...85%Gathering Info...86%Gathering Info...86%Gathering Info...86%Gathering Info...86%Gathering Info...87%Gathering Info...87%Gathering Info...87%Gathering Info...87%Gathering Info...88%Gathering Info...88%Gathering Info...88%Gathering Info...88%Gathering Info...89%Gathering Info...89%Gathering Info...89%Gathering Info...89%Gathering Info...90%Gathering Info...90%Gathering Info...90%Gathering Info...90%Gathering Info...91%Gathering Info...91%Gathering Info...91%Gathering Info...91%Gathering Info...92%Gathering Info...92%Gathering Info...92%Gathering Info...92%Gathering Info...93%Gathering Info...93%Gathering Info...93%Gathering Info...93%Gathering Info...94%Gathering Info...94%Gathering Info...94%Gathering Info...94%Gathering Info...95%Gathering Info...95%Gathering Info...95%Gathering Info...95%Gathering Info...96%Gathering Info...96%Gathering Info...96%Gathering Info...96%Gathering Info...97%Gathering Info...97%Gathering Info...97%Gathering Info...97%Gathering Info...98%Gathering Info...98%Gathering Info...98%Gathering Info...98%Gathering Info...99%Gathering Info...99%Gathering Info...99%Gathering Info...99%Gathering Info...100%Gathering Info...100%Gathering Info...100%Gathering Info...Finished
+Disconnected from MAS
+
+<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Must specify valid information for parsing in the string.
+ Stack Trace:    at System.Enum.TryParseEnum(Type enumType, String value, Boolean ignoreCase, EnumResult& parseResult)
+   at System.Enum.Parse(Type enumType, String value, Boolean ignoreCase)
+   at System.Enum.Parse(Type enumType, String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.CustomReport(String json)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Must specify valid information for parsing in the string.
+ Stack Trace:    at System.Enum.TryParseEnum(Type enumType, String value, Boolean ignoreCase, EnumResult& parseResult)
+   at System.Enum.Parse(Type enumType, String value, Boolean ignoreCase)
+   at System.Enum.Parse(Type enumType, String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.CustomReport(String json)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Invalid date entry
+ Stack Trace:    at Efficient_Automatic_Traveler_System.SupervisorClient.CustomReport(String json)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Invalid date entry
+ Stack Trace:    at Efficient_Automatic_Traveler_System.SupervisorClient.CustomReport(String json)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Importing history from 08/02/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Must specify valid information for parsing in the string.
+ Stack Trace:    at System.Enum.TryParseEnum(Type enumType, String value, Boolean ignoreCase, EnumResult& parseResult)
+   at System.Enum.Parse(Type enumType, String value, Boolean ignoreCase)
+   at System.Enum.Parse(Type enumType, String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.CustomReport(String json)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Importing history from 08/25/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+- Notified gage.coates@marcogroupinc.com
+
+Importing history from 08/09/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Importing history from 08/08/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Importing history from 08/07/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Importing history from 08/06/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Importing history from 08/05/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Importing history from 08/04/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Importing history from 08/03/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Importing history from 08/02/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Error retrieving history
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Object reference not set to an instance of an object.
+ Stack Trace:    at Efficient_Automatic_Traveler_System.Summary..ctor(DateTime A, DateTime B)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Exception: Must specify valid information for parsing in the string.
+ Stack Trace:    at System.Enum.TryParseEnum(Type enumType, String value, Boolean ignoreCase, EnumResult& parseResult)
+   at System.Enum.Parse(Type enumType, String value, Boolean ignoreCase)
+   at System.Enum.Parse(Type enumType, String value)
+   at Efficient_Automatic_Traveler_System.SupervisorClient.CustomReport(String json)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Importing history from 08/03/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup
+Importing history from 08/02/2017
+Loading orders from backup...Loading orders from backup...Finished
+Loading travelers from backup...Loading travelers from backup...Finished
+Users loaded from backup

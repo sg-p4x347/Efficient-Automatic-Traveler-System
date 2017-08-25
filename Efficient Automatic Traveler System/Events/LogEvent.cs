@@ -88,6 +88,11 @@ namespace Efficient_Automatic_Traveler_System
         //-----------------------------------------------------
 
         #region Interface
+        public User User { get
+            {
+                return m_user;
+            }
+        }
         public StationClass Station
         {
             get

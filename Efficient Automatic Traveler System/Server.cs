@@ -26,7 +26,8 @@ namespace Efficient_Automatic_Traveler_System
         printLabels,
         delete,
         tag,
-        deleteWhere
+        deleteWhere,
+        pushNotification
     }
     public class Server
     {
@@ -144,6 +145,7 @@ namespace Efficient_Automatic_Traveler_System
                             Server.WriteLine("Created " + post.Count(p => !pre.Contains(p)) + " Box travelers");
                             break;
                         case command.relinkOrders: RelinkOrders(); break;
+                        case command.pushNotification: Notify(); break;
                         case command.complete:
                             await Task.Run(async () =>
                             {
@@ -219,18 +221,35 @@ namespace Efficient_Automatic_Traveler_System
                         case command.deleteWhere:
                             // Code to be written each time this command is needed
                             //----------------------------------------------------
+                            
+                            //List<Traveler> toDelete = m_travelerManager.GetTravelers.Where(t =>
+                            //t is Table && !t.Items.Exists(i => i.Station == StationClass.GetStation("Heian2") || i.Station == StationClass.GetStation("Vector"))).ToList();
 
-                            // delete all travelers that are tables and all items are at a heian or weeke
-                            // AND do not have a '9' tag
                             List<Traveler> toDelete = m_travelerManager.GetTravelers.Where(t =>
-                            t is Table && t.Items.All(i => i.Station.Type == "heian" || i.Station.Type == "weeke") && t.Tag != '9'
-                                ).ToList();
+                             t is Table && !(new List<int>() {
+                                 160289,
+                                 155839,
+                                 160047,
+                                 160045,
+                                 160193,
+                                 160084,
+                                 160079,
+                                 155838,
+                                 155848,
+                                 160200,
+                                 155779,
+                                 160201,
+                                 160085,
+                                 160078,
+                                 154576,
+                                 160081
+                             }).Contains(t.ID)).ToList();
+
+                            // del them
                             foreach (Traveler traveler in toDelete)
                             {
-                               
                                 m_travelerManager.RemoveTraveler(traveler,false);
                                 Server.WriteLine("- deleted " + traveler.PrintID());
-                                
                             }
                             m_travelerManager.Backup();
                             WriteLine("The deed is done.");

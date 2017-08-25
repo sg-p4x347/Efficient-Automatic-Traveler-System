@@ -1,5 +1,2 @@
 Enter production for these items prior to scrapping them
-"Item ID","ItemCode","User","Station","Date","Started Work","Source","Reason"
-"9-160055-Scrap #1","38-2222-49","Nate Dillon","Vector","08/11/2017","Yes","Vendor","SCRATCHES/DENTS/CHIPS"
-"9-160063-Scrap #1","41-2437-60","Nate Dillon","Vector","08/11/2017","No","Vendor","DISCOLOR"
-"9-160090-Scrap #1","38-2223-62","Nate Dillon","Heian2","08/11/2017","Yes","Vendor","SCRATCHES/DENTS/CHIPS"
+"Item ID","ItemCode","User","Station","Edgebander","Date","Started Work","Source","Reason","Comment"

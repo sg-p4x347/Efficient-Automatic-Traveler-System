@@ -24,7 +24,11 @@ namespace Efficient_Automatic_Traveler_System
         Scrap,
         Traveler,
         Rates,
-        Process
+        Process,
+        Replacement,
+        Flagged,
+        Rework,
+        WorkTime
     }
     class Summary
     {
@@ -88,6 +92,10 @@ namespace Efficient_Automatic_Traveler_System
                 case SummaryType.Traveler: return MakeCSV();
                 case SummaryType.Rates: return RatesCSV();
                 case SummaryType.Process: return ProcessCSV();
+                case SummaryType.Replacement: return ReplacementCSV();
+                case SummaryType.Flagged: return FlaggedCSV();
+                case SummaryType.Rework: return ReworkCSV();
+                case SummaryType.WorkTime: return WorkTimeCSV();
                 default: return "";
             }
         }
@@ -267,6 +275,39 @@ namespace Efficient_Automatic_Traveler_System
             File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "rates.csv"), summary.ToCSV());
             return webLocation;
         }
+        public string WorkTimeCSV()
+        {
+            //--------------------------------------------
+            string webLocation = "./worktime.csv";
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("Shape"));
+            foreach (string station in StationClass.GetStations().Select(s => s.Name))
+            {
+                summary.Columns.Add(new DataColumn(station));
+            }
+            foreach (string shape in Server.TravelerManager.GetTravelers.OfType<Table>().Select(t => t.ShapeNo).Distinct())
+            {
+                DataRow row = summary.NewRow();
+                row["Shape"] = shape;
+                foreach (StationClass station in StationClass.GetStations())
+                {
+                    List<ProcessEvent> completions = Server.TravelerManager.GetTravelers.OfType<Table>().Where(
+                        t => t.ShapeNo == shape
+                    )
+                    .SelectMany(
+                        t => t.Items.SelectMany(
+                            i => i.History.OfType<ProcessEvent>().Where(
+                                e => e.Date >= Begin && e.Date <= End && e.Process == ProcessType.Completed && e.Station == station
+                            )
+                        )
+                    ).ToList();
+                    row[station.Name] = completions.Sum(c => c.Duration);
+                }
+                summary.Rows.Add(row);
+            }
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "worktime.csv"), summary.ToCSV());
+            return webLocation;
+        }
         public string ProductionCSV()
         {
             //--------------------------------------------
@@ -397,7 +438,6 @@ namespace Efficient_Automatic_Traveler_System
         }
         public string ScrapCSV()
         {
-            DateTime date = DateTime.Today;
             string webLocation = "./scrap.csv";
             List<string> contents = new List<string>();
             // add the header
@@ -411,25 +451,39 @@ namespace Efficient_Automatic_Traveler_System
             summary.Columns.Add(new DataColumn("ItemCode"));
             summary.Columns.Add(new DataColumn("User"));
             summary.Columns.Add(new DataColumn("Station"));
+            summary.Columns.Add(new DataColumn("Edgebander"));
             summary.Columns.Add(new DataColumn("Date"));
             summary.Columns.Add(new DataColumn("Started Work"));
             summary.Columns.Add(new DataColumn("Source"));
             summary.Columns.Add(new DataColumn("Reason"));
+            summary.Columns.Add(new DataColumn("Comment"));
 
             foreach (TravelerItem item in Server.TravelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.Scrapped)))
             {
                 ScrapEvent scrapEvent;
-                if (item.GetScrapEvent(out scrapEvent) && scrapEvent.Date.Date == date.Date)
+                if (item.GetScrapEvent(out scrapEvent) && scrapEvent.Date.Date >= Begin && scrapEvent.Date.Date <= End)
                 {
                     DataRow row = summary.NewRow();
                     row["Item ID"] = item.PrintID();
                     row["ItemCode"] = item.ItemCode;
                     row["User"] = scrapEvent.User.Name;
                     row["Station"] = scrapEvent.Station.Name;
+                    StationClass edgebander = null;
+                    try
+                    {
+                        edgebander = item.History.OfType<ProcessEvent>().ToList().Last(e => e.Station.Type == "contourEdgebander").Station;
+                    }
+                    catch { }
+                    row["Edgebander"] = (edgebander != null ? edgebander.Name : "N/A");
                     row["Date"] = scrapEvent.Date.ToString("MM/dd/yyyy");
                     row["Started Work"] = scrapEvent.StartedWork.Print();
                     row["Source"] = scrapEvent.Source;
                     row["Reason"] = scrapEvent.Reason;
+                    Documentation flagEvent;
+                    if (item.CurrentFlagEvent(out flagEvent))
+                    {
+                        row["Comment"] = flagEvent.Data.ValueOf("comment");
+                    }
                     summary.Rows.Add(row);
                 }
                 
@@ -438,45 +492,10 @@ namespace Efficient_Automatic_Traveler_System
             File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "scrap.csv"), summary.ToCSV());
 
             return webLocation;
-            //List<Dictionary<string, string>> scrapped = new List<Dictionary<string, string>>();
-            //foreach (Traveler traveler in m_travelers)
-            //{
-            //    foreach (TravelerItem scrap in traveler.Items)
-            //    {
-            //        if (scrap.Scrapped)
-            //        {
-            //            ScrapEvent scrapEvent = scrap.History.OfType<ScrapEvent>().ToList().FirstOrDefault();
-            //            if (scrapEvent != null && scrapEvent.Date >= DateTime.Today)
-            //            {
-            //                scrapped.Add(Summary.ScrapDetail(traveler,scrap));
-            //            }
-            //        }
-            //    }
-            //}
-            //// add the header
-            //contents.Add(fields.Stringify<string>().Trim('[').Trim(']'));
-
-            //foreach (Dictionary<string, string> detail in scrapped)
-            //{
-            //    List<string> row = new List<string>();
-            //    foreach (string field in fields)
-            //    {
-            //        if (detail.ContainsKey(field))
-            //        {
-            //            row.Add(detail[field]);
-            //        }
-            //        else
-            //        {
-            //            row.Add("");
-            //        }
-            //    }
-            //    contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
-            //}
-
         }
-        public string ReworkCSV()
+        public string ReplacementCSV()
         {
-            string webLocation = "./rework.csv";
+            string webLocation = "./replacement.csv";
             List<string> contents = new List<string>();
             // add the header
             //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
@@ -521,7 +540,99 @@ namespace Efficient_Automatic_Traveler_System
                 contents.Add(row.Stringify<string>().Trim('[').Trim(']'));
             }
 
-            File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "rework.csv"), contents.ToArray<string>());
+            File.WriteAllLines(Path.Combine(Server.RootDir, "EATS Client", "replacement.csv"), contents.ToArray<string>());
+
+            return webLocation;
+        }
+        public string FlaggedCSV()
+        {
+            string webLocation = "./flagged.csv";
+            List<string> contents = new List<string>();
+            // add the header
+            //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
+            // add each detail for each traveler
+            List<string> fields = new List<string>() { "Item", "Part", "User", "Station", "Date", "Time", "Started Work", "Source", "Reason" };
+
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("Item ID"));
+            summary.Columns.Add(new DataColumn("ItemCode"));
+            summary.Columns.Add(new DataColumn("User"));
+            summary.Columns.Add(new DataColumn("Station"));
+            summary.Columns.Add(new DataColumn("Date"));
+            summary.Columns.Add(new DataColumn("Started Work"));
+            summary.Columns.Add(new DataColumn("Source"));
+            summary.Columns.Add(new DataColumn("Reason"));
+            summary.Columns.Add(new DataColumn("Comment"));
+
+            foreach (TravelerItem item in Server.TravelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.History.OfType<Documentation>().ToList().Exists(e => e.LogType == LogType.FlagItem))))
+            {
+                Documentation flagEvent;
+                if (item.CurrentFlagEvent(out flagEvent) && flagEvent.Date.Date >= Begin.Date && flagEvent.Date.Date <= End)
+                {
+                    DataRow row = summary.NewRow();
+                    row["Item ID"] = item.PrintID();
+                    row["ItemCode"] = item.ItemCode;
+                    row["User"] = flagEvent.User.Name;
+                    row["Station"] = flagEvent.Station.Name;
+                    row["Date"] = flagEvent.Date.ToString("MM/dd/yyyy");
+                    bool startedWork;
+                    row["Started Work"] = Boolean.TryParse(flagEvent.Data.ValueOf("startedWork"), out startedWork) && startedWork;
+                    row["Source"] = flagEvent.Data.ValueOf("source");
+                    row["Reason"] = flagEvent.Data.ValueOf("reason");
+                    row["Comment"] = flagEvent.Data.ValueOf("comment");
+                    summary.Rows.Add(row);
+                }
+            }
+
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "flagged.csv"), summary.ToCSV());
+
+            return webLocation;
+        }
+        public string ReworkCSV()
+        {
+            string webLocation = "./rework.csv";
+            List<string> contents = new List<string>();
+            // add the header
+            //contents.Add(new List<string>() { "Part", "Quantity", "Date" }.Stringify<string>());
+            // add each detail for each traveler
+            List<string> fields = new List<string>() { "Item", "Part", "User", "Station", "Date", "Time", "Started Work", "Source", "Reason" };
+
+            DataTable summary = new DataTable();
+            summary.Columns.Add(new DataColumn("Item ID"));
+            summary.Columns.Add(new DataColumn("ItemCode"));
+            summary.Columns.Add(new DataColumn("User"));
+            summary.Columns.Add(new DataColumn("Station"));
+            summary.Columns.Add(new DataColumn("Date"));
+            summary.Columns.Add(new DataColumn("Started Work"));
+            summary.Columns.Add(new DataColumn("Source"));
+            summary.Columns.Add(new DataColumn("Reason"));
+            summary.Columns.Add(new DataColumn("Comment"));
+
+            foreach (TravelerItem item in Server.TravelerManager.GetTravelers.SelectMany(t => t.Items.Where(i => i.History.OfType<LogEvent>().ToList().Exists(e => e.LogType == LogType.Rework))))
+            {
+                foreach (LogEvent rework in item.History.OfType<LogEvent>().Where(e => e.LogType == LogType.Rework && e.Date.Date >= Begin.Date && e.Date.Date <= End.Date))
+                {
+                    Documentation flagEvent = item.History.OfType<Documentation>().First(f => f.Date <= rework.Date);
+                    
+                    DataRow row = summary.NewRow();
+                    row["Item ID"] = item.PrintID();
+                    row["ItemCode"] = item.ItemCode;
+                    row["User"] = rework.User.Name;
+                    row["Station"] = rework.Station.Name;
+                    row["Date"] = rework.Date.ToString("MM/dd/yyyy");
+                    if (flagEvent != null)
+                    {
+                        bool startedWork;
+                        row["Started Work"] = Boolean.TryParse(flagEvent.Data.ValueOf("startedWork"), out startedWork) && startedWork;
+                        row["Source"] = flagEvent.Data.ValueOf("source");
+                        row["Reason"] = flagEvent.Data.ValueOf("reason");
+                        row["Comment"] = flagEvent.Data.ValueOf("comment");
+                    }
+                    summary.Rows.Add(row);
+                }
+            }
+
+            File.WriteAllText(Path.Combine(Server.RootDir, "EATS Client", "rework.csv"), summary.ToCSV());
 
             return webLocation;
         }
