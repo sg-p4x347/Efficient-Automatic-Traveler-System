@@ -727,16 +727,22 @@ namespace Efficient_Automatic_Traveler_System
                 // TEMP *true* allows all items to be worked on at this station
                 else if (true || item.PendingAt(CurrentStation) || item.InProcessAt(CurrentStation))
                 {
-                    if (CurrentStation.Type == "tablePack")
+                    /*if (CurrentStation.Type == "tablePack")
                     {
                         if (!item.Started(CurrentStation))
                         {
                             item.Start(m_user, CurrentStation);
+                            //if (!item.CartonPrinted && !(item.Parent as Table).BulkPack())
+                            //{
+                            //    item.PrintLabel(LabelType.Pack);
+                            //    item.CartonPrinted = true;
+                            //}
                         }
                         item.Complete(m_user, CurrentStation);
                         DeselectItem();
                     }
-                    else if (CurrentStation.Type == "virtual")
+                    else*/
+                    if (CurrentStation.Type == "virtual")
                     {
                         LoadItem(item);
                     } else
@@ -749,6 +755,8 @@ namespace Efficient_Automatic_Traveler_System
 
                             // add a flag event
                             item.Start(m_user, CurrentStation);
+                            
+
                         }
                         else if (SelectedItem != item)
                         {

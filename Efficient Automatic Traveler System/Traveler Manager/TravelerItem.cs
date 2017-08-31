@@ -247,6 +247,7 @@ namespace Efficient_Automatic_Traveler_System
                                 PrintLabel(LabelType.Pack);
                                 CartonPrinted = true;
                             }
+
                         }
                         else if (Station.Type == "contourEdgebander")
                         {
