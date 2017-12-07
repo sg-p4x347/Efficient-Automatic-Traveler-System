@@ -1,0 +1,203 @@
+body {
+	display: flex;
+	height: 100%;
+	margin: 0px;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: space-around;
+	background-color: dimGray;
+	font-size: 1em;
+	color: white;
+	font-family: "Arial", Arial, sans-serif;
+	
+	-webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari*/
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+								  
+	cursor: default;
+}
+p.title {
+	margin: 8px;
+	font-size: 4em;
+	color: rgb(32,192,32);
+}
+p.heading {
+	margin: 8px;
+	font-size: 2em;
+	color: rgb(32,128,32);
+}
+p {
+	margin: 0px;
+}
+/*UI*/
+#destList {
+	font-size: inherit;
+	margin: 8px;
+}
+#stationName {
+	text-shadow: 1px 1px 2px black;
+}
+#blackout {
+	font-size: 0.5em;
+	visibility: hidden;
+	position: absolute;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	text-align: center;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255,255,255,0.25);
+	z-index: 100;
+}
+#travelerID {
+	font-size: 0.5em;
+	font-weight: bold;
+	color: yellow;
+	text-shadow: -2px -2px 0px rgb, 2px 2px 0px gray;
+}
+#confirm {
+	padding: 8px;
+	font-size: 4em;
+	color: black;
+	background-color: rgba(255,165,0,0.95);
+	border: 2px solid black;
+	flex-direction: column;
+	text-align: center;
+	border-radius: 16px;
+	display: none;
+}
+/*timer UI*/
+div.timer {
+	padding: 8px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	float: left;
+	align-items: center;
+}
+div.timer__btn {
+	text-align: center;
+	font-size: 2em;
+	border-radius: 0.5em;
+	border: 2px outset silver;
+	padding: 0.25em;
+}
+#timerTime {
+	font-size: 3em;
+	margin: 8px;
+}
+/*Organizational divs*/
+div.header {
+	display: flex;
+	width: 100%;
+	justify-content: space-around;
+	align-items: center;
+}
+div.body {
+	display: flex;
+	width: 100%;
+	height: 70%;
+	justify-content: space-around;
+}
+div.footer {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+}
+div.flank {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	border: 4px inset gray;
+	background-color: #404040;
+	overflow: auto;
+	height: 100%;
+}
+#finalizeContainer {
+	padding: 8px;
+	font-size: 4em;
+	color: black;
+	background-color: rgba(255,165,0,0.95);
+	border: 2px solid black;
+	display: none;
+	flex-direction: column;
+	text-align: center;
+	border-radius: 16px;
+}
+div.qtyRow {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+}
+
+/*Traveler Queue*/
+div.queue {
+	display: flex;
+	flex-direction: column-reverse;
+	border: 4px inset gray;
+	background-color: #404040;
+	overflow: auto;
+	width: 20%;
+	height: 100%;
+}
+div.queue__item {
+	transition-duration: 0.25s;
+	
+	font-family: "Arial Black", Gadget, sans-serif;
+	font-size: 1.5em;
+	text-align: center;
+	
+	
+	color: white;
+	text-shadow: 1px 1px 1px black;
+	background-color: dodgerBlue;
+	border: 4px outset deepSkyBlue;
+	border-radius: 4px;
+}
+div.queue__item:hover {
+	background-color: deepSkyBlue;
+	border-color: lightSkyBlue
+}
+div.queue__item:active {
+	background-color: blue;
+	border-color: royalBlue
+}
+
+/*Traveler View*/
+div.viewContainer {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	width: 70%;
+	height: 100%;
+	border: 4px inset gray;
+	background-color: #404040;
+	overflow: auto;
+}
+table.view {
+	width: 100%;
+	font-size: 1.5em;
+	border: 2px solid darkGray;
+	border-collapse: collapse;
+}
+tr.view__row {
+	font-size: 1.5em;
+}
+tr.view__row--header {
+	text-align: center;
+	border: none;
+}
+
+td.view__item {
+	border: inherit;
+	padding: 0.25em;
+	border: 2px solid darkGray;
+}
+td.view__item--null {
+	background-color: dimGray;
+}

@@ -1,0 +1,22 @@
+body {
+	display: flex;
+	height: 100%;
+	margin: 0px;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: space-around;
+	background-color: dimGray;
+	font-size: 1em;
+	color: white;
+	font-family: "Arial", Arial, sans-serif;
+	
+	-webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari*/
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+								  
+	cursor: default;
+}

@@ -1,0 +1,214 @@
+body {
+	display: flex;
+	height: 100%;
+	margin: 0px;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: space-around;
+	background-color: dimGray;
+	font-size: 1em;
+	color: white;
+	font-family: "Arial", Arial, sans-serif;
+	
+	-webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari*/
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+								  
+	cursor: default;
+}
+p.title {
+	margin: 8px;
+	font-size: 4em;
+	color: rgb(32,192,32);
+}
+p {
+	margin: 8px;
+}
+/*Organizational divs*/
+div.queueArray {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	width: 100%;
+	overflow-y: hidden;
+	overflow-x: auto;
+	background-color: #505050;
+}
+div.header {
+	box-sizing: border-box;
+	display: flex;
+	align-items: baseline;
+	width: 100%;
+	flex-direction: row;
+	justify-content: center;
+	vertical-align: baseline;
+	color: red;
+	text-shadow: 1px 1px 2px black;
+	border-bottom: 1px solid silver;
+}
+div.ribbonBar {
+	display: flex;
+	align-items: stretch;
+	padding-bottom: 8px;
+	padding-top: 8px;
+	
+}
+.ribbonItem {
+	display: flex;
+	flex-grow: 1;
+	padding: 8px;
+	align-items: center;
+	border-width: 1px;
+	border-style: solid;
+	border-image:
+      linear-gradient(to bottom,transparent, silver, transparent) 1 100%;
+}
+div.body {
+	display: flex;
+	width: 100%;
+	height: 80%;
+	justify-content: space-between;
+}
+div.footer {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+}
+.titleSub {
+	font-size: 0.5em;
+	color: white;
+	padding: 6px;
+}
+div.summaryPopup {
+	width: 100%;
+	height: 100%;
+	overflow: scroll;
+	font-size: 1.5em;
+	color: black;
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+div.summaryPopup table {
+	border-collapse: collapse;
+	border: 2px solid black;
+	width: 100%;
+}
+div.summaryPopup h1 {
+	font-size: 1.25em;
+	margin: 0px;
+}
+div.summaryPopup table tr {
+	border-top: 2px solid black;
+}
+div.summaryPopup table tr td,th {
+	border: 1px solid gray;
+}
+#optionsBtn {
+	
+	float: right
+}
+#searchBox {
+	width: 100%;
+}
+#searchForm {
+	width: 50%;
+}
+#viewForm {
+	min-width: 0px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-around;
+	width: 100%;
+}
+#logoutBtn {
+}
+/*Traveler Queue*/
+div.queueContainer {
+	box-sizing: border-box;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	border: 4px inset gray;
+}
+div.queueContainer--tall {
+	width: 20%;
+	height: 100%;
+}
+div.queue {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column-reverse;
+	border: 2px solid black;
+	background-color: #404040;
+	overflow-y: auto;
+	width: 100%;
+	height: 90%;
+}
+
+#updatingPopup {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 2em;
+	background-image: url("../img/loading.gif");
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 3em 3em;
+	width: 3em;
+	height: 3em;
+}
+/*Traveler View*/
+div.viewContainer {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	width: 50%;
+	height: 100%;
+	border: 4px inset gray;
+	background-color: #404040;
+	
+}
+table.view {
+	width: 100%;
+	border: 2px solid darkGray
+	
+}
+th.view__headerItem {
+	font-size: 3em;
+	height: 20%;
+	padding: 0.5em;
+	border: 2px solid darkGray;
+}
+td.view__item {
+	font-size: 1.5em;
+	padding: 0.25em;
+	border: 2px solid darkGray;
+}
+td.view__item--null {
+	background-color: dimGray;
+	border: 4px outset gray;
+}
+th.view__item--complete {
+	background-color: lightGreen;
+	color: black;
+}
+
+/*Kanban monitor style*/
+.kanban__border {
+	border: 2px solid black;
+}
+.kanban__colorBox {
+	width: 1em;
+	height: 1em;
+}
+

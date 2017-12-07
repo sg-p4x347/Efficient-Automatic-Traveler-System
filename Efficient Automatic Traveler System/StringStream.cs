@@ -6,14 +6,18 @@ using System.Threading.Tasks;
 
 namespace Efficient_Automatic_Traveler_System
 {
-    class StringStream
+    public class StringStream
     {
         public StringStream(string s)
         {
             m_string = s;
-            m_position = -1;
+            m_position = 0;
         }
-        public Dictionary<string,string> ParseJSON()
+        public static char operator>>(StringStream s, int shift)
+        {
+            return s.m_string[s.m_position++];
+        }
+        public Dictionary<string,string> ParseJSON(bool dequote = true)
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
             // find the start of the key name
@@ -29,13 +33,21 @@ namespace Efficient_Automatic_Traveler_System
                 {
                     if (!obj.ContainsKey(key))
                     {
-                        obj.Add(key, GetJsonScope().Trim('"')); // adding the key with the value (obtained from getting the next json scope)
+                        // adding the key with the value (obtained from getting the next json scope)
+                        if (dequote)
+                        {
+                            obj.Add(key, GetJsonScope().Trim('"')); 
+                        } else
+                        {
+                            obj.Add(key, GetJsonScope());
+                        }
+                        
                     }
                 }
             }
             return obj;
         }
-        public List<string> ParseJSONarray()
+        public List<string> ParseJSONarray(bool dequote = true)
         {
             List<string> array = new List<string>();
             // find the start
@@ -56,12 +68,17 @@ namespace Efficient_Automatic_Traveler_System
                 if (next == '[' || next == '{' || next == '"' || Char.IsNumber(next) || next == '-')
                 {
                     PutBack();
-                    array.Add(GetJsonScope().Trim('"'));
+                    if (dequote)
+                    {
+                        array.Add(GetJsonScope().Trim('"'));
+                    } else
+                    {
+                        array.Add(GetJsonScope());
+                    }
                 }
             }
             return array;
         }
-
         private string GetJsonScope()
         {
             string scope = "";
@@ -82,6 +99,11 @@ namespace Efficient_Automatic_Traveler_System
                         goto begin;
                     case '"':
                         closing = '"';
+                        scope += opening;
+                        goto begin;
+                    case 't':
+                    case 'f':
+                        closing = 'e';
                         scope += opening;
                         goto begin;
                     default:
@@ -127,14 +149,15 @@ namespace Efficient_Automatic_Traveler_System
         }
         public bool Get(ref char ch)
         {
-            m_position++;
             if (m_position >= m_string.Length)
             {
+                m_position++;
                 return false;
             }
             else
             {
                 ch = m_string[m_position];
+                m_position++;
                 return true;
             }
         }
@@ -145,7 +168,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_position--;
             }
         }
-        internal bool EOF
+        public bool EOF
         {
             get
             {

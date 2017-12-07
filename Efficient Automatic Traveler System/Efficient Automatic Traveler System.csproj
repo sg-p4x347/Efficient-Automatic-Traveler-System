@@ -61,9 +61,67 @@
   <PropertyGroup>
     <SignManifests>true</SignManifests>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -72,30 +130,70 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ASP.NET\OperatorPage.cs" />
+    <Compile Include="Client Manager\AdministratorClient.cs" />
+    <Compile Include="BackupManager.cs" />
     <Compile Include="Client Manager\OperatorClient.cs" />
     <Compile Include="Client Manager\SupervisorClient.cs" />
+    <Compile Include="ConfigManager.cs" />
+    <Compile Include="ControlPanel.cs" />
+    <Compile Include="Events\Documentation.cs" />
+    <Compile Include="Events\Event.cs" />
+    <Compile Include="Events\LogEvent.cs" />
+    <Compile Include="Events\ProcessEvent.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Form.cs" />
+    <Compile Include="Interfaces\ICSV.cs" />
+    <Compile Include="Interfaces\IClient.cs" />
+    <Compile Include="Interfaces\IForm.cs" />
+    <Compile Include="Interfaces\IManager.cs" />
+    <Compile Include="Interfaces\IOperator.cs" />
+    <Compile Include="Interfaces\IOperatorClient.cs" />
+    <Compile Include="Interfaces\ISupervisor.cs" />
+    <Compile Include="Interfaces\ISupervisorClient.cs" />
+    <Compile Include="InventoryManager.cs" />
+    <Compile Include="JsonParser\JSON.cs" />
+    <Compile Include="JsonParser\JsonArray.cs" />
+    <Compile Include="JsonParser\JsonBool.cs" />
+    <Compile Include="JsonParser\JsonDouble.cs" />
+    <Compile Include="JsonParser\JsonInt.cs" />
+    <Compile Include="JsonParser\JsonNull.cs" />
+    <Compile Include="JsonParser\JsonObject.cs" />
+    <Compile Include="JsonParser\JsonString.cs" />
+    <Compile Include="Kanban Manager\KanbanManager.cs" />
+    <Compile Include="Kanban Manager\KanbanItem.cs" />
+    <Compile Include="NotificationManager.cs" />
+    <Compile Include="Order Manager\OrderItem.cs" />
+    <Compile Include="Order Manager\OrderManager.cs" />
+    <Compile Include="Events\ScrapEvent.cs" />
+    <Compile Include="Part.cs" />
     <Compile Include="StringStream.cs" />
-    <Compile Include="Traveler Core\Bill.cs" />
-    <Compile Include="Traveler Core\BlacklistItem.cs" />
-    <Compile Include="Traveler Core\Chair.cs" />
-    <Compile Include="Traveler Core\ChairManager.cs" />
+    <Compile Include="SummaryColumn.cs" />
+    <Compile Include="Traveler Manager\TableBox.cs" />
+    <Compile Include="Traveler Manager\Bill.cs" />
+    <Compile Include="Traveler Manager\BlacklistItem.cs" />
+    <Compile Include="Traveler Manager\Box.cs" />
+    <Compile Include="Traveler Manager\Chair.cs" />
     <Compile Include="Client Manager\Client.cs" />
     <Compile Include="Client Manager\ClientManager.cs" />
-    <Compile Include="Traveler Core\Item.cs" />
-    <Compile Include="Traveler Core\Order.cs" />
+    <Compile Include="Traveler Manager\Item.cs" />
+    <Compile Include="Order Manager\Order.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
-    <Compile Include="Traveler Core\Table.cs" />
-    <Compile Include="Traveler Core\TableManager.cs" />
-    <Compile Include="Traveler Core\Traveler.cs" />
-    <Compile Include="Traveler Core\TravelerCore.cs" />
-    <Compile Include="Traveler Core\TravelerManager.cs" />
+    <Compile Include="Traveler Manager\Station.cs" />
+    <Compile Include="Traveler Manager\Summary.cs" />
+    <Compile Include="Traveler Manager\Table.cs" />
+    <Compile Include="Traveler Manager\Traveler.cs" />
+    <Compile Include="Traveler Manager\TravelerItem.cs" />
+    <Compile Include="Traveler Manager\TravelerManager.cs" />
+    <Compile Include="User Manager\User.cs" />
+    <Compile Include="User Manager\UserManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Efficient Automatic Traveler System_TemporaryKey.pfx" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Core">
@@ -137,6 +235,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="aspx\OperatorPage.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

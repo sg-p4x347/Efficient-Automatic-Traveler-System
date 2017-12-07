@@ -1,0 +1,40 @@
+public void CreateTravelers()
+        {
+            //m_tableManager.Reset();
+            //m_chairManager.Reset();
+
+            // Import stored travelers
+            m_travelers.Clear();
+            ImportStoredTravelers();
+
+            // Import stored orders
+            m_orders.Clear();
+            ImportStoredOrders();
+
+            // Import new orders
+            List<Order> newOrders = new List<Order>();
+            ImportOrders(ref newOrders);
+            
+
+            //List<Traveler> newTravelers = new List<Traveler>();
+            // Create and combine new Table travelers
+            m_tableManager.CompileTravelers(ref newOrders);
+            //newTravelers.AddRange(m_tableManager.Travelers);
+            // Create and combine new Chair travelers
+            m_chairManager.CompileTravelers(ref newOrders);
+            //newTravelers.AddRange(m_chairManager.Travelers);
+
+            // The traveler list has been updated
+            
+            //Travelers.AddRange(newTravelers);
+
+            // The order list has been updated
+            m_orders.AddRange(newOrders);
+            BackupOrders();
+
+            // Finalize the travelers by importing external information
+            m_tableManager.ImportInformation();
+            m_chairManager.ImportInformation();
+
+            OnTravelersChanged();
+        }

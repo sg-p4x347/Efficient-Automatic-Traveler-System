@@ -1,0 +1,644 @@
+p {
+	display: inline-block;
+}
+/* Style The Dropdown Button */
+.dropdown__btn {
+    
+	text-align: center;
+    cursor: pointer;
+	padding-top: 0.125em;
+	padding-bottom: 0.125em;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {  
+
+   opacity: 1;
+
+}
+input {
+	font-size: 1em;
+}
+select {
+	font-size: 1em;
+}
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+	display: inline-block;
+	text-align: center;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown__content {
+    display: none;
+	font-size: 0.5em;
+	position: absolute;
+	width: 20%;
+	left: 40%;
+    background-color: #f9f9f9;
+	max-height: 75%;
+	overflow-y: scroll;
+	text-align: center;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+/* Checkboxes */
+input[type=checkbox] {
+  transform: scale(2);
+  margin: 8px;
+}
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown__content {
+    display: block;
+}
+.dropdown__item {
+	display: block;
+	background-color: #202020;
+	color: white;
+	padding: 16px;
+}
+.dropdown__item:hover {
+	background-color: silver;
+	color: black;
+}
+.button {
+	display: flex;
+	box-sizing: border-box;
+	justify-content: center;
+	flex-direction: column;
+	font-family: Verdana, Geneva, sans-serif;
+	
+	text-align: center;
+	
+	border-radius: 8px;
+	min-height: 1em;
+}
+.button:hover, .button:active, .selected {
+	background-color: silver;
+	border-color: white;
+	color: black;
+	text-shadow: none;
+	cursor: pointer;
+}
+.numberBox {
+	font-size: inherit;
+	margin: 8px;
+	width: 30%;
+	border: 1px solid grey;
+}
+.percentBar {
+	height: 100%;
+	border-radius: 0px 0.25em 0.25em 0px;
+	background-color: lime;
+}
+div.percentContainer {
+	display: flex;
+	flex-direction: row;
+	padding: 8px;
+	width: 70%;
+}
+.list--horizontal {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	width: 100%;
+}
+.JSONviewer {
+	font-size: 1em;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	background-color: black;
+	border-radius: 16px;
+	padding: 8px;
+	border: 8px solid white;
+}
+.JSONviewer__scrollable {
+	overflow-y: auto;
+	max-height: 200px;
+	
+}
+.JSONviewer__field{
+	border-top: 1px solid gray;
+	justify-content: space-between;
+}
+.JSONviewer__back {
+	transition-duration: 0.2s;
+	background: url("../img/back.png"), linear-gradient(to right, transparent, #4d4d4d, transparent);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+.JSONviewer__back:hover, .JSONviewer__back:active {
+	background: url("../img/back.png"), linear-gradient(to right, transparent, gray, transparent);
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: 30% top;
+}
+.optionsBtn {
+	width: 64px;
+	height: 64px;
+	display: flex;
+	opacity: 0.5;
+}
+.optionsBtn:hover, :active {
+	opacity: 1.0;
+}
+
+input.searchBox {
+	width: 130px;
+    box-sizing: border-box;
+    border: 2px solid gray;
+    border-radius: 4px;
+    background-image: url('../img/searchicon.png');
+    background-repeat: no-repeat;
+	background-position: 8px center;
+    padding: 12px 20px 12px 40px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+input.searchBox:focus {
+	border-color: silver;
+}
+
+/*access modifiers*/
+.button.disabled {
+	background-color: rgba(230,230,230,0.2);
+	border-color: rgba(230,230,230,0.2);
+	border-style: inset;
+	color: grey;
+	pointer-events: none;
+}
+.hidden {
+	display: none;
+}
+/*color modifiers*/
+.red {
+	color: #FF0000;
+}
+.white {
+	color: white;
+}
+.lightGrey {
+	color: rgb(225,225,225);
+}
+.silver {
+	color: silver;
+}
+.grey {
+	color: grey;
+}
+.darkGrey {
+	color: rgb(32,32,32);
+}
+.beige {
+	color: #e9e9af;
+}
+.black {
+	color: black;
+}
+.blue {
+	color: blue;
+}
+.lightBlue {
+	color: lightblue;
+}
+.cyan {
+	color: cyan;
+}
+.green {
+	color: green;
+}
+.lime {
+	color: lime;
+}
+.yellow {
+	color: yellow;
+}
+.orange {
+	color: orange;
+}
+.red {
+	color: red;
+}
+.purple {
+	color: purple;
+}
+
+.whiteBack {
+	background-color: whitesmoke;
+	border: 2px outset white;
+}
+.greyBack {
+	background-color: lightgrey;
+}
+.blackBack {
+	background-color: black;
+	border-top: 2px solid #202020;
+	border-left: 2px solid #202020;
+}
+.ghostBack {
+	background-color: rgba(128,128,128,0.25);
+	border: 2px outset rgba(128,128,128,0.25);
+}
+.blueBack {
+	background-color: blue;
+	border: 2px outset darkblue;
+	border-top-color: RoyalBlue;
+	border-left-color: RoyalBlue;
+}
+.cyanBack {
+	background-color: teal;
+	border: 2px outset LightSeaGreen;
+	border-top-color: PaleTurquoise;
+	border-left-color: PaleTurquoise;
+}
+.greenBack {
+	background-color: green;
+	border: 2px outset green;
+	border-top-color: limegreen;
+	border-left-color: limegreen;
+}
+.limeBack {
+	background-color: lime;
+	border: 2px outset lime;
+	border-top-color: limegreen;
+	border-left-color: limegreen;
+}
+.yellowBack {
+	background-color: yellow;
+	border: 2px outset darkkhaki;
+	border-top-color: LightYellow;
+	border-left-color: LightYellow;
+}
+.orangeBack {
+	background-color: orange;
+	border: 2px outset orange;
+	border-top-color: LightOrange;
+	border-left-color: LightOrange;
+}
+.redBack {
+	background-color: red;
+	border: 2px outset maroon;
+	border-top-color: IndianRed;
+	border-left-color: IndianRed;
+}
+.purpleBack {
+	background-color: purple;
+	border: 2px outset indigo;
+	border-top-color: violet;
+	border-left-color: violet;
+}
+.magentaBack {
+	background-color: magenta;
+	border: 2px outset BlueViolet;
+	border-top-color: violet;
+	border-left-color: violet;
+}
+
+/* color themes */
+.dark {
+	background-color: #404040;
+	border: 6px outset #606060;
+	color: white;
+}
+.darkAero {
+	background: linear-gradient(to right, transparent, #4d4d4d, transparent);
+    color: white;
+}
+.darkAero:hover, .darkAero:focus {
+	background: linear-gradient(to right, transparent, gray, transparent);
+}
+
+/* font */
+.halfEM {
+	font-size: 0.5em;
+}
+.oneEM {
+	font-size: 1em;
+}
+.twoEM {
+	font-size: 2em;
+}
+.threeEM {
+	font-size: 3em;
+}
+.fourEM {
+	font-size: 4em;
+}
+.center {
+	text-align: center;
+}
+.shadow {
+	text-shadow: 1px 1px 1px black;
+}
+.glow {
+	text-shadow: 0px 0px 16px white;
+}
+.bold {
+	font-weight: bold;
+}
+.italics {
+	font-style: italic;
+}
+.retro {
+	color: #d7ceb2;
+	text-shadow: 3px 3px 0px #2c2e38, 5px 5px 0px #5c5f72;
+	font: 80px 'BazarMedium';
+	font-style: bold;
+	letter-spacing: 10px;
+}
+.three-d {
+	text-shadow: 0px 1px 0px #999, 0px 2px 0px #888, 0px 3px 0px #777, 0px 4px 0px #666, 0px 5px 0px #555, 0px 6px 0px #444, 0px 7px 0px #333, 0px 8px 7px #001135;
+	font: 80px 'ChunkFiveRegular';
+}
+.emboss {
+	color: rgba(0,0,0,0.5);
+	font-weight: bold;
+	text-shadow:
+	2px 2px 1px rgba(255,255,255,0.3);
+	
+}
+.heading {
+	font-size: 1.5em;
+	font-style: bold;
+	color: #101010;
+	font-weight: bold;
+	text-shadow: 1px 1px 0px grey;
+	
+
+}
+.vertical-text {
+	writing-mode: tb-rl;
+	text-orientation: upright;
+}
+/* alignment */
+.leftAlign {
+	text-align: left;
+}
+.centerAlign {
+	text-align: center;
+}
+.rightAlign {
+	text-align: right;
+}
+.topAlign {
+	vertical-align: top;
+}
+.middleAlign {
+	vertical-align: middle;
+}
+.bottomAlign {
+	vertical-align: bottom;
+}
+/*flex modifiers*/
+.align-items-start {
+	display: flex;
+	align-items: flex-start;
+}
+.align-items-end {
+	display: flex;
+	align-items: flex-end;
+}
+.align-items-center {
+	display: flex;
+	align-items: center;
+}
+.flex-direction-row {
+	display: flex;
+	flex-direction: row;
+}
+.flex-direction-row-reverse {
+	display: flex;
+	flex-direction: row-reverse;
+}
+.flex-direction-column {
+	display: flex;
+	flex-direction: column;
+}
+.flex-direction-column-reverse {
+	display: flex;
+	flex-direction: column-reverse;
+}
+.justify-space-between {
+	display: flex;
+	justify-content: space-between;
+}
+.justify-space-around {
+	display: flex;
+	justify-content: space-around;
+}
+.justify-center {
+	display: flex;
+	justify-content: center;
+}
+.justify-start {
+	display: flex;
+	justify-content: flex-start;
+}
+.justify-end {
+	display: flex;
+	justify-content: flex-end;
+}
+/* margins */
+.stdMargin, .button {
+	margin: 4px;
+	padding: 4px;
+}
+.noPadding {
+	padding: 0px;
+}
+.scrollY {
+	overflow-y: auto;
+}
+.scrollX {
+	overflow-x: auto;
+}
+div.queue__item {
+	display: flex;
+	justify-content: center;
+	border-radius: 8px;
+	font-family: "Arial Black", Gadget, sans-serif;
+	text-align: center;
+	
+	margin: 0px;
+	padding: 2px;
+	
+	color: white;
+	
+	border-width: 3px;
+	border-radius: 6px;
+	
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+div.queue__item:hover, div.queue__item.selected, .blackout__popup__listView__item:hover {
+	background-color: silver;
+	border-color: white;
+	color: black;
+	text-shadow: none;
+}
+div.queue__item__desc {
+	color: white;
+	text-shadow: 1px 1px 1px black;
+}
+.queue__item__qty {
+	display: flex;
+}
+/* border */
+.inset {
+	border-style: inset;
+}
+.mediumBorder {
+	border: 2px solid black;
+}
+.largeBorder {
+	border-width: 32px;
+	border-radius: 48px;
+}
+.aeroBars {
+	border-width: 1px;
+	border-style: solid;
+	border-image:
+      linear-gradient(to bottom,transparent, silver, transparent) 1 100%;
+}
+.stdRadius {
+	border-radius: 8px;
+}
+/*text outline*/
+.whiteOutline {
+	text-shadow: 
+	-1px -1px 0 white,
+	1px -1px 0 white,
+	-1px 1px 0 white,
+	1px 1px 0 white;
+}
+.blackOutline {
+	text-shadow: 
+	-1px -1px 0 black,
+	1px -1px 0 black,
+	-1px 1px 0 black,
+	1px 1px 0 black;
+}
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+ 
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+	transition-delay: 2s;
+    visibility: visible;
+}
+.loginForm {
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+.editBtn {
+	background-image: url("../img/edit.png");
+	background-repeat: no-repeat;
+    background-position: center; 
+	background-size: contain;
+	width: 1em;
+	height: 1em;
+	border-radius: 0.125em;
+}
+
+.deleteBtn {
+	background-image: url("../img/delete.png");
+	background-repeat: no-repeat;
+    background-position: center; 
+	background-size: contain;
+	width: 1em;
+	height: 1em;
+	border-radius: 0.125em;
+}
+.editBtn:hover, .deleteBtn:hover {
+	background-color: silver;
+}
+/* Unique Styles */
+.chrome {
+	color: grey;
+	text-shadow: 1px 1px 0px white, -1px -1px 0px black;
+	background: linear-gradient(to right bottom, white, silver, white, grey, grey);
+	
+	transition-duration: 0.5s;
+	
+	border: 4px outset white;
+	border-radius: 6px;
+	
+	padding: 4px;
+	margin: 4px;
+}
+.chrome:hover {
+	color: black;
+	text-shadow: 1px 1px 0px white, -1px -1px 0px grey;
+	background: linear-gradient(to right bottom, white, grey);
+}
+/* image backgrounds */
+.undoImg {
+	background-image: url("../img/undo.ico");
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: contain;
+}
+.blanksReady {
+	margin: 8px;
+	width: 2em;
+	height: 2em;
+	background-image: url("../img/blanksReady.png");
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: contain;
+}
+.helpBtn {
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	background-image: url('../img/help.ico');
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: contain;
+	width: 1em;
+	height: 1em;
+	border-radius: 0.5em;
+}
+.helpBtn:hover {
+	background-color: rgba(255,255,255,0.25);
+}
+/* position modifiers*/
+.topLeft {
+	align-self: flex-start;
+}
+.focused {
+
+	max-height: none;
+	max-width: none;
+}
+.expand {
+	background-image: url("../img/expand.png");
+	background-size: contain;
+	background-repeat: no-repeat;
+	width: 0.5em;
+	min-height: 0.5em;
+}
+.expand:hover, .collapse:hover {
+	background-color: silver;
+}
+.collapse {
+	background-image: url("../img/collapse.png");
+	background-size: contain;
+	background-repeat: no-repeat;
+	width: 0.5em;
+	min-height: 0.5em;
+}

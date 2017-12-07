@@ -1,0 +1,927 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Data.Odbc;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+namespace Efficient_Automatic_Traveler_System
+{
+    // Class: Used to generate and store the digital "travelers" that are used throughout the system
+    // Developer: Gage Coates
+    // Date started: 1/25/17
+    public interface ITravelerManager : IOperatorActions, ISupervisorActions
+    {
+        //void CreateScrapChild(Traveler parent, int qtyScrapped);
+        //Traveler CreateCompletedChild(Traveler parent, int qtyMade, double time);
+        Traveler FindTraveler(int ID);
+        bool FindTraveler(int ID, out Traveler traveler);
+        bool FindLegacyTraveler(int ID, out Traveler traveler, out ClientMessage message);
+        void RemoveTraveler(Traveler traveler, bool backup = true);
+        Traveler AddTraveler(string itemCode, int quantity);
+        List<Traveler> GetTravelers
+        {
+            get;
+        }
+        void Backup();
+        void OnTravelersChanged(List<Traveler> travelers = null);
+        void OnTravelersChanged(Traveler traveler);
+        void RefactorTravelers();
+        void ClearStartQueue();
+        void CreateBoxTravelers();
+    }
+    public interface IOperatorActions
+    {
+        //ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem travelerItem);
+        //ClientMessage SubmitTraveler(Traveler traveler, StationClass station);
+    }
+    public interface ISupervisorActions
+    {
+        string MoveTravelerStart(string json);
+        ClientMessage LoadTravelerJSON(string json);
+        //ClientMessage LoadTravelerAt(string json);
+        //ClientMessage LoadItem(string json);
+        ClientMessage CreateSummary(string json);
+        ClientMessage EnterProduction(string json);
+        ClientMessage DownloadSummary(string json);
+        ClientMessage TravelerForm(string json);
+        Task<ClientMessage> NewTraveler(string json);
+    }
+    public delegate void TravelersChangedSubscriber(List<Traveler> travelers);
+    public class TravelerManager : IManager, ITravelerManager
+    {
+        #region Public methods
+        public TravelerManager(IOrderManager orderManager)
+        {
+            TravelersChanged = delegate { };
+            m_travelers = new List<Traveler>();
+            m_importedFromPast = new List<Traveler>();
+            m_orderManager = orderManager;
+        }
+        // returns list of new travelers
+        public List<Traveler> CompileTravelers(bool tables, bool consolodate, bool consolidatePriorityCustomers,  List<Order> orders)
+        {
+            List<Traveler> newTravelers = new List<Traveler>();
+            int index = 0;
+            foreach (Order order in orders)
+            {
+                if (order.Status == OrderStatus.Open)
+                {
+                    foreach (OrderItem item in order.Items.Where(i => i.ItemStatus == OrderStatus.Open && (!tables || Traveler.IsTable(i.ItemCode))))
+                    {
+                        // only make a traveler if this one has no child traveler already (-1 signifies no child traveler)
+                        if (item.ChildTraveler < 0)
+                        {
+                            Server.Write("\r{0}%", "Compiling Travelers..." + Convert.ToInt32((Convert.ToDouble(index) / Convert.ToDouble(m_orderManager.GetOrders.Count)) * 100));
+
+                            // search for existing traveler
+                            // can only combine if same itemCode, hasn't started, and has no parents
+                            Traveler traveler = newTravelers.Find(x => x.CombinesWith(new object[] { item.ItemCode }));
+                            
+                            
+                            if (traveler != null) {
+                                bool containsPriority = traveler.ParentOrders.Exists(o => ((JsonArray)JSON.Parse(ConfigManager.Get("priorityCustomers"))).ToList().Contains(o.CustomerNo));
+                                bool isPriority = ((JsonArray)JSON.Parse(ConfigManager.Get("priorityCustomers"))).ToList().Contains(order.CustomerNo);
+                                if ((consolidatePriorityCustomers && (isPriority == containsPriority)) || (consolodate && !consolidatePriorityCustomers))
+                                {
+                                    if (!traveler.ParentOrderNums.Contains(order.SalesOrderNo))
+                                    {
+                                        // add to existing traveler
+                                        //traveler.Quantity += quantity;
+
+                                        // RELATIONAL =============================================================
+                                        traveler.ParentOrderNums.Add(order.SalesOrderNo);
+                                        traveler.ParentOrders.Add(order);
+                                    }
+                                    item.ChildTraveler = traveler.ID;
+                                    //=========================================================================
+                                }
+                            }
+                            else
+                            {
+                                // create a new traveler from the new item
+                                Traveler newTraveler = null;
+                                if (Traveler.IsTable(item.ItemCode)) {
+                                    newTraveler = (Traveler)new Table(item.ItemCode, -0);
+                                } else if (Traveler.IsChair(item.ItemCode)) {
+                                    newTraveler = (Traveler)new Chair(item.ItemCode, -0);
+                                }
+                                if (newTraveler != null)
+                                {
+                                    // RELATIONAL =============================================================
+                                    item.ChildTraveler = newTraveler.ID;
+                                    newTraveler.ParentOrderNums.Add(order.SalesOrderNo);
+                                    newTraveler.ParentOrders.Add(order);
+                                    //=========================================================================
+
+                                    // add the new traveler to the list
+                                    newTravelers.Add(newTraveler);
+                                }
+                            }
+                        }
+                    }
+                }
+                index++;
+            }
+            // allocate inventory and set final traveler quantities
+            foreach (Traveler newTraveler in newTravelers)
+            {
+                // quantity to add to the traveler maxes out at qty ordered, taking into account what
+                // is on hand that hasnt been allocated for another traveler;
+
+                // total allocated is the sum of what has been ordered for all active travelers
+                int qtyAllocated = m_travelers.Where(t => t.ItemCode == newTraveler.ItemCode).Sum(t => t.QuantityOrdered());
+                int qtyOnHand = InventoryManager.GetMAS(newTraveler.ItemCode);
+                int qtyOrdered = newTraveler.QuantityOrdered();
+
+                newTraveler.Quantity = qtyOrdered - Math.Min(qtyOrdered, Math.Max(0,qtyOnHand - qtyAllocated));
+                newTraveler.OnHand = qtyOnHand;
+                m_travelers.Add(newTraveler);
+
+                // as new travelers are being put int, the first ones get the allocation, while the last ones will see more travelers having
+                // an allocation against items
+                // int scenarios where the orders are not collated, the allocation may not align with user priority constraints
+            }
+            
+            Backup();
+            Server.Write("\r{0}", "Compiling Travelers...Finished\n");
+            return newTravelers;
+        }
+        public void CullFinishedTravelers()
+        {
+            //// remove all traveler trees that were finished before today
+            //// OR have all their parents completed
+            //List<Traveler> travelers = new List<Traveler>(m_travelers);
+            //foreach (Traveler traveler in travelers)
+            //{
+            //    Server.WriteLine("\t----------------");
+            //    Server.WriteLine("\t- " + traveler.GetType().ToString());
+            //    Server.WriteLine("\t- " + traveler.State.ToString());
+            //    if (traveler is TableBox && !(traveler as TableBox).ParentTravelers.Any())
+            //    {
+            //        Server.WriteLine("X - " + traveler.PrintID() + " ; Table box missing parent links");
+            //        m_travelers.Remove(traveler);
+            //    }
+            //    else
+            //    {
+            //        if (traveler.FinishedBefore(DateTime.Today))
+            //        {
+            //            Server.WriteLine("X - " + traveler.PrintID() + " ; Finished before today");
+            //            m_travelers.Remove(traveler);
+            //        }
+            //        else
+            //        {
+            //            if (traveler.ParentOrderNums.Any())
+            //            {
+            //                if (traveler.ParentIDs.Any() && traveler.ParentTravelers.All(parent => parent.FinishedBefore(DateTime.Today)))
+            //                {
+            //                    Server.WriteLine("X - " + traveler.PrintID() + " ; All parents finished");
+            //                    m_travelers.Remove(traveler);
+            //                }
+            //                else
+            //                {
+            //                    Server.WriteLine("\t* - " + traveler.PrintID() + " ; Not finished before today and has orders, but not all parent travelers are finished");
+                                
+            //                }
+            //            }
+            //            else
+            //            {
+            //                Server.WriteLine("\t* - " + traveler.PrintID() + " ; Not finished before today and has no orders");
+            //            }
+            //        }
+            //    }
+                
+                
+            //}
+        }
+        public string ImportTravelerInfo(IOrderManager orderManager, OdbcConnection MAS,List<Traveler> travelers = null,Action<double> ReportProgress = null)
+        {
+            if (travelers == null) travelers = m_travelers;
+            int index = 0;
+            int exceptionCount = 0;
+            var message = "";
+            foreach (Traveler traveler in travelers)
+            {
+                try
+                {
+
+                    traveler.InitializeDependencies();
+                    // import part info
+                    var task = Task.Run(() => message += traveler.ImportInfo(this as ITravelerManager, orderManager, MAS).GetAwaiter().GetResult());
+                    if (!task.Wait(TimeSpan.FromSeconds(10))) {
+                        // took too long
+                        Server.WriteLine("traveler " + traveler.PrintID() + " took too long to import infomration");
+                    }
+                    index++;
+                    double percent = (Convert.ToDouble(index) / Convert.ToDouble(travelers.Count));
+                    ReportProgress?.Invoke(percent);
+
+
+                    Server.Write("\r{0}%", "Gathering Info..." + Math.Round(percent * 100));
+                }
+                catch (Exception ex)
+                {
+                    Server.LogException(ex);
+                    exceptionCount++;
+                }
+            }
+            Server.Write("\r{0}", "Gathering Info...Finished\n");
+            // travelers have changed
+            OnTravelersChanged(travelers);
+            return (string.IsNullOrEmpty(message) ? "Success!" : "" ) + (exceptionCount > 0 ? "<br>" + exceptionCount + " exceptions occured": "") + "<br>" + message;
+        }
+        //// Update this travelers quantities dynamically
+        //public void UpdateTraveler(Traveler traveler)
+        //{
+
+        //}
+        public void RefactorTravelers()
+        {
+            Server.OrderManager.RefactorOrders();
+            // only change the quantities of preprocess travelers
+            foreach (Traveler traveler in m_travelers.Where(t => t.State == GlobalItemState.PreProcess))
+            {
+                List<OrderItem> items = traveler.ParentOrders.SelectMany(o => o.Items.Where(i => i.ChildTraveler == traveler.ID)).ToList();
+                traveler.Quantity = items.Sum(i => i.QtyOrdered - i.QtyOnHand);
+            }
+            OnTravelersChanged();
+        }
+        public void CreateBoxTravelers()
+        {
+            foreach (Table table in new List<Table>(m_travelers.OfType<Table>()))
+            {
+                table.CreateBoxTraveler(true);
+            }
+            OnTravelersChanged();
+        }
+        #endregion
+        //----------------------------------
+        #region IManager
+        public void Import(DateTime? date = null)
+        {
+
+            m_travelers.Clear();
+            if (BackupManager.CurrentBackupExists("travelers.json") || date != null)
+            {
+                string travelerText = "";
+                Version version;
+                BackupManager.GetVersion(BackupManager.Import("travelers.json", date),out  travelerText,out version);
+
+
+                List<string> travelerArray = (new StringStream(travelerText)).ParseJSONarray();
+                Server.Write("\r{0}", "Loading travelers from backup...");
+                foreach (string travelerJSON in travelerArray)
+                {
+                    Traveler traveler = ImportTraveler(travelerJSON,version);
+                    if (traveler != null)
+                    {
+                        m_travelers.Add(traveler);
+                    }
+                }
+                Server.Write("\r{0}", "Loading travelers from backup...Finished" + Environment.NewLine);
+            } else
+            {
+                ImportPast();
+            }
+            // link dem
+            LinkTravelers();
+        }
+        public void ImportPast()
+        {
+            m_travelers.Clear();
+            m_importedFromPast.Clear();
+            string travelerText = "";
+            Version version;
+            BackupManager.GetVersion(BackupManager.ImportPast("travelers.json"), out travelerText, out version);
+
+            List<string> travelerArray = new StringStream(travelerText).ParseJSONarray();
+            Server.Write("\r{0}", "Loading travelers from backup...");
+            foreach (string travelerJSON in travelerArray)
+            {
+                Traveler traveler = ImportTraveler(travelerJSON, version);
+                // add this traveler to the master list if it is not null
+                if (traveler != null)
+                {
+                    // add this traveler to the imported list
+                    m_importedFromPast.Add(traveler);
+                    // add this traveler to the list
+                    m_travelers.Add(traveler);
+                }
+            }
+            Server.Write("\r{0}", "Loading travelers from backup...Finished" + Environment.NewLine);
+            
+        }
+        public void EnterProduction()
+        {
+            foreach (Traveler traveler in m_importedFromPast)
+            {
+                // push this traveler into production
+                if (traveler.State == GlobalItemState.PreProcess && traveler.Station != StationClass.GetStation("Start"))
+                {
+                    traveler.EnterProduction(this as ITravelerManager);
+                }
+            }
+        }
+        public void Backup()
+        {
+            BackupManager.Backup("travelers.json", m_travelers.Stringify<Traveler>(false,true));
+        }
+        #endregion
+        //----------------------------------
+        #region ITravelerManager
+
+        public Traveler FindTraveler(int ID)
+        {
+            return m_travelers.Find(x => x.ID == ID);
+        }
+        public bool FindTraveler(int ID, out Traveler traveler)
+        {
+            traveler = m_travelers.Find(x => x.ID == ID);
+            return traveler != null;
+        }
+        public void RemoveTravelers(List<Traveler> travelers)
+        {
+            foreach (Traveler traveler in travelers)
+            {
+                RemoveTraveler(traveler,false);
+            }
+            Server.OrderManager.Backup();
+            Server.TravelerManager.Backup();
+        }
+        public void RemoveTraveler(Traveler traveler, bool backup = true)
+        {
+            foreach (Traveler child in traveler.ChildTravelers)
+            {
+                // recursively remove children
+                RemoveTraveler(child,backup);
+            }
+            m_travelers.Remove(traveler);
+            Server.OrderManager.ReleaseTraveler(traveler, backup);
+            if (backup) Backup();
+        }
+        public Traveler AddTraveler(string itemCode, int quantity)
+        {
+            OdbcConnection MAS = Server.GetMasConnection();
+            // create a new traveler from the itemcode and quantity
+            Traveler newTraveler = (Traveler.IsTable(itemCode) ? (Traveler)new Table(itemCode, quantity) : null /*(Traveler)new Chair(item.ItemCode, quantity)*/);
+
+            newTraveler.ImportInfo(this as ITravelerManager, m_orderManager, MAS);
+            m_travelers.Add(newTraveler);
+            OnTravelersChanged(m_travelers);
+            return newTraveler;
+        }
+        public List<Traveler> GetTravelers
+        {
+            get
+            {
+                return m_travelers;
+            }
+        }
+        public void ClearStartQueue()
+        {
+            foreach (Traveler traveler in new List<Traveler>(GetTravelers.Where(t => t.State == GlobalItemState.PreProcess && t.Station == StationClass.GetStation("Start"))))
+            {
+                RemoveTraveler(traveler,false);
+            }
+            OnTravelersChanged();
+        }
+        //public void AdvanceTravelerItem(int travelerID, ushort itemID)
+        //{
+        //    FindTraveler(travelerID).AdvanceItem(itemID);
+        //}
+        #endregion
+        //----------------------------------
+        #region IOperator
+        //public void ScrapTravelerItem(int travelerID, ushort itemID)
+        //{
+        //    FindTraveler(travelerID).ScrapItem(itemID);
+        //}
+        // has to know which station this is being completed from
+        // TODO: change param list to take event, and construct the even from the client
+        //public ClientMessage AddTravelerEvent(ProcessEvent itemEvent, Traveler traveler, TravelerItem item = null)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        bool newItem = false;
+        //        if (item == null)
+        //        {
+        //            newItem = true;
+        //            // create a new item
+        //            item = traveler.AddItem(itemEvent.Station);
+        //        }
+                
+        //        item.History.Add(itemEvent);
+        //        // print labels
+        //        if (itemEvent.Process == ProcessType.Scrapped)
+        //        {
+        //            //=================
+        //            // SCRAPPED
+        //            //=================
+        //            traveler.ScrapItem(item.ID);
+        //            returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Scrap) + " for item: " + traveler.PrintID());
+        //            item.Station = StationClass.GetStation("Scrapped");
+
+                    
+        //        } else if (newItem)
+        //        {
+        //            //=================
+        //            // NEW
+        //            //=================
+        //            LabelType labelType = LabelType.Tracking;
+        //            if (traveler is Chair)
+        //            {
+        //                labelType = LabelType.Chair;
+        //            } else if (traveler is Box)
+        //            {
+        //                labelType = LabelType.Box;
+        //            }
+        //            returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, labelType) + " for item: " + traveler.PrintID());
+        //        }
+        //        if (itemEvent.Process == ProcessType.Completed && traveler.GetNextStation(item.ID) == StationClass.GetStation("Finished"))
+        //        {
+        //            //=================
+        //            // FINISHED
+        //            //=================
+        //            traveler.FinishItem(item.ID);
+                    
+        //            // assign this item to the order that ships soonest
+        //            //AssignOrder(traveler, item);
+
+
+        //            // Pack tracking label must be printed
+        //            if (traveler is Table)
+        //            {
+                        
+        //                //returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Pack, 2) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+        //                //returnMessage = new ClientMessage("Info", traveler.PrintLabel(item.ID, LabelType.Table) + " for item: " + traveler.ID.ToString("D6") + '-' + item.ID);
+        //            }
+        //        }
+        //        OnTravelersChanged(new List<Traveler>() { traveler });
+        //    } catch (Exception ex)
+        //    {
+        //        Server.WriteLine("Problem completing travelerItem: " + ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "Problem completing travelerItem");
+        //    }
+        //    return returnMessage;
+        //}
+        // has to know which station this is being submitted from
+        public ClientMessage SubmitTraveler(Traveler traveler, StationClass station)
+        {
+            if (traveler != null && station != null)
+            {
+                //traveler.Advance(station, this);
+                OnTravelersChanged(new List<Traveler>() { traveler });
+            }
+            return new ClientMessage();
+        }
+        #endregion
+        //----------------------------------
+        #region ISupervisor
+        public string MoveTravelerStart(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                List<string> travelerIDs = new List<string>();
+                if (obj.ContainsKey("travelerIDs")) travelerIDs = new StringStream(obj["travelerIDs"]).ParseJSONarray();
+                if (obj.ContainsKey("travelerID")) travelerIDs.Add(obj["travelerID"]);
+                foreach (string ID in travelerIDs)
+                {
+                    Traveler traveler = FindTraveler(Convert.ToInt32(ID));
+                    if (traveler != null && StationClass.GetStation(obj["value"]) != null)
+                    {
+                        traveler.Station = StationClass.GetStation(obj["value"]);
+                    }
+                }
+                OnTravelersChanged(GetTravelers);
+            } catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info","error");
+            }
+            return returnMessage.ToString();
+        }
+
+        public ClientMessage LoadTravelerJSON(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                return new ClientMessage("LoadTravelerJSON", traveler.ExportHuman());
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "Error");
+            }
+        }
+        //public ClientMessage LoadTraveler(string json)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+        //        if (traveler != null)
+        //        {
+        //            returnMessage = new ClientMessage("LoadTraveler", traveler.Export());
+        //        } else
+        //        {
+        //            returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
+        //public ClientMessage LoadTravelerAt(string json)
+        //{
+        //    ClientMessage returnMessage = new ClientMessage();
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+        //        if (traveler != null)
+        //        {
+        //            returnMessage = new ClientMessage("LoadTravelerAt", traveler.Export("OperatorClient", StationClass.GetStation(obj["station"])));
+        //        }
+        //        else
+        //        {
+        //            returnMessage = new ClientMessage("Info", "Invalid traveler number");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
+        public void LinkTravelers()
+        {
+            foreach(Traveler traveler in m_travelers)
+            {
+                // parents
+                foreach (int parentID in traveler.ParentIDs)
+                {
+                    Traveler parent = FindTraveler(parentID);
+                    if (parent != null) traveler.ParentTravelers.Add(FindTraveler(parentID));
+                }
+                // children
+                foreach (int childID in traveler.ChildIDs)
+                {
+                    Traveler child = FindTraveler(childID);
+                    if (child != null) traveler.ChildTravelers.Add(child);
+                }
+            }
+        }
+        public ClientMessage LoadItem(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Traveler traveler = FindTraveler(Convert.ToInt32(obj["travelerID"]));
+                if (traveler != null)
+                {
+                    TravelerItem item = traveler.FindItem(Convert.ToUInt16(obj["itemID"]));
+                    if (item != null)
+                    {
+                        returnMessage = new ClientMessage("LoadItem", item.ToString());
+                    } else
+                    {
+                        returnMessage = new ClientMessage("Info", "\"Invalid traveler item number\"");
+                    }
+                    
+                } else
+                {
+                    returnMessage = new ClientMessage("Info", "\"Invalid traveler number\"");
+                }
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+        public ClientMessage CreateSummary(string json)
+        {
+            ClientMessage returnMessage;
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                //Summary summary = new Summary(this as ITravelerManager);
+                string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                Summary summary = null;
+                if (obj["from"] != "" && obj["to"] != "")
+                {
+                    DateTime from = (obj["from"] != "" ? DateTime.Parse(obj["from"]) : BackupManager.GetMostRecent());
+                    DateTime to = (obj["to"] != "" ? DateTime.Parse(obj["to"]) : DateTime.Today.Date);
+                    summary = new Summary(from, to, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                } else
+                {
+                    summary = new Summary(this as ITravelerManager,obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                }
+                returnMessage = new ClientMessage("CreateSummary", summary.ToString());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+        //public ClientMessage DisintegrateTraveler(string json)
+        //{
+        //    ClientMessage returnMessage;
+        //    try
+        //    {
+        //        Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+        //        List<string> travelerIDs = new List<string>();
+        //        if (obj.ContainsKey("travelerIDs")) travelerIDs = new StringStream(obj["travelerIDs"]).ParseJSONarray();
+        //        if (obj.ContainsKey("travelerID")) travelerIDs.Add(obj["travelerID"]);
+        //        List<string> success = new List<string>();
+        //        List<string> failure = new List<string>();
+        //        foreach (string ID in travelerIDs)
+        //        {
+        //            Traveler traveler = FindTraveler(Convert.ToInt32(ID));
+        //            if (traveler != null && traveler.Items.Count == 0)
+        //            {
+        //                m_travelers.Remove(traveler);
+        //                Server.OrderManager.ReleaseTraveler(traveler);
+        //                OnTravelersChanged(m_travelers);
+        //                success.Add(ID);
+        //            }
+        //            else
+        //            {
+        //                failure.Add(ID);
+        //            }
+        //        }
+        //        returnMessage = new ClientMessage("Info", (success.Count > 0 ? "Disintegrated: " + success.Stringify<string>(false) : "") + (failure.Count > 0 ? "<br>Failed to disintegrate: " + failure.Stringify<string>(false) : ""));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+        //        returnMessage = new ClientMessage("Info", "error");
+        //    }
+        //    return returnMessage;
+        //}
+        public ClientMessage EnterProduction(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                List<string> travelerIDs = new List<string>();
+                if (obj.ContainsKey("travelerIDs")) travelerIDs = new StringStream(obj["travelerIDs"]).ParseJSONarray();
+                if (obj.ContainsKey("travelerID")) travelerIDs.Add(obj["travelerID"]);
+                foreach (string ID in travelerIDs)
+                {
+                    Traveler traveler = FindTraveler(Convert.ToInt32(ID));
+                    if (traveler != null)
+                    {
+                        traveler.EnterProduction(this as ITravelerManager);
+                    }
+                }
+                OnTravelersChanged(GetTravelers);
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+        public ClientMessage DownloadSummary(string json)
+        {
+            ClientMessage returnMessage = new ClientMessage();
+            try
+            {
+                Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+                Summary summary = new Summary(this as ITravelerManager, obj["type"], (SummarySort)Enum.Parse(typeof(SummarySort), obj["sort"]));
+                string downloadLocation = summary.MakeCSV();
+                returnMessage = new ClientMessage("Redirect", downloadLocation.Quotate());
+            }
+            catch (Exception ex)
+            {
+                Server.WriteLine(ex.Message + "stack trace: " + ex.StackTrace);
+                returnMessage = new ClientMessage("Info", "error");
+            }
+            return returnMessage;
+        }
+
+        public ClientMessage TravelerForm(string json)
+        {
+            try
+            {
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                //Type type = Type.GetType(obj["type"]);
+                Type type = Type.GetType("Efficient_Automatic_Traveler_System.Table");
+                Traveler traveler = (Traveler)Activator.CreateInstance(type);
+                Form form = traveler.CreateForm();
+                form.Source = "TravelerManager";
+                return new ClientMessage("TravelerForm", form.ToString());
+            } catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "error in TravelerManager.TravelerForm");
+            }
+        }
+        public async Task<ClientMessage> NewTraveler(string json)
+        {
+            try
+            {
+                OdbcConnection MAS = Server.GetMasConnection();
+                Dictionary<string, string> obj = new StringStream(json).ParseJSON();
+                Form form = new Form(json);
+                Type type = Type.GetType("Efficient_Automatic_Traveler_System." + form.Name);
+                Traveler traveler = traveler = (Traveler)Activator.CreateInstance(type, form);
+                string message = await traveler.ImportInfo(this as ITravelerManager, m_orderManager, MAS);
+                m_travelers.Add(traveler);
+                OnTravelersChanged(m_travelers);
+                return new ClientMessage("Info",string.IsNullOrEmpty(message) ? "Success!" : message);
+            }
+            catch (Exception ex)
+            {
+                Server.LogException(ex);
+                return new ClientMessage("Info", "error");
+            }
+        }
+        #endregion
+        //----------------------------------
+        #region Private methods
+
+        // Gets the total quantity ordered, compensated by what is in stock
+        private int QuantityNeeded(Traveler traveler)
+        {
+            int qtyNeeded = 0;
+            foreach (string orderNo in traveler.ParentOrderNums)
+            {
+                Order order = m_orderManager.FindOrder(orderNo);
+                if (order != null)
+                {
+                    foreach (OrderItem item in order.Items)
+                    {
+                        if (item.ChildTraveler == traveler.ID)
+                        {
+                            qtyNeeded += Math.Max(0, item.QtyOrdered - item.QtyOnHand);
+                        }
+                    }
+                }
+            }
+            return qtyNeeded;
+        }
+        // updates the quantity of a traveler and all its children
+        //private void UpdateQuantity(Traveler traveler)
+        //{
+        //    // 1.) compensate highest level traveler with inventory
+        //    // if it has parent orders and hasn't started, the quantity can change
+        //    if (traveler.LastStation == Traveler.GetStation("Start") && traveler.ParentOrders.Count > 0)
+        //    {
+        //        traveler.Quantity = QuantityNeeded(traveler);
+        //    }
+        //    // 2.) adjust children quantities
+        //    if (traveler.Children.Count > 0)
+        //    {
+        //        int qtyNeeded = Math.Max(0, QuantityNeeded(traveler) - traveler.Quantity);
+        //        List<Traveler> started = new List<Traveler>();
+        //        List<Traveler> notStarted = new List<Traveler>();
+        //        foreach (int childID in traveler.Children)
+        //        {
+        //            Traveler child = FindTraveler(childID);
+        //            if (child != null)
+        //            {
+        //                // update children of child
+        //                // can only change quantity if this child hasn't started
+        //                if (child.LastStation == Traveler.GetStation("Start"))
+        //                {
+        //                    notStarted.Add(child);
+        //                }
+        //                else
+        //                {
+        //                    started.Add(child);
+        //                    qtyNeeded -= child.Quantity;
+        //                }
+        //            }
+        //        }
+        //        foreach (Traveler child in notStarted)
+        //        {
+        //            if (qtyNeeded == 0)
+        //            {
+        //                m_travelers.Remove(child); // don't need this anymore
+        //                traveler.Children.RemoveAll(x => x == child.ID);
+        //            }
+        //            else
+        //            {
+        //                child.Quantity = qtyNeeded;
+        //                qtyNeeded = 0;
+        //            }
+        //        }
+        //    }
+        //}
+
+
+        // Imports travelers that have been stored
+        
+        private bool IsBackPanel(string s)
+        {
+            if (s.Substring(0, 2) == "32")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public void OnTravelersChanged(List<Traveler> travelers = null)
+        {
+            
+            // fire the event
+            TravelersChanged(travelers != null ? travelers : m_travelers);
+            // Update the travelers.json file with all the current travelers
+            Backup();
+        }
+        public void OnTravelersChanged(Traveler traveler)
+        {
+            OnTravelersChanged(new List<Traveler>() { traveler });
+        }
+        private Traveler ImportTraveler(string json,Version version)
+        {
+            Dictionary<string, string> obj = (new StringStream(json)).ParseJSON();
+            Traveler traveler = null;
+            if (obj["type"] != "")
+            {
+                Type type = Type.GetType(Server.Assembly + obj["type"]);
+                traveler = (Traveler)Activator.CreateInstance(type, json, version);
+            }
+            return traveler;
+        }
+        public bool FindLegacyTraveler(int ID, out Traveler traveler, out ClientMessage message)
+        {
+            traveler = null;
+            // start backwards from today
+            DateTime today = DateTime.Today;
+            for (DateTime day = today; day > today.AddYears(-1); day = day.AddDays(-1.0))
+            {
+                if (BackupManager.BackupExists("travelers.json",day))
+                {
+                    string dayString = day.ToString("MM/dd/yyy");
+                    string travelerText = "";
+                    Version version;
+                    BackupManager.GetVersion(BackupManager.Import("travelers.json", day), out travelerText, out version);
+
+
+                    List<string> travelerArray = (new StringStream(travelerText)).ParseJSONarray();
+                    Server.Write("\r{0}", "Loading travelers from backup " + dayString + "...");
+                    foreach (string travelerJSON in travelerArray)
+                    {
+                        traveler = ImportTraveler(travelerJSON, version);
+                        if (traveler != null) {
+                            if (traveler.ID == ID)
+                            {
+                                Server.Write("\r{0}", ID + " found in backup " + dayString);
+                                message = new ClientMessage("Info", ID + " found in backup " + dayString);
+                                return true;
+                            }
+                            //} else if (traveler.ID < ID)
+                            //{
+                            //    // we passed it and it doesnt seem to exist
+                            //    Server.WriteLine("Could not find " + ID + " in EATS history");
+                            //    return null;
+                            //}
+                        }
+                    }
+                } else
+                {
+                    break;
+                }
+            }
+            Server.WriteLine("Could not find " + ID + " in EATS history");
+            message = new ClientMessage("Info", "Could not find " + ID + " in EATS history");
+            return false;
+        }
+        #endregion
+        //----------------------------------
+        #region Private member variables
+        private List<Traveler> m_travelers;
+        private List<Traveler> m_importedFromPast;
+        private IOrderManager m_orderManager;
+
+        public event TravelersChangedSubscriber TravelersChanged; // plural
+        //public event TravelerChangedSubscriber TravelerChanged; // singular
+        #endregion
+    }
+}

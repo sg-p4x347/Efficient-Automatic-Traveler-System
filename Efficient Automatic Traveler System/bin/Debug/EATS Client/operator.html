@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title id = "windowTitle">EATS Operator</title>
+		<script type="text/javascript" src="./js/config.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/moment.js?<%=DateTime.Now.Ticks %>"></script>		
+        <script type="text/javascript" src="./js/operator.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/utility.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/popupManager.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/jsonViewer.js?<%=DateTime.Now.Ticks %>"></script>
+		<link rel="stylesheet" type="text/css" href="./css/popupManager.css?<%=DateTime.Now.Ticks %>">
+		<link rel="stylesheet" type="text/css" href="./css/operator.css?<%=DateTime.Now.Ticks %>">
+		<link rel="stylesheet" type="text/css" href="./css/widgets.css?<%=DateTime.Now.Ticks %>">
+		<link rel="shortcut icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>">
+    </head>
+	<body onload = "Initialize()">
+		<div id = "blackout" class = "blackout hidden">
+			<!-- LOGIN POPUP -->
+			<div id = "loginPopup" class = "blackout__popup" style = "display: none;">
+				<p id = "loginInfo" class = "red"></p>
+				<form id = "loginForm"class = "loginForm">
+					User ID:<input type = "text" id = "uidBox">
+					Password:<input type = "password" id = "pwdBox">
+					<!-- STATION SELECTION -->
+					Station:<select id = "stationList" class = "dark"></select>
+					<input type = "submit" id = "loginBtn" class = "dark button">
+				</form>
+				
+			</div>
+			<!-- SCRAP REPORT -->
+			<div id = "scrapReport" class = "blackout__popup twoEM" style = "display: none;">
+				<div class = "blackout__popup__closeImg" onclick = "application.popupManager.Close(document.getElementById('scrapReport'));"></div>
+				<form id = "scrapForm" onclick = "(function(event) {event.stopPropagation();})(event)">
+					<div><input type = "radio" id = "productionRadio" name = "source" value = "production"	checked>Marco Group</div>
+					<div><input type = "radio" id = "vendorRadio" name = "source" value = "vendor"		checked>Vendor</div>
+					<select id = "scrapReasons" class = "dark"></select>
+					<div><input type = "checkbox" id = "startedWork"><p class = "stdMargin">Started work</p></div>
+					<div class = "list--horizontal"><input type = "submit" id = "submitScrap" class = "dark button" style = "margin-top: 1em;"></div>
+				</form>
+			</div>
+			<!-- LABEL POPUP -->
+			<div id = "labelPopup" class = "blackout__popup" style = "display: none;">
+				<div class = "blackout__popup__closeImg" onclick = "application.popupManager.Close(document.getElementById('labelPopup'));"></div>
+				<p>Print Labels</p>
+				Label Type:<select id = "labelSelect" class = "dark oneEM"></select>
+				Item:<select id = "itemSelection" class = "dark oneEM"></select>
+				<div id = "printLabelBtn" class = "dark button">Print</div>
+			</div>
+		</div>
+		<!-- HEADER -->
+		<div class = "header">
+			2.6
+			<div class = "list--horizontal justify-space-between">
+				<!-- STATION TIMER -->
+				<div class = "black bold timer twoEM">
+					<p>Time @</p> &nbsp <p id = "stationName"></p>&nbsp
+					<p id = "stationTime">00:00:00</p>
+				</div>
+				<div class = "black bold timer twoEM">
+					<p>Time left on part &nbsp</p>
+					<p id = "partTime">00:00:00</p>
+				</div>
+				<!-- Logout button -->
+				<div id = "logoutBtn" class = "dark button twoEM disabled">Logout</div>
+				<!-- More info -->
+				<div id = "moreInfoBtn" class = "dark button twoEM disabled">More Info</div>
+				<!-- View Drawing -->
+				<div id = "viewDrawingBtn" class = "dark button twoEM disabled">Drawing</div>
+				<!-- Add Comment -->
+				<div id = "addCommentBtn" class = "dark button twoEM disabled">Add Comment</div>
+				<!-- OPTIONS BUTTON -->
+				<img id = "optionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
+			</div>
+		</div>
+		<!-- BODY -->
+		<div class = "body">
+			<div id = "preProcessQueueContainer" class = "queueContainer center twoEM">
+				<!-- TRAVELER QUEUE -->
+				<form id = "travelerSearch">
+					<input type="search" id = "travelerSearchBox" class = "dark white searchBox" placeholder = "Search..." pattern="\d*|(\d*-\d*)">
+				</form>
+				<!-- ITEM QUEUE -->
+				<div id = "preProcessQueue" class = "queue">
+				</div>
+			</div>
+			<div id = "viewContainer" class = "viewContainer twoEM">
+			</div>
+			
+			<!-- InProcess QUEUE -->
+			
+			
+			<div id = "inProcessQueueContainer" class = "queueContainer center twoEM">
+				<div id = "inProcessQueue" class = "queue"></div>
+			</div>
+			
+			<div id = "interfaceContainer" class = "interfaceContainer twoEM">
+				<!-- QTY LEFT -->
+				<div class = "list--horizontal justify-end">
+					<p>Quantity left:</p>
+					<p id = "qtyPending" class = "blue shadow stdMargin whiteBack twoEM">-</p>
+					<!--<div class = "percentContainer"><div id = "qtyPendingPercent" class = "percentBar"></div></div> -->
+				</div>
+				<!-- COMPLETE BUTTON -->
+				<div id = "completeItemBtn" class = "dark button twoEM largeBorder bold">Complete item</div>
+				
+				<!-- SCRAP BUTTON -->
+				<!-- <div id = "scrapItemBtn" class = "dark button twoEM largeBorder bold">Scrap item</div> -->
+				
+				<!-- REWORK BUTTON -->
+				<div id = "flagItemBtn" class = "dark button twoEM largeBorder bold">Flag an issue</div>
+				
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,28 @@
+<NotepadPlus>
+    <Project name="Operator">
+        <File name="operator.html" />
+        <File name="js\operator.js" />
+        <File name="css\operator.css" />
+        <File name="css\widgets.css" />
+    </Project>
+    <Project name="Supervisor">
+        <File name="supervisor.html" />
+        <File name="js\supervisor.js" />
+        <File name="css\supervisor.css" />
+        <File name="css\widgets.css" />
+    </Project>
+    <Project name="Administrator">
+        <File name="js\administrator.js" />
+        <File name="css\administrator.css" />
+        <File name="administrator.html" />
+    </Project>
+    <Project name="Utility">
+        <File name="js\jsonViewer.js" />
+        <File name="js\popupManager.js" />
+        <File name="js\utility.js" />
+        <File name="css\widgets.css" />
+        <File name="css\popupManager.css" />
+        <File name="js\client.js" />
+        <File name="js\html.js" />
+    </Project>
+</NotepadPlus>

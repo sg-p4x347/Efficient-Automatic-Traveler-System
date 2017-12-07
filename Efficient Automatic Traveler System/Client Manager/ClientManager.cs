@@ -14,7 +14,7 @@ namespace Efficient_Automatic_Traveler_System
 {
     class ClientManager
     {
-        public ClientManager(string ip, int port, ITravelerCore travelerCore)
+        public ClientManager(string ip, int port, ITravelerManager travelerManager)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace Efficient_Automatic_Traveler_System
                 m_nextClientID = 0;
                 
                 m_pollInterval = new TimeSpan(0, 0, 3);
-                m_travelerCore = travelerCore;
+                m_travelerManager = travelerManager;
             } catch (Exception ex)
             {
                 Server.WriteLine("Failed to create ClientManager: " + ex.Message);
@@ -33,28 +33,41 @@ namespace Efficient_Automatic_Traveler_System
         }
         public void Start()
         {
-            Server.WriteLine("Waiting for a connection...");
+            Server.WriteLine("Client manager started");
             m_server.Start();
-            ConnectAsync();
             Poll();
+            ConnectClients();
         }
-        public void HandleTravelersChanged() {
-            for( int i = 0; i < m_clients.Count; i++)
+        public async void ConnectClients()
+        {
+            while (true)
             {
-                if (m_clients[i].Connected) {
-                    // handle clients that implement ITravelers----------
-                    var obj = m_clients[i] as ITravelers;
-                    if (obj != null)
-                    {
-                        obj.HandleTravelersChanged();
-                    }
-                    //---------------------------------------------------
-                }
+                await ConnectAsync();
             }
         }
-        public void HandleTravelerChanged()
+        public void HandleTravelersChanged(List<Traveler> travelers) {
+            //for( int i = 0; i < m_clients.Count; i++)
+            //{
+            //    if (m_clients[i].Connected) {
+            //        // handle clients that implement ITravelers----------
+            //        var obj = m_clients[i] as ITravelers;
+            //        if (obj != null)
+            //        {
+            //            obj.HandleTravelersChanged();
+            //        }
+            //        //---------------------------------------------------
+            //    }
+            //}
+            List<Client> clients = m_clients.Where(c => c.Connected).ToList();
+            clients.Sort((a, b) => a is OperatorClient ? -1 : 1);
+            foreach (ITravelers client in clients.OfType<ITravelers>())
+            {
+                Task.Run(() => { client.HandleTravelersChanged(travelers); });
+            }
+        }
+        public void HandleTravelerChanged(List<Traveler> travelers)
         {
-            TravelersChanged();
+            TravelersChanged(travelers);
         }
         //------------------------------
         // Private
@@ -63,25 +76,27 @@ namespace Efficient_Automatic_Traveler_System
         // Poll the clients periodically to test connection
         private void Poll()
         {
+
             DateTime current = DateTime.Now;
             TimeSpan timeToGo = current.RoundUp(m_pollInterval).TimeOfDay - current.TimeOfDay;
+            if (timeToGo.Ticks < 0) timeToGo = timeToGo.Add(new TimeSpan(24, 0, 0));
             m_timer = new System.Threading.Timer(x =>
             {
                 for (int i = 0; i < m_clients.Count; i++)
                 {
-                    m_clients[i].Poll();
-                    if (!m_clients[i].Connected)
+                //m_clients[i].Poll();
+                if (!m_clients[i].Connected)
                     {
-                        
-                        // handle clients that implement ITravelers----------
-                        var obj = m_clients[i] as ITravelers;
+
+                    // handle clients that implement ITravelers----------
+                    var obj = m_clients[i] as ITravelers;
                         if (obj != null)
                         {
                             obj.TravelersChanged -= HandleTravelersChanged;
                         }
-                        //---------------------------------------------------
-                        // remove this client
-                        m_clients.RemoveAt(i);
+                    //---------------------------------------------------
+                    // remove this client
+                    m_clients.RemoveAt(i);
                         Console.WriteLine("An operator disconnected (" + m_clients.Count + " total)");
                     }
                 }
@@ -89,7 +104,7 @@ namespace Efficient_Automatic_Traveler_System
             }, null, timeToGo, Timeout.InfiniteTimeSpan);
         }
         // Recursive async function that connects and adds websocket clients
-        private async void ConnectAsync()
+        private async Task ConnectAsync()
         {
             
             // Wait for a client to connect
@@ -100,25 +115,30 @@ namespace Efficient_Automatic_Traveler_System
                 switch (await Client.RecieveMessageAsync(tcpClient.GetStream()))
                 {
                     case "OperatorClient":
-                        OperatorClient operatorClient = new OperatorClient(tcpClient,m_travelerCore);
+                        OperatorClient operatorClient = new OperatorClient(tcpClient, m_travelerManager as ITravelerManager);
                         operatorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         operatorClient.ListenAsync();
                         m_clients.Add(operatorClient);
                         Console.WriteLine("An operator connected (" + m_clients.Count + " total clients)");
                         break;
                     case "SupervisorClient":
-                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient,m_travelerCore);
+                        SupervisorClient supervisorClient = new SupervisorClient(tcpClient, m_travelerManager as ITravelerManager);
                         supervisorClient.TravelersChanged += new TravelersChangedSubscriber(HandleTravelerChanged);
                         supervisorClient.ListenAsync();
                         m_clients.Add(supervisorClient);
                         Console.WriteLine("A supervisor connected (" + m_clients.Count + " total clients)");
                         break;
+                    case "AdministratorClient":
+                        AdministratorClient administratorClient = new AdministratorClient(tcpClient);
+                        administratorClient.ListenAsync();
+                        m_clients.Add(administratorClient);
+                        Console.WriteLine("An administrator connected (" + m_clients.Count + " total clients)");
+                        break;
                     case "connection aborted": // don't do anything, the connection was lost
                         break;
                 }
-                
+
             }
-            ConnectAsync();
         }
         // returns true if the handshake was successful, else false
         private bool HandShake(TcpClient tcpClient)
@@ -152,21 +172,6 @@ namespace Efficient_Automatic_Traveler_System
             }
             return false;
         }
-        
-        //{
-        //    DateTime current = DateTime.Now;
-        //    TimeSpan timeToGo = current.RoundUp(m_updateInterval).TimeOfDay - current.TimeOfDay;
-        //    Server.WriteLine("Will update again in: " + timeToGo.TotalMinutes + " Minutes");
-        //    m_timer = new Timer(x =>
-        //    {
-        //        foreach (Client client in m_clients)
-        //        {
-        //            client.UpdateTravelers(m_getTravelersAt(client.ProductionStation));
-        //        }
-        //        Update();
-        //    }, null, timeToGo, Timeout.InfiniteTimeSpan);
-        //}
-
 
         //------------------------------
         // Properties
@@ -178,7 +183,7 @@ namespace Efficient_Automatic_Traveler_System
         private int m_nextClientID;
         private Timer m_timer;
         private TimeSpan m_pollInterval;
-        private ITravelerCore m_travelerCore;
+        private ITravelerManager m_travelerManager;
         //----------
         // Events
         //----------

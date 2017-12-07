@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>EATS Supervisor</title>
+		<script type="text/javascript" src="./js/config.js?<%=DateTime.Now.Ticks %>"></script>
+        <script type="text/javascript" src="./js/supervisor.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/objects.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/html.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/utility.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/popupManager.js?<%=DateTime.Now.Ticks %>"></script>
+		<script type="text/javascript" src="./js/jsonViewer.js?<%=DateTime.Now.Ticks %>"></script>
+		<link rel="stylesheet" type="text/css" href="./css/popupManager.css?<%=DateTime.Now.Ticks %>">
+		<link rel="stylesheet" type="text/css" href="./css/supervisor.css?<%=DateTime.Now.Ticks %>"></link>
+		<link rel="stylesheet" type="text/css" href="./css/widgets.css?<%=DateTime.Now.Ticks %>"></link>
+		<link rel="icon" type ="image/png" href="favicon.png?<%=DateTime.Now.Ticks %>"></link>
+    </head>
+	<body onload = "Initialize()">
+		<div id = "blackout" class = "blackout hidden">
+			<!-- LOGIN POPUP -->
+			<div id = "loginPopup" class = "blackout__popup" style = "display: none;">
+				<p id = "loginInfo" class = "red"></p>
+				<form id = "loginForm" class = "loginForm">
+					User ID:<input type = "text" id = "uidBox">
+					Password:<input type = "password" id = "pwdBox">
+					<input type = "submit" id = "loginBtn" class = "dark button">
+				</form>
+			</div>
+			<!-- LABEL POPUP -->
+			<div id = "labelPopup" class = "blackout__popup" style = "display: none;">
+				<div class = "blackout__popup__closeImg" onclick = "application.popupManager.Close(document.getElementById('labelPopup'));"></div>
+				<p>Print Labels</p>
+				Label Type:<select id = "labelSelect" class = "dark oneEM"></select>
+				<!-- Item:<select id = "itemSelect" class = "dark oneEM"></select> -->
+				<div id = "printLabelBtn" class = "dark button">Print</div>
+			</div>
+			
+			<!-- SUMMARY POPUP -->
+			<div id = "summaryPopup" class = "summaryPopup" style = "display: none;">
+				<div class = "blackout__popup__closeImg" onclick = "application.popupManager.Close(document.getElementById('summaryPopup'));"></div>
+				<div class = "list--horizontal" >
+					<h1 id = "summaryTitle"></h1> &nbsp
+					From &nbsp <select id = "summaryFromSelect" class = "whiteBack twoEM"></select> &nbsp
+					To &nbsp <select id = "summaryToSelect" class = "whiteBack twoEM"></select> &nbsp
+				</div>
+				
+				<table id = "summary"></table>
+			</div>
+			<div id = "updatingPopup" style = "display: none;"></div>
+			<!-- KANBAN POPUP -->
+			<!-- <div id = "summaryPopup" class = "summaryPopup" style = "display: none;">
+				<div class = "blackout__popup__closeImg" onclick = "application.popupManager.Close(document.getElementById('summaryPopup'));"></div>
+				
+			</div> -->
+			
+		</div>
+		<div class = "header twoEM">E<span class = "titleSub">fficient</span> A<span class = "titleSub">utomatic</span> T<span class = "titleSub" style = "padding-right: 6px; padding-left: 0px;">raveler</span> S<span class = "titleSub">ystem </span> 
+			<span style = "color: #001a66;">Supervisor</span> 2.6
+			<!--HELP -->
+			<div id = "helpBtn" class = "helpBtn"></div>
+		</div>
+		<div class = "ribbonBar justify-space-between list--horizontal">
+			<!-- SEARCH FORM -->
+			<form id = "searchForm" class = "ribbonItem list--horizontal">
+				<input id = "searchBox" class = "twoEM dark white searchBox" type = "text" placeholder="Search.."><!---->
+			</form>
+			<!-- VIEW FORM -->
+			<form id = "viewForm" class = "ribbonItem" style = "white-space: nowrap;">
+				<p class = "bold darkGrey">Filter</p>
+				<div id = "filterForm" class = "list--horizontal justify-space-around">
+					
+				</div>
+			</form>
+			<!-- LOGOUT BUTTON -->
+			<div class = "ribbonItem">
+				<div id = "logoutBtn" class = "dark button oneEM disabled">Logout</div>
+			</div>
+			<!-- OPTIONS BUTTON -->
+			<div class = "ribbonItem middleAlign">
+				<img id = "superOptionsBtn" class = "optionsBtn" src = "./img/options.png"></img>
+			</div>
+		</div>
+		<div id = "body" class = "body">
+			<div id = "queueArray" ></div> 
+		</div>
+		
+		<div class = "footer"></div>
+	</body>
+</html>

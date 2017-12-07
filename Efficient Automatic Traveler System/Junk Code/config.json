@@ -1,0 +1,149 @@
+{
+	"print":{		"Tracking": true,		"Scrap": false,		"Pack": false,		"Table": false	},
+	"port":81,
+	"nextTravelerID":2671,
+	"stations":[
+	{
+	"name":"Assembly",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":[]
+},
+
+	{
+	"name":"Box",
+	"creates":["Box"],
+	"mode":"Batch",
+	"laborCodes":["/LBOX1"]
+},
+
+	{
+	"name":"Chairs",
+	"creates":["Chair"],
+	"mode":"Batch",
+	"laborCodes":["/LACH1",
+"/LACH2",
+"/LACH3"]
+},
+
+	{
+	"name":"Chair-Start",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":[]
+},
+
+	{
+	"name":"Drill",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":[]
+},
+
+	{
+	"name":"Edgebander",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":["/LBND2",
+"/LBND3"]
+},
+
+	{
+	"name":"Finished",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":[]
+},
+
+	{
+	"name":"Heian1",
+	"creates":["Table"],
+	"mode":"Batch",
+	"laborCodes":["/LCNC1",
+"/LCNC2"]
+},
+
+	{
+	"name":"Heian2",
+	"creates":["Table"],
+	"mode":"Batch",
+	"laborCodes":["/LCNC1",
+"/LCNC2"]
+},
+
+	{
+	"name":"Packline",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":[]
+},
+
+	{
+	"name":"Paint",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":[]
+},
+
+	{
+	"name":"Saw",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":["/LPNL1",
+"/LPNL2"]
+},
+
+	{
+	"name":"Scrapped",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":[]
+},
+
+	{
+	"name":"Start",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":[]
+},
+
+	{
+	"name":"Table-Pack",
+	"creates":[],
+	"mode":"Serial",
+	"laborCodes":["/LATB1",
+"/LATB2",
+"/LATB3"]
+},
+
+	{
+	"name":"T-nut",
+	"creates":[],
+	"mode":"Batch",
+	"laborCodes":[]
+},
+
+	{
+	"name":"Vector",
+	"creates":[],
+	"mode":"Serial",
+	"laborCodes":["/LCEB1"]
+},
+
+	{
+	"name":"Weeke1",
+	"creates":["Table"],
+	"mode":"Batch",
+	"laborCodes":["/LWKE1",
+"/LWKE2"]
+},
+
+	{
+	"name":"Weeke2",
+	"creates":["Table"],
+	"mode":"Batch",
+	"laborCodes":["/LWKE1",
+"/LWKE2"]
+}
+]
+}

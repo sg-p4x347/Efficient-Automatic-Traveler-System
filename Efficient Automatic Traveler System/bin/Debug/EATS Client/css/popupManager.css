@@ -1,0 +1,123 @@
+.blackout {
+	font-size: 1em;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 0px;
+	display: flex;
+	justify-content: space-around;
+	flex-direction: row;
+	align-items: center;
+	flex-wrap: wrap;
+	background-color: rgba(255,255,255,0.25);
+	z-index: 100;
+}
+.blackout__popup {
+	padding: 8px;
+	font-size: 2em;
+	box-sizing: border-box;
+	color: black;
+	background-color:  #ffa500;  /*orange*/
+	border: 2px solid black;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	border-radius: 16px;
+	max-height: 100vh;
+	overflow-y: auto;
+	box-shadow: 1px 3px 8px rgba(0,0,0,0.75);
+}
+.blackout__popup__loadingGIF {
+	width: 64px;
+	height: 64px;
+}
+.blackout__popup--topRight {
+	position: fixed;
+	top: 8px;
+	right: 8px;
+}
+.blackout__popup--center {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+}
+.blackout__popup__table {
+	border: 2px solid black;
+	border-left: none;
+	border-right: none;
+}
+.blackout__popup__table tr {
+	display: flex;
+	justify-content: space-between;
+	border: 2px solid black;
+	border-left: none;
+	border-right: none;
+}
+.blackout__popup__title {
+	font-size: 1.5em;
+}
+.blackout__popup__listView {
+	border-radius: 4px;
+	border: 2px inset #b37400; /*light brown*/
+	background-color: #664200; /*brown*/
+}
+.blackout__popup__listView__item {
+	border-radius: 4px;
+	border: 2px outset #666666;
+	background-color: #808080;
+}
+.blackout__popup__closeImg {
+	align-self: flex-end;
+	width: 16px;
+	min-width: 16px;
+	height: 16px;
+	min-height: 16px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-image: url("../img/close.png");
+	border-radius: 20px;
+	border: 4px solid transparent;
+	transition-duration: 0.25s;
+}
+.blackout__popup__closeImg:hover {
+	background-color: red;
+	border: 4px solid red;
+}
+.blackout__popup__controlPanel__node {
+	margin: 1px;
+	padding: 1px;
+	box-sizing: border-box;
+	flex-shrink: 0;
+}
+.blackout__popup__controlPanel__column {
+	display: flex;
+	flex-direction: column;
+}
+.blackout__popup__controlPanel__column--dividers > .blackout__popup__controlPanel__node, .blackout__popup__controlPanel__column--dividers {
+	border-top: 2px solid black;
+	border-bottom: 2px solid black;
+}
+.blackout__popup__controlPanel__row {
+	display: flex;
+	flex-direction: row;
+	overflow-x: auto;
+}
+.blackout__popup__controlPanel__row--dividers > .blackout__popup__controlPanel__node, .blackout__popup__controlPanel__row--dividers {
+	border-left: 2px solid black;
+	border-right: 2px solid black;
+}
+.blackout__popup__controlPanel__list {
+	padding: 16px;
+	border-left: 1px solid black;
+	max-height: 3em;
+	overflow-y: auto;
+	background-color: #b37400; /*light brown*/
+}
+.form__radioTitle {
+	border-bottom: 2px solid gray;
+}
+.form__radio {
+	text-align: right;
+	margin: 2px;
+}
